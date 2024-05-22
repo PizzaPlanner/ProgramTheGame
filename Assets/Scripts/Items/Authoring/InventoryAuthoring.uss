@@ -1,0 +1,105 @@
+#Inventory {
+    flex-wrap: wrap;
+    flex-direction: row;
+    margin-top: 20px;
+}
+
+#Inventory > Label {
+    position: absolute;
+    top: -16px;
+}
+
+IconPropertyField {
+    flex-grow: 1;
+}
+
+IconPropertyField > ObjectField {
+    flex-grow: 1;
+    margin: 1px;
+}
+
+IconPropertyField > ObjectField > Label {
+    display: none;
+    flex-grow: 1;
+}
+
+IconPropertyField > ObjectField ObjectFieldDisplay {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+
+IconPropertyField > ObjectField {
+    display: none;
+}
+
+IconPropertyField > ObjectField ObjectFieldSelector {
+    align-self: flex-start;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+}
+
+IconPropertyField > ObjectField > VisualElement {
+    background-color: transparent;
+    border-color: transparent;
+}
+
+InventorySlotField {
+    width: 48px;
+    height: 48px;
+    margin-bottom: 20px;
+    margin-left: 2px;
+    margin-right: 2px;
+    -unity-background-image-tint-color: rgb(134, 206, 255);
+    background-image: url("project://database/Assets/UI/InventoryButton-default.png?fileID=2800000&guid=df1b9ebfaeebe894e9734006c36c65ef&type=3#InventoryButton-default");
+}
+
+InventorySlotField:hover {
+    -unity-background-image-tint-color: rgb(191, 229, 255);
+}
+
+InventorySlotField.category-memory {
+    background-image: url("project://database/Assets/UI/InventoryButton-memory.png?fileID=2800000&guid=dc602a8877487314b99e2b4ce8dac5ca&type=3#InventoryButton-memory");
+}
+
+InventorySlotField.category-chip {
+    background-image: url("project://database/Assets/UI/InventoryButton-chip.png?fileID=2800000&guid=923035db45bb15641a15563e3ad166cd&type=3#InventoryButton-chip");
+}
+
+InventorySlotField > PropertyField#Amount {
+    position: absolute;
+    bottom: -12px;
+    left: 3px;
+    right: 8px;
+}
+
+InventorySlotField > PropertyField#Filter {
+    position: absolute;
+    top: 0px;
+    left: 3px;
+    right: 8px;
+    display: none;
+}
+
+InventorySlotField > PropertyField#TransferDirection {
+    position: absolute;
+    top: 20px;
+    left: 3px;
+    right: 8px;
+    display: none;
+}
+
+InventorySlotField:hover > PropertyField#Filter {
+    display: flex;
+}
+
+InventorySlotField:hover > PropertyField#TransferDirection {
+    display: flex;
+}
+
+InventorySlotField > PropertyField Label {
+    display: none;
+}

@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: Default Local Group
+  m_EditorClassIdentifier: 
+  m_GroupName: Default Local Group
+  m_GUID: eb29362f08cfd0b47b42c597cd046314
+  m_SerializeEntries:
+  - m_GUID: 9ce28cbc82cb155499395a371ea520d7
+    m_Address: UI/Stylesheets/Signals.uss
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 6f2e3dc8afc3a8f448589b2bf732a7fd
+    m_Address: Identifieables/Tags
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 36ed7fda7d2f36c47a369d9bea74e2d5
+    m_Address: UI/Stylesheets/ChipEditor.uss
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: a45313afd0572864587f7bb3550ba570, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: 17c5a1680ca337e468427f0755ca8710, type: 2}
+    - {fileID: 11400000, guid: 0d0c328ef6e9ab24fa53a13871924215, type: 2}

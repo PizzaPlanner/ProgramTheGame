@@ -1,0 +1,16 @@
+{
+    "name": "Items.Tests",
+    "references": [
+        "Unity.Entities",
+        "Unity.Mathematics",
+        "Unity.Transforms",
+        "Unity.Burst",
+        "Unity.Collections",
+        "Items",
+        "Identifiables",
+        "Bootstrap"
+    ],
+    "optionalUnityReferences": [
+        "TestAssemblies"
+    ]
+}

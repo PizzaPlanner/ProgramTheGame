@@ -1,0 +1,11 @@
+﻿{
+  "name": "com.ite.bootstrap",
+  "version": "0.10.0",
+  "displayName": "Bootstrap",
+  "description": "Simple class for custom Entities World creation",
+  "unity": "2022.2",
+  "hideInEditor": false,
+  "dependencies": {
+    "com.unity.entities": "1.0.10"
+  }
+}

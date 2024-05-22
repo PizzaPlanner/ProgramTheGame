@@ -1,0 +1,9 @@
+<engine:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:engine="UnityEngine.UIElements" xmlns:editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI/default.uss?fileID=7433441132597879392&amp;guid=d6840eb640f81fb4eb6f4a8305a08c05&amp;type=3#default" />
+    <Style src="project://database/Assets/Scripts/Identifiables/UI/wiki/wiki.uss?fileID=7433441132597879392&amp;guid=28cb604ecb218d94eab2da0b72190f07&amp;type=3#wiki" />
+    <Units.UnitGroupElement name="CurrentSelection" picking-mode="Ignore" style="position: absolute;" />
+    <Units.MainUnitElement name="MainUnit" />
+    <Identifiables.UI.Wiki style="position: absolute; align-self: center; display: none;" />
+    <ChipEditorElement style="display: none;" />
+    <Identifiables.UI.IdentifiableButton picking-mode="Ignore" name="DragDropVisuals" enabled="true" style="position: absolute; scale: 0.8 0.8; display: none;" />
+</engine:UXML>

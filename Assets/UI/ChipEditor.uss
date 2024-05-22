@@ -1,0 +1,229 @@
+ChipEditorElement {
+    background-color: rgb(18, 36, 70);
+    font-size: 16px;
+    color: rgb(255, 255, 255);
+}
+
+ChipLineElement {
+    margin-top: 5px;
+    margin-right: 5px;
+    margin-bottom: 15px;
+    margin-left: 5px;
+    min-height: 32px;
+    flex-direction: row;
+}
+
+ChipOperationDropdown {
+    width: 128px;
+    background-color: rgba(0, 0, 0, 0);
+    border-top-width: 2px;
+    border-right-width: 2px;
+    border-bottom-width: 0;
+    border-left-width: 0;
+    border-right-color: rgb(0, 144, 255);
+    justify-content: flex-start;
+    border-left-color: rgb(0, 144, 255);
+    border-top-color: rgb(0, 144, 255);
+    border-bottom-color: rgb(0, 144, 255);
+    padding-top: 1px;
+    padding-right: 1px;
+    padding-bottom: 1px;
+    padding-left: 1px;
+    border-top-right-radius: 5px;
+    margin-top: -5px;
+}
+
+ChipOperationDropdown * {
+    border-top-width: 0;
+    border-right-width: 0;
+    border-bottom-width: 0;
+    border-left-width: 0;
+    margin-top: 1px;
+    margin-right: 1px;
+    margin-bottom: 1px;
+    margin-left: 1px;
+    padding-top: 1px;
+    padding-right: 1px;
+    padding-bottom: 1px;
+    padding-left: 1px;
+    background-color: rgba(0, 0, 0, 0);
+}
+
+ChipOperationDropdown > EnumField {
+    background-color: rgba(115, 201, 236, 0.13);
+    height: 36px;
+    margin-top: 5px;
+    margin-right: 5px;
+    border-top-width: 1px;
+    border-right-width: 1px;
+    border-bottom-width: 1px;
+    border-left-width: 1px;
+    border-left-color: rgba(255, 255, 255, 0.18);
+    border-right-color: rgba(255, 255, 255, 0.18);
+    border-top-color: rgba(255, 255, 255, 0.18);
+    border-bottom-color: rgba(255, 255, 255, 0.18);
+}
+
+ChipOperationDropdown TextElement {
+    -unity-text-align: middle-right;
+    margin-right: 5px;
+}
+
+ChipLineElement > #LineContent {
+    border-bottom-color: rgb(0, 144, 255);
+    border-bottom-width: 2px;
+    padding-top: 5px;
+    padding-right: 5px;
+    padding-bottom: 5px;
+    padding-left: 5px;
+    border-left-color: rgb(0, 144, 255);
+    border-right-color: rgb(0, 144, 255);
+    border-top-color: rgba(0, 144, 255, 0.31);
+    border-bottom-left-radius: 5px;
+    margin-top: -2px;
+    margin-bottom: -5px;
+    margin-left: -2px;
+    border-left-width: 2px;
+    border-top-width: 0;
+    min-width: 32px;
+}
+
+Label#LineNumber {
+    width: 32px;
+    padding-top: 0;
+    padding-right: 0;
+    padding-bottom: 0;
+    padding-left: 0;
+    margin-top: 0;
+    margin-right: 0;
+    margin-bottom: 0;
+    margin-left: 0;
+    -unity-text-align: middle-right;
+    border-top-width: 0;
+    border-right-width: 0;
+    border-bottom-width: 0;
+    border-left-width: 0;
+    background-color: rgba(0, 0, 0, 0);
+    font-size: 14px;
+    display: none;
+}
+
+ChipEditorSuggestionsView {
+    background-color: rgb(37, 44, 63);
+    border-top-width: 1px;
+    border-right-width: 1px;
+    border-bottom-width: 1px;
+    border-left-width: 1px;
+    border-left-color: rgba(0, 0, 0, 0.63);
+    border-right-color: rgba(0, 0, 0, 0.63);
+    border-top-color: rgba(0, 0, 0, 0.63);
+    border-bottom-color: rgba(0, 0, 0, 0.63);
+    font-size: 14px;
+}
+
+ChipEditorSuggestionsView > Label {
+    padding-top: 2px;
+    padding-right: 2px;
+    padding-bottom: 2px;
+    padding-left: 2px;
+    margin-top: 2px;
+    margin-right: 2px;
+    margin-bottom: 2px;
+    margin-left: 2px;
+    -unity-text-align: middle-left;
+    color: rgb(255, 255, 255);
+}
+
+ChipEditorSuggestionsView > Label.selected {
+    background-color: rgba(255, 255, 255, 0.21);
+}
+
+TextInput {
+    background-color: rgba(5, 5, 5, 0);
+    border-top-width: 0;
+    border-right-width: 0;
+    border-bottom-width: 0;
+    border-left-width: 0;
+}
+
+.unity-text-field {
+    --unity-cursor-color:#FFFFFF;
+}
+
+.code-block {
+    min-height: 64px;
+    padding-top: 10px;
+    padding-right: 10px;
+    padding-bottom: 10px;
+    padding-left: 10px;
+    border-bottom-width: 2px;
+    border-left-width: 2px;
+    border-left-color: rgba(44, 134, 176, 0.59);
+    border-right-color: rgba(44, 134, 176, 0.59);
+    border-top-color: rgba(44, 134, 176, 0.59);
+    border-bottom-color: rgba(44, 134, 176, 0.59);
+    border-bottom-left-radius: 5px;
+    margin-top: 5px;
+    margin-right: 0;
+    margin-bottom: 5px;
+    margin-left: 0;
+    align-items: flex-start;
+}
+
+.code-block > #Header {
+    flex-direction: row;
+    margin-bottom: 5px;
+}
+
+LoopElement {
+    border-bottom-right-radius: 5px;
+    border-right-width: 2px;
+    border-top-right-radius: 5px;
+}
+
+VariableRefElement {
+    min-width: 128px;
+    border-left-color: rgba(255, 166, 18, 0.5);
+    border-right-color: rgba(255, 166, 18, 0.5);
+    border-top-color: rgba(255, 166, 18, 0.5);
+    border-bottom-color: rgba(255, 166, 18, 0.5);
+    border-top-width: 1px;
+    border-right-width: 1px;
+    border-bottom-width: 1px;
+    border-left-width: 1px;
+    min-height: 36px;
+    flex-direction: row;
+    align-items: center;
+}
+
+CompareElement {
+    flex-direction: row;
+    align-items: stretch;
+}
+
+AssignElement {
+    flex-direction: row;
+}
+
+Button {
+    background-color: rgba(0, 0, 0, 0.25);
+    border-right-width: 0;
+    border-left-width: 0;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+    border-bottom-right-radius: 3px;
+    border-bottom-left-radius: 3px;
+}
+
+SignalButton {
+    width: 48px;
+    height: 48px;
+}
+
+SignalButton > #Icon {
+    top: 0;
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
