@@ -229,7 +229,7 @@ internal partial struct PrepareTransactionsJob : IJobEntity
                 IsIncoming = isIncoming
             };
             var result = TryReserve(transaction, ref reservation, inventory, reservations);
-            Debug.Log($"Try to Reserve {required}x {transaction.ItemId} ({(isIncoming ? "Incoming" : "Outgoing")}) in {slot}: {result} ({reservation.Amount})");
+            // Debug.Log($"Try to Reserve {required}x {transaction.ItemId} ({(isIncoming ? "Incoming" : "Outgoing")}) in {slot}: {result} ({reservation.Amount})");
             if(result == Fit.Not)
                 return false;
             

@@ -5,7 +5,7 @@ using UnityEngine.UIElements;
 
 namespace Items.UI
 {
-    [UpdateInGroup(typeof(PresentationSystemGroup))]
+    [UpdateInGroup(typeof(UISystemGroup))]
     public partial class InventoryDragDropSystem : SystemBase
     {
         static InventoryButton _dragFrom, _dragTo;
@@ -15,17 +15,15 @@ namespace Items.UI
         protected override void OnStartRunning()
         {
             InventoryButton.OnDragDrop += OnDragDrop;
+            InventoryButton.DragDropGhost = new IdentifiableButton(){name = "DragDropVisuals"};
+            UISystemGroup.AddOverlay(InventoryButton.DragDropGhost);
         }
 
         protected override void OnUpdate()
         {
             if (InventoryButton.DragDropGhost == null)
-            {
-                var uiDoc = GameObject.FindFirstObjectByType<UIDocument>();
-                if(uiDoc == null)
-                    return;
-                InventoryButton.DragDropGhost = uiDoc.rootVisualElement.Q<IdentifiableButton>("DragDropVisuals");
-            }
+                return;
+
             if (_dragFrom != null && _dragTo != null)
             {
                 var ecb = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>().CreateCommandBuffer(World.Unmanaged); 

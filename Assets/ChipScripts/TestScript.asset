@@ -13,4 +13,26 @@ MonoBehaviour:
   m_Name: TestScript
   m_EditorClassIdentifier: 
   Location: '@Home'
-  Script: 
+  Script: 'start:
+
+    $r0 = 5
+
+    $r1 = MiningDrill.MinerRange < $r0
+
+    $r2 =
+    not $r1
+
+    $r3 = MiningDrill.Target != MiningDrill.MinerRange
+
+    jc $r1 @else
+
+    then:
+
+    j
+    @else
+
+    else:
+
+    MiningDrill.Target = $r2
+
+    j @start'

@@ -13,9 +13,12 @@ MonoBehaviour:
   m_Name: ID Tags
   m_EditorClassIdentifier: 
   Tags:
+  - ControlFlow
+  - ChipRegister
+  - Unit
   - Item
   - Equipment
   - Material
   - Information
-  - Unit
+  - ResourceNode
   - Recipe

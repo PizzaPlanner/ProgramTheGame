@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Unity.Entities;
@@ -34,7 +35,9 @@ namespace Identifiables.UI
                 var tab = new Tab(id.DefaultName.Value);
                 tab.closeable = true;
                 tab.closed += (e) => e.RemoveFromHierarchy();
-                tab.Add(new DetailPage { Content = id });
+                var details = new DetailPage { Content = id };
+                tab.Add(details);
+                _onOpenDetails?.Invoke(details);
                 this.Q<TabView>().Add(tab);
                 this.Q<TabView>().activeTab = tab;
             }
@@ -48,8 +51,20 @@ namespace Identifiables.UI
             if(didInit)
                 return;
             
+            _onOpenDetails = null;
+            foreach(var mappingSystem in world.GetExistingSystemManaged<IdentifiablesMappingGroup>().ManagedSystems)
+                if(mappingSystem is IdentifiableMappingSystem s)
+                    _onOpenDetails += page =>
+                    {
+                        var details = s.ProvideWikiDetails(page.Content);
+                        if(details != null)
+                            page.AddDetails(details);
+                    };
+
             this.Q<LandingPage>().Init();
-            didInit = true;
+            didInit = Identifieable.All.Length > 0;
         }
+        
+        Action<DetailPage> _onOpenDetails;
     }
 }

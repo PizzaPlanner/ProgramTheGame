@@ -13,7 +13,7 @@ public class IdTagManager : ScriptableObject
     
     static IdTagManager Instance => Addressables.LoadAssetAsync<IdTagManager>(MAIN_MANAGER_ADDRESS).WaitForCompletion();
     
-    public static IdTag Bake(string[] authoringTags)
+    public static IdTag ToTag(params string[] authoringTags)
     {
         var result = 0u;
         foreach (var entry in authoringTags)

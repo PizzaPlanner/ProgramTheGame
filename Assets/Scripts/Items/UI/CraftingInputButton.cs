@@ -9,7 +9,7 @@ public partial class CraftingInputButton : ItemButton
         {
             Name = "";
             Info = value.Amount > 0 ? $"{value.Amount}" : "";
-            Image = value.ItemId.BaseId.Icon;
+            Target = value.ItemId.BaseId;
             _input = value;
         }
         get => _input;

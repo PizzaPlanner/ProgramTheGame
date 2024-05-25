@@ -1,7 +1,8 @@
+using Identifiables.UI;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-public class ItemButton : VisualElement
+public class ItemButton : IdentifiableButton
 {
     public string Name
     {
@@ -13,11 +14,6 @@ public class ItemButton : VisualElement
     {
         get => this.Q<Label>("Stack").text;
         protected set { this.Q<Label>("Stack").text = value; }
-    }
-
-    protected Texture2D Image
-    {
-        set => this.Q("Icon").style.backgroundImage = value ? value : new StyleBackground(StyleKeyword.Null);
     }
 
     public bool IsEmpty

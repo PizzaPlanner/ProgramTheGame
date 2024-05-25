@@ -1,44 +1,40 @@
-﻿using System.Runtime.InteropServices;
-using Unity.Burst;
-using Unity.Collections.LowLevel.Unsafe;
+﻿using Programmable;
 using Unity.Entities;
 
 public partial struct Miner : IChipTargetable
 {
-    public int Range;
-    [LogicWritable]
-    public Entity Target;
+    public int MinerRange;
     public bool CanMineTarget;
-    
-    [BurstCompile]
-    public partial struct LogicJob : IJobEntity
-    {
-        public LogicJob(ref SystemState state, uint simulationTick) : this() { }
-        
-        unsafe void Execute(DynamicBuffer<ChipAccessibleData> chipData, ref Miner miner, in Equipped equip, in Identifieable id)
-        {
-            // Read incoming data
-            if(!chipData.Locate<Miner>(id, out var data))
-                return;
-            
-            ApplyReadData(miner, ref *data);
-            ApplyLogicData(ref *data);
-            miner = *data;
-        }
-
-        void ApplyLogicData(ref Miner miner)
-        {
-            miner.CanMineTarget = miner.Target != Entity.Null;
-        }
-    }
+    public int ReadyIn;
+    public int Cooldown;
 }
 
-[StructLayout(LayoutKind.Sequential)]
-public partial struct Miner : IChipTargetableImpl<Miner>
+partial struct MiningSystem : ISystem
 {
-    public static unsafe void ApplyReadData(Miner from, ref Miner to)
+    public void OnUpdate(ref SystemState state)
     {
-        to.Range = from.Range;
-        to.CanMineTarget = from.CanMineTarget;
+        var ecb =SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>()
+                          .CreateCommandBuffer(state.WorldUnmanaged);
+        foreach (var (miner, targeter, equipped) in SystemAPI.Query<RefRW<Miner>, EntityTargeter, Equipped>())
+        {
+            miner.ValueRW.CanMineTarget = targeter.Target != Entity.Null 
+                                          && miner.ValueRW.MinerRange >= targeter.DistanceToTarget
+                                          && SystemAPI.HasComponent<Mineable>(targeter.Target);
+
+            if (!miner.ValueRW.CanMineTarget)
+            {
+                miner.ValueRW.ReadyIn = miner.ValueRW.Cooldown;
+                continue;
+            }
+            miner.ValueRW.ReadyIn--;
+            if(miner.ValueRW.ReadyIn > 0)
+                continue;
+            
+            miner.ValueRW.ReadyIn = miner.ValueRW.Cooldown;
+            var mineable = SystemAPI.GetComponentRW<Mineable>(targeter.Target);
+            // TODO: Dont reduce mineable amount if transaction fails
+            ItemTransaction.Builder.Schedule(ecb).AddTo(equipped.Wearer, mineable.ValueRW.MinedItem, 1).Commit();
+            mineable.ValueRW.AmountLeft--;
+        }
     }
 }

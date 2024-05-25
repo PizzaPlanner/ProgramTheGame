@@ -33,6 +33,15 @@ namespace WorldManagement
             }
         }
 
+        public static World BuildDefaultWorld(string worldName = "DefaultWorld")
+        {
+            return World.DefaultGameObjectInjectionWorld = new WorldBuilder()
+                   .WithRecursive<InitializationSystemGroup>()
+                   .WithRecursive<SimulationSystemGroup>()
+                   .WithRecursive<PresentationSystemGroup>()
+                   .Build(worldName, BuildFlags.AddToPlayerLoop);
+        }
+
         public WorldBuilder WithRecursive<T>(bool ignoreDisableAutoCreateOnChildren = false)
         {
             return WithRecursive(typeof(T), ignoreDisableAutoCreateOnChildren);

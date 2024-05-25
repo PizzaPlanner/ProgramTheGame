@@ -3,6 +3,7 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Physics;
 using UnityEngine;
+using UnityEngine.Assertions;
 using UnityEngine.EventSystems;
 using UnityEngine.UIElements;
 
@@ -14,7 +15,6 @@ namespace Units
     }
 
     [UpdateInGroup(typeof(UISystemGroup))]
-    [UpdateBefore(typeof(InventoryUISystem))]
     public partial class UnitSelectionSystem : SystemBase
     {
         public Entity Hovered;
@@ -32,8 +32,10 @@ namespace Units
         {
             var localPlayer = SystemAPI.GetSingletonEntity<LocalPlayer>();
             EntityManager.AddBuffer<UnitGroup>(localPlayer);
-            selectionUI = UISystemGroup.Root.Q<UnitGroupElement>("CurrentSelection");
-            mainUnitUI =  UISystemGroup.Root.Q<MainUnitElement>("MainUnit");
+            selectionUI = new UnitGroupElement(){name = "CurrentSelection"};
+            UISystemGroup.Add(selectionUI);
+            mainUnitUI =  new MainUnitElement();
+            UISystemGroup.Add(mainUnitUI);
             InventoryButton.OnDragDrop += OnDragDrop;
             EntityManager.AddComponentObject(localPlayer, new SelectionUI{ UI = selectionUI });
         }
@@ -111,6 +113,10 @@ namespace Units
                     {
                         orders++;
                         ecb.AddComponent(unit.Unit, moveCmd);
+                        if(moveCmd.Unit != Entity.Null)
+                            foreach(var item in SystemAPI.GetBuffer<Inventory>(unit.Unit))
+                                if(item.Entity != Entity.Null && item.IsEquipmentSlot && SystemAPI.HasComponent<EntityTargeter>(item.Entity))
+                                    SystemAPI.GetComponentRW<EntityTargeter>(item.Entity).ValueRW.Target = moveCmd.Unit;
                     }
                 if(orders > 0)
                     MoveCommandIndicator.Play(hit.Position);

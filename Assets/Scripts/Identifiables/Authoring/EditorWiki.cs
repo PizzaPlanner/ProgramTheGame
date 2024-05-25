@@ -9,7 +9,7 @@ namespace Identifiables.Authoring
 {
     public class EditorWiki : EditorWindow
     {
-        [MenuItem("Windows/Identifiables")]
+        [MenuItem("Window/Identifieables/Wiki")]
         static void ShowWiki()
         {
             ((EditorWindow)GetWindow<EditorWiki>()).Show();
@@ -36,9 +36,11 @@ namespace Identifiables.Authoring
                 menu.ShowAsContext();
             })
             {
-                name = "World Selector",
+                name = "SelectWorld",
+                text = "World Selector",
                 tooltip = "Load Wiki with Data from this world",
             });
+            rootVisualElement.Q<Button>().style.height = 24;
             rootVisualElement.Add(wiki);
         }
     }

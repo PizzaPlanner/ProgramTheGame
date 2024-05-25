@@ -1,35 +1,35 @@
-﻿using System;
+﻿using Programmable;
+using System;
 using Unity.Collections;
 using Unity.Entities;
+using UnityEngine;
 
 namespace Equipment
 {
-    public struct SignalReader : IComponentData
+    public struct SignalReader : IChipTargetable
     {
         public enum ReadMode
         {
-            ReadFromTarget,
-            CountSignalsTypedFrom
+            ReadFromTarget = 0,
+            CountSignalsTypedFrom = 1
         }
+        [LogicWritable]
         public ReadMode Mode;
+        [LogicWritable]
         public Entity From;
-        public Signal ReceivedSignal;
+        public Signal OutputSignal;
     }
 
-    public struct SignalWriter : IComponentData
+    public struct SignalWriter : IChipTargetable
     {
-        public Signal MySignal;   
-    }
-
-    public enum SignalType
-    {
-        
+        [LogicWritable]
+        public Signal InputSignal;  
     }
     
     public struct Signal
     {
         public Entity Entity;
-        public int Number;
+        public long Number;
     }
 
     public struct AllSignals : IComponentData
@@ -70,18 +70,22 @@ namespace Equipment
                                                  .WithAll<Equipped>()
                                                  .WithChangeFilter<SignalWriter>().WithEntityAccess())
             {
-                signalCount.Add(writer.MySignal.Entity, writer.MySignal.Number);
-                signals[e] = writer.MySignal;
+                signalCount.TryAdd(writer.InputSignal.Entity, 0);
+                signalCount[writer.InputSignal.Entity] += 1;
+                signals[e] = writer.InputSignal;
             }
-            
-            foreach(var reader in SystemAPI.Query<RefRW<SignalReader>>()
-                                           .WithAll<Equipped>()
-                                           .WithChangeFilter<SignalReader>())
-                reader.ValueRW.ReceivedSignal = reader.ValueRW.Mode switch
+
+            foreach (var reader in SystemAPI.Query<RefRW<SignalReader>>()
+                                            .WithAll<Equipped>()
+                                            .WithChangeFilter<SignalReader>())
+            {
+                reader.ValueRW.OutputSignal = reader.ValueRW.Mode switch
                 {
                     SignalReader.ReadMode.ReadFromTarget => signals.TryGetValue(reader.ValueRW.From, out var signal) ? signal : default,
                     SignalReader.ReadMode.CountSignalsTypedFrom => new Signal{Number = signalCount.TryGetValue(reader.ValueRW.From, out var count) ? count : 0},
+                    _ => default
                 };
+            }
         }
     }
 }

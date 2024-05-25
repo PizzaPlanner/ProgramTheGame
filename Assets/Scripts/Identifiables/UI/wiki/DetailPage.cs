@@ -43,5 +43,10 @@ namespace Identifiables.UI
         }
         
         public new class UxmlFactory : UxmlFactory<DetailPage, UxmlTraits> { }
+
+        public void AddDetails(VisualElement details)
+        {
+            this.Q("Body").Add(details);
+        }
     }
 }

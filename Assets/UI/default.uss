@@ -1,4 +1,4 @@
-IdentifiableButton {
+.id-button {
     width: 48px;
     height: 48px;
     background-color: rgb(46, 44, 44);
@@ -6,9 +6,10 @@ IdentifiableButton {
     margin-right: 1px;
     margin-bottom: 1px;
     margin-left: 1px;
+    justify-content: center;
 }
 
-IdentifiableButton > #Icon {
+.id-button > #Icon {
     position: absolute;
     top: 0;
     right: 0;
@@ -16,7 +17,7 @@ IdentifiableButton > #Icon {
     bottom: 0;
 }
 
-IdentifiableButton > #Frame {
+.id-button > #Frame {
     position: absolute;
     top: 0;
     right: 0;
@@ -30,13 +31,6 @@ IdentifiableButton > #Frame {
     border-right-color: rgb(81, 174, 255);
     border-top-color: rgb(81, 174, 255);
     border-bottom-color: rgb(81, 174, 255);
-}
-
-IdentifiableButton.prefab > #Frame {
-    border-left-color: rgb(255, 226, 0);
-    border-right-color: rgb(255, 226, 0);
-    border-top-color: rgb(255, 226, 0);
-    border-bottom-color: rgb(255, 226, 0);
 }
 
 UnitGroupElement {
@@ -78,6 +72,10 @@ InventoryButton {
     -unity-background-image-tint-color: rgb(134, 206, 255);
     width: 48px;
     height: 48px;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+    border-bottom-left-radius: 5px;
 }
 
 InventoryButton.category-memory {
@@ -88,12 +86,8 @@ InventoryButton.category-chip {
     background-image: url("project://database/Assets/UI/InventoryButton-chip.png?fileID=2800000&guid=923035db45bb15641a15563e3ad166cd&type=3#InventoryButton-chip");
 }
 
-.item-button > #Icon {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+.id-button.item-button > #Frame {
+    display: none;
 }
 
 .item-button > Label {
@@ -269,4 +263,95 @@ CraftingRecipeElement #Outputs {
 
 CraftingRecipeElement #Name {
     display: none;
+}
+
+IngameMenu {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+}
+
+IngameMenu > VisualElement {
+    width: 48px;
+    height: 48px;
+    margin-top: 1px;
+    margin-right: 1px;
+    margin-bottom: 1px;
+    margin-left: 1px;
+    color: rgb(255, 255, 255);
+    background-color: rgb(88, 169, 197);
+}
+
+SignalButton.shows-entity > #Frame {
+    border-left-color: rgba(0, 188, 0, 0.76);
+    border-right-color: rgba(0, 188, 0, 0.76);
+    border-top-color: rgba(0, 188, 0, 0.76);
+    border-bottom-color: rgba(0, 188, 0, 0.76);
+    border-top-width: 2px;
+    border-right-width: 2px;
+    border-bottom-width: 2px;
+    border-left-width: 2px;
+}
+
+SignalButton > Label {
+    display: none;
+}
+
+SignalButton.with-value > Label {
+    display: flex;
+    background-color: rgba(0, 0, 0, 0.4);
+    color: rgb(255, 255, 255);
+    font-size: 11px;
+    -unity-text-align: middle-center;
+    padding-top: 5px;
+    padding-right: 5px;
+    padding-bottom: 5px;
+    padding-left: 5px;
+    margin-top: 0;
+    margin-right: 0;
+    margin-bottom: 0;
+    margin-left: 0;
+    align-self: center;
+    position: absolute;
+}
+
+SignalSelectionIdCollection > Label {
+    flex-grow: 1;
+    flex-shrink: 0;
+    align-self: stretch;
+    height: 48px;
+    color: rgb(255, 255, 255);
+    -unity-font-style: normal;
+    font-size: 14px;
+    -unity-text-align: middle-left;
+    margin-top: 0;
+    margin-right: 20px;
+    margin-bottom: 0;
+    margin-left: 15px;
+    padding-top: 0;
+    padding-right: 0;
+    padding-bottom: 0;
+    padding-left: 0;
+}
+
+SignalSelectionIdCollection > IntegerField {
+    flex-grow: 1;
+    flex-shrink: 0;
+    align-self: stretch;
+    height: 48px;
+    -unity-font-style: normal;
+    font-size: 14px;
+    margin-top: 1px;
+    margin-right: 0;
+    margin-bottom: 0;
+    margin-left: 5px;
+    padding-top: 0;
+    padding-right: 0;
+    padding-bottom: 0;
+    padding-left: 0;
+    width: 40%;
+    border-left-color: rgb(81, 174, 255);
+    border-right-color: rgb(81, 174, 255);
+    border-top-color: rgb(81, 174, 255);
+    border-bottom-color: rgb(81, 174, 255);
 }

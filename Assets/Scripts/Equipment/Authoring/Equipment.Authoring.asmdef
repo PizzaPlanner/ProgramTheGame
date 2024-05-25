@@ -12,7 +12,9 @@
         "Unity.Mathematics.Extensions",
         "Unity.Physics",
         "Equipment",
-        "Identifiables"
+        "Identifiables",
+        "Items.Authoring",
+        "Items"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

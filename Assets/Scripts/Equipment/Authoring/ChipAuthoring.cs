@@ -1,6 +1,7 @@
 ﻿using Unity.Entities;
 using UnityEngine;
 
+[RequireComponent(typeof(ChipRegistersAuthoring))]
 public class ChipAuthoring : MonoBehaviour
 {
     public ChipScript InitialScript;

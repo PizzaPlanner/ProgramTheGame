@@ -10,7 +10,8 @@
         "Unity.Entities.Graphics",
         "Unity.Mathematics.Extensions",
         "Unity.Addressables",
-        "Unity.ResourceManager"
+        "Unity.ResourceManager",
+        "Bootstrap"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

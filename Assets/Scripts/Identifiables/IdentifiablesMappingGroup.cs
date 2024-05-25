@@ -1,9 +1,11 @@
+using System;
 using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using Unity.Transforms;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 [UpdateInGroup(typeof(IdentifiablesMappingGroup))]
 [WorldSystemFilter(WorldSystemFilterFlags.Editor | WorldSystemFilterFlags.Default)]
@@ -13,6 +15,8 @@ public abstract partial class IdentifiableMappingSystem : SystemBase
     {
         IdentifiablesMappingGroup.IdRelations.Add(from, link);
     }
+    
+    public virtual VisualElement ProvideWikiDetails(Identifieable id) => null;
 } 
 
 [WorldSystemFilter(WorldSystemFilterFlags.Editor | WorldSystemFilterFlags.Default)]
@@ -51,6 +55,20 @@ public partial class IdentifiablesMappingGroup : ComponentSystemGroup
         NameById.Dispose();
         TagsById.Dispose();
         IdRelations.Dispose();
+    }
+    
+    protected override void OnStartRunning()
+    {
+#if UNITY_EDITOR
+        if(!EntitiesById.IsCreated)
+            return;
+        
+        EntitiesById.Clear();
+        NameById.Clear();
+        TagsById.Clear();
+        IdRelations.Clear();
+        IconById?.Clear();
+#endif
     }
 
     protected override void OnStopRunning()
@@ -97,18 +115,4 @@ public partial class IdentifiablesMappingGroup : ComponentSystemGroup
         
         EntityManager.RemoveComponent<PreIdentifiable>(query);
     }
-
-#if UNITY_EDITOR
-    public static void ReleaseAllForBaking()
-    {
-        if(!EntitiesById.IsCreated)
-            return;
-        
-        EntitiesById.Clear();
-        NameById.Clear();
-        TagsById.Clear();
-        IconById.Clear();
-        IdRelations.Clear();
-    }
-#endif
 }

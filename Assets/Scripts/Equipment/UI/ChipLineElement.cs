@@ -58,7 +58,10 @@ public partial class ChipLineElement : VisualElement, IMakeChipCode
             case OperationType.Compare:
                 content.Add(new CompareElement());
                 break;
-            case OperationType.JumpIf:
+            case OperationType.Calculate:
+                content.Add(new CalculationElement());
+                break;
+            case OperationType.Branch:
                 content.Add(new IfElement());
                 break;
             case OperationType.Loop:
@@ -125,5 +128,26 @@ public partial class ChipLineElement : VisualElement, IMakeChipCode
         Editor.ShowSuggestions(Inputter, InputState);
     }
 
-    public string Code => this.Q("LineContent")?.childCount > 0 && this.Q("LineContent")[0] is IMakeChipCode chipCode ? chipCode.Code : "-"; 
+    public string Code => this.Q("LineContent")?.childCount > 0 && this.Q("LineContent")[0] is IMakeChipCode chipCode ? chipCode.Code : "-";
+
+    public static ChipLineElement FromLine(CSLineToken line)
+    {
+        var cle = new ChipLineElement();
+        switch (line.LineType)
+        {
+            case CSLineToken.TokenType.LogicAssignment:
+                cle.Operation.Op = OperationType.Compare;
+                break;
+            case CSLineToken.TokenType.MathAssignment:
+                cle.Operation.Op = OperationType.Calculate;
+                break;
+            case CSLineToken.TokenType.SimpleAssignment:
+                cle.Operation.Op = OperationType.Set;
+                break;
+            // case CSLineToken.TokenType.Label:
+            //     block.Add(new ChipLineBlock(line.Token[0].Intermediate));
+            //     break;   
+        }
+        return cle;
+    }
 }

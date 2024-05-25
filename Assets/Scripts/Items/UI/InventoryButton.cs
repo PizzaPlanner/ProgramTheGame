@@ -21,7 +21,7 @@ public partial class InventoryButton : ItemButton
         {
             // Name = value.Type.BaseId.DefaultName.Value;
             Info = value.IsEmpty ? "" : value.IsEquipmentSlot ? "E" : value.Amount.ToString();
-            Image = value.Type.BaseId.Icon;
+            Target = value.Type.BaseId;
             RemoveFromClassList($"category-{_slot.SlotFilter.ToString().ToLower()}");
             AddToClassList($"category-{value.SlotFilter.ToString().ToLower()}");
             IsEmpty = value.IsEmpty;
@@ -50,6 +50,7 @@ public partial class InventoryButton : ItemButton
             DragDropGhost.Target = this.Slot.Type.BaseId;
 
             DragDropGhost.style.display = DisplayStyle.Flex;
+            DragDropGhost.BringToFront();
             DragDropGhost.transform.position = new Vector2(
                 Mathf.Clamp(pointerDelta.x, 0, panel.visualTree.worldBound.width),
                 Mathf.Clamp(pointerDelta.y, 0, panel.visualTree.worldBound.height));
@@ -106,6 +107,6 @@ public partial class InventoryButton : ItemButton
         if(total != 0)
             Info = $"{Info} (<color={(total > 0 ? RESERVED_PLUS_COLOR : RESERVED_MINUS_COLOR)}>{(total > 0 ? '+' : "")}{total}</color>)";
         if(reservedType != Slot.Type)
-            Image = reservedType.BaseId.Icon;
+            Target = reservedType.BaseId;
     }
 }

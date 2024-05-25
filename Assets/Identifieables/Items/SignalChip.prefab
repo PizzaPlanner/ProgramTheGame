@@ -15,7 +15,6 @@ GameObject:
   - component: {fileID: 697860641069326925}
   - component: {fileID: 4721418920395133904}
   - component: {fileID: 9115601838556370892}
-  - component: {fileID: -5258713047782392362}
   m_Layer: 0
   m_Name: SignalChip
   m_TagString: Untagged
@@ -146,17 +145,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 68b57bb21f3642cbbf970e574bcacd7b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  InitialScript: {fileID: 11400000, guid: fa5ff65940d10494cae6cd2dc94bfd16, type: 2}
---- !u!114 &-5258713047782392362
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6595311514760627798}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bd6d6591ff1c48358a0b05231b6d71fc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Range: 3
+  InitialScript: {fileID: 11400000, guid: 453759ed1f06e4248a4ef05be293c6af, type: 2}

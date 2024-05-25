@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 5304243422145376601}
   - component: {fileID: 697860641069326925}
   - component: {fileID: 4387170262141137761}
+  - component: {fileID: -2277905818356874638}
   m_Layer: 0
   m_Name: MiningDrill
   m_TagString: Untagged
@@ -133,3 +134,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Range: 5
+  CooldownInTicks: 120
+--- !u!114 &-2277905818356874638
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6595311514760627798}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 38d571245aa148ecb9c251d4aecafd4b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Range: 6

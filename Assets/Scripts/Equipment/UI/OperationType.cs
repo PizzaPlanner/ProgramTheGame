@@ -1,8 +1,9 @@
 ﻿public enum OperationType
 {
     Set,
+    Calculate,
     Loop,
     Compare,
-    JumpIf,
+    Branch,
     Jump
 }

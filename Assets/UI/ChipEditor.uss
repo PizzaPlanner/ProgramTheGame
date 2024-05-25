@@ -2,6 +2,21 @@ ChipEditorElement {
     background-color: rgb(18, 36, 70);
     font-size: 16px;
     color: rgb(255, 255, 255);
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+
+ChipEditorElement > #Header
+{
+    flex-direction: row;
+}
+
+ChipEditorElement > #Header > #Close
+{
+    background-color: #AA3333;
 }
 
 ChipLineElement {
@@ -147,7 +162,7 @@ TextInput {
 }
 
 .unity-text-field {
-    --unity-cursor-color:#FFFFFF;
+    --unity-cursor-color: rgb(255, 255, 255);
 }
 
 .code-block {
@@ -182,7 +197,6 @@ LoopElement {
 }
 
 VariableRefElement {
-    min-width: 128px;
     border-left-color: rgba(255, 166, 18, 0.5);
     border-right-color: rgba(255, 166, 18, 0.5);
     border-top-color: rgba(255, 166, 18, 0.5);
@@ -191,12 +205,16 @@ VariableRefElement {
     border-right-width: 1px;
     border-bottom-width: 1px;
     border-left-width: 1px;
-    min-height: 36px;
     flex-direction: row;
     align-items: center;
 }
 
 CompareElement {
+    flex-direction: row;
+    align-items: stretch;
+}
+
+CalculationElement {
     flex-direction: row;
     align-items: stretch;
 }
@@ -226,4 +244,12 @@ SignalButton > #Icon {
     left: 0;
     right: 0;
     bottom: 0;
+}
+
+VariableRefElement.id-unset > Label {
+    display: none;
+}
+
+VariableRefElement.id-unset > DropdownField {
+    display: none;
 }

@@ -43,7 +43,7 @@ public class IdentifieableAuthoring : MonoBehaviour
                 AddComponent(e, new PreIdentifiable
                 {
                     Id = authoring.Id,
-                    Tags = IdTagManager.Bake(authoring.Tags),
+                    Tags = IdTagManager.ToTag(authoring.Tags),
                     Name = authoring.gameObject.name,
                     Icon = authoring.Icon,
                     Origin = "core"

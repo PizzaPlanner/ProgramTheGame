@@ -14,7 +14,8 @@
         "Identifiables",
         "Equipment",
         "Units",
-        "Identifiables.UI"
+        "Identifiables.UI",
+        "Core.UI"
 
     ],
     "includePlatforms": [],

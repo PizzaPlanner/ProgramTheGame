@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Identifiables.UI;
+using System;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -10,13 +11,28 @@ public partial class ChipEditorElement : ScrollView
     public ChipEditorSuggestionsView Suggestions;
     const int MaxLines = 64;
     public static int NextId;
+    
+    public ChipScript EditedScript;
+    
     public ChipEditorElement()
     {
         Suggestions = new ChipEditorSuggestionsView();
         Suggestions.style.position = Position.Absolute;
         Suggestions.style.top = 0;
         Suggestions.style.left = 0;
-        Add(new Button(() => Debug.Log(CollectPseudoCode())){text = "Debug print"});
+        var topRow = new VisualElement(){name = "Header"};
+        Add(topRow);
+        topRow.Add(new Button(() => Debug.Log(CollectPseudoCode())){text = "Debug print"});
+        topRow.Add(new Button(() =>
+        {
+            if(EditedScript == null)
+                return;
+            
+            EditedScript.Script = CollectPseudoCode();
+            OnSaveScript?.Invoke(EditedScript);
+        }){text = "Save"});
+        topRow.Add(new Button(() => {  }){text = "Save As"});
+        topRow.Add(new Button(() => UISystemGroup.Hide(this)){text = "x", name = "Close"});
         var block = new ChipLineBlock("Start");
         Add(block);
         var playground = new VisualElement();
@@ -32,6 +48,22 @@ public partial class ChipEditorElement : ScrollView
         Add(Suggestions);
         
         block.Focus();
+    }
+
+    public Action<ChipScript> OnSaveScript;
+
+    public void Import(ChipScript script)
+    {
+        var block = this.Q<ChipLineBlock>();
+        block.Clear();
+        var parser = new ChipScriptParser();
+        parser.Parse(script);
+
+        foreach (var line in parser.Token)
+        {
+            block.Add(ChipLineElement.FromLine(line));
+        }
+        EditedScript = script;
     }
 
     string CollectPseudoCode()
@@ -131,26 +163,12 @@ public partial class ChipLineBlock : VisualElement, IMakeChipCode
         Add(new Button(() => content.Add(new ChipLineElement{Editor = GetFirstOfType<ChipEditorElement>()})){text = "+"});
     }
 
-    public string Code => $"{name}:\n{string.Join('\n', this[1].Children().OfType<IMakeChipCode>().Select(x => x.Code))}";
-}
+    public new void Clear()
+    {
+        this[2].Clear();
+    }
 
-public class VariableRefElement : VisualElement, IMakeChipCode
-{
-    public bool IsLeftSide
-    {
-        set => this.Q<SignalButton>().AssignableTo = value 
-            ? IdTagManager.ToTag("Equipment") 
-            : IdTag.All;
-    }
-    
-    public VariableRefElement()
-    {
-        Add(new SignalButton());
-        Add(new Label("."));
-        Add(new TextField(){value = "Value"});
-    }
-    
-    public string Code => "0";
+    public string Code => $"{name}:\n{string.Join('\n', this[1].Children().OfType<IMakeChipCode>().Select(x => x.Code))}";
 }
 
 public class AssignElement : VisualElement, IMakeChipCode
@@ -168,16 +186,51 @@ public class AssignElement : VisualElement, IMakeChipCode
 
 public class CompareElement : VisualElement, IMakeChipCode
 {
+    VariableRefElement result, lhs, rhs;
+    DropdownField comparison;
     public CompareElement()
     {
-        Add(new VariableRefElement());
-        Add(new Label(">="));
-        Add(new VariableRefElement());
+        Add(new Label("set"));
+        Add(result = new VariableRefElement() { IsLeftSide = true});
+        Add(new Label("to 1 if"));
+        Add(lhs = new VariableRefElement());
+        Add(comparison = new DropdownField() { choices = new[]
+        {
+            "==",
+            "!=",
+            ">",
+            ">=",
+            "<",
+            "<="
+        }.ToList()});
+        Add(rhs = new VariableRefElement());
+        Add(new Label("(or to 0 otherwise)"));
     }
 
-    public string Code => @$"self.OpLhs = {"TODOLHS"}
-self.OpRhs = {"TODORHS"}
-self.Operator = {">="}";
+    public string Code => @$"{result.Code} = {lhs.Code} {comparison.value} {rhs.Code}";
+}
+
+public class CalculationElement : VisualElement, IMakeChipCode
+{
+    VariableRefElement result, lhs, rhs;
+    DropdownField operation;
+    public CalculationElement()
+    {
+        Add(result = new VariableRefElement() { IsLeftSide = true});
+        Add(new Label("="));
+        Add(lhs = new VariableRefElement());
+        Add(operation = new DropdownField() { choices = new[]
+        {
+            "+",
+            "-",
+            "*",
+            "/",
+            "%"
+        }.ToList()});
+        Add(rhs = new VariableRefElement());
+    }
+
+    public string Code => @$"{result.Code} = {lhs.Code} {operation.value} {rhs.Code}";
 }
 
 public class IfElement : VisualElement, IMakeChipCode

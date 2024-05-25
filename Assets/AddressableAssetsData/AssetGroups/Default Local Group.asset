@@ -30,6 +30,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 28cb604ecb218d94eab2da0b72190f07
+    m_Address: UI/Stylesheets/Wiki.uss
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: a45313afd0572864587f7bb3550ba570, type: 2}
   m_SchemaSet:

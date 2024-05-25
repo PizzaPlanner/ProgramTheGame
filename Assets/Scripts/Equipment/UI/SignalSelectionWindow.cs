@@ -1,6 +1,4 @@
-﻿using Identifiables.UI;
-using System;
-using Unity.Entities;
+﻿using System;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.UIElements;
@@ -10,55 +8,69 @@ public partial class SignalSelectionWindow : ScrollView
 {
     public static SignalSelectionWindow Instance;
     
-    public Action<IdentifiableButton> OnSignalSelected;
+    public Action<SignalButton> OnSignalSelected;
     public SignalSelectionWindow()
     {
         focusable = true;
         foreach (var tag in IdTagManager.Names)
         {
             var tab = new Tab(tag);
-            tab.Add(new Label(tag));
             tab.Add(new SignalSelectionIdCollection() { name = tag, Tag = IdTagManager.ToTag(tag), Tab = tab });
             Add(tab);
         }
         RegisterCallback<FocusOutEvent>(_ => style.display = DisplayStyle.None);
     }
 
-    public void Init(ref SystemState state)
+    public void Init()
     {
         foreach (var collection in this.Query<SignalSelectionIdCollection>().Build())
         {
             collection.Clear();
+            if (collection.name == "ControlFlow")
+            {
+                collection.Add(MakeButton(default));
+                collection.Add(new Label("Clear selection"));
+                    
+                var constBtn = MakeButton(default);
+                var constVal = new IntegerField();
+                constVal.RegisterValueChangedCallback(x => constBtn.Value = x.newValue);
+                collection.Add(constBtn);
+                collection.Add(constVal);
+            }
             foreach (var id in Identifieable.All)
             {
                 if(!id.Tags.Contains(collection.Tag))
                     continue;
-                
-                var btn = new IdentifiableButton{Target = id};
-                btn.RegisterCallback<MouseDownEvent>(_ =>
-                {
-                    OnSignalSelected?.Invoke(btn);
-                    style.display = DisplayStyle.None;
-                    OnSignalSelected = null;
-                });
-                collection.Add(btn);
+                collection.Add(MakeButton(id));
             }
         }
         
         Instance = this;
     }
 
-    public static void Show(VisualElement nextTo, Action<IdentifiableButton> action, IdTag tags)
+    SignalButton MakeButton(Identifieable id)
+    {
+        var btn = new SignalButton(){Target = id};
+        btn.RegisterCallback<MouseDownEvent>(_ =>
+        {
+            OnSignalSelected?.Invoke(btn);
+            style.display = DisplayStyle.None;
+            OnSignalSelected = null;
+        });
+        return btn;
+    }
+
+    public static void Show(VisualElement nextTo, Action<SignalButton> action, IdTag tags)
     {
         foreach (var collection in Instance.Query<SignalSelectionIdCollection>().Build())
         {
             collection.Tab.tabHeader.style.display = tags.Contains(collection.Tag) ? DisplayStyle.Flex : DisplayStyle.None; 
             collection.Tab.style.display = tags.Contains(collection.Tag) ? DisplayStyle.Flex : DisplayStyle.None;
-            Debug.Log($"{collection.name} is in {tags.Value}: {tags.Contains(collection.Tag)}");
         }
         Instance.OnSignalSelected = action;
         Instance.style.display = DisplayStyle.Flex;
         Instance.transform.position = nextTo.worldBound.center;
+        Instance.BringToFront();
     }
 }
 
@@ -66,17 +78,20 @@ partial class SignalSelectionWindowSystem : IdentifiableMappingSystem
 {
     protected override void OnUpdate()
     {
-        if(UISystemGroup.Root == null)
+#if UNITY_EDITOR
+        if(!Application.isPlaying)
             return;
-        var overlay = UISystemGroup.Root;
-        var window = overlay.Q<SignalSelectionWindow>();
-        if (window == null)
+#endif
+        if (UISystemGroup.TryGet<SignalSelectionWindow>(out var existingWindow))
+            existingWindow.Init();
+        else
         {
-            window = new SignalSelectionWindow();
+            var window = new SignalSelectionWindow();
             window.style.display = DisplayStyle.None;
-            window.styleSheets.Add(Addressables.LoadAssetAsync<StyleSheet>("UI/Stylesheets/Signals.uss").WaitForCompletion());
-            overlay.Add(window);
+            window.styleSheets.Add(Addressables.LoadAssetAsync<StyleSheet>("UI/Stylesheets/Signals.uss")
+                                               .WaitForCompletion());
+            window.Init();
+            UISystemGroup.AddOverlay(window);
         }
-        window.Init(ref CheckedStateRef);
     }
 }

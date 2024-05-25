@@ -1,5 +1,6 @@
 using Unity.Entities;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 using UnityEngine.UIElements;
 
 namespace Identifiables.UI
@@ -7,22 +8,15 @@ namespace Identifiables.UI
     [UpdateInGroup(typeof(UISystemGroup))]
     public partial class WikiSystem : SystemBase
     {
-        Wiki _wiki;
-
-        protected override void OnUpdate()
+        protected override void OnCreate()
         {
-            if (Input.GetKeyDown(KeyCode.F1))
-            {
-                if (_wiki == null)
-                {
-                    _wiki = new Wiki();
-                    _wiki.Init(World);
-                }
-                if(_wiki.parent == null)
-                    UISystemGroup.Root.Add(_wiki);
-                else
-                    _wiki.RemoveFromHierarchy();
-            }
+            var wiki = new Wiki();
+            wiki.styleSheets.Add(Addressables.LoadAssetAsync<StyleSheet>("UI/Stylesheets/Wiki.uss").WaitForCompletion());
+            wiki.Init(World);
+            UISystemGroup.AddOverlayWithMenuEntry("Wiki", wiki);
+            wiki.RegisterCallback<AttachToPanelEvent>(_ => wiki.Init(World));
         }
+
+        protected override void OnUpdate() { }
     }
 }

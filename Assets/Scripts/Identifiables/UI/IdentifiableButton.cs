@@ -1,4 +1,5 @@
 using Unity.Entities;
+using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace Identifiables.UI
@@ -11,6 +12,16 @@ namespace Identifiables.UI
             Add(new VisualElement{name = "Icon"});
             Add(new VisualElement{name = "Frame"});
             Add(new Label());
+            RegisterCallback<MouseEnterEvent>(x => RegisterCallbackOnce<KeyDownEvent>(ShowWiki));
+            RegisterCallback<MouseLeaveEvent>(x => UnregisterCallback<KeyDownEvent>(ShowWiki));
+            AddToClassList("id-button");
+        }
+
+        void ShowWiki(KeyDownEvent evt)
+        {
+            if(evt.keyCode != KeyCode.F1 || Target == default)
+                return;
+            UISystemGroup.Show<Wiki>().OpenTab(Target);
         }
 
         Identifieable _id;

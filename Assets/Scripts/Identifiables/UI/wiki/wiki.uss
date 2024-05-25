@@ -19,6 +19,7 @@ Wiki {
     flex-direction: column;
     position: relative;
     align-items: stretch;
+    color: #FFFFFF;
 }
 
 Wiki > #Search .unity-base-field__input {
@@ -31,6 +32,24 @@ Wiki > #Search .unity-base-field__input {
     border-right-color: rgb(159, 159, 159);
     border-top-color: rgb(159, 159, 159);
     border-bottom-color: rgb(159, 159, 159);
+}
+
+MultiColumnListView Label {
+    padding: 5px;
+    margin: 0px;
+}
+
+MultiColumnListView .unity-multi-column-view__cell {
+    justify-content: center;
+}
+
+#Body > Label {
+    padding: 10px;
+}
+
+#Body > Foldout {
+    margin-top: 10px;
+    margin-bottom: 10px;
 }
 
 Wiki > #Search {
