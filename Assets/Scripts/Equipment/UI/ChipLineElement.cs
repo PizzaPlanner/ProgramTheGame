@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -128,26 +129,30 @@ public partial class ChipLineElement : VisualElement, IMakeChipCode
         Editor.ShowSuggestions(Inputter, InputState);
     }
 
+    public void SetFrom(CSLineToken line)
+    {
+        switch (line.LineType)
+        {
+            case CSLineToken.TokenType.LogicAssignment:
+                Operation.Op = OperationType.Compare;
+                break;
+            case CSLineToken.TokenType.MathAssignment:
+                Operation.Op = OperationType.Calculate;
+                break;
+            case CSLineToken.TokenType.SimpleAssignment:
+                Operation.Op = OperationType.Set;
+                break;   
+        }
+        OnOperationChanged(Operation.Op);
+        (this.Q("LineContent")[0] as IMakeChipCode)!.SetFrom(line);
+    }
+
     public string Code => this.Q("LineContent")?.childCount > 0 && this.Q("LineContent")[0] is IMakeChipCode chipCode ? chipCode.Code : "-";
 
     public static ChipLineElement FromLine(CSLineToken line)
     {
         var cle = new ChipLineElement();
-        switch (line.LineType)
-        {
-            case CSLineToken.TokenType.LogicAssignment:
-                cle.Operation.Op = OperationType.Compare;
-                break;
-            case CSLineToken.TokenType.MathAssignment:
-                cle.Operation.Op = OperationType.Calculate;
-                break;
-            case CSLineToken.TokenType.SimpleAssignment:
-                cle.Operation.Op = OperationType.Set;
-                break;
-            // case CSLineToken.TokenType.Label:
-            //     block.Add(new ChipLineBlock(line.Token[0].Intermediate));
-            //     break;   
-        }
+        cle.SetFrom(line);
         return cle;
     }
 }

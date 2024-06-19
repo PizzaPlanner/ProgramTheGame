@@ -63,14 +63,7 @@ public partial struct Identifieable
     public Texture2D Icon => IdentifiablesMappingGroup.IconById.TryGetValue(this, out var v) ? v : null;
     public FixedString64Bytes DefaultName => IdentifiablesMappingGroup.NameById.TryGetValue(this, out var n) ? n : default;
 
-    public string Origin
-    {
-        get
-        {
-            var name = DefaultName;
-            return name.ToString()[..name.IndexOf('.')];
-        }
-    }
+    public Identifieable Origin => IdentifiablesMappingGroup.OriginById.TryGetValue(this, out var n) ? n : default;
 
     public static NativeArray<FixedString64Bytes> AllNames => IdentifiablesMappingGroup.NameById.GetValueArray(Allocator.Temp);
     public static NativeArray<Identifieable> All => IdentifiablesMappingGroup.EntitiesById.IsCreated ? IdentifiablesMappingGroup.EntitiesById.GetKeyArray(Allocator.Temp) : new NativeArray<Identifieable>(0, Allocator.Temp);
@@ -121,6 +114,6 @@ public struct PreIdentifiable : IComponentData
     public Identifieable Id;
     public IdTag Tags;
     public UnityObjectRef<Texture2D> Icon;
-    public FixedString32Bytes Origin;
-    public FixedString64Bytes TranslationKey => $"id.{Origin}.{Name}";
+    public UnityObjectRef<GameObject> Origin;
+    public FixedString64Bytes TranslationKey => $"{Origin.Value.name}.{Name}";
 }

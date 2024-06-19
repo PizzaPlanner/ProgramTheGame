@@ -3,18 +3,12 @@ using UnityEngine;
 
 public class CrafterAuthoring : MonoBehaviour
 {
-    public InventoryAuthoring Input, Output;
-
     class Baker : Baker<CrafterAuthoring>
     {
         public override void Bake(CrafterAuthoring authoring)
         {
             var self = GetEntity(TransformUsageFlags.None);
-            AddComponent(self, new Crafter 
-            {
-                InputInventory = GetEntity(authoring.Input, TransformUsageFlags.None),
-                OutputInventory = GetEntity(authoring.Output, TransformUsageFlags.None)
-            });
+            AddComponent(self, new CrafterLogic { });
             AddBuffer<CraftingQueue>(self);
             AddBuffer<Craftables>(self);
         }

@@ -78,6 +78,30 @@ InventoryButton {
     border-bottom-left-radius: 5px;
 }
 
+InventoryButton > #LockIcon {
+    display: none;
+    position: absolute;
+    top: 0;
+    width: 12px;
+    height: 12px;
+    right: 0;
+}
+
+InventoryButton.direction-none > #LockIcon {
+    display: flex;
+    background-image: url("project://database/Assets/UI/InventorySlotDirection-None.png?fileID=2800000&guid=e24c2d09723a798468e4a08ef0163acd&type=3#InventorySlotDirection-None");
+}
+
+InventoryButton.direction-in > #LockIcon {
+    display: flex;
+    background-image: url("project://database/Assets/UI/InventorySlotDirection-In.png?fileID=2800000&guid=31aba7efd08baa3418769f0498392ea1&type=3#InventorySlotDirection-In");
+}
+
+InventoryButton.direction-out > #LockIcon {
+    display: flex;
+    background-image: url("project://database/Assets/UI/InventorySlotDirection-Out.png?fileID=2800000&guid=42281561bb0f1e145b23934b955d8df9&type=3#InventorySlotDirection-Out");
+}
+
 InventoryButton.category-memory {
     background-image: url("project://database/Assets/UI/InventoryButton-memory.png?fileID=2800000&guid=dc602a8877487314b99e2b4ce8dac5ca&type=3#InventoryButton-memory");
 }

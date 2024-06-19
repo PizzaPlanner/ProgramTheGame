@@ -4,6 +4,11 @@ using UnityEngine.UIElements;
 
 namespace Identifiables.UI
 {
+    public class Tooltip : VisualElement
+    {
+        
+    }
+    
     [UxmlElement]
     public partial class IdentifiableButton : VisualElement
     {
@@ -12,8 +17,27 @@ namespace Identifiables.UI
             Add(new VisualElement{name = "Icon"});
             Add(new VisualElement{name = "Frame"});
             Add(new Label());
-            RegisterCallback<MouseEnterEvent>(x => RegisterCallbackOnce<KeyDownEvent>(ShowWiki));
-            RegisterCallback<MouseLeaveEvent>(x => UnregisterCallback<KeyDownEvent>(ShowWiki));
+            // RegisterCallback<MouseEnterEvent>(x =>
+            // {
+            //     RegisterCallback<KeyDownEvent>(ShowWiki, TrickleDown.TrickleDown);
+            //     if(Target == default)
+            //         return;
+            //     // this.schedule.Execute(() =>
+            //     // {
+            //     //     
+            //     // }).StartingIn(200);
+            //     // focusable = true;
+            //     // Focus();
+            // });
+            // RegisterCallback<MouseLeaveEvent>(x =>
+            // {
+            //     UnregisterCallback<KeyDownEvent>(ShowWiki);
+            //     schedule.Execute(() =>
+            //     {
+            //         
+            //     }).ExecuteLater(0);
+            //     focusable = false;
+            // });
             AddToClassList("id-button");
         }
 
@@ -21,7 +45,7 @@ namespace Identifiables.UI
         {
             if(evt.keyCode != KeyCode.F1 || Target == default)
                 return;
-            UISystemGroup.Show<Wiki>().OpenTab(Target);
+            UISystemGroup.ShowMenu<Wiki>().OpenTab(Target);
         }
 
         Identifieable _id;

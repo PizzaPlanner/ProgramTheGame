@@ -14,7 +14,9 @@
         "Equipment",
         "Identifiables",
         "Items.Authoring",
-        "Items"
+        "Items",
+        "Chip",
+        "Core"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

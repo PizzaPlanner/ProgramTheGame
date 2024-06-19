@@ -1,19 +1,21 @@
+using Unity.Collections;
 using Unity.Entities;
 using UnityEngine;
 
 public static class ItemTransaction
 {
-    internal enum TransactionType
+    public enum TransactionType
     {
         GenericAdd,
         GenericRemove,
         GenericTransfer,
+        Order,
         SwapSlots,
         TransferInventory,
         AddAndSpawn,
     }
     
-    internal struct PendingTransaction : IBufferElementData
+    public struct PendingTransaction
     {
         public TransactionType Type;
         public Entity FromInventory;
@@ -24,46 +26,45 @@ public static class ItemTransaction
         public int ToSlot;
     }
 
-    internal struct TransactionHeader : IComponentData
+    public struct TransactionHeader : IComponentData
     {
         public bool OnHold;
         internal bool Confirmed;
-        internal Entity InventoryA;
-        internal Entity InventoryB;
+        internal bool Cancelled;
+        internal NativeList<PendingTransaction> Transactions;
+
+        public bool TryGetSimpleTransaction(out PendingTransaction t)
+        {
+            t  = Transactions.Length == 1 ? Transactions[0] : default;
+            return  OnHold && t.Type == TransactionType.GenericTransfer;
+        } 
     }
     
     public struct Builder
     {
-        Entity e;
-        EntityCommandBuffer ecb;
-        Entity invA;
-        Entity invB;
+        TransactionStore store;
+        TransactionHeader header => store.Transactions[tId];
         bool isValid;
+        int tId;
 
-        public static Builder Schedule(EntityCommandBuffer ecb)
+        public static Builder Schedule(TransactionStore store)
         {
-            var e = ecb.CreateEntity();
-            ecb.AddBuffer<PendingTransaction>(e);
-            return new Builder { ecb = ecb, e = e, isValid = true };
-        }
-
-        void AddInventory(Entity inventory)
-        {
-            if(invA == Entity.Null || invA == inventory)
-                invA = inventory;
-            else if(invB == Entity.Null || invB == inventory)
-                invB = inventory;
-            else
+            var builder = new Builder()
             {
-                isValid = false;
-                Debug.LogError($"Invalid Item Transaction: Only up to 2 Inventories allowed");
-            }
+                tId = TransactionStore.NextId,
+                isValid = true,
+                store = store
+            };
+            builder.store.Transactions.Add(builder.tId, new TransactionHeader
+            {
+                Transactions = new NativeList<PendingTransaction>(1, Allocator.Persistent)
+            });
+            return builder;
         }
 
         public Builder AddAndSpawn(Entity inventory, ItemId item, int slot = -1)
         {
-            AddInventory(inventory);
-            ecb.AppendToBuffer(e, new PendingTransaction
+            header.Transactions.Add(new PendingTransaction
             {
                 Type = TransactionType.AddAndSpawn,
                 ToInventory = inventory,
@@ -77,8 +78,7 @@ public static class ItemTransaction
 
         public Builder AddTo(Entity inventory, ItemId item, uint amount, int slot = -1)
         {
-            AddInventory(inventory);
-            ecb.AppendToBuffer(e, new PendingTransaction
+            header.Transactions.Add(new PendingTransaction
             {
                 Type = TransactionType.GenericAdd,
                 ToInventory = inventory,
@@ -92,8 +92,7 @@ public static class ItemTransaction
         
         public Builder RemoveFrom(Entity inventory, ItemId item, uint amount)
         {
-            AddInventory(inventory);
-            ecb.AppendToBuffer(e, new PendingTransaction
+            header.Transactions.Add(new PendingTransaction
             {
                 Type = TransactionType.GenericRemove,
                 FromInventory = inventory,
@@ -107,9 +106,7 @@ public static class ItemTransaction
         
         public Builder Transfer(Entity fromInventory, Entity toInventory, ItemId item, uint amount)
         {
-            AddInventory(fromInventory);
-            AddInventory(toInventory);
-            ecb.AppendToBuffer(e, new PendingTransaction
+            header.Transactions.Add(new PendingTransaction
             {
                 Type = TransactionType.GenericTransfer,
                 FromInventory = fromInventory,
@@ -122,11 +119,23 @@ public static class ItemTransaction
             return this;
         }
         
+        public Builder Order(Entity toInventory, ItemId item, uint amount)
+        {
+            header.Transactions.Add(new PendingTransaction
+            {
+                Type = TransactionType.Order,
+                ToInventory = toInventory,
+                Amount = amount,
+                ItemId = item,
+                ToSlot = -1,
+                FromSlot = -1
+            });
+            return this;
+        }
+        
         public Builder Transfer(Entity fromInventory, int fromSlot, Entity toInventory, int toSlot)
         {
-            AddInventory(fromInventory);
-            AddInventory(toInventory);
-            ecb.AppendToBuffer(e, new PendingTransaction
+            header.Transactions.Add(new PendingTransaction
             {
                 Type = toSlot != -1 && fromSlot != -1 ? TransactionType.SwapSlots : TransactionType.GenericTransfer,
                 FromInventory = fromInventory,
@@ -139,10 +148,8 @@ public static class ItemTransaction
         
         public Builder TransferAll(Entity fromInventory, Entity toInventory)
         {
-            AddInventory(fromInventory);
-            AddInventory(toInventory);
             isValid &= fromInventory != toInventory;
-            ecb.AppendToBuffer(e, new PendingTransaction
+            header.Transactions.Add(new PendingTransaction
             {
                 Type = TransactionType.TransferInventory,
                 FromInventory = fromInventory,
@@ -154,30 +161,18 @@ public static class ItemTransaction
             return this;
         }
 
-        public void Commit()
-        {
-            if(!isValid)
-                return;
-            ecb.AddComponent(e, new TransactionHeader{ 
-                InventoryA = invA, 
-                InventoryB = invB, 
-                Confirmed = false});
-        }
-
-        public Entity CommitAndCompleteManually()
+        public int WithManualReview()
         {
             if (!isValid)
             {
-                Debug.LogError($"Discarded invalid transaction from {invA} to {invB}");
-                return Entity.Null;
+                Debug.LogError($"Discarded invalid transaction");
+                store.Remove(tId);
+                return -1;
             }
-            ecb.AddComponent(e, new TransactionHeader{ 
-                InventoryA = invA, 
-                InventoryB = invB, 
-                Confirmed = false,
-                OnHold = true
-            });
-            return e;
+            var h = header;
+            h.OnHold = true;
+            store.Transactions[tId] = h;
+            return tId;
         }
     }
 }

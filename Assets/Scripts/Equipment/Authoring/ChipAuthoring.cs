@@ -4,14 +4,14 @@ using UnityEngine;
 [RequireComponent(typeof(ChipRegistersAuthoring))]
 public class ChipAuthoring : MonoBehaviour
 {
-    public ChipScript InitialScript;
+    public LogicChip InitialScript;
     class ChipBaker : Baker<ChipAuthoring>
     {
         public override void Bake(ChipAuthoring authoring)
         {
             var e = GetEntity(TransformUsageFlags.None);
             AddComponent(e, new ChipState());
-            AddComponent(e, new LogicChip{ManagedScript = authoring.InitialScript});
+            AddComponentObject(e, authoring.InitialScript);
             AddBuffer<ChipInstructions>(e);
         }
     }

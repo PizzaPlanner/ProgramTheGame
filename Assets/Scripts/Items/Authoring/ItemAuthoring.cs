@@ -6,7 +6,6 @@ public class ItemAuthoring : MonoBehaviour
 {
     [Range(1, 9999)]
     public ushort MaxStackSize;
-    public ItemCategory Category;
     
     class Baker : Baker<ItemAuthoring>
     {
@@ -15,8 +14,7 @@ public class ItemAuthoring : MonoBehaviour
             var e = GetEntity(TransformUsageFlags.None);
             AddComponent(e, new Item
             {
-                MaxStack = authoring.MaxStackSize,
-                Category = authoring.Category
+                MaxStack = authoring.MaxStackSize
             });
         }
     }

@@ -1,0 +1,22 @@
+{
+    "name": "Chip",
+    "rootNamespace": "",
+    "references": [
+        "Unity.Entities",
+        "Unity.Mathematics",
+        "Unity.Transforms",
+        "Unity.Burst",
+        "Unity.Collections",
+        "Identifiables",
+        "Core"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": true,
+    "overrideReferences": true,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

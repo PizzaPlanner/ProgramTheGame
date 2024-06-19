@@ -19,6 +19,14 @@ MonoBehaviour:
   - Item
   - Equipment
   - Material
+  - Building
   - Information
   - ResourceNode
   - Recipe
+  - Chip
+  - Memory
+  - Battery
+  - SmallConstruct
+  - MediumConstruct
+  - SmallTool
+  - MediumTool

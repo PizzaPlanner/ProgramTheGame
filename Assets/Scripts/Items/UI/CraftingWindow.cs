@@ -1,4 +1,5 @@
 using Identifiables.UI;
+using System;
 using Unity.Entities;
 using UnityEngine.UIElements;
 
@@ -6,78 +7,44 @@ public class CraftingWindow : VisualElement, IComponentData
 {
     public Entity Queue { get; set; }
 
-    private VisualElement recipes, queue;
+    private EquipmentProgressBar queue;
     IdentifiableButton SelectRecipeButton;
     public CraftingWindow()
     {
         SelectRecipeButton = new IdentifiableButton(){name = "OpenRecipes"};
-        queue = new VisualElement();
-        queue.AddToClassList("queue-list");
-        recipes = new VisualElement();
-        recipes.AddToClassList("recipe-list");
-        recipes.style.display = DisplayStyle.None;
-        SelectRecipeButton.RegisterCallback<MouseDownEvent>(_ => recipes.style.display = DisplayStyle.Flex);
+        queue = new EquipmentProgressBar();
+        SelectRecipeButton.RegisterCallback<MouseDownEvent>(OnStartSelectRecipe);
         Add(SelectRecipeButton);
         Add(queue);
-        Add(recipes);
     }
 
-    public DynamicBuffer<Craftables> Craftables
+    void OnStartSelectRecipe(MouseDownEvent evt)
     {
-        set
-        {
-            var mgr = World.All[0].EntityManager;
-            foreach(var recipe in value)
-                recipes.Add(new CraftingRecipeElement
-                {
-                    Recipe = mgr.GetAspect<RecipeAspect>(recipe.Recipe.AsPrefab)
-                });
-        }
-    }
-
-    public void UpdateRecipes(EntityManager mgr)
-    {
-        var crafter = mgr.GetComponentData<Crafter>(Queue);
-        var inputs = mgr.GetBuffer<Inventory>(crafter.InputInventory);
-        var buffer = mgr.GetBuffer<CraftingQueue>(Queue);
-        foreach (var recipeBtn in recipes.Query<CraftingRecipeElement>().Build())
-        {
-            if (recipeBtn.Update(inputs))
+        SignalSelectionWindow.Show(SelectRecipeButton,
+            button =>
             {
-                buffer.Add(new CraftingQueue
-                {
-                    Recipe = recipeBtn.Entity, 
-                    TimeLeft = mgr.GetAspect<RecipeAspect>(recipeBtn.Entity).Duration
-                });
-                recipes.style.display = DisplayStyle.None;
-            }
-        }
+                SelectedRecipe = button.Target;
+            }, IdTagManager.ToTag("Recipe", "ControlFlow"),
+            button =>
+            {
+                if(button.Target == default)
+                    return true;
+                foreach(var c in Craftables)
+                    if(c.Recipe == button.Target)
+                        return true;
+                return false;
+            });
     }
+    
+    public Identifieable SelectedRecipe; 
 
-    public void UpdateQueue(EntityManager mgr)
+    public DynamicBuffer<Craftables> Craftables { get; set; }
+
+    public void UpdateQueue(CrafterLogic crafter, DynamicBuffer<Craftables> buffer, EntityManager mgr)
     {
-        var buffer = mgr.GetBuffer<CraftingQueue>(Queue);
-        for (int i = 0; i < buffer.Length; i++)
-        {
-            if(queue.childCount <= i)
-                queue.Add(new CraftingQueueElement{Crafter = Queue, IdInQueue = i});
-            if(queue.childCount > i)
-                queue[i].Q<CraftingQueueElement>().Update(mgr);
-        }
-        for(int i = buffer.Length; i < queue.childCount; i++)
-            queue[i].RemoveFromHierarchy();
-
-        if (buffer.Length == 0)
-        {
-            SelectRecipeButton.Target = default;
-            SelectRecipeButton.enabledSelf = true;
-        }
-        else
-        {
-            SelectRecipeButton.Target = mgr.GetComponentData<Identifieable>(buffer[0].Recipe);
-            SelectRecipeButton.enabledSelf = false;
-        }
+        Craftables = buffer;
+        SelectRecipeButton.Target = crafter.Recipe;
+        queue.value = crafter.ReadyIn * 1f / crafter.Cooldown;
+        queue.style.display = crafter.IsCrafting ? DisplayStyle.Flex : DisplayStyle.None;
     }
-
-    public new class UxmlFactory : UxmlFactory<CraftingWindow, UxmlTraits> { }
 }

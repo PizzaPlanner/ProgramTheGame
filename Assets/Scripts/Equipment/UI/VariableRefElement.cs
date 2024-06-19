@@ -16,17 +16,23 @@ public class VariableRefElement : VisualElement, IMakeChipCode
     }
     bool _isLeft;
     
-    SignalButton _signal;
+    public SignalButton Signal {get; private set;}
     
     
     public VariableRefElement()
     {
-        _signal = new SignalButton() {AssignableTo = IdTag.All};
-        _signal.OnValueChanged = OnIdChanged;
-        Add(_signal);
+        Signal = new SignalButton() {AssignableTo = IdTag.All};
+        Signal.OnValueChanged = OnIdChanged;
+        Add(Signal);
         Add(new DropdownField(){name = "Value"});
-        OnIdChanged(_signal.Target);
+        // this.Q<DropdownField>().RegisterValueChangedCallback(OnDropdownValueChanged);
+        OnIdChanged(Signal.Target);
     }
+
+    // void OnDropdownValueChanged(ChangeEvent<string> evt)
+    // {
+    //     var p = LogicParametersMappingSystem.GetAllParameters(Signal.Target).First(x => x.Name == evt.newValue);
+    // }
 
     void OnIdChanged(Identifieable id)
     {
@@ -34,12 +40,13 @@ public class VariableRefElement : VisualElement, IMakeChipCode
             AddToClassList("id-unset");
         else
         {
-            this.Q<DropdownField>().choices = new[]{"No Parameter"}
-                                              .Concat(LogicParametersMappingSystem
-                                                      .GetAllParameters(id).Where(x => !_isLeft || x.Access == LogicAccessType.ReadWrite)
-                                                      .Select(x => x.Name.Value)).ToList();
-            this.Q<DropdownField>().value = "";
-            if(this.Q<DropdownField>().choices.Count == 1)
+            var dropdown = this.Q<DropdownField>();
+            dropdown.choices = new[]{"No Parameter"}
+                               .Concat(LogicParametersMappingSystem
+                                       .GetAllParameters(id).Where(x => !_isLeft || x.Access == LogicAccessType.ReadWrite)
+                                       .Select(x => x.Name.Value)).ToList();
+            dropdown.value = dropdown.choices.Contains(dropdown.value) ? dropdown.value : dropdown.choices[0];
+            if(dropdown.choices.Count == 1)
                 AddToClassList("id-unset");
             else
                 RemoveFromClassList("id-unset");
@@ -47,9 +54,31 @@ public class VariableRefElement : VisualElement, IMakeChipCode
         
     }
 
-    public string Code => _signal.Target != default 
-        ? ClassListContains("id-unset") 
-            ? _signal.Target.DefaultName.Value
-            : $"{_signal.Target.DefaultName}.{this.Q<DropdownField>().value}"
-        : _signal.Value.ToString();
+    public void SetFrom(CSLineToken line)
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public string Code => Signal.Target != default 
+        ? ClassListContains("id-unset") || this.Q<DropdownField>().value == "Id"
+            ? Signal.Target.DefaultName.Value
+            : $"{Signal.Target.DefaultName}.{this.Q<DropdownField>().value}"
+        : Signal.Value.ToString();
+
+    public void SetFrom(CSToken csToken)
+    {
+        if (csToken.Type == CSToken.TokenType.Parameter)
+        {
+            var left = csToken.Value.Split('.')[0];
+            var right = csToken.Value.Split('.')[1];
+            Signal.Target = Identifieable.FromName(left);
+            this.Q<DropdownField>().SetValueWithoutNotify(right);
+        }
+        else if (csToken.Type == CSToken.TokenType.Constant)
+        {
+            Signal.Value = int.TryParse(csToken.Value, out var l) ? l : 0;
+            Signal.Target = default;
+        }
+        OnIdChanged(Signal.Target);
+    }
 }

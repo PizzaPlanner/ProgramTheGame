@@ -28,7 +28,7 @@ namespace Items.Tests
                 Type = ItemId.From(new Identifieable(SomeStackableGUID))
             });
             inventory.Add(default);
-            ItemTransaction.Builder.Schedule(ecb).Transfer(e, 0, e, 1).Commit();
+            // SystemAPI.GetSingleton<TransactionStore>().Build.Transfer(e, 0, e, 1);
             ecb.Playback(world.EntityManager);
             yield return new WaitForSeconds(2);
             inventory = world.EntityManager.GetBuffer<Inventory>(e);

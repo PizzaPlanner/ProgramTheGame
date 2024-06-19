@@ -60,12 +60,15 @@ public partial class SignalSelectionWindow : ScrollView
         return btn;
     }
 
-    public static void Show(VisualElement nextTo, Action<SignalButton> action, IdTag tags)
+    public static void Show(VisualElement nextTo, Action<SignalButton> action, IdTag tags, Func<SignalButton, bool> signalFilter = null)
     {
         foreach (var collection in Instance.Query<SignalSelectionIdCollection>().Build())
         {
-            collection.Tab.tabHeader.style.display = tags.Contains(collection.Tag) ? DisplayStyle.Flex : DisplayStyle.None; 
-            collection.Tab.style.display = tags.Contains(collection.Tag) ? DisplayStyle.Flex : DisplayStyle.None;
+            var showMe = tags.Contains(collection.Tag) ? DisplayStyle.Flex : DisplayStyle.None;
+            collection.Tab.tabHeader.style.display = showMe; 
+            collection.Tab.style.display = showMe;
+            if(showMe == DisplayStyle.Flex)
+                collection.Query<SignalButton>().ForEach(x => x.style.display = signalFilter == null || signalFilter(x) ? DisplayStyle.Flex : DisplayStyle.None);
         }
         Instance.OnSignalSelected = action;
         Instance.style.display = DisplayStyle.Flex;

@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class GPSAuthoring : MonoBehaviour
 {
-    public ChipScript InitialScript;
     class GPSBaker : Baker<GPSAuthoring>
     {
         public override void Bake(GPSAuthoring authoring)

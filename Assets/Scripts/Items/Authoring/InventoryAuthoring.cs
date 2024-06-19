@@ -20,7 +20,7 @@ public class InventoryAuthoring : MonoBehaviour
                 var slot = authoring.Slots[i];
                 var content = new Inventory
                 {
-                    SlotFilter = slot.Filter, 
+                    SlotFilter = IdTagManager.ToTag(slot.Filter), 
                     Transfer = slot.TransferDirection,
                 };
                 buffer.Add(content);

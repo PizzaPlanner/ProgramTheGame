@@ -5,10 +5,11 @@ using UnityEngine;
 
 [assembly:InternalsVisibleTo("Items.Tests")]
 [assembly:InternalsVisibleTo("Items.Authoring")]
+[assembly:InternalsVisibleTo("Items.Systems")]
 
 public struct ReservedSpace : IBufferElementData
 {
-    public Entity Transaction;
+    public int Transaction;
     public ItemId ReservedType;
     public int Slot;
     public uint Amount;
@@ -33,7 +34,7 @@ public struct Inventory : IBufferElementData
     }
     
     public ItemId Type;
-    public ItemCategory SlotFilter;
+    public IdTag SlotFilter;
     public bool IsTypeLocked;
     public TransferDirection Transfer;
     public bool CanTransferInto => Transfer is TransferDirection.In or TransferDirection.InOut;

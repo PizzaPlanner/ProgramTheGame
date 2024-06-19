@@ -1,4 +1,4 @@
-﻿using Equipment;
+﻿using Core;
 using Programmable;
 using System;
 using System.Collections.Generic;
@@ -49,7 +49,7 @@ public partial class LogicParametersMappingSystem : IdentifiableMappingSystem
     }
     
     public static bool TryGetLogicParameter(Identifieable id, int index, out ItemTypeLogicParameter data) => TypeParameters.TryGetValue((id, index), out data);
-    public static bool TryGetLogicParameter(VariableAccess v, out ItemTypeLogicParameter data) => TypeParameters.TryGetValue((v.TypeId, v.TypeParameterIndex), out data);
+    public static bool TryGetLogicParameter(ParameterAccess v, out ItemTypeLogicParameter data) => TypeParameters.TryGetValue((v.TypeId, v.TypeParameterIndex), out data);
     protected override void OnCreate()
     {
         TypeParameters = new NativeParallelHashMap<(Identifieable, int), ItemTypeLogicParameter>(0, Allocator.Persistent);
@@ -76,6 +76,15 @@ public partial class LogicParametersMappingSystem : IdentifiableMappingSystem
     // TODO: Make sure all types have sequential layout
     protected override void OnUpdate()
     {
+        var query = SystemAPI.QueryBuilder().WithAll<PreIdentifiable, Prefab, Identifieable>()
+                             .WithOptions(EntityQueryOptions.IncludePrefab)
+                             .WithNone<IdForChip>().Build();
+        EntityManager.AddComponent<IdForChip>(query);
+        foreach (var (id, chipId) in SystemAPI.Query<Identifieable, RefRW<IdForChip>>())
+        {
+            chipId.ValueRW.Id = id;
+        }
+        
         foreach (var (id, e) in
                  SystemAPI.Query<Identifieable>()
                           .WithAll<Prefab, PreIdentifiable>()

@@ -19,6 +19,7 @@ public class ChipOperationDropdown : VisualElement
             _op = value;
             this.Q<EnumField>().value = value;
         }
+        get => _op;
     }
     OperationType _op;
 }

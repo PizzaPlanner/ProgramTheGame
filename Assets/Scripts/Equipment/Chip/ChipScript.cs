@@ -2,10 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
-using Unity.Mathematics;
 using UnityEngine;
-using Hash128 = Unity.Entities.Hash128;
 
 public class CSToken
 {
@@ -61,7 +60,6 @@ public class CSLineToken
     public void CalculateLineType()
     {
         var nonCommentToken = Token.Count(x => x.Type != CSToken.TokenType.Commment);
-        LineType = TokenType.Invalid;
         if(Token.Any(x => x.Type == CSToken.TokenType.Unknown))
             LineType = TokenType.Invalid;
         else if(nonCommentToken == 0)
@@ -156,11 +154,14 @@ public class ChipScriptParser
         NoError,
         KeyNotFound,
         Unknown,
+        Empty,
         SyntaxError
     }
-    public static Error GetFrom(ChipScript script, Identifieable executorId, out NativeArray<ChipInstructions> instructions)
+    public static Error GetFrom(LogicChip script, Identifieable executorId, out NativeArray<ChipInstructions> instructions)
     {
         instructions = default;
+        if(script.LastError != Error.NoError)
+            return script.LastError;
         var parser = new ChipScriptParser();
         parser.Parse(script);
         
@@ -175,19 +176,27 @@ public class ChipScriptParser
 
             var inst = new ChipInstructions
             {
-                RightIsConstant = csl.RightIsConstant,
                 WritesToSelf = csl.WritesToExecutor
             };
-            inst.Left = new VariableAccess { TypeId = csl.LeftId, TypeParameterIndex = csl.LeftIndex };
-            inst.Right = new VariableAccess { TypeId = csl.RightId, TypeParameterIndex = csl.RightIndex, ConstantValue = new int4(csl.RightConstant, 0, 0, 0)};
+            var rightConstant = csl.RightConstant;
+            inst.Left = new ParameterAccess { TypeId = csl.LeftId, TypeParameterIndex = csl.LeftIndex };
+            inst.Right = new AnyLogicValue()
+            {
+                LogicType = csl.RightType,
+                Parameter = { TypeId = csl.RightId, TypeParameterIndex = csl.RightIndex },
+                Constant = csl.RightConstant,
+                IsConstant = csl.RightIsConstant
+            };
             newInstructions.Add(inst);
         }
         instructions = newInstructions.ToArray(Allocator.Temp);
         Debug.Log($"Created {instructions.Length} compiled instructions for {script.Location}");
+        if(instructions.Length == 0)
+            return Error.Empty;
         return Error.NoError;
     }
     
-    public void Parse(ChipScript script)
+    public void Parse(LogicChip script)
     {
         Token = new List<CSLineToken>();
         var lines = script.Script.Split('\n');
@@ -234,11 +243,12 @@ public class ChipScriptParser
                 token.Type = CSToken.TokenType.Keyword;
             else if(word.Split('.', StringSplitOptions.RemoveEmptyEntries).Length == 2)
                 token.Type = CSToken.TokenType.Parameter;
-            else if(long.TryParse(word, out _))
+            else if(long.TryParse(word, out _) || Identifieable.FromName(word) != default)
                 token.Type = CSToken.TokenType.Constant;
             else
                 token.Type = CSToken.TokenType.Unknown;
-            lineToken.Token.Add(token);
+            if(token.Value.Trim().Length > 0)
+                lineToken.Token.Add(token);
             wordStart = wordEnd + 1;
             wordEnd = line.IndexOfAny(new[]{' ', '\t', '\n' }, wordStart);
         }
@@ -280,11 +290,13 @@ public struct ChipScriptLine
     public bool ReadsFromExecutor;
     public Identifieable LeftId;
     public Identifieable RightId;
-    public bool RightIsConstant;
     public int LeftIndex;
     public int RightIndex;
-    public int RightConstant;
-    
+    public LogicType RightType;
+    public LogicType LeftType;
+    public long RightConstant;
+    public bool RightIsConstant;
+
     public static ChipScriptLine From(string intermediate, string original, Identifieable selfId)
     {
         var lr = intermediate.Split('=');
@@ -311,7 +323,7 @@ public struct ChipScriptLine
         else
         {
             var idName = left.Split('.')[0];
-            csl.LeftId = Identifieable.FromName($"id.core.{idName}");
+            csl.LeftId = Identifieable.FromName(idName);
             if (csl.LeftId == default)
             {
                 Debug.LogError($"Invalid script line '{original}': No ID associated with {idName}");
@@ -322,6 +334,14 @@ public struct ChipScriptLine
         if (int.TryParse(right, out var constant))
         {
             csl.RightConstant = constant;
+            csl.RightType = LogicType.Number;
+            csl.RightIsConstant = true;
+        }
+        else if (!right.Contains('.'))
+        {
+            var id = Identifieable.FromName(right);
+            csl.RightConstant = id.ItemId;
+            csl.RightType = LogicType.Type;
             csl.RightIsConstant = true;
         }
         else
@@ -334,7 +354,7 @@ public struct ChipScriptLine
             }
             else
             {
-                csl.RightId = Identifieable.FromName($"id.core.{idName}");
+                csl.RightId = Identifieable.FromName(idName);
                 if (csl.RightId == default)
                 {
                     Debug.LogError($"Invalid script line '{original}': No ID associated with {idName}");
@@ -347,8 +367,11 @@ public struct ChipScriptLine
             var pRight = LogicParametersMappingSystem.GetAllParameters(csl.RightId);
             for (int i = 0; i < pRight.Length; i++)
             {
-                if(string.Equals(pRight[i].Name.ToString(), pName, StringComparison.InvariantCultureIgnoreCase))
+                if (string.Equals(pRight[i].Name.ToString(), pName, StringComparison.InvariantCultureIgnoreCase))
+                {
                     csl.RightIndex = i;
+                    csl.RightType = pRight[i].Type;
+                }
             }
 
             if (csl.RightIndex < 0)
@@ -372,7 +395,13 @@ public struct ChipScriptLine
                         return csl;
                     }
                     csl.LeftIndex = i;
+                    csl.LeftType = pLeft[i].Type;
                 }
+            }
+
+            if (csl.LeftType != csl.RightType)
+            {
+                Debug.LogError($"Invalid script line '{original}': Type Mismatch {csl.LeftType} / {csl.RightType}");
             }
 
             if (csl.LeftIndex < 0)
@@ -384,44 +413,5 @@ public struct ChipScriptLine
         
         csl.IsValid = true;
         return csl;
-    }
-}
-
-[CreateAssetMenu]
-[Serializable]
-public class ChipScript : ScriptableObject
-{
-    public string Location;
-    public Guid UniqueId;
-    [Multiline(40)]
-    public string Script;
-
-    public bool ToIntermediate(out string[] lines)
-    {
-        var labelLines = new Dictionary<string, int>();
-        var list = Script.Split('\n').Select(x => x.Split('#')[0].Trim()).Where(x => x.Length > 0).ToList();
-        for (var i = 0; i < list.Count; i++)
-        {
-            var line = list[i];
-            if(ProcessLabel(line))
-            {
-                Debug.Log($"Line {i}: Labelled as {line}");
-                labelLines.Add(line[..^1], i);
-                list.RemoveAt(i--);
-            }
-        }
-        
-        var intermediate = string.Join('\n', list);
-        foreach(var label in labelLines)
-            intermediate = intermediate.Replace($"@{label.Key}", label.Value.ToString());
-
-        lines = intermediate.Split('\n');
-        Debug.Log($"Intermediate script:\n{intermediate}");
-        return true;
-    }
-
-    bool ProcessLabel(string line)
-    {
-        return line.EndsWith(':');
     }
 }

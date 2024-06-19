@@ -13,7 +13,10 @@
         "Unity.Physics",
         "Identifiables.Authoring",
         "Items",
-        "Identifiables"
+        "Items.Systems",
+        "Identifiables",
+        "Equipment",
+        "Chip"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

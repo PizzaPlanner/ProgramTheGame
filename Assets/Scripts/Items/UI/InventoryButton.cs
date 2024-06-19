@@ -14,6 +14,11 @@ public partial class InventoryButton : ItemButton
     public static Action<InventoryButton> OnDragStart;
     public static Action OnDragStop;
 
+    public InventoryButton() : base()
+    {
+        Add(new VisualElement(){name = "LockIcon"});
+    }
+    
     Entity _equipmentInSlot;
     public Inventory Slot
     {
@@ -22,8 +27,8 @@ public partial class InventoryButton : ItemButton
             // Name = value.Type.BaseId.DefaultName.Value;
             Info = value.IsEmpty ? "" : value.IsEquipmentSlot ? "E" : value.Amount.ToString();
             Target = value.Type.BaseId;
-            RemoveFromClassList($"category-{_slot.SlotFilter.ToString().ToLower()}");
-            AddToClassList($"category-{value.SlotFilter.ToString().ToLower()}");
+            RemoveFromClassList($"{_slot.SlotFilter.ToString().ToLower()}");
+            AddToClassList($"{value.SlotFilter.ToString().ToLower()}");
             IsEmpty = value.IsEmpty;
             _slot = value;
             EntityInSlotChanged = _equipmentInSlot != value.Entity;
@@ -31,6 +36,18 @@ public partial class InventoryButton : ItemButton
             RegisterCallback<MouseUpEvent>(OnClickUp);
             RegisterCallback<MouseDownEvent>(OnClickDown);
             RegisterCallback<MouseMoveEvent>(OnMouseMove);
+            if(value.Transfer == Inventory.TransferDirection.In)
+                AddToClassList("direction-in");
+            else
+                RemoveFromClassList("direction-in");
+            if(value.Transfer == Inventory.TransferDirection.Out)
+                AddToClassList("direction-out");
+            else
+                RemoveFromClassList("direction-out");
+            if(value.Transfer == Inventory.TransferDirection.None)
+                AddToClassList("direction-none");
+            else
+                RemoveFromClassList("direction-none");
                 
         }
         get => _slot;

@@ -14,7 +14,9 @@
         "Unity.Physics",
         "Items",
         "Identifiables",
-        "Core.UI"
+        "Chip",
+        "Core.UI",
+        "Core"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

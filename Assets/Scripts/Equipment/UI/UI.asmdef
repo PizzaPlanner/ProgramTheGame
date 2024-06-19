@@ -16,7 +16,9 @@
         "Equipment",
         "Core.UI",
         "Units",
-        "Items.UI"
+        "Chip",
+        "Core",
+        "Items"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

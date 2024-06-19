@@ -10,6 +10,7 @@ namespace Units
         public void OnUpdate(ref SystemState state)
         {
             var ecb = new EntityCommandBuffer(Allocator.Temp);
+            var store = SystemAPI.GetSingleton<TransactionStore>();
             foreach (var (cmd, localPos, inventory, canInteract, e) in 
                      SystemAPI.Query<InteractCommand, RefRW<LocalTransform>, DynamicBuffer<Inventory>, CanInteract>().WithEntityAccess())
             {
@@ -23,7 +24,7 @@ namespace Units
                 var targetPos = SystemAPI.GetComponent<LocalTransform>(cmd.Unit).Position;
                 if (math.distancesq(targetPos, localPos.ValueRO.Position) < canInteract.RangeSq)
                 {
-                    ItemTransaction.Builder.Schedule(ecb).TransferAll(cmd.Unit, e).Commit();
+                    store.CreateBuilder.TransferAll(cmd.Unit, e);
                 }
             }
             ecb.Playback(state.EntityManager);

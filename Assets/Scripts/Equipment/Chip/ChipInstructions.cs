@@ -1,19 +1,26 @@
-﻿using System.Runtime.InteropServices;
+﻿using Core;
+using System.Runtime.InteropServices;
 using Unity.Entities;
 using Unity.Mathematics;
 
 public struct ChipInstructions : IBufferElementData
 {
-    public VariableAccess Left;
-    public VariableAccess Right;
-    public bool RightIsConstant;
+    public ParameterAccess Left;
+    public AnyLogicValue Right;
     public bool WritesToSelf;
     public bool IsZeroTickInstruction;
 }
 
-public struct VariableAccess
+public struct AnyLogicValue
 {
-    public Identifieable TypeId; // MiningDrill
-    public int TypeParameterIndex; // Range
-    public int4 ConstantValue;
+    public ParameterAccess Parameter;
+    public long Constant;
+    public LogicType LogicType;
+    public bool IsConstant;
+}
+
+public struct ParameterAccess
+{
+    public Identifieable TypeId;
+    public int TypeParameterIndex;
 }

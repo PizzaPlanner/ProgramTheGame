@@ -13,9 +13,12 @@
         "Items",
         "Identifiables",
         "Equipment",
+        "Equipment.UI",
         "Units",
         "Identifiables.UI",
-        "Core.UI"
+        "Core.UI",
+        "Chip",
+        "Items.Systems"
 
     ],
     "includePlatforms": [],

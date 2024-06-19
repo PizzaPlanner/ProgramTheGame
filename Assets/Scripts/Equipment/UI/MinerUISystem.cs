@@ -19,18 +19,16 @@ partial class MinerUISystem : SystemBase
                 window = new EquipmentProgressBar();
                 parent.Add(window);
             }
-            window.Progress = miner.ReadyIn * 1f / miner.Cooldown; 
+            window.value = miner.ReadyIn * 1f / miner.Cooldown; 
         }
     }
 }
 
-public class EquipmentProgressBar : VisualElement
+public class EquipmentProgressBar : ProgressBar
 {
-    public float Progress
+    public EquipmentProgressBar() : base()
     {
-        set
-        {
-            
-        }
+        this.lowValue = 0;
+        this.highValue = 1;
     }
 }

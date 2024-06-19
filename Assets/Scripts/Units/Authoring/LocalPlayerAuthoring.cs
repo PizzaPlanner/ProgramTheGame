@@ -7,7 +7,8 @@ public class LocalPlayerAuthoring : MonoBehaviour
     {
         public override void Bake(LocalPlayerAuthoring authoring)
         {
-            AddComponent<LocalPlayer>(GetEntity(TransformUsageFlags.None));
+            var e = GetEntity(TransformUsageFlags.None);
+            AddComponent<LocalPlayer>(e);
         }
     }
 }

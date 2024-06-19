@@ -10,7 +10,8 @@
         "Unity.Physics",
         "Identifiables",
         "Items",
-        "Equipment"
+        "Equipment",
+        "Items.Systems"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

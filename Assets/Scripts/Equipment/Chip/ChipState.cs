@@ -1,4 +1,4 @@
-﻿using Equipment;
+﻿using Core;
 using Programmable;
 using System.Runtime.InteropServices;
 using Unity.Entities;

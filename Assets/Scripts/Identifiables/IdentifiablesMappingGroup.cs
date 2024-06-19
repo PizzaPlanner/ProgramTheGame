@@ -31,6 +31,7 @@ public partial class IdentifiablesMappingGroup : ComponentSystemGroup
     internal static NativeParallelHashMap<Identifieable, IdTag> TagsById;
     internal static Dictionary<Identifieable, Texture2D> IconById;
     internal static NativeParallelHashMap<Identifieable, FixedString64Bytes> NameById;
+    internal static NativeParallelHashMap<Identifieable, Identifieable> OriginById;
 
     internal static UnsafeParallelMultiHashMap<Identifieable, IdentifiableLink> IdRelations;
     
@@ -44,7 +45,7 @@ public partial class IdentifiablesMappingGroup : ComponentSystemGroup
         EntitiesById = new NativeParallelHashMap<Identifieable, Entity>(0, Allocator.Persistent);
         NameById = new NativeParallelHashMap<Identifieable, FixedString64Bytes>(0, Allocator.Persistent);
         TagsById = new NativeParallelHashMap<Identifieable, IdTag>(0, Allocator.Persistent);
-        
+        OriginById = new NativeParallelHashMap<Identifieable, Identifieable>(0, Allocator.Persistent);
         IdRelations = new UnsafeParallelMultiHashMap<Identifieable, IdentifiableLink>(0, Allocator.Persistent);
     }
 
@@ -55,6 +56,7 @@ public partial class IdentifiablesMappingGroup : ComponentSystemGroup
         NameById.Dispose();
         TagsById.Dispose();
         IdRelations.Dispose();
+        OriginById.Dispose();
     }
     
     protected override void OnStartRunning()
@@ -101,7 +103,7 @@ public partial class IdentifiablesMappingGroup : ComponentSystemGroup
             {
                 EntityManager.AddComponentData(e, id);
                 EntitiesById.Add(id, e);
-                NameById.Add(id, preId.TranslationKey);
+                NameById.Add(id, preId.Name);
                 TagsById.Add(id, preId.Tags);
                 if(preId.Icon.Value != null)
                     IconById.Add(id, preId.Icon);

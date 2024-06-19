@@ -33,19 +33,17 @@ namespace Units
             var localPlayer = SystemAPI.GetSingletonEntity<LocalPlayer>();
             EntityManager.AddBuffer<UnitGroup>(localPlayer);
             selectionUI = new UnitGroupElement(){name = "CurrentSelection"};
-            UISystemGroup.Add(selectionUI);
+            UISystemGroup.AddOverlay(selectionUI);
             mainUnitUI =  new MainUnitElement();
-            UISystemGroup.Add(mainUnitUI);
+            UISystemGroup.AddOverlay(mainUnitUI);
             InventoryButton.OnDragDrop += OnDragDrop;
             EntityManager.AddComponentObject(localPlayer, new SelectionUI{ UI = selectionUI });
         }
 
         protected override void OnUpdate()
         {
-            
             var localPlayer = SystemAPI.GetSingletonEntity<LocalPlayer>();
             var selection = SystemAPI.GetBuffer<UnitGroup>(localPlayer);
-            
             
             selectionUI.SetGroup(selection, ref CheckedStateRef);
             
@@ -90,12 +88,13 @@ namespace Units
             }
             else if (Hovered != Entity.Null && Input.GetMouseButtonUp(0) && _dragFrom != null && SystemAPI.HasBuffer<Inventory>(Hovered))
             {
-                ItemTransaction.Builder.Schedule(ecb)
-                               .Transfer(_dragFrom.Container, _dragFrom.SlotId, Hovered, -1).Commit();
+                
+                SystemAPI.GetSingleton<TransactionStore>().CreateBuilder
+                         .Transfer(_dragFrom.Container, _dragFrom.SlotId, Hovered, -1);
                 Debug.Log($"Scheduled Transaction from {_dragFrom.Container} to {Hovered}");
                 
             }
-            else if (Hovered == Entity.Null && Input.GetMouseButtonUp(0) && !Input.GetKey(KeyCode.LeftShift) && !IsDragging)
+            else if (Hovered == Entity.Null && Input.GetMouseButtonDown(0) && !Input.GetKey(KeyCode.LeftShift) && !IsDragging)
             {
                 selection.Clear();
             }

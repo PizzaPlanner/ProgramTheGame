@@ -46,7 +46,7 @@ public class IdentifieableAuthoring : MonoBehaviour
                     Tags = IdTagManager.ToTag(authoring.Tags),
                     Name = authoring.gameObject.name,
                     Icon = authoring.Icon,
-                    Origin = "core"
+                    Origin = null
                 });
             } else
                 AddComponent(e, authoring.Id);

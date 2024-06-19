@@ -21,10 +21,10 @@ partial class LogicChipUISystem : UISystem
 
         void OnEdit(MouseDownEvent evt)
         {
-            if(LogicChip.ManagedScript.Value == null)
+            if(LogicChip == null)
                 return;
             
-            UISystemGroup.Show<ChipEditorElement>().Import(LogicChip.ManagedScript.Value);
+            UISystemGroup.ShowMenu<ChipEditorElement>().Import(LogicChip);
         }
 
         public ChipState ChipState
@@ -45,8 +45,8 @@ partial class LogicChipUISystem : UISystem
         UISystemGroup.AddOverlayWithMenuEntry("ChipEditor", editor);
     }
 
-    ChipScript editedScript;
-    void OnScriptSaved(ChipScript obj)
+    LogicChip editedScript;
+    void OnScriptSaved(LogicChip obj)
     {
         editedScript = obj;   
     }
@@ -73,12 +73,13 @@ partial class LogicChipUISystem : UISystem
         var ecb = new EntityCommandBuffer(Allocator.Temp);
         foreach (var (chip, e) in SystemAPI.Query<LogicChip>().WithEntityAccess())
         {
-            if(chip.ManagedScript.Value != editedScript)
+            if(chip.Location != editedScript.Location)
                 continue;
             if(SystemAPI.HasBuffer<ChipInstructions>(e))
                 ecb.RemoveComponent<ChipInstructions>(e);
         }
         ecb.Playback(EntityManager);
+        editedScript = null;
         
     } 
 }

@@ -14,8 +14,9 @@
         "Identifiables",
         "Equipment",
         "Units",
-        "Items.UI"
-
+        "Chip",
+        "Items.UI",
+        "Core"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

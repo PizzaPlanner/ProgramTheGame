@@ -124,7 +124,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ItemId: 3301636811053281828
-  Tags: 0
+  Tags: []
   Icon: {fileID: 2800000, guid: bd90291668bfd9442816ede22f9f84f4, type: 3}
 --- !u!114 &-4581376102910711037
 MonoBehaviour:
@@ -141,35 +141,48 @@ MonoBehaviour:
   Slots:
   - Item: {fileID: 697860641069326925, guid: 2d08fe34d7e1b34488389132c02bd97d, type: 3}
     Amount: 20
-    Filter: 0
+    Filter:
+    - Item
     TransferDirection: 3
-  - Item: {fileID: 697860641069326925, guid: 2d08fe34d7e1b34488389132c02bd97d, type: 3}
-    Amount: 10
-    Filter: 0
+  - Item: {fileID: 697860641069326925, guid: 3245cd94c258ce647a5d748badd6c948, type: 3}
+    Amount: 30
+    Filter:
+    - Item
     TransferDirection: 3
-  - Item: {fileID: 697860641069326925, guid: b3149f2eb517a2c48baed1fe2041b4a3, type: 3}
-    Amount: 1
-    Filter: 0
+  - Item: {fileID: 697860641069326925, guid: 5a580b2bc75411c4197f40047c32667d, type: 3}
+    Amount: 50
+    Filter:
+    - Item
     TransferDirection: 3
   - Item: {fileID: 697860641069326925, guid: 438d188bfd538394d9f90677999a87d3, type: 3}
     Amount: 1
-    Filter: 0
+    Filter:
+    - Item
     TransferDirection: 3
   - Item: {fileID: 697860641069326925, guid: 4f6ba04be66bbe74d97951674e60e6f1, type: 3}
-    Amount: 0
-    Filter: 0
+    Amount: 1
+    Filter:
+    - Item
     TransferDirection: 3
   - Item: {fileID: 697860641069326925, guid: 504aeee71de98494ab364a6584647f1f, type: 3}
-    Amount: 0
-    Filter: 0
+    Amount: 1
+    Filter:
+    - Item
+    TransferDirection: 3
+  - Item: {fileID: 697860641069326925, guid: b9e28a39a566c2e4f8b1790a6811a0db, type: 3}
+    Amount: 1
+    Filter:
+    - Item
     TransferDirection: 3
   - Item: {fileID: 0}
     Amount: 0
-    Filter: 0
+    Filter:
+    - Item
     TransferDirection: 3
   - Item: {fileID: 0}
     Amount: 0
-    Filter: 0
+    Filter:
+    - Item
     TransferDirection: 3
 --- !u!114 &2099693330812229903
 MonoBehaviour:

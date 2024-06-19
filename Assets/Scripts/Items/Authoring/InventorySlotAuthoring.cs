@@ -1,10 +1,13 @@
 ﻿using System;
+using System.Linq;
 using UnityEditor;
 using UnityEditor.Search;
 using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.Search;
+using UnityEngine.UI;
 using UnityEngine.UIElements;
+using Button = UnityEngine.UIElements.Button;
 using ObjectField = UnityEditor.UIElements.ObjectField;
 
 [Serializable]
@@ -12,7 +15,7 @@ class InventorySlotAuthoring
 {
     public ItemAuthoring Item;
     public uint Amount;
-    public ItemCategory Filter;
+    public string[] Filter;
     public Inventory.TransferDirection TransferDirection;
 }
 
@@ -32,9 +35,22 @@ class InventoryAuthoringEditor : Editor
         {
             serializedObject.Update();
             property.arraySize++;
+            var newProp = property.GetArrayElementAtIndex(property.arraySize - 1);
+            newProp.FindPropertyRelative("Filter").arraySize = 1;
+            newProp.FindPropertyRelative("Filter").GetArrayElementAtIndex(0).stringValue = "Item";
             serializedObject.ApplyModifiedProperties();
             RedrawInventory(inventory, property);
-        }) { text = "+" });
+        }) { text = "+ Item" });
+        root.Add(new Button(() =>
+        {
+            serializedObject.Update();
+            property.arraySize++;
+            var newProp = property.GetArrayElementAtIndex(property.arraySize - 1);
+            newProp.FindPropertyRelative("Filter").arraySize = 1;
+            newProp.FindPropertyRelative("Filter").GetArrayElementAtIndex(0).stringValue = "Equipment";
+            serializedObject.ApplyModifiedProperties();
+            RedrawInventory(inventory, property);
+        }) { text = "+ Equipment" });
         root.Add(new Button(() =>
         {
             serializedObject.Update();
@@ -61,20 +77,46 @@ class InventorySlotField : VisualElement
     {
         Add(new IconPropertyField(property.FindPropertyRelative("Item")){ name = "Icon" });
         Add(new PropertyField(property.FindPropertyRelative("Amount")) { name = "Amount" });
-        Add(new PropertyField(property.FindPropertyRelative("Filter")) { name = "Filter" });
         Add(new PropertyField(property.FindPropertyRelative("TransferDirection")) { name = "TransferDirection" });
+        
+        var filter = new MaskField() { name = "Filter" };
+        filter.choices = IdTagManager.Names.ToList();
+        filter.RegisterValueChangedCallback(x => SelectionToFilter(x.newValue, property.FindPropertyRelative("Filter")));
+        Add(filter);
         ApplyFilter(property);
-        this.Q<PropertyField>("Filter").RegisterValueChangeCallback(x =>ApplyFilter(property));
+    }
+
+    void SelectionToFilter(int mask, SerializedProperty filterProp)
+    {
+        filterProp.serializedObject.Update();
+        filterProp.arraySize = 0;
+        for (int i = 0; i < IdTagManager.Names.Length; i++)
+        {
+            if ((mask & (1 << i)) != 0)
+            {
+                filterProp.arraySize++;
+                filterProp.GetArrayElementAtIndex(filterProp.arraySize - 1).stringValue = IdTagManager.Names[i];
+            }
+        }
+        filterProp.serializedObject.ApplyModifiedProperties();
+        ApplyFilter(filterProp);
     }
 
     void ApplyFilter(SerializedProperty property)
     {
-        foreach (var f2 in Enum.GetNames(typeof(ItemCategory)))
+        foreach (var f2 in IdTagManager.Names)
         {
-            RemoveFromClassList($"category-{f2.ToLower()}");
+            RemoveFromClassList(f2.ToLower());
         }
-        var filter = (ItemCategory)property.FindPropertyRelative("Filter").intValue;
-        AddToClassList($"category-{filter.ToString().ToLower()}");
+        var filter = property.FindPropertyRelative("Filter").arraySize;
+        var mask = this.Q<MaskField>();
+        mask.value = 0;
+        for (int i = 0; i < filter; i++)
+        {
+            var f = property.FindPropertyRelative("Filter").GetArrayElementAtIndex(i);
+            AddToClassList(f.stringValue.ToLower());
+            this.Q<MaskField>().value |= (int)IdTagManager.ToTag(f.stringValue).Value;
+        }
     }
 }
 

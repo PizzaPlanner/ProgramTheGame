@@ -13,7 +13,8 @@
         "Grid",
         "Player",
         "Identifiables",
-        "Controls"
+        "Controls",
+        "Chip"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

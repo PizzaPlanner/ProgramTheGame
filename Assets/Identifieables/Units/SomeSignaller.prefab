@@ -68,27 +68,36 @@ MonoBehaviour:
   Slots:
   - Item: {fileID: 0}
     Amount: 20
-    Filter: 0
+    Filter:
+    - Item
     TransferDirection: 3
   - Item: {fileID: 697860641069326925, guid: aa15cc5d2b71c944a99d1c63081ef804, type: 3}
     Amount: 1
-    Filter: 3
+    Filter:
+    - Item
     TransferDirection: 3
   - Item: {fileID: 0}
     Amount: 0
-    Filter: 0
+    Filter:
+    - Item
     TransferDirection: 3
   - Item: {fileID: 697860641069326925, guid: 4f6ba04be66bbe74d97951674e60e6f1, type: 3}
     Amount: 1
-    Filter: 2
+    Filter:
+    - Equipment
+    - Chip
     TransferDirection: 3
   - Item: {fileID: 697860641069326925, guid: 504aeee71de98494ab364a6584647f1f, type: 3}
     Amount: 1
-    Filter: 2
+    Filter:
+    - 
+    - 
     TransferDirection: 3
   - Item: {fileID: 0}
     Amount: 1
-    Filter: 2
+    Filter:
+    - 
+    - 
     TransferDirection: 3
 --- !u!136 &-5051792277644950993
 CapsuleCollider:
@@ -140,7 +149,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MaxStackSize: 1
-  Category: 0
 --- !u!1001 &3072592592385049462
 PrefabInstance:
   m_ObjectHideFlags: 0

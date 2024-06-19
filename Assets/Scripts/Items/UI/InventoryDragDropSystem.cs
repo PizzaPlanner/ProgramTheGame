@@ -26,8 +26,8 @@ namespace Items.UI
 
             if (_dragFrom != null && _dragTo != null)
             {
-                var ecb = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>().CreateCommandBuffer(World.Unmanaged); 
-                ItemTransaction.Builder.Schedule(ecb).Transfer(_dragFrom.Container, _dragFrom.SlotId, _dragTo.Container, _dragTo.SlotId).Commit();
+                SystemAPI.GetSingleton<TransactionStore>().CreateBuilder
+                         .Transfer(_dragFrom.Container, _dragFrom.SlotId, _dragTo.Container, _dragTo.SlotId);
             }
             _dragFrom = null;
             _dragTo = null;

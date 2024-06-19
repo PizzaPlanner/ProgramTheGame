@@ -5,10 +5,14 @@ using Unity.Transforms;
 public partial class ItemMappingSystem : IdentifiableMappingSystem
 {
     internal static NativeParallelHashMap<Identifieable, Item> ItemsById;
-    
+    public static IdTag EquipmentTag { get; private set; }
+    public static IdTag ItemTag { get; private set; }
+
     protected override void OnCreate()
     {
         ItemsById = new NativeParallelHashMap<Identifieable, Item>(0, Allocator.Persistent);
+        EquipmentTag = IdTagManager.ToTag("Equipment");
+        ItemTag = IdTagManager.ToTag("Item");
     }
 
     protected override void OnDestroy()

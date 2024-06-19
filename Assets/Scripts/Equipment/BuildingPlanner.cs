@@ -1,0 +1,10 @@
+﻿using Programmable;
+
+namespace Equipment
+{
+    public struct BuildingPlanner : IChipTargetable
+    {
+        [LogicWritable]
+        public Identifieable Building;
+    }
+}

@@ -2,6 +2,7 @@
 using System;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.UIElements;
 using Button = UnityEngine.UIElements.Button;
 
@@ -12,7 +13,7 @@ public partial class ChipEditorElement : ScrollView
     const int MaxLines = 64;
     public static int NextId;
     
-    public ChipScript EditedScript;
+    public LogicChip EditedScript;
     
     public ChipEditorElement()
     {
@@ -28,31 +29,21 @@ public partial class ChipEditorElement : ScrollView
             if(EditedScript == null)
                 return;
             
-            EditedScript.Script = CollectPseudoCode();
+            EditedScript.UpdateScript(CollectPseudoCode());
             OnSaveScript?.Invoke(EditedScript);
         }){text = "Save"});
         topRow.Add(new Button(() => {  }){text = "Save As"});
         topRow.Add(new Button(() => UISystemGroup.Hide(this)){text = "x", name = "Close"});
         var block = new ChipLineBlock("Start");
         Add(block);
-        var playground = new VisualElement();
-        Add(playground);
-        playground.Add(new TextField(999, true, false, '*'));
-        // playground.Add(new TextField(999, true, false, '*'){ isReadOnly = true});
-        playground.Add(new Button(() =>
-        {
-            var parser = new ChipScriptParser();
-            var script = new ChipScript{Script = playground.Q<TextField>().text};
-            parser.Parse(script);
-        }));
         Add(Suggestions);
         
         block.Focus();
     }
 
-    public Action<ChipScript> OnSaveScript;
+    public Action<LogicChip> OnSaveScript;
 
-    public void Import(ChipScript script)
+    public void Import(LogicChip script)
     {
         var block = this.Q<ChipLineBlock>();
         block.Clear();
@@ -115,6 +106,7 @@ public partial class ChipEditorElement : ScrollView
 
 public interface IMakeChipCode
 {
+    public void SetFrom(CSLineToken line);
     public string Code {get;}
 }
 
@@ -150,25 +142,26 @@ public class LoopElement : ChipLineBlock
 public partial class ChipLineBlock : VisualElement, IMakeChipCode
 {
     // string name;
-    protected VisualElement Header;
+    protected VisualElement Header, content;
     public ChipLineBlock() : this("Unnamed") { }
     public ChipLineBlock(string name)
     {
         this.name = $"{name}_{ChipEditorElement.NextId++}";
         AddToClassList("code-block");
-        Add(Header = new VisualElement(){name = "Header"});
+        hierarchy.Add(Header = new VisualElement(){name = "Header"});
         Header.Add(new Label(name));
-        var content = new VisualElement();
-        Add(content);
-        Add(new Button(() => content.Add(new ChipLineElement{Editor = GetFirstOfType<ChipEditorElement>()})){text = "+"});
+        hierarchy.Add(content = new VisualElement());
+        hierarchy.Add(new Button(() => Add(new ChipLineElement{Editor = GetFirstOfType<ChipEditorElement>()})){text = "+"});
     }
 
-    public new void Clear()
+    public override VisualElement contentContainer => content;
+
+    public void SetFrom(CSLineToken line)
     {
-        this[2].Clear();
+        throw new NotImplementedException();
     }
 
-    public string Code => $"{name}:\n{string.Join('\n', this[1].Children().OfType<IMakeChipCode>().Select(x => x.Code))}";
+    public string Code => $"{name}:\n{string.Join('\n', content.Children().OfType<IMakeChipCode>().Select(x => x.Code))}";
 }
 
 public class AssignElement : VisualElement, IMakeChipCode
@@ -179,6 +172,12 @@ public class AssignElement : VisualElement, IMakeChipCode
         Add(lhs = new VariableRefElement() { IsLeftSide = true });
         Add(new Label("to"));
         Add(rhs = new VariableRefElement());
+    }
+
+    public void SetFrom(CSLineToken line)
+    {
+        lhs.SetFrom(line.Token[0]);
+        rhs.SetFrom(line.Token[2]);
     }
 
     public string Code => $"{lhs.Code} = {rhs.Code}";
@@ -208,6 +207,14 @@ public class CompareElement : VisualElement, IMakeChipCode
     }
 
     public string Code => @$"{result.Code} = {lhs.Code} {comparison.value} {rhs.Code}";
+
+    public void SetFrom(CSLineToken line)
+    {
+        result.SetFrom(line.Token[0]);
+        lhs.SetFrom(line.Token[2]);
+        comparison.value = line.Token[3].Value;
+        rhs.SetFrom(line.Token[4]);
+    }
 }
 
 public class CalculationElement : VisualElement, IMakeChipCode
@@ -231,6 +238,14 @@ public class CalculationElement : VisualElement, IMakeChipCode
     }
 
     public string Code => @$"{result.Code} = {lhs.Code} {operation.value} {rhs.Code}";
+
+    public void SetFrom(CSLineToken line)
+    {
+        result.SetFrom(line.Token[0]);
+        lhs.SetFrom(line.Token[2]);
+        operation.value = line.Token[3].Value;
+        rhs.SetFrom(line.Token[4]);
+    }
 }
 
 public class IfElement : VisualElement, IMakeChipCode
@@ -253,6 +268,11 @@ public class IfElement : VisualElement, IMakeChipCode
             addElse.style.display = DisplayStyle.None;
             Else.style.display = DisplayStyle.Flex; 
         });
+    }
+
+    public void SetFrom(CSLineToken line)
+    {
+        throw new NotImplementedException();
     }
 
     public string Code => @$"If_{SelfId}:

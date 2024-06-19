@@ -6,9 +6,8 @@ using Unity.Collections;
 public struct ItemId : IEquatable<ItemId>
 {
     public bool IsStackable => MaxStackSize > 1;
-    public bool IsEquipment => Category.IsEquipment();
+    public bool IsEquipment => BaseId.Tags.Contains(ItemMappingSystem.EquipmentTag);
     public uint MaxStackSize => ItemMappingSystem.ItemsById.TryGetValue(BaseId, out var item) ? item.MaxStack : default;
-    public ItemCategory Category => ItemMappingSystem.ItemsById.TryGetValue(BaseId, out var item) ? item.Category : default;
     public Identifieable BaseId;
     
     public static ItemId From(Identifieable id) => ItemMappingSystem.ItemsById.TryGetValue(id, out var item) ? new ItemId{BaseId = id} : default;
