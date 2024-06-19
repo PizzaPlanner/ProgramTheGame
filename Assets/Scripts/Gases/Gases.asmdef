@@ -1,0 +1,21 @@
+{
+    "name": "Gases",
+    "rootNamespace": "",
+    "references": [
+        "Unity.Entities",
+        "Unity.Mathematics",
+        "Unity.Burst",
+        "Unity.Collections",
+        "Unity.Addressables",
+        "Unity.ResourceManager"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": true,
+    "overrideReferences": true,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

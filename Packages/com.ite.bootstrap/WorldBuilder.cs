@@ -113,7 +113,7 @@ namespace WorldManagement
         public World Build(string worldName, BuildFlags flags)
         {
             // ReSharper disable once BitwiseOperatorOnEnumWithoutFlags
-            if ((flags & BuildFlags.AddImplicitSystems) != 0)
+            if (flags.HasFlag(BuildFlags.AddImplicitSystems))
                 _systemsToInclude.AddRange(_playerLoopRequiredSystems);
 
             if (_forceIncludeBufferSystems)
@@ -152,24 +152,28 @@ namespace WorldManagement
                 if (!finalSystems.Contains(groupType))
                     continue;
 
-                var group = world.GetExistingSystemManaged(groupType) as ComponentSystemGroup;
+                var group = (world.GetExistingSystemManaged(groupType) as ComponentSystemGroup)!;
+                if(flags.HasFlag(BuildFlags.RemoveRateManagers))
+                    group.RateManager = null;
                 foreach (var childType in children)
-                    AddToUpdateList(group!, childType);
+                    AddToUpdateList(group, childType);
             }
 
             // Add world to player loop
             // ReSharper disable once BitwiseOperatorOnEnumWithoutFlags
-            if ((flags & BuildFlags.AddToPlayerLoop) == BuildFlags.AddToPlayerLoop)
+            if (flags.HasFlag(BuildFlags.AddToPlayerLoop))
                 ScriptBehaviourUpdateOrder.AppendWorldToCurrentPlayerLoop(world);
 
             return world;
         }
     }
 
+    [Flags]
     public enum BuildFlags
     {
         None = 0,
         AddImplicitSystems = 1,
         AddToPlayerLoop = 2 | AddImplicitSystems,
+        RemoveRateManagers = 4
     }
 }

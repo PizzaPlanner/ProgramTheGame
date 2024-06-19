@@ -1,0 +1,19 @@
+{
+    "name": "Gases.Tests",
+    "references": [
+        "Unity.Entities",
+        "Unity.Mathematics",
+        "Unity.Transforms",
+        "Unity.Burst",
+        "Unity.Collections",
+        "Gases",
+        "Bootstrap",
+        "Bootstrap.Tests"
+    ],
+    "optionalUnityReferences": [
+        "TestAssemblies"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ]
+}
