@@ -9,8 +9,8 @@
         "Unity.Collections",
         "Items",
         "Identifiables",
-        "Chip"
-
+        "Chip",
+        "Modding.API"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

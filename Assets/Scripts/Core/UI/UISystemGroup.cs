@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using Unity.Entities;
 using UnityEngine;
 using UnityEngine.UIElements;
-using Debug = UnityEngine.Debug;
 
 [UpdateInGroup(typeof(UISystemGroup))]
 [CreateAfter(typeof(UISystemGroup))]
@@ -107,6 +105,16 @@ public partial class UISystemGroup : ComponentSystemGroup
             }
             else
                 window.RemoveFromHierarchy();
+        });
+        Menu.Add(elm);
+    }
+    
+    public static void AddMenuEntry(string menuEntryName, Action callback)
+    {
+        var elm = new VisualElement(){name = menuEntryName};
+        elm.RegisterCallback<MouseDownEvent>(x =>
+        {
+            callback();
         });
         Menu.Add(elm);
     }

@@ -45,7 +45,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ItemId: 1982734959839301124
-  TagManager: {fileID: 11400000, guid: 901fb2db6d99192419798336cdf125ff, type: 2}
   Tags:
-  - Information
+  - {fileID: -7047400985839579883, guid: 69f3b225c08dccf4d953c7880adaf144, type: 3}
+  - {fileID: -7047400985839579883, guid: 00a3824279468f649ad091e1da3e0411, type: 3}
   Icon: {fileID: 2800000, guid: b9f60ba94a46eaa4f9dfba22cbb3f002, type: 3}

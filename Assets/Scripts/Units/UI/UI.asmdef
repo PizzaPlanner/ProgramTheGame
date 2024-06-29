@@ -10,6 +10,7 @@
         "Unity.Entities.Graphics",
         "Unity.Mathematics.Extensions",
         "Unity.Physics",
+        "Unity.InputSystem",
         "Items",
         "Items.UI",
         "Identifiables",
@@ -17,7 +18,10 @@
         "Units",
         "Core.UI",
         "Identifiables.UI",
-        "Chip"
+        "Chip",
+        "Core",
+        "Core.Input",
+        "Modding.API"
 
     ],
     "includePlatforms": [],

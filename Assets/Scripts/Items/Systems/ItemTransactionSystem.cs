@@ -3,6 +3,7 @@ using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using Unity.Jobs;
+using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
@@ -98,7 +99,7 @@ internal partial struct ExecuteTransactionsJob : IJob
                             itemEntity = ecb.Instantiate(toSlot.Type.BaseId.AsPrefab);
                         toSlot.Entity = itemEntity;
                         ecb.AddComponent(itemEntity, new Parent{Value = transaction.ToInventory});
-                        if (toSlot.SlotFilter.IsEquipment())
+                        if (toSlot.IsEquipmentSlot)
                             ecb.AddComponent(itemEntity, new Equipped{Wearer = transaction.ToInventory});
                         
                         ecb.AddComponent(itemEntity, new JustChangedLocation
@@ -157,7 +158,7 @@ internal partial struct PrepareTransactionsJob : IJob
             var transaction = transactions[tI];            
             if(!ProcessTransaction(id, ref transaction))
             {
-                Debug.Log($"Failed planning Transaction {transactions[tI].ItemId}x{transactions[tI].Amount} as {transactions[tI].Type} for {id}");
+                // Debug.Log($"Failed planning Transaction {transactions[tI].ItemId}x{transactions[tI].Amount} as {transactions[tI].Type} for {id}");
                 transactions[tI] = transaction;
                 RemoveAllReservations(id, ref header, reservationLookup);
                 store.Remove(id);
@@ -339,7 +340,7 @@ internal partial struct PrepareTransactionsJob : IJob
         return (t.Type is ItemTransaction.TransactionType.GenericAdd or ItemTransaction.TransactionType.AddAndSpawn or ItemTransaction.TransactionType.GenericRemove 
                     || (r.IsIncoming && slot.CanTransferInto) || (!r.IsIncoming && slot.CanTransferOut))  
                 && (slot.Type == r.ReservedType || (slot.Type == default && !slot.IsTypeLocked)) 
-                && (slot.SlotFilter.Value == ItemMappingSystem.ItemTag.Value || r.ReservedType.BaseId.Tags.Contains(slot.SlotFilter) );
+                && (slot.SlotFilter.Value == 0 || r.ReservedType.BaseId.Tags.HasTag(slot.SlotFilter));
     }
 
     internal static void RemoveAllReservations(int id, ref ItemTransaction.TransactionHeader header, BufferLookup<ReservedSpace> reservationLookup)
@@ -364,7 +365,6 @@ public partial struct ItemTransactionSystem : ISystem
     EntityQuery _changedLocation, _changedEquipment, _gotItems;
     public void OnCreate(ref SystemState state)
     {
-        state.RequireForUpdate<IdentifiablesMappingGroup.Loaded>();
         _changedLocation = SystemAPI.QueryBuilder().WithAll<JustChangedLocation>().Build();
         _changedEquipment = SystemAPI.QueryBuilder().WithAll<JustChangedEquipments>().Build();
         _gotItems = SystemAPI.QueryBuilder().WithAll<InventoryContentsChanged>().Build();

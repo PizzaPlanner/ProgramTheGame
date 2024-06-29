@@ -14,7 +14,8 @@
         "Unity.Mathematics.Extensions",
         "Core.UI",
         "Identifiables",
-        "Identifiables.UI"
+        "Identifiables.UI",
+        "Modding.API"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

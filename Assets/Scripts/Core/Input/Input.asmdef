@@ -1,0 +1,21 @@
+{
+    "name": "Core.Input",
+    "rootNamespace": "",
+    "references": [
+        "Unity.InputSystem",
+        "Unity.Entities",
+        "Unity.Collections",
+        "Core"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": true,
+    "overrideReferences": true,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "UNITY_EDITOR"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

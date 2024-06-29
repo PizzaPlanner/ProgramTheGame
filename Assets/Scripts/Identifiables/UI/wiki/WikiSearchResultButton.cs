@@ -1,3 +1,5 @@
+using Modding.API;
+using Modding.API.Tags;
 using System;
 using System.Linq;
 using UnityEngine;
@@ -15,27 +17,17 @@ namespace Identifiables.UI
             icon.style.backgroundImage = target.Icon;
             Add(icon);
             RegisterCallback<MouseDownEvent>(x => GetFirstAncestorOfType<Wiki>().OpenTab(target));
-            if (allowRecurse && IdTagManager.HasFlag(target.Tags, "Recipe"))
-            {
-                var recipeContent = new VisualElement{name = "RecipeContent"};
-                Add(recipeContent);
-                foreach(var link in target.References)
-                    recipeContent.Add(new WikiIdLinkButton(link, false));
-                
-            } else
-                Add(new Label{text = target.DefaultName.Value});
+            Add(new Label{text = target.DefaultName.Value});
         }
 
         public void ApplySearch(string text)
         {
             text = text.ToLower();
             var isIdSearch = text.StartsWith("id=");
-            var isTagSearch = text.StartsWith("tag=");
             var isNormalSearch = !text.Contains("=");
             text = text.Trim().Split('=', StringSplitOptions.RemoveEmptyEntries).LastOrDefault();
             var found = false;
-            found |= isIdSearch && text?.Length > 2 && _target.ItemId.ToString().Contains(text);
-            found |= isTagSearch && text?.Length > 2 && IdTagManager.HasFlag(_target.Tags, text);
+            found |= isIdSearch && text?.Length > 2 && _target.StableId.ToString().Contains(text);
             found |= isNormalSearch && text?.Length > 2 && _target.DefaultName.ToString().ToLower().Contains(text);
             style.display = found
                 ? DisplayStyle.Flex 

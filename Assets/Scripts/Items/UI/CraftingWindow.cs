@@ -1,4 +1,7 @@
+using Identifiables;
 using Identifiables.UI;
+using Modding.API;
+using Modding.API.Tags;
 using System;
 using Unity.Entities;
 using UnityEngine.UIElements;
@@ -24,7 +27,7 @@ public class CraftingWindow : VisualElement, IComponentData
             button =>
             {
                 SelectedRecipe = button.Target;
-            }, IdTagManager.ToTag("Recipe", "ControlFlow"),
+            }, TagList.From(Tag.FromName("TagRecipe"), Tag.FromName("TagControlFlow")),
             button =>
             {
                 if(button.Target == default)

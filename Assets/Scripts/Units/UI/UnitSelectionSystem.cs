@@ -1,10 +1,11 @@
-﻿using Equipment;
-using Unity.Collections;
+﻿using Core;
+using Core.Input;
+using Equipment;
+using Identifiables;
 using Unity.Entities;
 using Unity.Physics;
 using UnityEngine;
-using UnityEngine.Assertions;
-using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
 
 namespace Units
@@ -14,6 +15,13 @@ namespace Units
         public Entity Reference;
     }
 
+    public struct SelectTool : ICursorTool
+    {
+        public bool IsActiveByDefault => true;
+        public InputActionMap StateFor(InputActions asset) => asset.SelectTool;
+        public InputAction ToggledByHotkey(InputActions actions) => actions.Tools.Select;
+    }
+
     [UpdateInGroup(typeof(UISystemGroup))]
     public partial class UnitSelectionSystem : SystemBase
     {
@@ -21,6 +29,7 @@ namespace Units
         bool IsDragging;
         protected override void OnCreate()
         {
+            RequireForUpdate<SelectTool>();
             RequireForUpdate<LocalPlayer>();
         }
         
@@ -28,8 +37,11 @@ namespace Units
         MainUnitElement  mainUnitUI;
         InventoryButton _dragFrom;
 
+        bool initialized;
         protected override void OnStartRunning()
         {
+            if(initialized)
+                return;
             var localPlayer = SystemAPI.GetSingletonEntity<LocalPlayer>();
             EntityManager.AddBuffer<UnitGroup>(localPlayer);
             selectionUI = new UnitGroupElement(){name = "CurrentSelection"};
@@ -38,6 +50,16 @@ namespace Units
             UISystemGroup.AddOverlay(mainUnitUI);
             InventoryButton.OnDragDrop += OnDragDrop;
             EntityManager.AddComponentObject(localPlayer, new SelectionUI{ UI = selectionUI });
+            initialized = true;
+        }
+
+        protected override void OnStopRunning()
+        {
+            if(!SystemAPI.TryGetSingletonEntity<LocalPlayer>(out var localPlayer))
+                return;
+            var selection = SystemAPI.GetBuffer<UnitGroup>(localPlayer);
+            selection.Clear();
+            selectionUI.SetGroup(selection, ref CheckedStateRef);
         }
 
         protected override void OnUpdate()
@@ -47,7 +69,7 @@ namespace Units
             
             selectionUI.SetGroup(selection, ref CheckedStateRef);
             
-            if(BlockRaycasts.BlockIt)
+            if(SystemAPI.HasSingleton<PointerOverUI>())
                 return;
             
             var mouseRay = Camera.main.ScreenPointToRay(Input.mousePosition);

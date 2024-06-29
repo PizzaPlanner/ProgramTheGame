@@ -15,10 +15,7 @@ namespace WorldManagement
 
             foreach (var system in systems)
             {
-                var skipSystem = system.IsAbstract
-                                 || IsRootSystemGroup(system);
-
-                if (skipSystem)
+                if (system.IsAbstract || IsRootSystemGroup(system))
                     continue;
 
                 var updateInGroups = system.GetCustomAttributes<UpdateInGroupAttribute>(true).ToArray();
@@ -31,11 +28,9 @@ namespace WorldManagement
                     AddToGroup(system, group);
                 }
 
+                // Not marked system goes to SimulationSystemGroup by default
                 if (!updateInGroups.Any())
-                {
-                    // Not marked system goes to SimulationSystemGroup by default
                     AddToGroup(system, typeof(SimulationSystemGroup));
-                }
             }
 
             void AddToGroup(Type systemType, Type groupType)
@@ -59,7 +54,7 @@ namespace WorldManagement
                                                           t == typeof(SimulationSystemGroup) ||
                                                           t == typeof(InitializationSystemGroup);
 
-        internal static void AddToUpdateList([NotNull] ComponentSystemGroup group, Type type)
+        internal static void AddToUpdateList(ComponentSystemGroup group, Type type)
         {
             if (TypeManager.IsSystemManaged(type))
                 group.AddSystemToUpdateList(group.World.GetExistingSystemManaged(type));

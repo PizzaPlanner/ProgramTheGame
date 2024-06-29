@@ -1,7 +1,6 @@
-using System;
-using System.Collections.Generic;
+using Identifiables;
+using Lookups;
 using Unity.Collections;
-using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using Unity.Transforms;
 using UnityEngine;
@@ -13,27 +12,17 @@ public abstract partial class IdentifiableMappingSystem : SystemBase
 {
     protected void AddRelation(Identifieable from, IdentifiableLink link)
     {
-        IdentifiablesMappingGroup.IdRelations.Add(from, link);
+        
     }
     
     public virtual VisualElement ProvideWikiDetails(Identifieable id) => null;
 } 
 
 [WorldSystemFilter(WorldSystemFilterFlags.Editor | WorldSystemFilterFlags.Default)]
-[UpdateInGroup(typeof(InitializationSystemGroup))]
+[UpdateInGroup(typeof(InitializationSystemGroup), OrderFirst = true)]
 public partial class IdentifiablesMappingGroup : ComponentSystemGroup
 {
-    public struct Loaded : IComponentData { }
-
     private EntityQuery query;
-    
-    internal static NativeParallelHashMap<Identifieable, Entity> EntitiesById;
-    internal static NativeParallelHashMap<Identifieable, IdTag> TagsById;
-    internal static Dictionary<Identifieable, Texture2D> IconById;
-    internal static NativeParallelHashMap<Identifieable, FixedString64Bytes> NameById;
-    internal static NativeParallelHashMap<Identifieable, Identifieable> OriginById;
-
-    internal static UnsafeParallelMultiHashMap<Identifieable, IdentifiableLink> IdRelations;
     
     protected override void OnCreate()
     {
@@ -42,76 +31,70 @@ public partial class IdentifiablesMappingGroup : ComponentSystemGroup
                          .WithAll<Prefab, PreIdentifiable>()
                          .WithOptions(EntityQueryOptions.IncludePrefab).Build();
         RequireForUpdate(query);
-        EntitiesById = new NativeParallelHashMap<Identifieable, Entity>(0, Allocator.Persistent);
-        NameById = new NativeParallelHashMap<Identifieable, FixedString64Bytes>(0, Allocator.Persistent);
-        TagsById = new NativeParallelHashMap<Identifieable, IdTag>(0, Allocator.Persistent);
-        OriginById = new NativeParallelHashMap<Identifieable, Identifieable>(0, Allocator.Persistent);
-        IdRelations = new UnsafeParallelMultiHashMap<Identifieable, IdentifiableLink>(0, Allocator.Persistent);
-    }
-
-    protected override void OnDestroy()
-    {
-        base.OnDestroy();
-        EntitiesById.Dispose();
-        NameById.Dispose();
-        TagsById.Dispose();
-        IdRelations.Dispose();
-        OriginById.Dispose();
-    }
-    
-    protected override void OnStartRunning()
-    {
-#if UNITY_EDITOR
-        if(!EntitiesById.IsCreated)
-            return;
-        
-        EntitiesById.Clear();
-        NameById.Clear();
-        TagsById.Clear();
-        IdRelations.Clear();
-        IconById?.Clear();
-#endif
-    }
-
-    protected override void OnStopRunning()
-    {
-        if(!SystemAPI.HasSingleton<Loaded>())
-            EntityManager.CreateEntity(typeof(Loaded));
     }
 
     protected override void OnUpdate()
     {
         var entities = query.ToEntityArray(Allocator.Temp);
         var preIds = query.ToComponentDataArray<PreIdentifiable>(Allocator.Temp);
-        EntitiesById.Capacity += entities.Length;
         Debug.Log($"Found {entities.Length} ID Prefabs");
-        IconById = new Dictionary<Identifieable, Texture2D>();
+        var takenIds = new NativeHashSet<ulong>(0, Allocator.Temp);
+        var takenNames = new NativeHashSet<FixedString64Bytes>(0, Allocator.Temp);
+        BlobBuilderArray<IdentifiableData> arrayBuilder;
+        BlobBuilder builder;
+        var builderIdOffset = 1;
+        if (SystemAPI.TryGetSingleton<IdentifiableLibrary.TComponent>(out var oldIds))
+        {
+            builderIdOffset = oldIds.Data.Value.Data.Length;
+            builder = IdentifiableLibrary.MakeBuilder(entities.Length + builderIdOffset, out arrayBuilder);
+            for (int i = 1; i < oldIds.Data.Value.Data.Length; i++)
+            {
+                arrayBuilder[i] = oldIds.Data.Value.Data[i];
+                takenIds.Add(arrayBuilder[i].AssetGuid);
+                takenNames.Add(arrayBuilder[i].DefaultName);
+            }
+            oldIds.Data.Dispose();
+            EntityManager.DestroyEntity(SystemAPI.GetSingletonEntity<IdentifiableLibrary.TComponent>());
+        }
+        else
+        {
+            builder = IdentifiableLibrary.MakeBuilder(entities.Length + builderIdOffset, out arrayBuilder);
+        }
+        
         for(int i = 0; i < entities.Length; i++)
         {
             var e = entities[i];
             var preId = preIds[i];
             if (SystemAPI.HasComponent<Parent>(e) && SystemAPI.GetComponent<Parent>(e).Value != Entity.Null)
                 return;
-            
-            var id = preId.Id;
 
-            if(id.ItemId == 0)
+            if(preId.AssetGuid == 0)
                 Debug.LogError($"Entity {e} has invalid ID 0");
-            else if (EntitiesById.ContainsKey(id))
-                Debug.LogError($"ID {id.ItemId} used by '{preId.TranslationKey}' is already taken!");
+            else if (takenIds.Contains(preId.AssetGuid))
+                Debug.LogError($"ID {preId.AssetGuid} used by '{preId.TranslationKey}' is already taken!");
+            else if(takenNames.Contains(preId.TranslationKey))
+                Debug.LogError($"ID {preId.AssetGuid} uses duplicate name '{preId.TranslationKey}'. All Names must be unique!");
             else
             {
-                EntityManager.AddComponentData(e, id);
-                EntitiesById.Add(id, e);
-                NameById.Add(id, preId.Name);
-                TagsById.Add(id, preId.Tags);
-                if(preId.Icon.Value != null)
-                    IconById.Add(id, preId.Icon);
+                arrayBuilder[i + builderIdOffset] = new IdentifiableData
+                {
+                    Icon = preId.Icon.Value,
+                    AsPrefab = e,
+                    DefaultName = preId.Name,
+                    AssetGuid = preId.AssetGuid
+                };
+                takenIds.Add(arrayBuilder[i + builderIdOffset].AssetGuid);
+                takenNames.Add(arrayBuilder[i + builderIdOffset].DefaultName);
 #if UNITY_EDITOR
                 EntityManager.SetName(e, preId.Name.Value);
 #endif
             }
         }
+        var blobAsset = builder.CreateBlobAssetReference<IdentifiableLibrary.TLibrary>(Allocator.Persistent);
+        EntityManager.CreateSingleton(new LibraryAsset<IdentifiableData>.TComponent
+        {
+            Data = blobAsset
+        });
         
         base.OnUpdate();
         

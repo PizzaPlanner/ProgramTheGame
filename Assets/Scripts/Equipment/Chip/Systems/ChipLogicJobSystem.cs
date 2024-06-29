@@ -1,4 +1,5 @@
-﻿using Unity.Collections;
+﻿using Identifiables;
+using Unity.Collections;
 using Unity.Entities;
 
 partial class ChipLogicJobSystem : SystemBase
@@ -7,7 +8,11 @@ partial class ChipLogicJobSystem : SystemBase
     protected override void OnCreate()
     {
         dynamicTypeHandles = new NativeHashMap<TypeIndex, DynamicComponentTypeHandle>(0, Allocator.Persistent);
-        RequireForUpdate<IdentifiablesMappingGroup.Loaded>();
+    }
+
+    protected override void OnDestroy()
+    {
+        dynamicTypeHandles.Dispose();
     }
 
     protected override void OnStartRunning()

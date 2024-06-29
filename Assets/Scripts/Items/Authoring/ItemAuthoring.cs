@@ -21,6 +21,6 @@ public class ItemAuthoring : MonoBehaviour
 
     public ItemId Id => new ItemId
     {
-        BaseId =  TryGetComponent<IdentifieableAuthoring>(out var id) ? id.Id : default,
+        BaseId = TryGetComponent<IdentifieableAuthoring>(out var id) ? id.Id : default,
     };
 }

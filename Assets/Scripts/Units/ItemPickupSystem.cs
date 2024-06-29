@@ -11,8 +11,10 @@ namespace Units
         {
             var ecb = new EntityCommandBuffer(Allocator.Temp);
             var store = SystemAPI.GetSingleton<TransactionStore>();
-            foreach (var (cmd, localPos, inventory, canInteract, e) in 
-                     SystemAPI.Query<InteractCommand, RefRW<LocalTransform>, DynamicBuffer<Inventory>, CanInteract>().WithEntityAccess())
+            foreach (var (cmd, localPos, canInteract, e) in 
+                     SystemAPI.Query<InteractCommand, RefRW<LocalTransform>, CanInteract>()
+                              .WithAll<Inventory>()
+                              .WithEntityAccess())
             {
                 if(cmd.Unit == Entity.Null)
                     continue;

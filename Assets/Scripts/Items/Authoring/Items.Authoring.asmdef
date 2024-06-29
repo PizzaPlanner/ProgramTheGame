@@ -16,7 +16,9 @@
         "Items.Systems",
         "Identifiables",
         "Equipment",
-        "Chip"
+        "Chip",
+        "Lookups",
+        "Modding.API"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

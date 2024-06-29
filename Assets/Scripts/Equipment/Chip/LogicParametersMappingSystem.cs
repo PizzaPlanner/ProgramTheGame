@@ -1,9 +1,11 @@
 ﻿using Core;
+using Identifiables;
 using Programmable;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
@@ -34,42 +36,47 @@ public struct ItemTypeLogicParameter
 }
 
 public partial class LogicParametersMappingSystem : IdentifiableMappingSystem
-{ 
-    static NativeParallelHashMap<Identifieable, int> TypeNumParameters;
-    static NativeParallelHashMap<(Identifieable, int), ItemTypeLogicParameter> TypeParameters;
+{
+    static readonly SharedStatic<BlobAssetReference<BlobArray<BlobArray<ItemTypeLogicParameter>>>> TypeParameters =
+        SharedStatic<BlobAssetReference<BlobArray<BlobArray<ItemTypeLogicParameter>>>>.GetOrCreate<ItemTypeLogicParameter>();
+    
     public static NativeList<TypeIndex> AllParameterTypeIndices { get; private set; }
 
     public static NativeArray<ItemTypeLogicParameter> GetAllParameters(Identifieable id)
     {
-        var numIds = TypeNumParameters.TryGetValue(id, out var n) ? n : 0;
+        ref var parameters = ref ParametersOf(id);
+        var numIds = parameters.Length;
         var array = new NativeArray<ItemTypeLogicParameter>(numIds, Allocator.Temp);
         for (int i = 0; i < numIds; i++)
-            array[i] = TypeParameters[(id, i)];
+            array[i] = parameters[i];
         return array;
     }
     
-    public static bool TryGetLogicParameter(Identifieable id, int index, out ItemTypeLogicParameter data) => TypeParameters.TryGetValue((id, index), out data);
-    public static bool TryGetLogicParameter(ParameterAccess v, out ItemTypeLogicParameter data) => TypeParameters.TryGetValue((v.TypeId, v.TypeParameterIndex), out data);
+    static ref BlobArray<ItemTypeLogicParameter> ParametersOf(Identifieable id) => ref TypeParameters.Data.Value[id.CurrentIndex];
+
+    public static bool TryGetLogicParameter(Identifieable id, int index, out ItemTypeLogicParameter data)
+    {
+        data = ParametersOf(id).Length > index ? ParametersOf(id)[index] : default;
+        return ParametersOf(id).Length > index;
+    } 
+    public static bool TryGetLogicParameter(ParameterAccess v, out ItemTypeLogicParameter data) => TryGetLogicParameter(v.TypeId, v.TypeParameterIndex, out data);
+    
     protected override void OnCreate()
     {
-        TypeParameters = new NativeParallelHashMap<(Identifieable, int), ItemTypeLogicParameter>(0, Allocator.Persistent);
-        TypeNumParameters = new NativeParallelHashMap<Identifieable, int>(0, Allocator.Persistent);
-        AllParameterTypeIndices = new NativeList<TypeIndex>(Allocator.Persistent);
+        AllParameterTypeIndices = new (Allocator.Persistent);
     }
 
     protected override void OnStartRunning()
     {
 #if UNITY_EDITOR
-        TypeParameters.Clear();
-        TypeNumParameters.Clear();
         AllParameterTypeIndices.Clear();
 #endif
     }
 
     protected override void OnDestroy()
     {
-        TypeNumParameters.Dispose();
-        TypeParameters.Dispose();
+        if(TypeParameters.Data.IsCreated)
+            TypeParameters.Data.Dispose();
         AllParameterTypeIndices.Dispose();
     }
 
@@ -85,6 +92,7 @@ public partial class LogicParametersMappingSystem : IdentifiableMappingSystem
             chipId.ValueRW.Id = id;
         }
         
+        var idTypeMap = new Dictionary<Identifieable, List<ItemTypeLogicParameter>>(); 
         foreach (var (id, e) in
                  SystemAPI.Query<Identifieable>()
                           .WithAll<Prefab, PreIdentifiable>()
@@ -103,8 +111,9 @@ public partial class LogicParametersMappingSystem : IdentifiableMappingSystem
             
             if(!chipTypes.Any())
                 continue;
-
+            
             int i = 0;
+            var typeParams = new List<ItemTypeLogicParameter>();
             foreach (var type in chipTypes)
             {
                 var typeIndex = TypeManager.GetTypeIndex(type);
@@ -122,7 +131,7 @@ public partial class LogicParametersMappingSystem : IdentifiableMappingSystem
                 foreach (var field in logicFields)
                 {
                     var fieldSize = UnsafeUtility.SizeOf(field.FieldType);
-                    if(!TypeParameters.TryAdd((id, i), new ItemTypeLogicParameter
+                    typeParams.Add(new ItemTypeLogicParameter
                     {
                         Name = field.Name,
                         Access = field.Item2 ? LogicAccessType.ReadWrite : LogicAccessType.Read,
@@ -130,22 +139,36 @@ public partial class LogicParametersMappingSystem : IdentifiableMappingSystem
                         TypeIndex = typeIndex,
                         TypeSizeInBytes = fieldSize,
                         Type = TypeToLogicType(field.FieldType)
-                    }))
-                        Debug.Log($"Tried to add {id} #{i} a second time.");
+                    });
                     bytes += fieldSize;
                     i++;
                 }
             }
-            TypeNumParameters.Add(id, i);
+            if(typeParams.Count > 0)
+                idTypeMap.Add(id, typeParams);
         }
         
+        var blobBuilder = new BlobBuilder(Allocator.Temp);
+        ref var root = ref blobBuilder.ConstructRoot<BlobArray<BlobArray<ItemTypeLogicParameter>>>();
+        var idArrayBuilder = blobBuilder.Allocate(ref root, IdentifiableLibrary.Length);
+        foreach (var key in idTypeMap)
+        {
+            var paramBuilder = blobBuilder.Allocate(ref idArrayBuilder[key.Key.CurrentIndex], key.Value.Count);
+            for (int i = 0; i < key.Value.Count; i++)
+            {
+                paramBuilder[i] = key.Value[i];
+            }
+        }
+        if(TypeParameters.Data.IsCreated)
+            TypeParameters.Data.Dispose();
+        TypeParameters.Data = blobBuilder.CreateBlobAssetReference<BlobArray<BlobArray<ItemTypeLogicParameter>>>(Allocator.Persistent);
     }
 
     LogicType TypeToLogicType(Type type)
     {
         if(type == typeof(Entity))
             return LogicType.Unit;
-        if(type == typeof(Coordinate))
+        if(type == typeof(Cell))
             return LogicType.Coordinate;
         if(type == typeof(Identifieable))
             return LogicType.Type;
@@ -154,11 +177,10 @@ public partial class LogicParametersMappingSystem : IdentifiableMappingSystem
 
     public override VisualElement ProvideWikiDetails(Identifieable id)
     {
-        if(!TypeNumParameters.TryGetValue(id, out var numParams))
-            return null;
+        var numParams = TypeParameters.Data.Value[id.CurrentIndex].Length;
         var typeParams = new ItemTypeLogicParameter[numParams];
         for (int i = 0; i < numParams; i++)
-            typeParams[i] = TypeParameters[(id, i)];
+            typeParams[i] = ParametersOf(id)[i];
         var ve = new Foldout(){text = "Logic Parameters"};
         
         var mc = new MultiColumnListView();

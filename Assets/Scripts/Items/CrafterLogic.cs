@@ -1,4 +1,5 @@
-﻿using Programmable;
+﻿using Identifiables;
+using Programmable;
 using Unity.Entities;
 
 public struct CrafterLogic : IChipTargetable

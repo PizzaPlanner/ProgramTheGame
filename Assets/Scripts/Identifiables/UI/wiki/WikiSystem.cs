@@ -12,7 +12,6 @@ namespace Identifiables.UI
         {
             var wiki = new Wiki();
             wiki.styleSheets.Add(Addressables.LoadAssetAsync<StyleSheet>("UI/Stylesheets/Wiki.uss").WaitForCompletion());
-            wiki.Init(World);
             UISystemGroup.AddOverlayWithMenuEntry("Wiki", wiki);
             wiki.RegisterCallback<AttachToPanelEvent>(_ => wiki.Init(World));
         }

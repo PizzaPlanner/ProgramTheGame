@@ -1,4 +1,5 @@
-﻿using Identifiables.UI;
+﻿using Identifiables;
+using Identifiables.UI;
 using System;
 using Unity.Entities;
 using UnityEngine;

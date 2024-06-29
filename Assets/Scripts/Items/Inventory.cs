@@ -1,5 +1,4 @@
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using Unity.Entities;
 using UnityEngine;
 
@@ -34,15 +33,15 @@ public struct Inventory : IBufferElementData
     }
     
     public ItemId Type;
-    public IdTag SlotFilter;
+    public Tag SlotFilter;
     public bool IsTypeLocked;
+    public bool IsEquipmentSlot;
     public TransferDirection Transfer;
     public bool CanTransferInto => Transfer is TransferDirection.In or TransferDirection.InOut;
     public bool CanTransferOut => Transfer is TransferDirection.Out or TransferDirection.InOut;
     [SerializeField] ItemRefData _data;
 
     public bool IsEmpty => Amount == 0;
-    public bool IsEquipmentSlot => SlotFilter.IsEquipment();
     
     public Entity Entity
     {

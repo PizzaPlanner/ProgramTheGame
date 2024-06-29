@@ -12,7 +12,8 @@
         "Unity.Addressables",
         "Unity.ResourceManager",
         "Core.UI",
-        "Identifiables"
+        "Identifiables",
+        "Modding.API"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

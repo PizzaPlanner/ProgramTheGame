@@ -1,0 +1,23 @@
+{
+  "name": "Lookups.Bakers",
+  "rootNamespace": "",
+  "references": [
+    "Unity.Entities",
+    "Unity.Entities.Editor",
+    "Unity.Entities.Hybrid",
+    "Unity.Collections",
+    "Unity.Mathematics",
+    "Lookups"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": true,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [
+    "UNITY_EDITOR"
+  ],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

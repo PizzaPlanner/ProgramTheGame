@@ -1,0 +1,3 @@
+C:\Creative\Unity\ProgramTheGame\Assets\Scripts\Modding\Plugins\Mod.Generator.dll
+C:\Creative\Unity\ProgramTheGame\Assets\Scripts\Modding\Plugins\Mod.Generator.pdb
+C:\Creative\Unity\ProgramTheGame\Assets\Scripts\Modding\Plugins\Mod.Generator.deps.json

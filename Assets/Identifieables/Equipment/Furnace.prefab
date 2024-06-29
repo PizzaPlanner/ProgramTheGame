@@ -104,9 +104,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ItemId: 12904113855278850756
   Tags:
-  - Item
-  - Equipment
-  - SmallConstruct
+  - {fileID: -7047400985839579883, guid: 2832c3a43e695f741af765507e87018d, type: 3}
+  - {fileID: -7047400985839579883, guid: f7f34dbe348902c46aba4c56e4629357, type: 3}
   Icon: {fileID: 2800000, guid: b76081867d5cf71449a6e6db23ebfdc0, type: 3}
 --- !u!114 &697860641069326925
 MonoBehaviour:
@@ -133,8 +132,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1cc657df93b545efbc9716b6ea082c21, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Input: {fileID: -8897929636478511817}
-  Output: {fileID: -8897929636478511817}
 --- !u!114 &-8897929636478511817
 MonoBehaviour:
   m_ObjectHideFlags: 0

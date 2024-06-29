@@ -16,7 +16,8 @@
         "Units",
         "Chip",
         "Items.UI",
-        "Core"
+        "Core",
+        "Modding.API"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

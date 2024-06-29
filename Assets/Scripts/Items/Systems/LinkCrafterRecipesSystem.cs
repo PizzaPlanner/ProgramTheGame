@@ -1,4 +1,5 @@
-﻿using Unity.Entities;
+﻿using Identifiables;
+using Unity.Entities;
 
 partial class LinkCrafterRecipesSystem : IdentifiableMappingSystem
 {

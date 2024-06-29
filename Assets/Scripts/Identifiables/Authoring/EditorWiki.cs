@@ -3,6 +3,7 @@ using Unity.Entities;
 using UnityEditor;
 using UnityEditor.Toolbars;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 using UnityEngine.UIElements;
 
 namespace Identifiables.Authoring
@@ -19,7 +20,7 @@ namespace Identifiables.Authoring
         
         public void CreateGUI()
         {
-            rootVisualElement.styleSheets.Add(AssetDatabase.LoadAssetAtPath<StyleSheet>("Assets/Scripts/Identifiables/UI/wiki/wiki.uss"));
+            rootVisualElement.styleSheets.Add(Addressables.LoadAssetAsync<StyleSheet>("UI/Stylesheets/Wiki.uss").WaitForCompletion());
             var wiki = new Wiki();
             rootVisualElement.Add(new Button(() =>
             {

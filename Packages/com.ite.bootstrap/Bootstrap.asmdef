@@ -1,6 +1,6 @@
 {
   "name": "Bootstrap",
-  "rootNamespace": "",
+  "rootNamespace": "WorldManagement",
   "references": [
     "Unity.Entities",
     "Unity.Collections"

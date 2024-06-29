@@ -1,119 +1,78 @@
 using System;
-using Unity.Burst;
+using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Entities;
 using UnityEngine;
 
-public partial struct Identifieable : IComponentData, IEquatable<Identifieable>
+namespace Identifiables
 {
-    public uint ItemId;
-
-    public Identifieable(ulong guid)
+    public partial struct Identifieable : IComponentData, IEquatable<Identifieable>
     {
-        ItemId = FromULong(guid);
-    }
-
-    static uint FromULong(ulong guid)
-    {
-        var shortened = guid >> 32;
-        if(shortened == 0)
-            return (uint)guid;
-        else
-            return (uint)shortened;
-    }
-    
-    public static bool operator ==(Identifieable left, Identifieable right)
-    {
-        return left.ItemId == right.ItemId;
-    }
-
-    public static bool operator !=(Identifieable left, Identifieable right)
-    {
-        return !(left == right);
-    }
-    
-    // Override Equals and GetHashCode for consistency
-    public override bool Equals(object obj)
-    {
-        return obj is Identifieable other && Equals(other);
-    }
-
-    public override int GetHashCode()
-    {
-        return ItemId.GetHashCode();
-    }
-
-    public bool Equals(Identifieable other)
-    {
-        return ItemId == other.ItemId;
-    }
-
-    public override string ToString()
-    {
-        return $"Id[{ItemId}]({DefaultName})";
-    }
-}
-
-public partial struct Identifieable
-{
-    public Entity AsPrefab => IdentifiablesMappingGroup.EntitiesById.TryGetValue(this, out var e) ? e : Entity.Null;
-    public IdTag Tags => IdentifiablesMappingGroup.TagsById.TryGetValue(this, out var e) ? e : default;
-    
-    [BurstDiscard]
-    public Texture2D Icon => IdentifiablesMappingGroup.IconById.TryGetValue(this, out var v) ? v : null;
-    public FixedString64Bytes DefaultName => IdentifiablesMappingGroup.NameById.TryGetValue(this, out var n) ? n : default;
-
-    public Identifieable Origin => IdentifiablesMappingGroup.OriginById.TryGetValue(this, out var n) ? n : default;
-
-    public static NativeArray<FixedString64Bytes> AllNames => IdentifiablesMappingGroup.NameById.GetValueArray(Allocator.Temp);
-    public static NativeArray<Identifieable> All => IdentifiablesMappingGroup.EntitiesById.IsCreated ? IdentifiablesMappingGroup.EntitiesById.GetKeyArray(Allocator.Temp) : new NativeArray<Identifieable>(0, Allocator.Temp);
-
-    public static Identifieable FromName(FixedString64Bytes defaultName)
-    {
-        var kvp = IdentifiablesMappingGroup.NameById.GetKeyValueArrays(Allocator.Temp);
-        for (var i = 0; i < kvp.Values.Length; i++)
+        ulong Value;
+        
+        public static bool operator ==(Identifieable left, Identifieable right)
         {
-            var name = kvp.Values[i];
-            if (name == defaultName)
-                return kvp.Keys[i];
+            return left.Value == right.Value;
         }
-        Debug.LogError($"No Identifiable with Name '{defaultName}'");
-        return default;
+
+        public static bool operator !=(Identifieable left, Identifieable right)
+        {
+            return !(left == right);
+        }
+
+        // Override Equals and GetHashCode for consistency
+        public override bool Equals(object obj)
+        {
+            return obj is Identifieable other && Equals(other);
+        }
+
+        public override int GetHashCode()
+        {
+            return Value.GetHashCode();
+        }
+
+        public bool Equals(Identifieable other)
+        {
+            return Value == other.Value;
+        }
+
+        // public override string ToString()
+        // {
+        //     return $"Id[{Value.Value}]({Value.DefaultName})";
+        // }
     }
 
-    public static bool TryGet(string hint, out Identifieable id)
+    public partial struct Identifieable
     {
-        id = default;
-        if (ulong.TryParse(hint, out var ul))
+        public ushort CurrentIndex => IdentifiableLibrary.Find(Value).Value;
+        public Entity AsPrefab => IdentifiableLibrary.Find(Value).AsPrefabDefault;
+        public TagList Tags => TagMappingSystem.TagsOf(CurrentIndex);
+        public Texture2D Icon => IdentifiableLibrary.Find(Value).Icon;
+        public FixedString64Bytes DefaultName => IdentifiableLibrary.Find(Value).DefaultName;
+        public ulong StableId => Value;
+        public Identifieable Origin => default;
+        public static IdentifiableData[] All => IdentifiableLibrary.Data;
+        
+        public static IEnumerable<Identifieable> GetAllWithTag(Tag tag) 
         {
-            id = new Identifieable(ul);
-            return true;
+            var enumerator = TagMappingSystem.AllIdsForTag(tag);
+            if(enumerator.Current != default)
+                yield return enumerator.Current;
+            while(enumerator.MoveNext())
+                yield return enumerator.Current;
         }
-        id = FromName(hint);
-        return id != default;
-    }
-    
-    public NativeList<IdentifiableLink> References
-    {
-        get
+        
+        public static Identifieable FromName(FixedString64Bytes defaultName)
         {
-            var allRefs = IdentifiablesMappingGroup.IdRelations.GetValuesForKey(this);
-            var result = new NativeList<IdentifiableLink>(Allocator.Temp);
-            foreach(var refs in allRefs)
-                result.Add(refs);
-            return result;
+            for (var i = 0; i < IdentifiableLibrary.Data.Length; i++)
+            {
+                if (IdentifiableLibrary.Data[i].DefaultName == defaultName)
+                    return new Identifieable { Value = IdentifiableLibrary.Data[i].AssetGuid };
+            }
+            Debug.LogError($"No Identifiable with Name '{defaultName}'");
+            return default;
         }
+        
+        public static Identifieable FromGuid(ulong assetGuid) => new Identifieable { Value = assetGuid };
     }
-}
-
-// Only used for baking and initial loading.
-[Serializable]
-public struct PreIdentifiable : IComponentData
-{
-    public FixedString64Bytes Name;
-    public Identifieable Id;
-    public IdTag Tags;
-    public UnityObjectRef<Texture2D> Icon;
-    public UnityObjectRef<GameObject> Origin;
-    public FixedString64Bytes TranslationKey => $"{Origin.Value.name}.{Name}";
 }

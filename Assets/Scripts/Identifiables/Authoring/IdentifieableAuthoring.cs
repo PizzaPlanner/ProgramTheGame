@@ -1,4 +1,7 @@
 #if UNITY_EDITOR
+using Identifiables;
+using Identifiables.Authoring;
+using Modding.API.Tags;
 using System.Collections.Generic;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -9,15 +12,14 @@ using UnityEngine.AddressableAssets;
 public class IdentifieableAuthoring : MonoBehaviour
 {
     [SerializeField][HideInInspector]ulong ItemId;
-
-    public Identifieable Id => new Identifieable(ItemId);
     
-    public string[] Tags;
+    public TagAuthoring[] Tags;
     public Texture2D Icon;
+    public Identifieable Id => Identifieable.FromGuid(ItemId);
 
     private void OnValidate()
     {
-        var prefabRootPath = UnityEditor.PrefabUtility.GetPrefabAssetPathOfNearestInstanceRoot(this);
+        var prefabRootPath = PrefabUtility.GetPrefabAssetPathOfNearestInstanceRoot(this);
 
         var guid = UnityEditor.AssetDatabase.AssetPathToGUID(prefabRootPath);
         if (guid.Length < 16) return;
@@ -25,31 +27,28 @@ public class IdentifieableAuthoring : MonoBehaviour
         EditorGUIUtility.SetIconForObject(gameObject, Icon);
     }
 
-    public Identifieable GetSubIdentifiable(int index)
-    {
-        var current = Id;
-        var hash = math.hash(new uint2(current.ItemId, (uint)index));
-        return new Identifieable(hash);
-    }
-
     public class Baker : Baker<IdentifieableAuthoring>
     {
         public override void Bake(IdentifieableAuthoring authoring)
         {
-            
             var e = GetEntity(TransformUsageFlags.None);
+            AddComponent(e, Identifieable.FromGuid(authoring.ItemId));
             if (!PrefabUtility.IsPartOfPrefabInstance(authoring))
             {
                 AddComponent(e, new PreIdentifiable
                 {
-                    Id = authoring.Id,
-                    Tags = IdTagManager.ToTag(authoring.Tags),
+                    // Id = authoring.Id,
                     Name = authoring.gameObject.name,
                     Icon = authoring.Icon,
-                    Origin = null
+                    AssetGuid = authoring.ItemId
                 });
-            } else
-                AddComponent(e, authoring.Id);
+                var tags = AddBuffer<Tags>(e);
+                foreach(var tag in authoring.Tags)
+                    tags.Add(new Tags
+                    {
+                        TagId = tag.GetComponent<IdentifieableAuthoring>().ItemId
+                    });
+            }
         }
     }
 }

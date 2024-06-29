@@ -47,7 +47,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ItemId: 7979640325661598148
   Tags:
-  - Recipe
+  - {fileID: -7047400985839579883, guid: 31af038f19ca1ed4ea46b667ded7afc3, type: 3}
   Icon: {fileID: 2800000, guid: fdc75cf9544b2c74bb07eea71494aaa1, type: 3}
 --- !u!114 &5602705550405738174
 MonoBehaviour:

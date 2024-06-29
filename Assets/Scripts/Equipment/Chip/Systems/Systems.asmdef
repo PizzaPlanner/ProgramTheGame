@@ -11,7 +11,8 @@
         "Core",
         "Chip",
         "Items",
-        "Equipment"
+        "Equipment",
+        "Modding.API"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

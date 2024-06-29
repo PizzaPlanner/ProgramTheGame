@@ -9,7 +9,7 @@ using static WorldManagement.TypeHierarchyTools;
 
 namespace WorldManagement
 {
-    public class WorldBuilder
+    public partial class WorldBuilder
     {
         readonly List<Type> _systemsToInclude = new();
         readonly List<Type> _playerLoopRequiredSystems = new();
@@ -33,21 +33,16 @@ namespace WorldManagement
             }
         }
 
-        public static World BuildDefaultWorld(string worldName = "DefaultWorld")
-        {
-            return World.DefaultGameObjectInjectionWorld = new WorldBuilder()
-                   .WithRecursive<InitializationSystemGroup>()
-                   .WithRecursive<SimulationSystemGroup>()
-                   .WithRecursive<PresentationSystemGroup>()
-                   .Build(worldName, BuildFlags.AddToPlayerLoop);
-        }
-
+        /// <summary>
+        /// Same as <see cref="WithRecursive"/>
+        /// </summary>
         public WorldBuilder WithRecursive<T>(bool ignoreDisableAutoCreateOnChildren = false)
         {
             return WithRecursive(typeof(T), ignoreDisableAutoCreateOnChildren);
         }
 
-        // Include a system and all subsystems (that have UpdateInGroup(systemType))
+        /// Include a system and all child systems (that have UpdateInGroup(systemType))
+        /// <param name="ignoreDisableAutoCreateOnChildren">if set to true, all <see cref="DisableAutoCreationAttribute">[DisableAutoCreation]</see> on child systems are ignored </param>
         public WorldBuilder WithRecursive(Type systemType, bool ignoreDisableAutoCreateOnChildren = false)
         {
             With(systemType);
@@ -59,20 +54,38 @@ namespace WorldManagement
             return this;
         }
 
-        // Force include buffer systems of all system groups the world will have.
-        // Note that buffer systems are also included by default when adding a group via WithRecursive
+        /// Force include buffer systems of all system groups the world will have.
+        /// Note that buffer systems are also included by default in groups added via <see cref="WithRecursive"/>
         public WorldBuilder WithBufferSystems()
         {
             _forceIncludeBufferSystems = true;
             return this;
         }
 
+        /// <summary>
+        /// Same as <see cref="With"/>
+        /// </summary>
         public WorldBuilder With<T>() => With(typeof(T));
 
-        // Include one ore more system types to the world.
-        // If the world is added to the player loop, also adds all parent systems that are required to run these systems
-        // i.e. if type T has UpdateInGroup(MyGroupType), then MyGroupType will also be added into the world
-        // This chain continues until hitting a root system group
+        /// Include one or more system types to the world.
+        /// If the world is added to the player loop, also adds all parent systems that are required to run these systems
+        /// This chain continues until hitting a root system group
+        /// <example>
+        /// <code>
+        /// partial class MySystemGroup: ComponentSystemGroup { }
+        ///
+        /// [UpdateInGroup(typeof(MySystemGroup))]
+        /// partial struct MySystem : ISystem { }
+        ///
+        /// [UpdateInGroup(typeof(PresentationSystemGroup))]
+        /// partial struct MyOtherSystem : ISystem { }
+        /// 
+        /// var playerLoopWorld = new WorldBuilder().With(typeof(MySystem), typeof(MyOtherSystem)).Build("InPlayerLoop", BuildFlags.AddToPlayerLoop);
+        /// var manualWorld     = new WorldBuilder().With(typeof(MySystem), typeof(MyOtherSystem)).Build("Manual",       BuildFlags.None);
+        /// </code>
+        /// Considering these systems, <c>playerLoopWorld</c> will contain <c>SimulationSystemGroup, MySystemGroup, MySystem, PresentationSystemGroup, MyOtherSystem</c>,
+        /// however <c>manualWorld</c> will only contain <c>MySystem, MyOtherSystem</c>
+        /// </example>
         public WorldBuilder With(params Type[] types)
         {
             foreach (var t in types)
@@ -96,13 +109,17 @@ namespace WorldManagement
         }
 
 
-        // Exclude all Systems that have this attribute from being added
+        /// <summary>
+        /// Same as <see cref="ExcludeAttribute"/>
+        /// </summary>
         public WorldBuilder ExcludeAttribute<T>() where T : Attribute
         {
             return ExcludeAttribute(typeof(T));
         }
 
-        // Exclude all Systems that have this attribute from being added
+        /// Exclude all Systems that have this attribute from being added.
+        /// This basically gives the attribute the same functionality for the resulting world that
+        /// <see cref="DisableAutoCreationAttribute"/> has for all worlds.
         public WorldBuilder ExcludeAttribute(Type t)
         {
             if (t != null)
@@ -110,9 +127,8 @@ namespace WorldManagement
             return this;
         }
 
-        public World Build(string worldName, BuildFlags flags)
+        public World Build(string worldName, BuildFlags flags, bool logCreatedSystems = false)
         {
-            // ReSharper disable once BitwiseOperatorOnEnumWithoutFlags
             if (flags.HasFlag(BuildFlags.AddImplicitSystems))
                 _systemsToInclude.AddRange(_playerLoopRequiredSystems);
 
@@ -143,8 +159,8 @@ namespace WorldManagement
                 return default;
             }
 
-            Debug.Log(
-                $"Create {worldName} with {createdSystems.Length} Systems (in creation order):\n  {string.Join(",\n  ", finalSystems.Select(x => x.Name))}");
+            if(logCreatedSystems)
+                Debug.Log($"Created {worldName} with {createdSystems.Length} Systems (in creation order):\n  {string.Join(",\n  ", finalSystems.Select(x => x.Name))}");
 
             // Build Update tree as defined in systemGrouping
             foreach (var (groupType, children) in _systemGrouping)
@@ -160,20 +176,10 @@ namespace WorldManagement
             }
 
             // Add world to player loop
-            // ReSharper disable once BitwiseOperatorOnEnumWithoutFlags
             if (flags.HasFlag(BuildFlags.AddToPlayerLoop))
                 ScriptBehaviourUpdateOrder.AppendWorldToCurrentPlayerLoop(world);
 
             return world;
         }
-    }
-
-    [Flags]
-    public enum BuildFlags
-    {
-        None = 0,
-        AddImplicitSystems = 1,
-        AddToPlayerLoop = 2 | AddImplicitSystems,
-        RemoveRateManagers = 4
     }
 }

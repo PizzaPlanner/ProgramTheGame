@@ -1,4 +1,5 @@
 ﻿using Equipment;
+using Identifiables;
 using Identifiables.UI;
 using Units;
 using Unity.Entities;

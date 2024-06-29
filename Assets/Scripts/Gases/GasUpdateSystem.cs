@@ -1,89 +1,115 @@
-﻿using Unity.Collections;
+﻿using System.Collections.Generic;
+using Unity.Burst;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Transforms;
+using UnityEngine;
+using UnityEngine.Profiling;
 
 [UpdateInGroup(typeof(GasSimulationSystemGroup))]
 public partial struct GasUpdateSystem : ISystem
 {
+    struct GasComparer : IComparer<(Cell, GasVolume)>
+    {
+        public int Compare((Cell, GasVolume) x, (Cell, GasVolume) y)
+        {
+            return x.Item2.Pressure.CompareTo(y.Item2.Pressure);
+        }
+    }
+    
     public void OnCreate(ref SystemState state)
     {
-        state.RequireForUpdate<GasModel>();
-        var rooms = new GasModel
-        {
-            Emitters = new NativeList<GasEmitter>(Allocator.Persistent),
-            TileChanges = new NativeList<int2>(Allocator.Persistent),
-            Tiles = new NativeParallelHashMap<int2, GasTile>(1024, Allocator.Persistent)
-        };
-        state.EntityManager.AddComponentData(state.SystemHandle, rooms);
+        state.RequireForUpdate<GridStructure>();
     }
 
     public void OnDestroy(ref SystemState state)
     {
-        var gas = SystemAPI.GetSingleton<GasModel>();
-        gas.Emitters.Dispose();
-        gas.TileChanges.Dispose();
-        gas.Tiles.Dispose();
+        foreach (var model in SystemAPI.Query<GasModel>())
+            model.Dispose();
     }
 
+    [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-        var model = SystemAPI.GetSingletonRW<GasModel>().ValueRW;
-
-        var updates = new NativeList<int2>(Allocator.Temp);
-        foreach (var tile in model.TileChanges)
+        var ecb = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>()
+                           .CreateCommandBuffer(state.WorldUnmanaged);
+        foreach (var (_, e) in SystemAPI.Query<GridStructure>().WithNone<GasModel>().WithEntityAccess())
         {
-            var self = model.Tiles[tile];
-            bool changed;
-            var neighbour = tile + new int2(1, 0);
+            var gasModel = new GasModel
             {
-                if (model.Tiles.TryGetValue(neighbour, out var other))
-                {
-                    (model.Tiles[neighbour], self, changed) = GasTile.Mix(other, self);
-                    if (changed && !updates.Contains(neighbour))
-                        updates.Add(neighbour);
-                }
-            }
-            neighbour = tile + new int2(-1, 0);
-            {
-                if (model.Tiles.TryGetValue(neighbour, out var other))
-                {
-                    (model.Tiles[neighbour], self, changed) = GasTile.Mix(other, self);
-                    if (changed && !updates.Contains(neighbour))
-                        updates.Add(neighbour);
-                }
-            }
-            neighbour = tile + new int2(0, 1);
-            {
-                if (model.Tiles.TryGetValue(neighbour, out var other))
-                {
-                    (model.Tiles[neighbour], self, changed) = GasTile.Mix(other, self);
-                    if (changed && !updates.Contains(neighbour))
-                        updates.Add(neighbour);
-                }
-            }
-            neighbour = tile + new int2(0, -1);
-            {
-                if (model.Tiles.TryGetValue(neighbour, out var other))
-                {
-                    (model.Tiles[neighbour], self, changed) = GasTile.Mix(other, self);
-                    if (changed && !updates.Contains(neighbour))
-                        updates.Add(neighbour);
-                }
-            }
-
-            model.Tiles[tile] = self;
+                TileMap = new(32, Allocator.Persistent),
+                Atmosphere = GasVolume.Empty,
+                Changes = new(32, Allocator.Persistent)
+            };
+            ecb.AddComponent(e, gasModel);
         }
-        model.TileChanges.Clear();
-        model.TileChanges.AddRange(updates);
+
+        foreach (var (model, e) in SystemAPI.Query<GasModel>().WithNone<LocalToWorld>().WithEntityAccess())
+        {
+            model.Dispose();
+            ecb.RemoveComponent<GasModel>(e);
+        }
         
-        foreach (var emitter in model.Emitters)
+        foreach (var (gasModel, roomModel, grid) in SystemAPI.Query<GasModel, RoomModel, GridStructure>())
         {
-            if(!model.Tiles.TryGetValue(emitter.Location, out var tile))
-                tile = GasTile.Empty;
-            tile = tile.Add(emitter.Output);
-            model.Tiles[emitter.Location] = tile;
-            model.TileChanges.Add(emitter.Location);
+            var changes = gasModel.Changes.ToArray(Allocator.Temp);
+            gasModel.Changes.Clear();
+            foreach (var cell in changes)
+            {
+                // if(!grid.LocalAABB.Contains(cell))
+                //     continue;
+                
+                // Profiler.BeginSample("CollectNeighbours");
+                var tileMap = gasModel.TileMap;
+                var isExhaustive = !roomModel.Walls.Contains(cell);
+                var neighbours = new NativeList<(Cell, GasVolume)>(Allocator.Temp);
+                var neighbour = cell + new int2(1,0);
+                if(!roomModel.Walls.Contains(neighbour))
+                    neighbours.Add((neighbour, tileMap.TryGetValue(neighbour, out var v) ? v : GasVolume.Empty));
+                neighbour = cell + new int2(-1,0);
+                if(!roomModel.Walls.Contains(neighbour))
+                    neighbours.Add((neighbour, tileMap.TryGetValue(neighbour, out var v) ? v : GasVolume.Empty));
+                neighbour = cell + new int2(0,1);
+                if(!roomModel.Walls.Contains(neighbour))
+                    neighbours.Add((neighbour, tileMap.TryGetValue(neighbour, out var v) ? v : GasVolume.Empty));
+                neighbour = cell + new int2(0,-1);
+                if(!roomModel.Walls.Contains(neighbour))
+                    neighbours.Add((neighbour, tileMap.TryGetValue(neighbour, out var v) ? v : GasVolume.Empty));
+                
+                // Profiler.EndSample();
+                // Profiler.BeginSample("SortNeighbours");
+                neighbours.Sort(new GasComparer());
+                var volume = gasModel.TileMap.TryGetValue(cell, out var vol) ? vol : GasVolume.Empty;
+                Profiler.EndSample();
+                
+                if (isExhaustive)
+                {
+                    // Profiler.BeginSample("MixExhaustive");
+                    foreach (var nb in neighbours)
+                        volume = gasModel.Mix((cell, volume), nb);
+                    
+                    // Mix with atmosphere
+                    if (!roomModel.CellRoomMap.TryGetValue(cell, out var _))
+                    {
+                        bool changed;
+                        (volume, _, changed) = GasVolume.Mix(volume, gasModel.Atmosphere);
+                        if(changed)
+                            gasModel.Changes.Add(cell);
+                    }
+                    
+                    tileMap[cell] = volume;
+                    Profiler.EndSample();
+                }
+                else
+                {
+                    // Profiler.BeginSample("MixNonExhaustive");
+                    if(neighbours.Length > 0)
+                        tileMap[neighbours[0].Item1] = neighbours[0].Item2.Add(tileMap[cell]);
+                    tileMap.Remove(cell);
+                    Profiler.EndSample();
+                }
+            }
         }
-        model.Emitters.Clear();
     }
 }

@@ -1,15 +1,13 @@
 ﻿using System;
 using Unity.Burst;
-using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
-using UnityEngine;
 
 public struct TransactionStore: IComponentData, IDisposable
 {
     internal UnsafeParallelHashMap<int, ItemTransaction.TransactionHeader> Transactions;
-    public static int NextId => ++_id;
-    static int _id;
+    public static int NextId => ++_id.Data;
+    static readonly SharedStatic<int> _id = SharedStatic<int>.GetOrCreate<TransactionStore>();
 
     public void Remove(int transactionId)
     {

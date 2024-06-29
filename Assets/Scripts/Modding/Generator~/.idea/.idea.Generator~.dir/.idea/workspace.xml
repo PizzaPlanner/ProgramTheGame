@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="f353fc70-8dd5-4b52-8716-26d7b2fc3182" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/../../../../Packages/com.ite.bootstrap/Bootstrap.asmdef" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../Packages/com.ite.bootstrap/Bootstrap.asmdef" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../Packages/com.ite.bootstrap/Initialization.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../Packages/com.ite.bootstrap/Initialization/InitialPreparationSystemGroup.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../Packages/com.ite.bootstrap/Initialization/InitialPreparationSystemGroup.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../Packages/com.ite.bootstrap/Package.json" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../Packages/com.ite.bootstrap/Package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../Packages/com.ite.bootstrap/Tests.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../Packages/com.ite.bootstrap/Tests/Setup.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../Packages/com.ite.bootstrap/Tests/Setup.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../Packages/com.ite.bootstrap/Tests/Tests.asmdef" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../Packages/com.ite.bootstrap/Tests/Tests.asmdef.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../Packages/com.ite.bootstrap/TypeHierarchyTools.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../Packages/com.ite.bootstrap/TypeHierarchyTools.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../Packages/com.ite.bootstrap/WorldBuilder.cs" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../Packages/com.ite.bootstrap/WorldBuilder.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../Packages/packages-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../Packages/packages-lock.json" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../../../.." />
+  </component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/SourceGenerator/Generator.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/1aeec897e4ef311b8514d82976fe3adbce94eedb27d9c6b7742c85abf7093/Syntax.xml.Syntax.Generated.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/296729e434a9fc93c0308f405abfd5e18e57c0f077996447ed4721a57f66b2/IFieldSymbol.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/317b566de96a6e563fc7666c422ee6478928e6f613d5ea40d16f2b25d3881e/IPropertySymbol.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/3f575d54a6665c7f8e59ef7cc979f231e41c6855274a843dea924629c726018/AdditionalText.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/79f449277ee2fa10e3a66e676eb685d2a60afe1ecf1dbce7c95d991e081ed1/SyntaxNode.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/7ac14a32ebeccd5ca899cb07f18b4213ee3e94c7bf62463df3b2da34256b4e/Syntax.xml.Internal.Generated.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/7db2d16d9bc3a5a42fb9ca153dd911cf1a89c66b1dca4bfc9ed7523bdc9ac28/CSharpSyntaxNode.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/db31e215db1436964df2f49ffe7123fd4b04ac9a7c642a9778ea8c115abb1/CSharpExtensions.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/dbf25acd3aa0af4b34c42994d2aea8cec92dce44dd4715130c2232a8b8edd/GeneratorContexts.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/e9e993f6f25b83ed9f478267e94a66886216b3bec4eec6e88277b15f04fb7a7/TypeDeclarationSyntax.cs" root0="SKIP_HIGHLIGHTING" />
+  </component>
+  <component name="MacroExpansionManager">
+    <option name="directoryName" value="cv6y8myx" />
+  </component>
+  <component name="MetaFilesCheckinStateConfiguration" checkMetaFiles="true" />
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 3
+}</component>
+  <component name="ProjectId" id="2X34JQ7XJaINGuAEVj9eLrxW9pb" />
+  <component name="ProjectViewState">
+    <option name="autoscrollFromSource" value="true" />
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Publish to folder.MakePlugin.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  },
+  &quot;keyToStringList&quot;: {
+    &quot;rider.external.source.directories&quot;: [
+      &quot;C:\\Users\\ra_sa\\AppData\\Roaming\\JetBrains\\Rider2024.1\\resharper-host\\DecompilerCache&quot;,
+      &quot;C:\\Users\\ra_sa\\AppData\\Roaming\\JetBrains\\Rider2024.1\\resharper-host\\SourcesCache&quot;,
+      &quot;C:\\Users\\ra_sa\\AppData\\Local\\Symbols\\src&quot;
+    ]
+  }
+}</component>
+  <component name="RunManager">
+    <configuration name="MakePlugin" type="DotNetFolderPublish" factoryName="Publish to folder">
+      <riderPublish runtime="Portable" target_folder="$PROJECT_DIR$/../Plugins" target_framework="netstandard2.0" uuid_high="3017660129823998322" uuid_low="-2708595317242272655" />
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="DotNetFolderPublish" factoryName="Publish to folder">
+      <riderPublish runtime="Portable" target_folder="$PROJECT_DIR$/bin/netstandard2.0/publish" target_framework="netstandard2.0" uuid_high="3017660129823998322" uuid_low="-2708595317242272655" />
+      <method v="2" />
+    </configuration>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="f353fc70-8dd5-4b52-8716-26d7b2fc3182" name="Changes" comment="" />
+      <created>1697844356845</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1697844356845</updated>
+      <workItem from="1697844357882" duration="332000" />
+      <workItem from="1714340286966" duration="371000" />
+      <workItem from="1714419385194" duration="850000" />
+      <workItem from="1714872209680" duration="853000" />
+      <workItem from="1719603468868" duration="2211000" />
+      <workItem from="1719629174781" duration="3819000" />
+      <workItem from="1719634153215" duration="2957000" />
+      <workItem from="1719685149370" duration="2374000" />
+      <workItem from="1719688793155" duration="1152000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="UnityCheckinConfiguration" checkUnsavedScenes="true" />
+  <component name="UnityProjectConfiguration" hasMinimizedUI="false" />
+  <component name="VcsManagerConfiguration">
+    <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
+  </component>
+</project>

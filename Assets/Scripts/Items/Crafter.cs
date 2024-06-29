@@ -1,3 +1,4 @@
+using Identifiables;
 using Unity.Entities;
 
 public struct Craftables : IBufferElementData

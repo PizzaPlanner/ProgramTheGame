@@ -51,7 +51,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ItemId: 18334709512985307412
   Tags:
-  - Unit
+  - {fileID: -7047400985839579883, guid: 793002f4717dacb44a5ed0b744cb3bc3, type: 3}
   Icon: {fileID: 2800000, guid: 52c9eb5e9a0aa6f4295ab62e8b876c52, type: 3}
 --- !u!114 &-4989415347927071038
 MonoBehaviour:
@@ -149,6 +149,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MaxStackSize: 1
+  BelongsToNetwork: {fileID: 0}
 --- !u!1001 &3072592592385049462
 PrefabInstance:
   m_ObjectHideFlags: 0

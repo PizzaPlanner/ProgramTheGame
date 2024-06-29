@@ -17,6 +17,15 @@
         "com.unity.addressables": "1.21.8"
       }
     },
+    "com.ite.lookups": {
+      "version": "file:com.ite.lookups",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {
+        "com.unity.entities": "1.0.10",
+        "com.unity.addressables": "1.21.8"
+      }
+    },
     "com.unity.addressables": {
       "version": "2.0.8",
       "depth": 0,

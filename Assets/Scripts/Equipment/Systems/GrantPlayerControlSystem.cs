@@ -17,7 +17,7 @@ namespace Equipment
                 var stillHasBuff = false;
                 foreach (var slot in inventory)
                 {
-                    if(!slot.SlotFilter.IsEquipment() || slot.Entity == Entity.Null)
+                    if(!slot.IsEquipmentSlot || slot.Entity == Entity.Null)
                         continue;
                     if(!SystemAPI.HasComponent<GrantPlayerControl>(slot.Entity))
                         continue;

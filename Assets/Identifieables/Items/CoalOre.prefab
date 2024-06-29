@@ -101,9 +101,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ItemId: 10909465058339435892
-  TagManager: {fileID: 11400000, guid: 901fb2db6d99192419798336cdf125ff, type: 2}
   Tags:
-  - Item
+  - {fileID: -7047400985839579883, guid: 2832c3a43e695f741af765507e87018d, type: 3}
   Icon: {fileID: 2800000, guid: 5961249be2439ba41b53980015d5706e, type: 3}
 --- !u!114 &697860641069326925
 MonoBehaviour:
@@ -118,4 +117,3 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MaxStackSize: 20
-  Category: 1

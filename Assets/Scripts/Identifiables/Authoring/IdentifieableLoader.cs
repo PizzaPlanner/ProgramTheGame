@@ -22,14 +22,9 @@ public class IdentifieableLoader : MonoBehaviour
                 if (UnityEditor.PrefabUtility.IsPartOfPrefabAsset(obj) && obj is GameObject go &&
                     go.TryGetComponent(out IdentifieableAuthoring id))
                 {
-                    if(id.Id == default)
-                        Debug.LogError($"{go.name} has invalid ID 0!");
-                    else
-                    {
-                        RegisterPrefabForBaking(go);
-                        GetEntity(go, TransformUsageFlags.None);
-                        prefabs++;
-                    }
+                    RegisterPrefabForBaking(go);
+                    GetEntity(go, TransformUsageFlags.None);
+                    prefabs++;
                 }
             }
             // var builder = IdentifiablesLookup.MakeBuilder(prefabs, out var arrayBuilder);

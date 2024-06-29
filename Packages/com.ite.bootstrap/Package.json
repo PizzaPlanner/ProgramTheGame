@@ -1,8 +1,8 @@
 ﻿{
   "name": "com.ite.bootstrap",
-  "version": "0.10.0",
+  "version": "1.0.0",
   "displayName": "Bootstrap",
-  "description": "Simple class for custom Entities World creation",
+  "description": "A simple package for custom Entities World creation. Mainly intended for Test worlds and Multi-world scenarios.",
   "unity": "2022.2",
   "hideInEditor": false,
   "dependencies": {

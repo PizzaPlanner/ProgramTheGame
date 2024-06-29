@@ -1,4 +1,6 @@
+using UnityEngine;
 using UnityEngine.UIElements;
+using UnityEngine.UIElements.Experimental;
 
 namespace Identifiables.UI
 {
@@ -13,6 +15,7 @@ namespace Identifiables.UI
             var body = new VisualElement{name = "Body"};
             body.Add(new Label{name = "Description"});
             body.Add(new Label{name = "IdRef"});
+            body.Q("IdRef").RegisterCallback<PointerUpLinkTagEvent>(evt => GUIUtility.systemCopyBuffer = evt.linkText);
             Add(body);
             var refs  = new VisualElement{name = "References"};
             Add(refs);
@@ -25,17 +28,9 @@ namespace Identifiables.UI
             {
                 this.Q<Label>("Title").text = $"Translate({value.DefaultName.Value}) (from {value.Origin})";
                 this.Q<Label>("Description").text = "lorem ispum\nlorem ipsum\nHello World?";
-                this.Q<Label>("IdRef").text = $"Id:   {value.ItemId.ToString()}\nName: {value.DefaultName.Value}";
+                this.Q<Label>("IdRef").text = $"Id:   <link=\"id\">{value.StableId.ToString()}</link>\nName: <link=\"name\">{value.DefaultName.Value}</link>";
                 this.Q("Icon").style.backgroundImage = value.Icon;
                 var refs = this.Q("References");
-                foreach (var reference in value.References)
-                {
-                    var refParent = reference.Relation.ToString();
-                    if(refs.Q<Foldout>(refParent) == null)
-                        refs.Add(new Foldout(){name = refParent, value = true,  text = refParent});
-                        
-                    refs.Q<Foldout>(refParent).Add(new WikiIdLinkButton(reference, true));
-                }
                     
                 _content = value;
             }

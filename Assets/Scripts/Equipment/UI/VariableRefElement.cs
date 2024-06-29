@@ -1,4 +1,7 @@
-﻿using System.Linq;
+﻿using Identifiables;
+using Modding.API;
+using Modding.API.Tags;
+using System.Linq;
 using UnityEngine.UIElements;
 
 public class VariableRefElement : VisualElement, IMakeChipCode
@@ -8,8 +11,8 @@ public class VariableRefElement : VisualElement, IMakeChipCode
         set
         {
             this.Q<SignalButton>().AssignableTo = value
-                ? IdTagManager.ToTag("Equipment", "ControlFlow")
-                : IdTag.All;
+                ? TagList.From(Tag.FromName("TagEquipment"), Tag.FromName("TagControlFlow"))
+                : TagList.MatchAll;
             _isLeft = value;
         }
         get => _isLeft;
@@ -21,7 +24,7 @@ public class VariableRefElement : VisualElement, IMakeChipCode
     
     public VariableRefElement()
     {
-        Signal = new SignalButton() {AssignableTo = IdTag.All};
+        Signal = new SignalButton() {AssignableTo = TagList.MatchAll};
         Signal.OnValueChanged = OnIdChanged;
         Add(Signal);
         Add(new DropdownField(){name = "Value"});

@@ -18,7 +18,8 @@
         "Identifiables.UI",
         "Core.UI",
         "Chip",
-        "Items.Systems"
+        "Items.Systems",
+        "Modding.API"
 
     ],
     "includePlatforms": [],

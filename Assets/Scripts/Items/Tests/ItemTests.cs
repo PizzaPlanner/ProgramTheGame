@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using Identifiables;
+using NUnit.Framework;
 using System.Collections;
 using Unity.Collections;
 using Unity.Entities;
@@ -12,7 +13,7 @@ namespace Items.Tests
 {
     public class ItemTests
     {
-        const long SomeStackableGUID = 755564084;
+        const ulong SomeStackableGUID = 755564084;
         
         [UnityTest]
         public IEnumerator TestTransfer()
@@ -25,7 +26,7 @@ namespace Items.Tests
             inventory.Add(new Inventory
             {
                 Amount = 3,
-                Type = ItemId.From(new Identifieable(SomeStackableGUID))
+                Type = ItemId.From(Identifieable.FromGuid(SomeStackableGUID))
             });
             inventory.Add(default);
             // SystemAPI.GetSingleton<TransactionStore>().Build.Transfer(e, 0, e, 1);

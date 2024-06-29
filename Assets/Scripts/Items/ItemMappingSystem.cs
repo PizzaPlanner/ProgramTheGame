@@ -1,23 +1,22 @@
-﻿using Unity.Collections;
+﻿using Identifiables;
+using Unity.Burst;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Transforms;
 
 public partial class ItemMappingSystem : IdentifiableMappingSystem
 {
-    internal static NativeParallelHashMap<Identifieable, Item> ItemsById;
-    public static IdTag EquipmentTag { get; private set; }
-    public static IdTag ItemTag { get; private set; }
+    internal readonly static SharedStatic<NativeParallelHashMap<Identifieable, Item>> ItemsById 
+        = SharedStatic<NativeParallelHashMap<Identifieable, Item>>.GetOrCreate<ItemMappingSystem>();
 
     protected override void OnCreate()
     {
-        ItemsById = new NativeParallelHashMap<Identifieable, Item>(0, Allocator.Persistent);
-        EquipmentTag = IdTagManager.ToTag("Equipment");
-        ItemTag = IdTagManager.ToTag("Item");
+        ItemsById.Data = new NativeParallelHashMap<Identifieable, Item>(0, Allocator.Persistent);
     }
 
     protected override void OnDestroy()
     {
-        ItemsById.Dispose();
+        ItemsById.Data.Dispose();
     }
 
     protected override void OnUpdate()
@@ -28,7 +27,7 @@ public partial class ItemMappingSystem : IdentifiableMappingSystem
                           .WithNone<Parent>()
                           .WithOptions(EntityQueryOptions.IncludePrefab))
         {
-            ItemsById[id] = item;
+            ItemsById.Data[id] = item;
         }
 
         foreach (var (id, starterInventory) in 

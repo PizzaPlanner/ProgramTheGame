@@ -4,13 +4,13 @@ using Unity.Mathematics;
 public struct GasPainter : IComponentData
 {
     public float Temperature;
-    public ushort Amount;
+    public float Amount;
     public Gas Gas;
     public int Extents;
 }
 
 public struct GasDebugData : IComponentData
 {
-    public GasTile Tile;
+    public GasVolume Volume;
     public int2 Location;
 }

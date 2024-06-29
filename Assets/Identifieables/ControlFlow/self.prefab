@@ -47,7 +47,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ItemId: 875860810716919204
   Tags:
-  - ControlFlow
+  - {fileID: -7047400985839579883, guid: b6e25112b6a1b054791dc312384686c6, type: 3}
   Icon: {fileID: 2800000, guid: fa2ab7f88f593104e88a2171fbb007a4, type: 3}
 --- !u!114 &-2865996377860552511
 MonoBehaviour:

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Identifiables;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.Collections;
@@ -340,7 +341,7 @@ public struct ChipScriptLine
         else if (!right.Contains('.'))
         {
             var id = Identifieable.FromName(right);
-            csl.RightConstant = id.ItemId;
+            csl.RightConstant = (long)id.StableId;
             csl.RightType = LogicType.Type;
             csl.RightIsConstant = true;
         }

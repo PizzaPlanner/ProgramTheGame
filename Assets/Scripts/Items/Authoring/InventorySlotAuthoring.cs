@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Identifiables;
+using System;
 using System.Linq;
 using UnityEditor;
 using UnityEditor.Search;
@@ -63,61 +64,61 @@ class InventoryAuthoringEditor : Editor
 
     void RedrawInventory(VisualElement inventory, SerializedProperty property)
     {
-        inventory.Clear();
-        inventory.Add(new Label($"Inventory with {property.arraySize} slots"));
-        for (int i = 0; i < property.arraySize; i++)
-            inventory.Add(new InventorySlotField(property.GetArrayElementAtIndex(i)));
-        root.Bind(serializedObject);
+        // inventory.Clear();
+        // inventory.Add(new Label($"Inventory with {property.arraySize} slots"));
+        // for (int i = 0; i < property.arraySize; i++)
+        //     inventory.Add(new InventorySlotField(property.GetArrayElementAtIndex(i)));
+        // root.Bind(serializedObject);
     }
 }
 
 class InventorySlotField : VisualElement
 {
-    public InventorySlotField(SerializedProperty property)
-    {
-        Add(new IconPropertyField(property.FindPropertyRelative("Item")){ name = "Icon" });
-        Add(new PropertyField(property.FindPropertyRelative("Amount")) { name = "Amount" });
-        Add(new PropertyField(property.FindPropertyRelative("TransferDirection")) { name = "TransferDirection" });
-        
-        var filter = new MaskField() { name = "Filter" };
-        filter.choices = IdTagManager.Names.ToList();
-        filter.RegisterValueChangedCallback(x => SelectionToFilter(x.newValue, property.FindPropertyRelative("Filter")));
-        Add(filter);
-        ApplyFilter(property);
-    }
-
-    void SelectionToFilter(int mask, SerializedProperty filterProp)
-    {
-        filterProp.serializedObject.Update();
-        filterProp.arraySize = 0;
-        for (int i = 0; i < IdTagManager.Names.Length; i++)
-        {
-            if ((mask & (1 << i)) != 0)
-            {
-                filterProp.arraySize++;
-                filterProp.GetArrayElementAtIndex(filterProp.arraySize - 1).stringValue = IdTagManager.Names[i];
-            }
-        }
-        filterProp.serializedObject.ApplyModifiedProperties();
-        ApplyFilter(filterProp);
-    }
-
-    void ApplyFilter(SerializedProperty property)
-    {
-        foreach (var f2 in IdTagManager.Names)
-        {
-            RemoveFromClassList(f2.ToLower());
-        }
-        var filter = property.FindPropertyRelative("Filter").arraySize;
-        var mask = this.Q<MaskField>();
-        mask.value = 0;
-        for (int i = 0; i < filter; i++)
-        {
-            var f = property.FindPropertyRelative("Filter").GetArrayElementAtIndex(i);
-            AddToClassList(f.stringValue.ToLower());
-            this.Q<MaskField>().value |= (int)IdTagManager.ToTag(f.stringValue).Value;
-        }
-    }
+    // public InventorySlotField(SerializedProperty property)
+    // {
+    //     Add(new IconPropertyField(property.FindPropertyRelative("Item")){ name = "Icon" });
+    //     Add(new PropertyField(property.FindPropertyRelative("Amount")) { name = "Amount" });
+    //     Add(new PropertyField(property.FindPropertyRelative("TransferDirection")) { name = "TransferDirection" });
+    //     
+    //     var filter = new MaskField() { name = "Filter" };
+    //     filter.choices = IdTagLibrary.AllTags.ToList();
+    //     filter.RegisterValueChangedCallback(x => SelectionToFilter(x.newValue, property.FindPropertyRelative("Filter")));
+    //     Add(filter);
+    //     ApplyFilter(property);
+    // }
+    //
+    // void SelectionToFilter(int mask, SerializedProperty filterProp)
+    // {
+    //     filterProp.serializedObject.Update();
+    //     filterProp.arraySize = 0;
+    //     for (int i = 0; i < TagList.Names.Length; i++)
+    //     {
+    //         if ((mask & (1 << i)) != 0)
+    //         {
+    //             filterProp.arraySize++;
+    //             filterProp.GetArrayElementAtIndex(filterProp.arraySize - 1).stringValue = IdTagManager.Names[i];
+    //         }
+    //     }
+    //     filterProp.serializedObject.ApplyModifiedProperties();
+    //     ApplyFilter(filterProp);
+    // }
+    //
+    // void ApplyFilter(SerializedProperty property)
+    // {
+    //     foreach (var f2 in IdTagManager.Names)
+    //     {
+    //         RemoveFromClassList(f2.ToLower());
+    //     }
+    //     var filter = property.FindPropertyRelative("Filter").arraySize;
+    //     var mask = this.Q<MaskField>();
+    //     mask.value = 0;
+    //     for (int i = 0; i < filter; i++)
+    //     {
+    //         var f = property.FindPropertyRelative("Filter").GetArrayElementAtIndex(i);
+    //         AddToClassList(f.stringValue.ToLower());
+    //         this.Q<MaskField>().value |= (int)IdTagManager.ToTag(f.stringValue).Value;
+    //     }
+    // }
 }
 
 class IconPropertyField : PropertyField

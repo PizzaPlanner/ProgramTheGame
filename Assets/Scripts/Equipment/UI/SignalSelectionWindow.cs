@@ -1,4 +1,7 @@
-﻿using System;
+﻿using Identifiables;
+using Modding.API;
+using Modding.API.Tags;
+using System;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.UIElements;
@@ -12,17 +15,19 @@ public partial class SignalSelectionWindow : ScrollView
     public SignalSelectionWindow()
     {
         focusable = true;
-        foreach (var tag in IdTagManager.Names)
-        {
-            var tab = new Tab(tag);
-            tab.Add(new SignalSelectionIdCollection() { name = tag, Tag = IdTagManager.ToTag(tag), Tab = tab });
-            Add(tab);
-        }
-        RegisterCallback<FocusOutEvent>(_ => style.display = DisplayStyle.None);
     }
 
     public void Init()
     {
+        Clear();
+        foreach (var tag in Tag.All)
+        {
+            var tab = new Tab(tag.Value);
+            tab.Add(new SignalSelectionIdCollection() { name = tag.Value, Tag = TagList.From(Tag.FromName(tag)), Tab = tab });
+            Add(tab);
+        }
+        RegisterCallback<FocusOutEvent>(_ => style.display = DisplayStyle.None);
+        
         foreach (var collection in this.Query<SignalSelectionIdCollection>().Build())
         {
             collection.Clear();
@@ -37,8 +42,9 @@ public partial class SignalSelectionWindow : ScrollView
                 collection.Add(constBtn);
                 collection.Add(constVal);
             }
-            foreach (var id in Identifieable.All)
+            foreach (var idd in Identifieable.All)
             {
+                var id = Identifieable.FromGuid(idd.AssetGuid);
                 if(!id.Tags.Contains(collection.Tag))
                     continue;
                 collection.Add(MakeButton(id));
@@ -60,7 +66,7 @@ public partial class SignalSelectionWindow : ScrollView
         return btn;
     }
 
-    public static void Show(VisualElement nextTo, Action<SignalButton> action, IdTag tags, Func<SignalButton, bool> signalFilter = null)
+    public static void Show(VisualElement nextTo, Action<SignalButton> action, TagList tags, Func<SignalButton, bool> signalFilter = null)
     {
         foreach (var collection in Instance.Query<SignalSelectionIdCollection>().Build())
         {

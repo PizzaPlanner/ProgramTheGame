@@ -5,9 +5,15 @@
         "Unity.Entities",
         "Unity.Mathematics",
         "Unity.Burst",
+        "Unity.Transforms",
         "Unity.Collections",
         "Unity.Addressables",
-        "Unity.ResourceManager"
+        "Unity.ResourceManager",
+        "Unity.InputSystem",
+        "Core",
+        "Rooms",
+        "Core.Input",
+        "Core.UI"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

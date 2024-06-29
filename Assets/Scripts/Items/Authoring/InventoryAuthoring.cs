@@ -1,6 +1,5 @@
-using System;
-using Unity.Assertions;
-using Unity.Collections;
+using Modding.API.Tags;
+using System.Linq;
 using Unity.Entities;
 using UnityEngine;
 
@@ -20,7 +19,9 @@ public class InventoryAuthoring : MonoBehaviour
                 var slot = authoring.Slots[i];
                 var content = new Inventory
                 {
-                    SlotFilter = IdTagManager.ToTag(slot.Filter), 
+                    SlotFilter = default,
+                    IsEquipmentSlot = slot.Filter.Contains("Equipment"),
+                    IsTypeLocked = false,
                     Transfer = slot.TransferDirection,
                 };
                 buffer.Add(content);

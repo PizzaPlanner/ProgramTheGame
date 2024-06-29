@@ -1,7 +1,6 @@
-﻿using Bootstrap.Tests;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using Unity.Mathematics;
-using UnityEngine;
+using WorldManagement;
 
 namespace Gases.Tests
 {
@@ -15,38 +14,34 @@ namespace Gases.Tests
         [TestCase(7.3f, 2.7f)]
         public void IsEnergyEqualized(float eLeft, float eRight)
         {
-            using var world = Setup.MakeTestWorldNoRateManagers(typeof(GasUpdateSystem));
-            var gasSystem = world.Unmanaged.GetExistingUnmanagedSystem<GasUpdateSystem>();
-            var gasModel = world.EntityManager.GetComponentDataRW<GasModel>(gasSystem).ValueRW;
+            using var world = WorldBuilder.Presets.TestWorldNoRateManagers(typeof(GasUpdateSystem));
             
-            var left = new int2(0,0);
-            var right = new int2(0, 1);
+            var left = world.EntityManager.CreateEntity(typeof(GasVolume), typeof(GridBounds));
+            var right = world.EntityManager.CreateEntity(typeof(GasVolume), typeof(GridBounds));
             
-            gasModel.Emitters.Add(new GasEmitter
+            world.EntityManager.SetComponentData(left, GasVolume.Empty.WithEnergy(eLeft).With(Gas.Hydrogen, 1));
+            world.EntityManager.SetComponentData(left, new GridBounds()
             {
-                Location = left,
-                Output = GasTile.Empty.WithEnergy(eLeft).With(Gas.Hydrogen, 1)
+                Min = new int2(0, 0),
+                Max = new int2(0, 0)
             });
-            gasModel.Emitters.Add(new GasEmitter
+            
+            world.EntityManager.SetComponentData(right, GasVolume.Empty.WithEnergy(eLeft).With(Gas.Hydrogen, 1));
+            world.EntityManager.SetComponentData(right, new GridBounds()
             {
-                Location = right,
-                Output = GasTile.Empty.WithEnergy(eRight).With(Gas.Hydrogen, 1)
+                Min = new int2(1, 0),
+                Max = new int2(1, 0)
             });
-            world.Update();
-            gasModel = world.EntityManager.GetComponentData<GasModel>(gasSystem);
-            Debug.Log($"E {gasModel.Tiles[left].TotalEnergy} // {gasModel.Tiles[right].TotalEnergy}");
 
             for (int i = 0; i < 10; i++)
-            {
                 world.Update();
-                Debug.Log($"E {gasModel.Tiles[left].TotalEnergy} // {gasModel.Tiles[right].TotalEnergy}");
-            }
             
             var sum = eLeft + eRight;
-            gasModel = world.EntityManager.GetComponentData<GasModel>(gasSystem);
-            Assert.AreEqual(sum/2, gasModel.Tiles[left].TotalEnergy, sum * HALF_PRECISION_DELTA_FACTOR);
-            Assert.AreEqual(sum/2, gasModel.Tiles[right].TotalEnergy, sum * HALF_PRECISION_DELTA_FACTOR);
-            Assert.AreEqual(sum, gasModel.Tiles[left].TotalEnergy + gasModel.Tiles[right].TotalEnergy, sum * HALF_PRECISION_DELTA_FACTOR);
+            var lGas = world.EntityManager.GetComponentData<GasVolume>(left);
+            var rGas = world.EntityManager.GetComponentData<GasVolume>(right);
+            Assert.AreEqual(sum/2, lGas.TotalEnergy, sum * HALF_PRECISION_DELTA_FACTOR);
+            Assert.AreEqual(sum/2, rGas.TotalEnergy, sum * HALF_PRECISION_DELTA_FACTOR);
+            Assert.AreEqual(sum, lGas.TotalEnergy + rGas.TotalEnergy, sum * HALF_PRECISION_DELTA_FACTOR);
         }
         
         [Test]
@@ -55,38 +50,34 @@ namespace Gases.Tests
         [TestCase(7u, 2u)]
         public void AreMolesEqualized(uint mLeft, uint mRight)
         {
-            using var world = Setup.MakeTestWorldNoRateManagers(typeof(GasUpdateSystem));
-            var gasSystem = world.Unmanaged.GetExistingUnmanagedSystem<GasUpdateSystem>();
-            var gasModel = world.EntityManager.GetComponentDataRW<GasModel>(gasSystem).ValueRW;
+            using var world = WorldBuilder.Presets.TestWorldNoRateManagers(typeof(GasUpdateSystem));
             
-            var left = new int2(0,0);
-            var right = new int2(0, 1);
+            var left = world.EntityManager.CreateEntity(typeof(GasVolume), typeof(GridBounds));
+            var right = world.EntityManager.CreateEntity(typeof(GasVolume), typeof(GridBounds));
             
-            gasModel.Emitters.Add(new GasEmitter
+            world.EntityManager.SetComponentData(left, GasVolume.Empty.WithEnergy(1).With(Gas.Hydrogen, mLeft));
+            world.EntityManager.SetComponentData(left, new GridBounds()
             {
-                Location = left,
-                Output = GasTile.Empty.WithEnergy(1).With(Gas.Hydrogen, mLeft)
+                Min = new int2(0, 0),
+                Max = new int2(0, 0)
             });
-            gasModel.Emitters.Add(new GasEmitter
+            
+            world.EntityManager.SetComponentData(right, GasVolume.Empty.WithEnergy(1).With(Gas.Hydrogen, mRight));
+            world.EntityManager.SetComponentData(right, new GridBounds()
             {
-                Location = right,
-                Output = GasTile.Empty.WithEnergy(1).With(Gas.Hydrogen, mRight)
+                Min = new int2(1, 0),
+                Max = new int2(1, 0)
             });
-            world.Update();
-            gasModel = world.EntityManager.GetComponentData<GasModel>(gasSystem);
-            Debug.Log($"M {gasModel.Tiles[left].TotalMoles} // {gasModel.Tiles[right].TotalMoles}");
 
-            for (int i = 0; i < 20 && gasModel.TileChanges.Length > 0; i++)
-            {
+            for (int i = 0; i < 10; i++)
                 world.Update();
-                Debug.Log($"M {gasModel.Tiles[left].TotalMoles} // {gasModel.Tiles[right].TotalMoles}");
-            }
             
             var sum = mLeft + mRight;
-            gasModel = world.EntityManager.GetComponentData<GasModel>(gasSystem);
-            Assert.AreEqual(sum/2f, gasModel.Tiles[left].TotalMoles, sum * HALF_PRECISION_DELTA_FACTOR);
-            Assert.AreEqual(sum/2f, gasModel.Tiles[right].TotalMoles, sum * HALF_PRECISION_DELTA_FACTOR);
-            Assert.AreEqual(sum, gasModel.Tiles[left].TotalMoles + gasModel.Tiles[right].TotalMoles, sum * HALF_PRECISION_DELTA_FACTOR);
+            var lGas = world.EntityManager.GetComponentData<GasVolume>(left);
+            var rGas = world.EntityManager.GetComponentData<GasVolume>(right);
+            Assert.AreEqual(sum/2f, lGas.TotalMoles, sum * HALF_PRECISION_DELTA_FACTOR);
+            Assert.AreEqual(sum/2f, rGas.TotalMoles, sum * HALF_PRECISION_DELTA_FACTOR);
+            Assert.AreEqual(sum, lGas.TotalMoles + rGas.TotalMoles, sum * HALF_PRECISION_DELTA_FACTOR);
         }
         
         [Test]
@@ -95,38 +86,34 @@ namespace Gases.Tests
         [TestCase(7u, Gas.CarbonDioxide, 2u, Gas.Chlorine)]
         public void CanDifferentGasTypesMix(uint mLeft, Gas gLeft, uint mRight, Gas gRight)
         {
-            using var world = Setup.MakeTestWorldNoRateManagers(typeof(GasUpdateSystem));
-            var gasSystem = world.Unmanaged.GetExistingUnmanagedSystem<GasUpdateSystem>();
-            var gasModel = world.EntityManager.GetComponentDataRW<GasModel>(gasSystem).ValueRW;
+            using var world = WorldBuilder.Presets.TestWorldNoRateManagers(typeof(GasUpdateSystem));
             
-            var left = new int2(0,0);
-            var right = new int2(0, 1);
+            var left = world.EntityManager.CreateEntity(typeof(GasVolume), typeof(GridBounds));
+            var right = world.EntityManager.CreateEntity(typeof(GasVolume), typeof(GridBounds));
             
-            gasModel.Emitters.Add(new GasEmitter
+            world.EntityManager.SetComponentData(left, GasVolume.Empty.WithEnergy(1).With(gLeft, mLeft));
+            world.EntityManager.SetComponentData(left, new GridBounds()
             {
-                Location = left,
-                Output = GasTile.Empty.WithEnergy(1).With(gLeft, (ushort)mLeft)
+                Min = new int2(0, 0),
+                Max = new int2(0, 0)
             });
-            gasModel.Emitters.Add(new GasEmitter
+            
+            world.EntityManager.SetComponentData(right, GasVolume.Empty.WithEnergy(1).With(gRight, mRight));
+            world.EntityManager.SetComponentData(right, new GridBounds()
             {
-                Location = right,
-                Output = GasTile.Empty.WithEnergy(1).With(gRight, (ushort)mRight)
+                Min = new int2(1, 0),
+                Max = new int2(1, 0)
             });
-            world.Update();
-            gasModel = world.EntityManager.GetComponentData<GasModel>(gasSystem);
-            Debug.Log($"M {gasModel.Tiles[left].TotalMoles} // {gasModel.Tiles[right].TotalMoles}");
-
-            for (int i = 0; i < 20 && gasModel.TileChanges.Length > 0; i++)
-            {
+            
+            for (int i = 0; i < 10; i++)
                 world.Update();
-                Debug.Log($"M {gasModel.Tiles[left].TotalMoles} // {gasModel.Tiles[right].TotalMoles}");
-            }
             
             var sum = mLeft + mRight;
-            gasModel = world.EntityManager.GetComponentData<GasModel>(gasSystem);
-            Assert.AreEqual(sum/2f, gasModel.Tiles[left].TotalMoles, sum * HALF_PRECISION_DELTA_FACTOR);
-            Assert.AreEqual(sum/2f, gasModel.Tiles[right].TotalMoles, sum * HALF_PRECISION_DELTA_FACTOR);
-            Assert.AreEqual(sum, gasModel.Tiles[left].TotalMoles + gasModel.Tiles[right].TotalMoles, sum * HALF_PRECISION_DELTA_FACTOR);
+            var lGas = world.EntityManager.GetComponentData<GasVolume>(left);
+            var rGas = world.EntityManager.GetComponentData<GasVolume>(right);
+            Assert.AreEqual(sum/2f, lGas.TotalMoles, sum * HALF_PRECISION_DELTA_FACTOR);
+            Assert.AreEqual(sum/2f, rGas.TotalMoles, sum * HALF_PRECISION_DELTA_FACTOR);
+            Assert.AreEqual(sum, lGas.TotalMoles + rGas.TotalMoles, sum * HALF_PRECISION_DELTA_FACTOR);
         }
     }
 }

@@ -10,10 +10,7 @@
         "Unity.Entities.Graphics",
         "Unity.Mathematics.Extensions",
         "Unity.Physics",
-        "Grid",
-        "Player",
         "Identifiables",
-        "Controls",
         "Chip"
     ],
     "includePlatforms": [],

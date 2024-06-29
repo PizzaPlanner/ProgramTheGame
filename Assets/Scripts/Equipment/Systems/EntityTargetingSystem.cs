@@ -7,7 +7,7 @@ partial struct EntityTargetingSystem : ISystem
 {
     public void OnUpdate(ref SystemState state)
     {
-        var resourceQuery = state.GetEntityQuery(typeof(LocalTransform), typeof(Interactable));
+        var resourceQuery = SystemAPI.QueryBuilder().WithAll<LocalTransform, Interactable>().Build();
         var transforms = resourceQuery.ToComponentDataArray<LocalTransform>(Allocator.Temp);
 
         foreach (var (targeter, e) in SystemAPI.Query<RefRW<EntityTargeter>>().WithAll<Equipped>().WithEntityAccess())

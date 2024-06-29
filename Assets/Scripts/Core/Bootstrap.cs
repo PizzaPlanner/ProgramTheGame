@@ -6,7 +6,8 @@ namespace Core
     {
         public bool Initialize(string defaultWorldName)
         {
-            return WorldManagement.WorldBuilder.BuildDefaultWorld(defaultWorldName).IsCreated;
+            // Modding.API.ModAssemblyCollector.CollectMods();
+            return WorldManagement.WorldBuilder.Presets.DefaultWorld(defaultWorldName).IsCreated;
         }
     }
 }

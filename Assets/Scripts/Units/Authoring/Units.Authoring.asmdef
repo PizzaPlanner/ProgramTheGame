@@ -14,7 +14,8 @@
         "Identifiables",
         "Units",
         "Items.Authoring",
-        "Items"
+        "Items",
+        "Core.Authoring"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

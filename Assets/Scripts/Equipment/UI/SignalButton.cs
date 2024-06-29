@@ -1,18 +1,21 @@
-﻿using Identifiables.UI;
+﻿using Identifiables;
+using Identifiables.UI;
+using Modding.API;
+using Modding.API.Tags;
 using System;
 using Unity.Entities;
 using UnityEngine.UIElements;
 
 public class SignalButton : IdentifiableButton
 {
-    IdTag _assignableTo;
-    public IdTag AssignableTo
+    TagList _assignableTo;
+    public TagList AssignableTo
     {
         set
         {
-            if(_assignableTo.Value != 0)
+            if(!_assignableTo.IsUnset)
                 UnregisterCallback<MouseDownEvent>(OnClickAssign);
-            if(value.Value != 0)
+            if(!value.IsUnset)
                 RegisterCallback<MouseDownEvent>(OnClickAssign);
             _assignableTo = value;
         }
@@ -52,7 +55,7 @@ public class SignalButton : IdentifiableButton
 
     void OnClickAssign(MouseDownEvent evt)
     {
-        if(AssignableTo.Value == 0)
+        if(AssignableTo.IsUnset)
             return;
             
         SignalSelectionWindow.Show(this, x =>
@@ -70,6 +73,6 @@ public class SignalButton : IdentifiableButton
 
 public class SignalSelectionIdCollection : VisualElement
 {
-    public IdTag Tag;
+    public TagList Tag;
     public Tab Tab;
 }

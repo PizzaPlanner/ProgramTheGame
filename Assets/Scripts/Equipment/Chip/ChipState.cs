@@ -1,4 +1,5 @@
 ﻿using Core;
+using Identifiables;
 using Programmable;
 using System.Runtime.InteropServices;
 using Unity.Entities;
@@ -25,7 +26,7 @@ public struct ChipRegisters : IChipTargetable
     public Entity unit0, unit1, unit2, unit3;
     
     [LogicWritable]
-    public Coordinate xy0, xy1, xy2, xy3;
+    public Cell xy0, xy1, xy2, xy3;
     
     [LogicWritable]
     public Identifieable id0, id1, id2, id3;

@@ -11,7 +11,8 @@
         "Identifiables",
         "Items",
         "Equipment",
-        "Items.Systems"
+        "Items.Systems",
+        "Modding.API"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

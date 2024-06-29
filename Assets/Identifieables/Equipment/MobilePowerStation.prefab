@@ -103,9 +103,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ItemId: 671785169237129620
   Tags:
-  - Item
-  - Equipment
-  - SmallTool
+  - {fileID: -7047400985839579883, guid: 2832c3a43e695f741af765507e87018d, type: 3}
+  - {fileID: -7047400985839579883, guid: f7f34dbe348902c46aba4c56e4629357, type: 3}
   Icon: {fileID: 2800000, guid: 97e58e112b8a52b409c519c25c9a8a3f, type: 3}
 --- !u!114 &697860641069326925
 MonoBehaviour:

@@ -1,5 +1,8 @@
 ﻿using Equipment;
+using Identifiables;
 using Identifiables.UI;
+using Modding.API;
+using Modding.API.Tags;
 using Units;
 using Unity.Entities;
 using UnityEngine.UIElements;
@@ -39,7 +42,7 @@ partial class BuilderUISystem : SystemBase
                 button =>
                 {
                     SelectedBuilding = button.Target;
-                }, IdTagManager.ToTag("Building", "ControlFlow"));
+                }, TagList.From(Tag.FromName("TagBuilding"), Tag.FromName("TagControlFlow")));
         }
     
         public Identifieable SelectedBuilding; 

@@ -1,6 +1,4 @@
-using System.Collections.Generic;
-using System.Linq;
-using UnityEngine;
+using Modding.API.Tags;
 using UnityEngine.UIElements;
 
 namespace Identifiables.UI
@@ -30,11 +28,11 @@ namespace Identifiables.UI
             var all = Identifieable.All;
             var target = searches.Q("navigate");
             foreach (var id in all)
-                target.Add(new WikiSearchResultButton(id, false));
+                target.Add(new WikiSearchResultButton(Identifieable.FromGuid(id.AssetGuid), false));
 
-            foreach (var tag in IdTagManager.Names)
+            foreach (var tag in Tag.All)
             {
-                quickNav.Add(new WikiTagSearchButton(tag));
+                quickNav.Add(new WikiTagSearchButton(tag.Value));
             }
             GetFirstAncestorOfType<TabView>().activeTabChanged += (x,y)
                 => {
