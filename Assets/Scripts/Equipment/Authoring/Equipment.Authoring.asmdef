@@ -16,7 +16,8 @@
         "Items.Authoring",
         "Items",
         "Chip",
-        "Core"
+        "Core",
+        "Identifiables.Authoring"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

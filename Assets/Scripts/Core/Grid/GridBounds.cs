@@ -12,4 +12,18 @@ public struct GridBounds : IComponentData
     public bool Contains(int2 cell) => math.all(cell >= Min) && math.all(cell <= Max);
 
     public override string ToString() => $"Bounds[{(int2)Min},{(int2)Max}]";
+
+    public GridBounds WithOffset(Cell offset)
+    {
+        Min += (int2)offset;
+        Max += (int2)offset;
+        return this;
+    }
+
+    public GridBounds Extend(int4 ltrb)
+    {
+        Min -= ltrb.xw;
+        Max += ltrb.yz;
+        return this;
+    }
 }

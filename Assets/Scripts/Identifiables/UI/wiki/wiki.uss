@@ -34,6 +34,10 @@ Wiki > #Search .unity-base-field__input {
     border-bottom-color: rgb(159, 159, 159);
 }
 
+MultiColumnListView {
+    flex-grow: 1;
+}
+
 MultiColumnListView Label {
     padding: 5px;
     margin: 0px;
@@ -50,6 +54,11 @@ MultiColumnListView .unity-multi-column-view__cell {
 #Body > Foldout {
     margin-top: 10px;
     margin-bottom: 10px;
+}
+
+#Body Foldout > #unity-content {
+    flex-direction: row;
+    flex-wrap: wrap;
 }
 
 Wiki > #Search {
@@ -85,50 +94,40 @@ Wiki > TabView #navigate {
     flex-wrap: wrap;
 }
 
-Wiki > TabView #navigate > WikiSearchResultButton {
-    align-items: flex-start;
-    flex-direction: row;
-    flex-wrap: wrap;
-    min-width: 25%;
-}
-
 WikiTagSearchButton {
-    padding-top: 6px;
-    padding-right: 6px;
-    padding-bottom: 6px;
-    padding-left: 6px;
-    border-top-width: 1px;
-    border-right-width: 1px;
-    border-bottom-width: 1px;
-    border-left-width: 1px;
-    border-left-color: rgb(116, 142, 143);
-    border-right-color: rgb(116, 142, 143);
-    border-top-color: rgb(116, 142, 143);
-    border-bottom-color: rgb(116, 142, 143);
+    padding: 6px;
+    border-width: 1px;
+    border-color: rgb(116, 142, 143);
     width: 25%;
     -unity-text-align: middle-center;
     font-size: 16px;
 }
 
 WikiSearchResultButton {
-    padding-top: 4px;
-    padding-right: 4px;
-    padding-bottom: 4px;
-    padding-left: 4px;
-    border-top-width: 1px;
-    border-right-width: 1px;
-    border-bottom-width: 1px;
-    border-left-width: 1px;
-    border-left-color: rgb(143, 138, 116);
-    border-right-color: rgb(143, 138, 116);
-    border-top-color: rgb(143, 138, 116);
-    border-bottom-color: rgb(143, 138, 116);
+    padding: 0;
+    border-width: 1px;
+    border-color: rgb(143, 138, 116);
+    min-width: 250px;
     flex-direction: row;
+    align-items: center;
+    margin: 3px;
+}
+
+WikiSearchResultButton:hover {
+    background-color: rgba(5, 0, 0, 0.2);
 }
 
 WikiSearchResultButton > #Icon {
-    width: 32px;
-    height: 32px;
+    width: 42px;
+    height: 42px;
+    border-right-width: 1px;
+    border-right-color: rgb(143, 138, 116);
+    background-color: rgba(70, 70, 60, 0.4);
+}
+
+WikiSearchResultButton > Label {
+    margin: 0;
+    padding: 0 10px 0 10px;
 }
 
 WikiSearchResultButton > #RecipeContent {
@@ -137,6 +136,39 @@ WikiSearchResultButton > #RecipeContent {
     padding-bottom: 1px;
     padding-left: 1px;
     flex-direction: row;
+}
+
+WikiSearchResultButton.tag > #Icon {
+    width: 30px;
+    height: 30px;
+    border-right-color: rgb(48, 143, 183);
+    background-color: rgba(20, 70, 100, 0.4);
+}
+
+WikiSearchResultButton.tag {
+    min-width: auto;
+    border-radius: 5px;
+    border-color: rgb(48, 143, 183);
+    padding: 0;
+}
+
+WikiSearchResultButton.tagunit {
+    border-top-left-radius: 5px;
+    border-color: rgb(233, 120, 50);
+}
+
+WikiSearchResultButton.tagunit > #Icon {
+    border-color: rgb(233, 120, 50);
+}
+
+WikiSearchResultButton.tagitem {
+    border-bottom-left-radius: 5px;
+    border-top-right-radius: 5px;
+    border-color: rgb(13, 111, 222);
+}
+
+WikiSearchResultButton.tagitem > #Icon {
+    border-color: rgb(13, 111, 222);
 }
 
 WikiIdLinkButton {

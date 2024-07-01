@@ -16,5 +16,6 @@ namespace Identifiables
         public UnityObjectRef<Texture2D> Icon;
         public FixedString64Bytes TranslationKey => $"{Name}";
         public ulong AssetGuid;
+        public Entity Prefab;
     }
 }

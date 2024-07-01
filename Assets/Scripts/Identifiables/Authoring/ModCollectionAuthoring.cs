@@ -1,0 +1,80 @@
+﻿using System.Linq;
+using Unity.Collections;
+using Unity.Entities;
+using UnityEngine;
+
+namespace Identifiables.Authoring
+{
+    public class ModCollectionAuthoring : MonoBehaviour
+    {
+        public ModCollectionAsset ModContents;
+
+        class Baker : Baker<ModCollectionAuthoring>
+        {
+            public override void Bake(ModCollectionAuthoring authoring)
+            {
+                var self = GetEntity(TransformUsageFlags.None);
+                MakeIdentifiable(this, self, authoring.ModContents);
+                AddComponent(self, new ModDefinition
+                {
+                    Name = authoring.ModContents.name,
+                });
+                var leg = AddBuffer<LinkedEntityGroup>(self);
+                leg.Add(self);
+                
+                foreach (var prefab in authoring.ModContents.Identifiables)
+                {
+                    if(prefab is ModCollectionAsset)
+                        continue;
+                    prefab.AssignEditorValues();
+                    if (prefab is IdentifiableThingAsset tp)
+                        leg.Add(GetEntity(tp.Reference, TransformUsageFlags.None));
+                    else
+                    {
+                        var id = CreateAdditionalEntity(TransformUsageFlags.None);
+                        MakeIdentifiable(this, id, prefab);
+                        leg.Add(id);
+                    }
+                }
+            }
+
+        }
+        internal static void MakeIdentifiable(IBaker baker, Entity id, IdentifiableAsset prefab)
+        {
+            if (prefab == null)
+            {
+                Debug.LogError($"Missing asset defined in Identifiable baker. Update your Mod Collections");
+                return;
+            }
+            baker.AddComponent<Prefab>(id);
+            baker.AddComponent(id, prefab.Id);
+            var preId = prefab.ToPreId;
+            if (prefab is IdentifiableThingAsset)
+                preId.Prefab = id;
+            baker.AddComponent(id, preId);
+            var tagSet = new NativeHashSet<Identifieable>(0, Allocator.Temp);
+            foreach(var thing in prefab.TypeImpliedTags)
+                tagSet.Add(thing);
+            var tagList = prefab.Tags.ToList();
+            for (var i = 0; i < tagList.Count; i++)
+            {
+                var tag = tagList[i];
+                if (tag == null)
+                    Debug.LogError($"Invalid Tag on {prefab.name}");
+                else
+                {
+                    var ts = tagSet.Count;
+                    tagSet.Add(tag.Id);
+                    if (tagSet.Count == ts || tag.RequiresOtherTags == null) 
+                        continue;
+
+                    tagList.AddRange(tag.RequiresOtherTags);
+                }
+            }
+            
+            var tags = baker.AddBuffer<Tags>(id);
+            foreach(var tag in tagSet)
+                tags.Add(new Tags{Tag = tag});
+        }
+    }
+}

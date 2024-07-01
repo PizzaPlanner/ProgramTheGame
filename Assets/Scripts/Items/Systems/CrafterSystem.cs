@@ -34,11 +34,11 @@ partial struct CrafterSystem : ISystem
             }
                 
             var transaction = store.CreateBuilder;
-            foreach(var requirement in SystemAPI.GetBuffer<CraftingInput>(crafter.ValueRO.Recipe.AsPrefab))
+            foreach(var requirement in SystemAPI.GetBuffer<CraftingInput>(crafter.ValueRO.Recipe.SpawnablePrefab))
                 transaction.RemoveFrom(equipped.Wearer, requirement.ItemId, requirement.Amount);
-            foreach(var result in SystemAPI.GetBuffer<CraftingOutput>(crafter.ValueRO.Recipe.AsPrefab))
+            foreach(var result in SystemAPI.GetBuffer<CraftingOutput>(crafter.ValueRO.Recipe.SpawnablePrefab))
                 transaction.AddTo(equipped.Wearer, result.ItemId, result.Amount);
-            crafter.ValueRW.Cooldown = SystemAPI.GetComponent<CraftingRecipe>(crafter.ValueRO.Recipe.AsPrefab).Duration;
+            crafter.ValueRW.Cooldown = SystemAPI.GetComponent<CraftingRecipe>(crafter.ValueRO.Recipe.SpawnablePrefab).Duration;
             crafter.ValueRW.ReadyIn = crafter.ValueRW.Cooldown;
             ecb.AddComponent(e, new PendingCrafterTransaction{Transaction = transaction.WithManualReview() });
         }
@@ -70,7 +70,7 @@ partial struct CrafterSystem : ISystem
             else if (!SystemAPI.HasBuffer<PendingItemOrders>(e))
             {
                 ecb.AddBuffer<PendingItemOrders>(e);
-                foreach (var requirement in SystemAPI.GetBuffer<CraftingInput>(crafter.ValueRO.Recipe.AsPrefab))
+                foreach (var requirement in SystemAPI.GetBuffer<CraftingInput>(crafter.ValueRO.Recipe.SpawnablePrefab))
                 {
                     var order = ecb.CreateEntity();
                     ecb.AddComponent(order, new ItemOrder

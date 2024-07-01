@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Entities;
+using Unity.Properties;
 using UnityEngine;
 
 namespace Identifiables
@@ -44,33 +45,26 @@ namespace Identifiables
 
     public partial struct Identifieable
     {
+        [CreateProperty]
         public ushort CurrentIndex => IdentifiableLibrary.Find(Value).Value;
-        public Entity AsPrefab => IdentifiableLibrary.Find(Value).AsPrefabDefault;
-        public TagList Tags => TagMappingSystem.TagsOf(CurrentIndex);
+        public Entity SpawnablePrefab => IdentifiableLibrary.Find(Value).SpawnablePrefabDefault;
         public Texture2D Icon => IdentifiableLibrary.Find(Value).Icon;
+        [CreateProperty]
         public FixedString64Bytes DefaultName => IdentifiableLibrary.Find(Value).DefaultName;
+        [CreateProperty]
         public ulong StableId => Value;
         public Identifieable Origin => default;
         public static IdentifiableData[] All => IdentifiableLibrary.Data;
         
-        public static IEnumerable<Identifieable> GetAllWithTag(Tag tag) 
-        {
-            var enumerator = TagMappingSystem.AllIdsForTag(tag);
-            if(enumerator.Current != default)
-                yield return enumerator.Current;
-            while(enumerator.MoveNext())
-                yield return enumerator.Current;
-        }
-        
         public static Identifieable FromName(FixedString64Bytes defaultName)
         {
-            for (var i = 0; i < IdentifiableLibrary.Data.Length; i++)
-            {
-                if (IdentifiableLibrary.Data[i].DefaultName == defaultName)
-                    return new Identifieable { Value = IdentifiableLibrary.Data[i].AssetGuid };
-            }
-            Debug.LogError($"No Identifiable with Name '{defaultName}'");
-            return default;
+            var id = FromGuid(TypeHash.FNV1A64(defaultName));
+            #if UNITY_EDITOR
+                if(!Application.isPlaying)
+                    return id;
+            #endif
+            // TODO: Some kind of check?
+            return id;
         }
         
         public static Identifieable FromGuid(ulong assetGuid) => new Identifieable { Value = assetGuid };

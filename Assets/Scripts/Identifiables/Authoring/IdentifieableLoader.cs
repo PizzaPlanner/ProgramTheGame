@@ -22,8 +22,8 @@ public class IdentifieableLoader : MonoBehaviour
                 if (UnityEditor.PrefabUtility.IsPartOfPrefabAsset(obj) && obj is GameObject go &&
                     go.TryGetComponent(out IdentifieableAuthoring id))
                 {
-                    RegisterPrefabForBaking(go);
                     GetEntity(go, TransformUsageFlags.None);
+                    // RegisterPrefabForBaking(go);
                     prefabs++;
                 }
             }

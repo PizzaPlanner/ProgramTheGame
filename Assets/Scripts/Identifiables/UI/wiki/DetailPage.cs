@@ -30,7 +30,6 @@ namespace Identifiables.UI
                 this.Q<Label>("Description").text = "lorem ispum\nlorem ipsum\nHello World?";
                 this.Q<Label>("IdRef").text = $"Id:   <link=\"id\">{value.StableId.ToString()}</link>\nName: <link=\"name\">{value.DefaultName.Value}</link>";
                 this.Q("Icon").style.backgroundImage = value.Icon;
-                var refs = this.Q("References");
                     
                 _content = value;
             }

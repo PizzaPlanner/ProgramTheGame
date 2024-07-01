@@ -12,7 +12,7 @@ partial class LinkCrafterRecipesSystem : IdentifiableMappingSystem
         {
             foreach (var c in craftIn)
             {
-                var crafter = SystemAPI.GetBuffer<Craftables>(c.Crafter.AsPrefab);
+                var crafter = SystemAPI.GetBuffer<Craftables>(c.Crafter.SpawnablePrefab);
                 crafter.Add(new Craftables{Recipe = id});
                 AddRelation(c.Crafter, new IdentifiableLink{ To = id, Relation = "Produces"});
                 AddRelation(id, new IdentifiableLink{ To = c.Crafter, Relation = "CraftedIn"});

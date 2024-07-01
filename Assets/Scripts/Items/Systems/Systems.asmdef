@@ -10,7 +10,8 @@
         "Items",
         "Identifiables",
         "Chip",
-        "Modding.API"
+        "Modding.API",
+        "Identifiables.UI"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

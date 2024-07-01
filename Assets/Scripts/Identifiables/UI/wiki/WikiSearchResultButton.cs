@@ -1,8 +1,6 @@
-using Modding.API;
-using Modding.API.Tags;
 using System;
 using System.Linq;
-using UnityEngine;
+using Unity.Collections;
 using UnityEngine.UIElements;
 
 namespace Identifiables.UI
@@ -10,7 +8,7 @@ namespace Identifiables.UI
     public class WikiSearchResultButton : VisualElement
     {
         Identifieable _target;
-        public WikiSearchResultButton(Identifieable target, bool allowRecurse)
+        public WikiSearchResultButton(Identifieable target)
         {
             _target = target;
             var icon = new VisualElement{name = "Icon"};
@@ -18,6 +16,8 @@ namespace Identifiables.UI
             Add(icon);
             RegisterCallback<MouseDownEvent>(x => GetFirstAncestorOfType<Wiki>().OpenTab(target));
             Add(new Label{text = target.DefaultName.Value});
+            foreach(var tag in Tag.TagsOf(target).Value)
+                AddToClassList(tag.Id.DefaultName.Value.ToLower());
         }
 
         public void ApplySearch(string text)

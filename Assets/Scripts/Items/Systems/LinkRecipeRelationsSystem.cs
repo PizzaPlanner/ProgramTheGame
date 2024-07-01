@@ -1,6 +1,8 @@
 using Identifiables;
+using Identifiables.UI;
 using Unity.Entities;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 partial class LinkRecipeRelationsSystem : IdentifiableMappingSystem
 {

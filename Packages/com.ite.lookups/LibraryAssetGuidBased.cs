@@ -29,11 +29,14 @@ namespace Lookups
         protected override void OnDestroy()
         {
             base.OnDestroy();
-            GuidToIdMap.Data.Dispose();
+            if(GuidToIdMap.Data.IsCreated)
+                GuidToIdMap.Data.Dispose();
         }
 
         protected static ushort FindId(ulong guid)
         {
+            if(!GuidToIdMap.Data.IsCreated)
+                return default;
             return GuidToIdMap.Data.TryGetValue(guid, out var id) ? id : default;
         }
     }

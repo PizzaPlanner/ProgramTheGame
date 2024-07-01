@@ -22,8 +22,8 @@ public partial class SignalSelectionWindow : ScrollView
         Clear();
         foreach (var tag in Tag.All)
         {
-            var tab = new Tab(tag.Value);
-            tab.Add(new SignalSelectionIdCollection() { name = tag.Value, Tag = TagList.From(Tag.FromName(tag)), Tab = tab });
+            var tab = new Tab(tag.DefaultName.Value);
+            tab.Add(new SignalSelectionIdCollection() { name = tag.DefaultName.Value, Tag = TagList.From(tag), Tab = tab });
             Add(tab);
         }
         RegisterCallback<FocusOutEvent>(_ => style.display = DisplayStyle.None);
@@ -45,7 +45,7 @@ public partial class SignalSelectionWindow : ScrollView
             foreach (var idd in Identifieable.All)
             {
                 var id = Identifieable.FromGuid(idd.AssetGuid);
-                if(!id.Tags.Contains(collection.Tag))
+                if(!Tag.TagsOf(id).Contains(collection.Tag))
                     continue;
                 collection.Add(MakeButton(id));
             }

@@ -19,8 +19,8 @@ public class InventoryAuthoring : MonoBehaviour
                 var slot = authoring.Slots[i];
                 var content = new Inventory
                 {
-                    SlotFilter = default,
-                    IsEquipmentSlot = slot.Filter.Contains("Equipment"),
+                    SlotFilter = slot.Filter == null ? default : slot.Filter.Id,
+                    IsEquipmentSlot = slot.IsEquipmentSlot,
                     IsTypeLocked = false,
                     Transfer = slot.TransferDirection,
                 };

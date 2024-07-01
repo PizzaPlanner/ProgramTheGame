@@ -1,8 +1,4 @@
-﻿using Unity.Burst;
-using Unity.Burst.Intrinsics;
-using Unity.Collections.LowLevel.Unsafe;
-using Unity.Entities;
-using UnityEngine;
+﻿using Unity.Entities;
 
 namespace Programmable
 {

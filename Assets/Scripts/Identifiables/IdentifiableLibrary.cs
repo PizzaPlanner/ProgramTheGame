@@ -24,7 +24,7 @@ namespace Identifiables
     
     public struct IdentifiableData
     {
-        public Entity AsPrefab;
+        public Entity SpawnablePrefab;
         public ulong AssetGuid;
         public UnityObjectRef<Texture2D> Icon;
         public FixedString64Bytes DefaultName;

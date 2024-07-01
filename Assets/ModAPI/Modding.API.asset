@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 60d999882b00409da48082b3ca14cb25, type: 3}
+  m_Name: Modding.API
+  m_EditorClassIdentifier: 
+  Icon: {fileID: 2800000, guid: 18f9a1d3073489b419eb4d412438a138, type: 3}
+  Tags: []
+  Identifiables:
+  - {fileID: 11400000, guid: 798284c9abe878a47b947b4ebf52801f, type: 2}
+  - {fileID: 11400000, guid: a974d68596aa47f45a6c8ab2ac5199e7, type: 2}
+  - {fileID: 11400000, guid: 120d758a188f7934299a0406976912a9, type: 2}

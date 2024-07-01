@@ -83,15 +83,6 @@ public partial class LogicParametersMappingSystem : IdentifiableMappingSystem
     // TODO: Make sure all types have sequential layout
     protected override void OnUpdate()
     {
-        var query = SystemAPI.QueryBuilder().WithAll<PreIdentifiable, Prefab, Identifieable>()
-                             .WithOptions(EntityQueryOptions.IncludePrefab)
-                             .WithNone<IdForChip>().Build();
-        EntityManager.AddComponent<IdForChip>(query);
-        foreach (var (id, chipId) in SystemAPI.Query<Identifieable, RefRW<IdForChip>>())
-        {
-            chipId.ValueRW.Id = id;
-        }
-        
         var idTypeMap = new Dictionary<Identifieable, List<ItemTypeLogicParameter>>(); 
         foreach (var (id, e) in
                  SystemAPI.Query<Identifieable>()
@@ -178,6 +169,9 @@ public partial class LogicParametersMappingSystem : IdentifiableMappingSystem
     public override VisualElement ProvideWikiDetails(Identifieable id)
     {
         var numParams = TypeParameters.Data.Value[id.CurrentIndex].Length;
+        if(numParams == 0)
+            return null;
+        
         var typeParams = new ItemTypeLogicParameter[numParams];
         for (int i = 0; i < numParams; i++)
             typeParams[i] = ParametersOf(id)[i];
