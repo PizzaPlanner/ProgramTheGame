@@ -24,6 +24,7 @@ public partial struct BuildJob : IJobEntity
     public EntityCommandBuffer ecb;
     [NativeDisableContainerSafetyRestriction] public ComponentLookup<RoomModel> roomLookup;
     [ReadOnly] public ComponentLookup<GridBounds> boundsLookup;
+    [ReadOnly] public ComponentLookup<Building> buildingLookup;
     public ComponentLookup<GridStructure> structureLookup;
 
     void Execute(Entity e, in PlannedConstruction planned)
@@ -31,7 +32,7 @@ public partial struct BuildJob : IJobEntity
         ecb.DestroyEntity(e);
         
         // Get prefab from id
-        var prefab = planned.Prefab.AsPrefab;
+        var prefab = planned.Prefab.SpawnablePrefab;
         if (prefab == Entity.Null || !boundsLookup.TryGetComponent(prefab, out var bounds))
         {
             Debug.LogWarning($"Discarded invalid pending part with ID {planned.Prefab.StableId}");
@@ -54,22 +55,17 @@ public partial struct BuildJob : IJobEntity
             Debug.LogWarning($"Discarded pending part in invalid or occupied area {bounds.Min}/{bounds.Max}");
             return;
         }
+        
+        var building = buildingLookup[prefab];
 
         // Create Part
         var entity = ecb.Instantiate(prefab);
         ecb.SetComponent(entity, planned.ToTransform);
         ecb.AddComponent(entity, new Parent { Value = planned.Parent });
-
-        // if (!planned.Name.IsEmpty)
-        // {
-        //     ecb.AddComponent(entity, new Name{ Value = planned.Name });
-        // }
-        //
-        // if (planned.Color != default)
-        // {
-        //     ecb.AddComponent(entity, new URPMaterialPropertyBaseColor{Value = new float4(planned.Color.r, planned.Color.g, planned.Color.b, 1) });
-        // }
-        Rooms.AddOccupiedArea(area);
+        ecb.SetComponent(entity, area);
+        
+        if(building.Layer != BuildingLayer.Floor)
+            Rooms.AddOccupiedArea(area);
         if (planned.IsGhost)
         {
             ecb.AddComponent(entity, new UnderConstruction());
@@ -101,7 +97,9 @@ public partial struct BuildJob : IJobEntity
         {
             ecb.AddComponent<PendingGridUpdate>(planned.Parent);
             ecb.RemoveComponent<BuildMaterials>(entity);
-            Rooms.AddWall(area);
+            if(building.Layer == BuildingLayer.Wall)
+                Rooms.AddWall(area);
+            area = area.Extend(2);
             var gridBbox = structureLookup[planned.Parent];
             gridBbox.BoundsMin = math.min(gridBbox.BoundsMin, area.Min);
             gridBbox.BoundsMax = math.max(gridBbox.BoundsMax, area.Max);

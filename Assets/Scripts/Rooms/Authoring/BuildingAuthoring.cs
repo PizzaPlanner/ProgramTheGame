@@ -5,6 +5,8 @@ using UnityEngine;
 
 public class BuildingAuthoring : MonoBehaviour
 {
+    public BuildingLayer Layer;
+    public PlacementType PlacementType; 
     public float Duration;
     public int2 Size;
     public CraftingRecipeAuthoring.ItemWithAmount[] Input;
@@ -14,7 +16,11 @@ public class BuildingAuthoring : MonoBehaviour
         public override void Bake(BuildingAuthoring authoring)
         {
             var self = GetEntity(TransformUsageFlags.Dynamic);
-            AddComponent<Building>(self);
+            AddComponent(self, new Building
+            {
+                Layer = authoring.Layer,
+                DraggableDimension = authoring.PlacementType
+            });
             AddComponent(self, new GridBounds
             {
                 Min = int2.zero,

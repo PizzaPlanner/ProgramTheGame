@@ -5,6 +5,11 @@ using UnityEngine.AddressableAssets;
 using UnityEngine.Rendering;
 using Material = UnityEngine.Material;
 
+[MaterialProperty("_Invalid", -1)]
+public struct URPMaterialPropertyInvalid : IComponentData, IQueryTypeParameter
+{
+    public float Value;
+}
 
 [UpdateInGroup(typeof(SimulationSystemGroup), OrderLast = true)]
 [UpdateAfter(typeof(EndSimulationEntityCommandBufferSystem))]
@@ -45,6 +50,7 @@ public partial class FixGhostVisualsAndPhysicsSystem : SystemBase
                 if (SystemAPI.HasComponent<MaterialMeshInfo>(e))
                 {
                     ecb.AddComponent(e, new RelatedToGhost { Ghost = parent });
+                    ecb.AddComponent(e, new URPMaterialPropertyInvalid { Value = ghost.GhostBuildable ? 0 : 1 });
                 }
             }
             ecb.RemoveComponent<FixGhostandChildren>(parent);

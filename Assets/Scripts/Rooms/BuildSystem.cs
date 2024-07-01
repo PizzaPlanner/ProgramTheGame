@@ -21,7 +21,8 @@ partial struct BuildSystem : ISystem
             ecb = ecb,
             boundsLookup = SystemAPI.GetComponentLookup<GridBounds>(true),
             roomLookup = SystemAPI.GetComponentLookup<RoomModel>(false),
-            structureLookup = SystemAPI.GetComponentLookup<GridStructure>(false)
+            structureLookup = SystemAPI.GetComponentLookup<GridStructure>(false),
+            buildingLookup = SystemAPI.GetComponentLookup<Building>(true)
                 
         }.Run();
 

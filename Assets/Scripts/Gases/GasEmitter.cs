@@ -11,7 +11,8 @@ partial struct GasEmitterSystem : ISystem
 {
     public void OnUpdate(ref SystemState state)
     {
-        foreach (var (emitter, parent, bounds) in SystemAPI.Query<RefRW<GasEmitter>, Parent, GridBounds>())
+        foreach (var (emitter, parent, bounds) in SystemAPI.Query<RefRW<GasEmitter>, Parent, GridBounds>()
+                                                           .WithNone<UnderConstruction>())
         {
             if(!SystemAPI.HasComponent<GasModel>(parent.Value))
                 continue;

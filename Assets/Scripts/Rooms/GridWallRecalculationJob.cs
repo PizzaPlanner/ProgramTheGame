@@ -87,7 +87,6 @@ public partial struct GridRoomRecalculationJob : IJobEntity
                 queue.Enqueue((other, newRoom));
             if(other2 != remap.Item1 && other2 != remap.Item2 && other2 != other && other2 != newRoom)
                 queue.Enqueue((other2, newRoom));
-            Debug.Log($"Same room {remap.Item1} / {remap.Item2} --> {newRoom} ||| {newRoom <= remap.Item1} and {newRoom <= remap.Item2}");
         }
         
         // Calculate final room AABBs
@@ -113,15 +112,14 @@ public partial struct GridRoomRecalculationJob : IJobEntity
             finalRoomMap[roomId] = new Room { BoundingBox = aabb, RoomIdInGrid = roomId };
         }
 
-        if (finalRoomMap.Count > 0)
-        {
-            Debug.Log($"Added these rooms:");
-            foreach(var room in finalRoomMap)
-                Debug.Log($"{room.Key} = {room.Value.BoundingBox}");
-            Debug.Log($"With these remaps:");
-            foreach(var remap in roomRemapMap.GetKeyArray(Allocator.Temp))
-                Debug.Log($"{remap} --> {roomRemapMap[remap]}");
-        }
+        // if (finalRoomMap.Count > 0)
+        // {
+        //     foreach(var room in finalRoomMap)
+        //         Debug.Log($"{room.Key} = {room.Value.BoundingBox}");
+        //     Debug.Log($"With these remaps:");
+        //     foreach(var remap in roomRemapMap.GetKeyArray(Allocator.Temp))
+        //         Debug.Log($"{remap} --> {roomRemapMap[remap]}");
+        // }
         roomModel.WallChanges.Clear();
         roomModel.MaxRoom = maxRoom;
         roomLookup[e] = roomModel;

@@ -20,6 +20,9 @@ namespace Units
         public bool IsActiveByDefault => true;
         public InputActionMap StateFor(InputActions asset) => asset.SelectTool;
         public InputAction ToggledByHotkey(InputActions actions) => actions.Tools.Select;
+        
+        public static InputAction Select => InputActions.For<SelectTool>()["Select"];
+        public static InputAction Deselect => InputActions.For<SelectTool>()["Deselect"];
     }
 
     [UpdateInGroup(typeof(UISystemGroup))]
@@ -89,7 +92,7 @@ namespace Units
             
             var ecb = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>()
                                .CreateCommandBuffer(World.Unmanaged);
-            if (Input.GetMouseButtonDown(0) && Hovered != Entity.Null)
+            if (SelectTool.Select.WasPressedThisFrame() && Hovered != Entity.Null)
             {
                 if (!Input.GetKey(KeyCode.LeftShift))
                 {
@@ -108,7 +111,7 @@ namespace Units
                         selection.Add(new UnitGroup{ Unit = Hovered });
                 }
             }
-            else if (Hovered != Entity.Null && Input.GetMouseButtonUp(0) && _dragFrom != null && SystemAPI.HasBuffer<Inventory>(Hovered))
+            else if (Hovered != Entity.Null && SelectTool.Select.WasReleasedThisFrame() && _dragFrom != null && SystemAPI.HasBuffer<Inventory>(Hovered))
             {
                 
                 SystemAPI.GetSingleton<TransactionStore>().CreateBuilder
@@ -116,7 +119,7 @@ namespace Units
                 Debug.Log($"Scheduled Transaction from {_dragFrom.Container} to {Hovered}");
                 
             }
-            else if (Hovered == Entity.Null && Input.GetMouseButtonDown(0) && !Input.GetKey(KeyCode.LeftShift) && !IsDragging)
+            else if (Hovered == Entity.Null && SelectTool.Select.WasPressedThisFrame() && !Input.GetKey(KeyCode.LeftShift) && !IsDragging)
             {
                 selection.Clear();
             }

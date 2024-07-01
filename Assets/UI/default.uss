@@ -293,17 +293,34 @@ IngameMenu {
     position: absolute;
     right: 0;
     bottom: 0;
+    flex-direction: row-reverse;
 }
 
 IngameMenu > VisualElement {
-    width: 48px;
-    height: 48px;
+    width: 32px;
+    height: 32px;
     margin-top: 1px;
     margin-right: 1px;
     margin-bottom: 1px;
     margin-left: 1px;
     color: rgb(255, 255, 255);
-    background-color: rgb(88, 169, 197);
+    background-color: rgb(42, 75, 142);
+}
+
+IngameMenu > #Wiki {
+    background-image: url("project://database/Assets/3rdParty/2000_Icons/500_weapons/Book_4.png?fileID=2800000&guid=6408704b229edb748b2c6595d880da08&type=3#Book_4");
+}
+
+IngameMenu > #Build {
+    background-image: url("project://database/Assets/3rdParty/2000_Icons/500_weapons/Hammer_08.png?fileID=2800000&guid=b8929a5a28b17324db90e1efe0ad3622&type=3#Hammer_08");
+}
+
+IngameMenu > #Rooms {
+    background-image: url("project://database/Assets/3rdParty/2000_Icons/Update_icons/runic_tablet_07.png?fileID=2800000&guid=80c12df18bb265a4bb665cf00931ec59&type=3#runic_tablet_07");
+}
+
+IngameMenu > #ChipEditor {
+    background-image: url("project://database/Assets/3rdParty/2000_Icons/500_weapons/Book_20.png?fileID=2800000&guid=19ac1da5e8eb2d24e93e4925cea79a06&type=3#Book_20");
 }
 
 SignalButton.shows-entity > #Frame {

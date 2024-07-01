@@ -3,5 +3,25 @@ using Unity.Entities;
 
 public struct UnderConstruction : IComponentData { }
 
-public struct Building : IComponentData { }
+public enum BuildingLayer
+{
+    Default,
+    Floor,
+    Door,
+    Wall,
+}
+
+public enum PlacementType
+{
+    Single,
+    Line,
+    Rectangle,
+    RectangleBorder
+}
+
+public struct Building : IComponentData
+{
+    public BuildingLayer Layer;
+    public PlacementType DraggableDimension; 
+}
 

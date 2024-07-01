@@ -4,7 +4,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
 
-public struct GasModel : IComponentData, IDisposable
+public struct GasModel : ICleanupComponentData, IDisposable
 {
     public GasVolume Atmosphere;
     public NativeParallelHashMap<int2, GasVolume> TileMap;

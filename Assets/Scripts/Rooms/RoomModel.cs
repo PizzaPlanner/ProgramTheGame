@@ -10,7 +10,7 @@ public struct Room
     public int RoomIdInGrid;
 }
 
-public struct RoomModel : IComponentData, IDisposable
+public struct RoomModel : IDisposable, ICleanupComponentData
 {
     public NativeParallelHashSet<Cell> OccupiedCells;
     public NativeHashSet<Cell> Walls;

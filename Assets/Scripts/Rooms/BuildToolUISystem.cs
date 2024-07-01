@@ -15,13 +15,18 @@ using UnityEngine.UIElements;
 public struct BuildTool : ICursorTool
 {
     public InputActionMap StateFor(InputActions asset) => asset.BuildTool;
+    public InputAction ToggledByHotkey(InputActions actions) => actions.Tools.Build;
     
     public static InputAction PlaceBuilding => InputActions.For<BuildTool>()["PlaceBuilding"];
     public static InputAction Cancel => InputActions.For<BuildTool>()["Cancel"];
+    public static InputAction Rotate => InputActions.For<BuildTool>()["Rotate"];
 
-    public InputAction ToggledByHotkey(InputActions actions) => actions.Tools.Build;
 }
-internal struct CurrentGhost : IComponentData { }
+
+internal struct CurrentGhost : IComponentData
+{
+    public bool Buildable;
+}
 
 partial class BuildToolUISystem : HotkeyToggleUISystem<BuildingBuildElement, BuildTool>
 {
@@ -32,55 +37,111 @@ partial class BuildToolUISystem : HotkeyToggleUISystem<BuildingBuildElement, Bui
     protected override void OnStopRunning()
     {
         base.OnStopRunning();
-        ClearGhost();
+        var ecb = new EntityCommandBuffer(Allocator.Temp);
+        ClearGhost(ecb);
+        ecb.Playback(EntityManager);
     }
 
-    void ClearGhost()
+    void ClearGhost(EntityCommandBuffer ecb)
     {
         var entities = GetEntityQuery(typeof(CurrentGhost)).ToEntityArray(Allocator.Temp);
         foreach(var e in entities)
-            EntityManager.DestroyEntity(e);
+            ecb.DestroyEntity(e);
     }
 
+    GridBounds DragArea;
+    Entity GhostPrefab;
     protected override void OnUpdate()
     {
-        if (SystemAPI.TryGetSingletonEntity<CurrentGhost>(out var ghost))
+        var ecb = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>()
+                           .CreateCommandBuffer(World.Unmanaged);
+        if (!SystemAPI.TryGetSingletonEntity<CurrentGrid>(out var parent))
         {
-            var parent = SystemAPI.GetComponent<Parent>(ghost).Value;
-            var parentLtw = SystemAPI.GetComponent<LocalToWorld>(parent);
-            EntityManager.SetComponentData(ghost, LocalTransform.FromPosition(GridStructure.CellCenterToLocal(GridStructure.CursorToCell(parentLtw))));
-            if(BuildTool.PlaceBuilding.WasPressedThisFrame() && SystemAPI.HasSingleton<PointerNotOverUI>())
+            ClearGhost(ecb);
+            return;
+        }
+        
+        var rooms = SystemAPI.GetComponent<RoomModel>(parent);
+        var pointerOverUI = SystemAPI.HasSingleton<PointerOverUI>();
+        var pointedCell = GridStructure.CursorToCell(SystemAPI.GetComponent<LocalToWorld>(parent));
+        var ghostQuery = GetEntityQuery(typeof(CurrentGhost), typeof(Parent));
+        if (!ghostQuery.IsEmptyIgnoreFilter)
+        {
+            if (BuildTool.PlaceBuilding.WasPressedThisFrame())
             {
-                var ecb = new EntityCommandBuffer(Allocator.Temp);
-                var plan = ecb.CreateEntity();
-                var mats = new FixedList64Bytes<BuildMaterials>();
-                var prefab = SystemAPI.GetComponent<Identifieable>(ghost);
-                if(!isInCreativeMode)
-                    foreach(var mat in SystemAPI.GetBuffer<BuildMaterials>(prefab.AsPrefab))
-                        mats.Add(mat);
-                ecb.AddComponent(plan, new PlannedConstruction
+                if (!pointerOverUI)
                 {
-                    Location = GridStructure.CursorToCell(parentLtw),
-                    Materials = mats,
-                    Parent = SystemAPI.GetComponent<Parent>(ghost).Value,
-                    Prefab = prefab
-                });
-                EntityManager.DestroyEntity(ghost);
-                ecb.Playback(EntityManager);
+                    DragArea.Max = DragArea.Min = pointedCell;
+                }
+                else
+                    ClearGhost(ecb);
+            }
+            else if(BuildTool.PlaceBuilding.WasReleasedThisFrame() && !pointerOverUI)
+            {
+                foreach (var ghost in ghostQuery.ToEntityArray(Allocator.Temp))
+                {
+                    var plan = ecb.CreateEntity();
+                    var mats = new FixedList64Bytes<BuildMaterials>();
+                    var prefab = SystemAPI.GetComponent<Identifieable>(ghost);
+                    if(!isInCreativeMode)
+                        foreach(var mat in SystemAPI.GetBuffer<BuildMaterials>(prefab.SpawnablePrefab))
+                            mats.Add(mat);
+                    ecb.AddComponent(plan, new PlannedConstruction
+                    {
+                        Location = SystemAPI.GetComponent<GridBounds>(ghost).Min,
+                        Materials = mats,
+                        Parent = SystemAPI.GetComponent<Parent>(ghost).Value,
+                        Prefab = prefab
+                    });
+                }
+                ClearGhost(ecb);
+                PlaceGhost(pointedCell, ecb, rooms);
+            } else if (BuildTool.Cancel.WasPressedThisFrame())
+            {
+                ClearGhost(ecb);
+            }
+            else
+            {
+                if(!BuildTool.PlaceBuilding.inProgress)
+                    DragArea.Min = pointedCell;
+                if (math.any(pointedCell != DragArea.Max))
+                {
+                    DragArea.Max = pointedCell;
+                    var delta = new GridBounds
+                    {
+                        Min = math.min(DragArea.Min, DragArea.Max),
+                        Max = math.max(DragArea.Min, DragArea.Max),
+                    };
+                    ClearGhost(ecb);
+                    for(int x = delta.Min.x; x <= delta.Max.x; x++)
+                    for(int y = delta.Min.y; y <= delta.Max.y; y++)
+                        PlaceGhost(new int2(x,y), ecb, rooms);
+                }
             }
         }
         var toBuild = _window.WantBuildPrefab;
         if (toBuild == Entity.Null)
             return;
         
-        ClearGhost();
-        var currentParent = SystemAPI.GetSingletonEntity<GridStructure>();
-        var e = EntityManager.Instantiate(_window.WantBuildPrefab);
-        EntityManager.AddComponentData(e, new Parent{Value = currentParent});
-        EntityManager.AddComponent<CurrentGhost>(e);
-        EntityManager.AddComponent<FixGhostVisualsAndPhysicsSystem.FixGhostandChildren>(e);
-        EntityManager.AddComponent<UnderConstruction>(e);
+        GhostPrefab = _window.WantBuildPrefab;
+        DragArea = new GridBounds{Min = pointedCell, Max = pointedCell};
+        ClearGhost(ecb);
+        PlaceGhost(pointedCell, ecb, rooms);
         _window.WantBuildPrefab = Entity.Null;
+    }
+
+    void PlaceGhost(int2 cell, EntityCommandBuffer ecb, RoomModel rooms)
+    {
+        var currentParent = SystemAPI.GetSingletonEntity<GridStructure>();
+        var e = ecb.Instantiate(GhostPrefab);
+        ecb.AddComponent(e, new Parent{Value = currentParent});
+        ecb.AddComponent<UnderConstruction>(e);
+        ecb.AddComponent<CurrentGhost>(e);
+        
+        var newBounds = SystemAPI.GetComponent<GridBounds>(GhostPrefab).WithOffset(cell); 
+        ecb.SetComponent(e, newBounds);
+        ecb.AddComponent(e, new FixGhostVisualsAndPhysicsSystem.FixGhostandChildren { GhostBuildable = !rooms.IsOccupied(newBounds) });
+        ecb.SetComponent(e, LocalTransform.FromPosition(GridStructure.CellCenterToLocal(cell)));
     }
 }
 
@@ -89,14 +150,14 @@ class BuildingBuildElement : VisualElement
     public Entity WantBuildPrefab;
     public BuildingBuildElement()
     {
-        var buildingTag = TagList.From(Tag.FromName("TagBuilding"));
+        var buildingTag = Tag.FromName("TagBuilding");
         foreach (var idd in Identifieable.All)
         {
             var id = Identifieable.FromGuid(idd.AssetGuid);
-            if (id.Tags.Contains(buildingTag))
+            if (Tag.TagsOf(id).HasTag(buildingTag))
             {
                 var button = new IdentifiableButton(){Target = id};
-                button.RegisterCallback<MouseDownEvent>(_ => WantBuildPrefab = button.Target.AsPrefab);
+                button.RegisterCallback<MouseDownEvent>(_ => WantBuildPrefab = button.Target.SpawnablePrefab);
                 Add(button);
             }
         }
