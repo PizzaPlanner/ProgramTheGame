@@ -15,7 +15,7 @@ GameObject:
   m_Layer: 0
   m_Name: Wall
   m_TagString: Untagged
-  m_Icon: {fileID: 2800000, guid: 71bcd660d42d6af4bb280456b2c36821, type: 3}
+  m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
@@ -83,7 +83,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Layer: 3
   PlacementType: 3
-  Duration: 0
+  Duration: 3
   Size:
     x: 0
     y: 0

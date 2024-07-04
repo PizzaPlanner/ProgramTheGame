@@ -35,8 +35,6 @@ namespace Identifiables.UI
             }
             get => _content;
         }
-        
-        public new class UxmlFactory : UxmlFactory<DetailPage, UxmlTraits> { }
 
         public void AddDetails(VisualElement details)
         {

@@ -123,27 +123,14 @@ namespace Units
             {
                 selection.Clear();
             }
-            else if (Input.GetMouseButtonDown(1))
+            else if (Input.GetMouseButtonDown(1) && Hovered != null)
             {
-                var moveCmd = new InteractCommand
-                {
-                    Unit = Hovered,
-                    Position = hit.Position
-                };
-                
-                var orders = 0;
+                MoveCommandIndicator.Play(hit.Position);
                 foreach(var unit in selection)
                     if (SystemAPI.HasComponent<CanReceivePlayerOrders>(unit.Unit))
                     {
-                        orders++;
-                        ecb.AddComponent(unit.Unit, moveCmd);
-                        if(moveCmd.Unit != Entity.Null)
-                            foreach(var item in SystemAPI.GetBuffer<Inventory>(unit.Unit))
-                                if(item.Entity != Entity.Null && item.IsEquipmentSlot && SystemAPI.HasComponent<EntityTargeter>(item.Entity))
-                                    SystemAPI.GetComponentRW<EntityTargeter>(item.Entity).ValueRW.Target = moveCmd.Unit;
+                        SelectionWheel.ShowWheel(Hovered, unit.Unit, ref CheckedStateRef);
                     }
-                if(orders > 0)
-                    MoveCommandIndicator.Play(hit.Position);
             }
 
             if (selection.Length == 0 && _firstSelected != Entity.Null)

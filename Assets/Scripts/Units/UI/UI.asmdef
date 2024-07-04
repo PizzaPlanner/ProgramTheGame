@@ -21,7 +21,9 @@
         "Chip",
         "Core",
         "Core.Input",
-        "Modding.API"
+        "Modding.API",
+        "Rooms",
+        "Tasks"
 
     ],
     "includePlatforms": [],

@@ -17,7 +17,7 @@ GameObject:
   m_Layer: 0
   m_Name: ResourceNode
   m_TagString: Untagged
-  m_Icon: {fileID: 2800000, guid: 34a6c725c9bb9f24785b78e54ba9568d, type: 3}
+  m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1

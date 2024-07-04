@@ -57,7 +57,5 @@ namespace Identifiables.UI
             searchHint.text = content.Length > 2 ? $"Searching for '{content}'" : "Search string is too short";
             searches.Query<WikiSearchResultButton>().ForEach(x => x.ApplySearch(content));
         }
-        
-        public new class UxmlFactory : UxmlFactory<LandingPage, UxmlTraits> { }
     }
 }

@@ -18,7 +18,9 @@
         "Unity.InputSystem",
         "Identifiables.UI",
         "Items",
-        "Modding.API"
+        "Modding.API",
+        "Units",
+        "Tasks"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

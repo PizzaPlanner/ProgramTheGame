@@ -1,4 +1,5 @@
 using Identifiables;
+using Units;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
@@ -22,6 +23,7 @@ public struct PlannedConstruction : IComponentData
 public partial struct BuildJob : IJobEntity
 {
     public EntityCommandBuffer ecb;
+    public Entity constructTaskPrefab, orderTaskPrefab;
     [NativeDisableContainerSafetyRestriction] public ComponentLookup<RoomModel> roomLookup;
     [ReadOnly] public ComponentLookup<GridBounds> boundsLookup;
     [ReadOnly] public ComponentLookup<Building> buildingLookup;
@@ -68,30 +70,9 @@ public partial struct BuildJob : IJobEntity
             Rooms.AddOccupiedArea(area);
         if (planned.IsGhost)
         {
-            ecb.AddComponent(entity, new UnderConstruction());
-            var inventory = ecb.SetBuffer<Inventory>(entity);
-            var pendingOrders = ecb.AddBuffer<PendingItemOrders>(entity);
-            foreach (var requirement in planned.Materials)
-            {
-                var order = ecb.CreateEntity();
-                ecb.AddComponent(order, new ItemOrder
-                {
-                    Amount = requirement.Amount, 
-                    Item = requirement.Item,
-                    State = OrderState.Requested,
-                    Requester = entity
-                });
-                inventory.Add(new Inventory
-                {
-                    Transfer = Inventory.TransferDirection.In, 
-                    Type = requirement.Item,
-                    IsTypeLocked = true,
-                });
-                pendingOrders.Add(new PendingItemOrders{Order = order});
-            }
-            
+            CreateBuildTasks(planned, entity, building);
             ecb.AddComponent(entity,
-                new FixGhostVisualsAndPhysicsSystem.FixGhostandChildren());
+                new FixGhostVisualsAndPhysicsSystem.FixGhostandChildren { GhostBuildable = true });
         }
         else
         {
@@ -104,6 +85,39 @@ public partial struct BuildJob : IJobEntity
             gridBbox.BoundsMin = math.min(gridBbox.BoundsMin, area.Min);
             gridBbox.BoundsMax = math.max(gridBbox.BoundsMax, area.Max);
             structureLookup[planned.Parent] = gridBbox;
+        }
+    }
+
+    void CreateBuildTasks(PlannedConstruction planned, Entity entity, Building building)
+    {
+        var constructTask = ecb.Instantiate(constructTaskPrefab);
+        ecb.SetComponent(constructTask, new Task
+        {
+            Target = entity, 
+            Priority = TaskPriority.MediumPriority,
+            Origin = entity
+        });
+        ecb.AddComponent(entity, new UnderConstruction
+        {
+            Duration = building.Duration
+        });
+        foreach (var requirement in planned.Materials)
+        {
+            var order = ecb.Instantiate(orderTaskPrefab);
+            ecb.SetComponent(order, new Task
+            {
+                Priority = TaskPriority.MediumPriority,
+                Origin = entity
+            });
+            ecb.SetComponent(order, new ItemOrderTask
+            {
+                Amount = requirement.Amount, 
+                Item = requirement.Item
+            });
+            ecb.AppendToBuffer(constructTask, new TaskDependencies
+            {
+                Dependency = order
+            });
         }
     }
 }

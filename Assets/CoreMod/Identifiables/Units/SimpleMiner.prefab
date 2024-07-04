@@ -14,10 +14,11 @@ GameObject:
   - component: {fileID: -5051792277644950993}
   - component: {fileID: 308810711421503718}
   - component: {fileID: -5942648328531916514}
+  - component: {fileID: -5693127892323368548}
   m_Layer: 0
   m_Name: SimpleMiner
   m_TagString: Untagged
-  m_Icon: {fileID: 2800000, guid: dd0cb538ae0446741bb172b14e9f963f, type: 3}
+  m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
@@ -138,6 +139,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   MaxStackSize: 1
   BelongsToNetwork: {fileID: 0}
+  IdleTask: {fileID: 11400000, guid: 46ac7f1e7d7fb1c4abfc0a07a15331f8, type: 2}
+--- !u!114 &-5693127892323368548
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6595311514760627798}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 23a64bd7ff35410c9752960049af6e35, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &3934345249708976431
 PrefabInstance:
   m_ObjectHideFlags: 0

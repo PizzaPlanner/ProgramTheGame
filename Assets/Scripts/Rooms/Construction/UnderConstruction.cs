@@ -1,7 +1,10 @@
 ﻿using Unity.Collections;
 using Unity.Entities;
 
-public struct UnderConstruction : IComponentData { }
+public struct UnderConstruction : IComponentData
+{
+    public float Duration;
+}
 
 public enum BuildingLayer
 {
@@ -22,6 +25,9 @@ public enum PlacementType
 public struct Building : IComponentData
 {
     public BuildingLayer Layer;
-    public PlacementType DraggableDimension; 
+    public PlacementType DraggableDimension;
+    public float Duration;
 }
+
+public struct Floor : IComponentData { }
 

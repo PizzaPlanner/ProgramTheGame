@@ -75,6 +75,10 @@ namespace Identifiables.Authoring
             var tags = baker.AddBuffer<Tags>(id);
             foreach(var tag in tagSet)
                 tags.Add(new Tags{Tag = tag});
+            
+            // Fix for prefabs always having transform components even if everything has TransformUsageFlags.None
+            if (prefab is IdentifiableThingAsset ita && !tagSet.Contains(Identifieable.FromName("TagSpawnable")))
+                baker.AddComponent<NoOneWantsToSpawnMe>(baker.GetEntity(ita.Reference, TransformUsageFlags.ManualOverride));
         }
     }
 }

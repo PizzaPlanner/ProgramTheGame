@@ -14,7 +14,7 @@ GameObject:
   m_Layer: 0
   m_Name: Suffocating
   m_TagString: Untagged
-  m_Icon: {fileID: 2800000, guid: 1e6747c1505d65743afa85842be4dc09, type: 3}
+  m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1

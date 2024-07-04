@@ -30,7 +30,7 @@ internal struct CurrentGhost : IComponentData
 
 partial class BuildToolUISystem : HotkeyToggleUISystem<BuildingBuildElement, BuildTool>
 {
-    bool isInCreativeMode => true;
+    bool isInCreativeMode => false;
     protected override BuildingBuildElement MakeWindow() => new();
     protected override string MenuEntry => "Build";
 

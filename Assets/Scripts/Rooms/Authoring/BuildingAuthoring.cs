@@ -19,13 +19,16 @@ public class BuildingAuthoring : MonoBehaviour
             AddComponent(self, new Building
             {
                 Layer = authoring.Layer,
-                DraggableDimension = authoring.PlacementType
+                DraggableDimension = authoring.PlacementType,
+                Duration = authoring.Duration
             });
             AddComponent(self, new GridBounds
             {
                 Min = int2.zero,
                 Max = authoring.Size
             });
+            if(authoring.Layer == BuildingLayer.Floor)
+                AddComponent<Floor>(self);
             var mats = AddBuffer<BuildMaterials>(self);
             foreach(var mat in authoring.Input)
                 mats.Add(new BuildMaterials

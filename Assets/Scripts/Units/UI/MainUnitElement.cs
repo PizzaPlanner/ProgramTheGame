@@ -3,8 +3,5 @@
 namespace Units
 {
     [UxmlElement]
-    public partial class MainUnitElement : VisualElement, IRecursiveInventoryDisplay
-    {
-        
-    }
+    public partial class MainUnitElement : VisualElement, IRecursiveInventoryDisplay { }
 }

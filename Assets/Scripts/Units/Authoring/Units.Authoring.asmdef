@@ -15,7 +15,9 @@
         "Units",
         "Items.Authoring",
         "Items",
-        "Core.Authoring"
+        "Tasks",
+        "Core.Authoring",
+        "Identifiables.Authoring"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

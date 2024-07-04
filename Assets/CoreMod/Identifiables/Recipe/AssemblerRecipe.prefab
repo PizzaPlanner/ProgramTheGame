@@ -14,7 +14,7 @@ GameObject:
   m_Layer: 0
   m_Name: AssemblerRecipe
   m_TagString: Untagged
-  m_Icon: {fileID: 2800000, guid: 6732c908b10ab3143beb4353e399219e, type: 3}
+  m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
@@ -79,7 +79,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6d96781d50c744d5b90125a6e0a230bb, type: 3}
   m_Name: AssemblerRecipe
   m_EditorClassIdentifier: 
-  Icon: {fileID: 0}
+  Icon: {fileID: 2800000, guid: 6732c908b10ab3143beb4353e399219e, type: 3}
   Tags:
   - {fileID: 11400000, guid: 4e7ed875f2a09ca4aa7f1dc38df7815f, type: 2}
   Reference: {fileID: 5304243422145376601}

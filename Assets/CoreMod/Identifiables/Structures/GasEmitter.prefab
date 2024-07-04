@@ -19,7 +19,7 @@ GameObject:
   m_Layer: 0
   m_Name: GasEmitter
   m_TagString: Untagged
-  m_Icon: {fileID: 2800000, guid: 11b25b73af102f94ea9955a27f2e8ba2, type: 3}
+  m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
@@ -106,7 +106,7 @@ MonoBehaviour:
   Slots:
   - Item: {fileID: 0}
     Amount: 0
-    Filter: []
+    Filter: {fileID: 0}
     TransferDirection: 0
 --- !u!114 &-5380242976130347905
 MonoBehaviour:
@@ -156,7 +156,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Layer: 0
   PlacementType: 0
-  Duration: 0
+  Duration: 3
   Size:
     x: 0
     y: 0

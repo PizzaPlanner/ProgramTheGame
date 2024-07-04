@@ -13,11 +13,11 @@ GameObject:
   - component: {fileID: -4989415347927071038}
   - component: {fileID: -5051792277644950993}
   - component: {fileID: 308810711421503718}
-  - component: {fileID: -5942648328531916514}
+  - component: {fileID: 1075871867722435678}
   m_Layer: 0
   m_Name: StarterShip
   m_TagString: Untagged
-  m_Icon: {fileID: 2800000, guid: 78e453e599700d347bdbae5820483f50, type: 3}
+  m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
@@ -136,7 +136,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   MovementSpeed: 1.5
   InteractionRange: 0.1
---- !u!114 &-5942648328531916514
+--- !u!114 &1075871867722435678
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -150,6 +150,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   MaxStackSize: 1
   BelongsToNetwork: {fileID: 0}
+  IdleTask: {fileID: 11400000, guid: 46ac7f1e7d7fb1c4abfc0a07a15331f8, type: 2}
 --- !u!1001 &1979220276000412070
 PrefabInstance:
   m_ObjectHideFlags: 0

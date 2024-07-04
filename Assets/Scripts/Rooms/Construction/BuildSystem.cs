@@ -16,9 +16,13 @@ partial struct BuildSystem : ISystem
     {
         var ecb = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>()
                            .CreateCommandBuffer(state.WorldUnmanaged);
+        
+        // Spawn buildings and ghosts based on planned constructions
         new BuildJob()
         {
             ecb = ecb,
+            constructTaskPrefab = Identifieable.FromName("BuildTask").SpawnablePrefab,
+            orderTaskPrefab = Identifieable.FromName("ItemOrderTask").SpawnablePrefab,
             boundsLookup = SystemAPI.GetComponentLookup<GridBounds>(true),
             roomLookup = SystemAPI.GetComponentLookup<RoomModel>(false),
             structureLookup = SystemAPI.GetComponentLookup<GridStructure>(false),
@@ -26,12 +30,15 @@ partial struct BuildSystem : ISystem
                 
         }.Run();
 
-        foreach (var (id, bounds, parent, e) in 
-                 SystemAPI.Query<Identifieable, GridBounds, Parent>()
+        // Recreate finished constructions as non-ghosts
+        foreach (var (id, bounds, parent, underConstruction, e) in 
+                 SystemAPI.Query<Identifieable, GridBounds, Parent, UnderConstruction>()
                                                  .WithEntityAccess()
-                                                 .WithAll<UnderConstruction>()
                                                  .WithNone<PendingItemOrders, CurrentGhost>())
         {
+            if(underConstruction.Duration > 0)
+                return;
+            
             var roomModel = SystemAPI.GetComponent<RoomModel>(parent.Value);
             roomModel.FreeOccupation(bounds);
             ecb.DestroyEntity(e);
@@ -44,12 +51,14 @@ partial struct BuildSystem : ISystem
             });
         }
         
+        // Remove dangling rooms
         foreach (var (model, e) in SystemAPI.Query<RoomModel>().WithNone<LocalToWorld>().WithEntityAccess())
         {
             model.Dispose();
             ecb.RemoveComponent<RoomModel>(e);
         }
 
+        // Initialize new rooms
         foreach (var (_, e) in SystemAPI.Query<GridStructure>().WithNone<RoomModel>().WithEntityAccess())
         {
             var roomModel = new RoomModel();
@@ -57,6 +66,7 @@ partial struct BuildSystem : ISystem
             ecb.AddComponent(e, roomModel);
         }
         
+        // Calculate rooms
         new GridRoomRecalculationJob
         {
             roomLookup = SystemAPI.GetComponentLookup<RoomModel>(false)

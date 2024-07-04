@@ -16,7 +16,7 @@ GameObject:
   m_Layer: 0
   m_Name: CopperOre
   m_TagString: Untagged
-  m_Icon: {fileID: 2800000, guid: 0acbf5ed67bbcb34882575e8df4608d0, type: 3}
+  m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
