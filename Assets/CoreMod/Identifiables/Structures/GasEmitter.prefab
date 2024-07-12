@@ -16,6 +16,7 @@ GameObject:
   - component: {fileID: 2765234121854664757}
   - component: {fileID: -6789885427361924502}
   - component: {fileID: -2540546713244925093}
+  - component: {fileID: 6902779840683867879}
   m_Layer: 0
   m_Name: GasEmitter
   m_TagString: Untagged
@@ -70,6 +71,7 @@ MeshRenderer:
   m_RendererPriority: 0
   m_Materials:
   - {fileID: 2100000, guid: be1d4781335dd9b41ac238fce05f7e53, type: 2}
+  - {fileID: 2100000, guid: e1f387b1316ac334a91ba06486dedab6, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -178,6 +180,19 @@ MonoBehaviour:
   - Gas: 0
     Moles: 25
   TemperatureKelvin: 300
+--- !u!114 &6902779840683867879
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3605263813790912188}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 68a92fc250ef4511b43df6da7fdcee09, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Parent: {fileID: 0}
 --- !u!114 &-8927736695948970044
 MonoBehaviour:
   m_ObjectHideFlags: 0

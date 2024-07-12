@@ -365,7 +365,7 @@ public struct ChipScriptLine
             
             csl.RightIndex = -1;
             var pName = right.Split('.')[1];
-            var pRight = LogicParametersMappingSystem.GetAllParameters(csl.RightId);
+            var pRight = LogicParametersMappingSystem.ParametersOf(csl.RightId);
             for (int i = 0; i < pRight.Length; i++)
             {
                 if (string.Equals(pRight[i].Name.ToString(), pName, StringComparison.InvariantCultureIgnoreCase))
@@ -385,7 +385,7 @@ public struct ChipScriptLine
         {
             csl.LeftIndex = -1;
             var pName = left.Split('.')[1];
-            var pLeft = LogicParametersMappingSystem.GetAllParameters(csl.LeftId);
+            var pLeft = LogicParametersMappingSystem.ParametersOf(csl.LeftId);
             for (int i = 0; i < pLeft.Length; i++)
             {
                 if (string.Equals(pLeft[i].Name.ToString(), pName, StringComparison.InvariantCultureIgnoreCase))

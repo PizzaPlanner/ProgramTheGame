@@ -1,16 +1,17 @@
-﻿using Unity.Collections;
+﻿using Core.Grid;
+using Unity.Collections;
 using Unity.Entities;
 
 namespace Units
 {
     public partial struct TaskRequestJob : IJobEntity
     {
-        public NativeArray<Entity> upForWork;
         public EntityStorageInfoLookup storageLookup;
         [NativeDisableParallelForRestriction]
         public BufferLookup<ToDos> todoLookup;
         public EntityCommandBuffer.ParallelWriter ecb;
-        void Execute(Entity t, [ChunkIndexInQuery] int sortKey, ref Task task, ref DynamicBuffer<TaskDependencies> dependencies)
+        [ReadOnly] public BufferLookup<Crew> crewLookup;
+        void Execute(Entity t, [ChunkIndexInQuery] int sortKey, ref Task task, ref DynamicBuffer<TaskDependencies> dependencies, ref DynamicBuffer<BroadcastStatus> radio)
         {
             if(!storageLookup.Exists(task.Origin))
                 ecb.DestroyEntity(sortKey, t);
@@ -20,20 +21,27 @@ namespace Units
             
             if (task.Executor == Entity.Null)
             {
-                foreach (var entity in upForWork)
+                if(!crewLookup.TryGetBuffer(task.CrewProvider, out var crew))
+                    return;
+
+                foreach (var member in crew)
                 {
-                    var todos = todoLookup[entity];
-                    if (todos[0].Task == t)
+                    var todos = todoLookup[member.Member];
+                    if (todos.Length > 0 && todos[0].Task == t)
                     {
-                        task.Executor = entity;
+                        task.Executor = member.Member;
                         break;
                     }
-                    if(Request(t, todos))
+
+                    if (Request(t, todos))
+                    {
                         todos.Add(new ToDos
                         {
                             Task = t,
                             Status = TaskOutcome.Requested
                         });
+                        radio.Add(new BroadcastStatus{BroadcastedTo = member.Member});
+                    }
                 }
             }
             
@@ -42,16 +50,16 @@ namespace Units
 
             if (VerifyExecutor(t, task))
             {
-                foreach (var entity in upForWork)
+                foreach (var entity in radio)
                 {
-                    if(entity == task.Executor)
+                    if(entity.BroadcastedTo == task.Executor)
                         continue;
                     
-                    var todos = todoLookup[entity];
+                    var todos = todoLookup[entity.BroadcastedTo];
                     for (int i = 0; i < todos.Length; i++)
                         if (todos[i].Task == t)
                         {
-                            todos.RemoveAt(i);
+                            todos.RemoveAt(i--);
                         }
                 }
             }

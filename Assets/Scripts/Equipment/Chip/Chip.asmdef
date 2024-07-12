@@ -9,7 +9,8 @@
         "Unity.Collections",
         "Identifiables",
         "Core",
-        "Lookups"
+        "Lookups",
+        "Identifiables.UI"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

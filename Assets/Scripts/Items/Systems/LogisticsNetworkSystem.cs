@@ -6,29 +6,39 @@ using UnityEngine;
 [UpdateAfter(typeof(ItemTransactionSystem))]
 partial struct LogisticsNetworkSystem : ISystem
 {
-    public void OnCreate(ref SystemState state)
-    {
-        var ln = new LogisticsNetwork();
-        ln.HasItems = new UnsafeParallelHashMap<ItemId, long>(0, Allocator.Persistent);
-        ln.CarriersWithSpace = new UnsafeParallelHashMap<Entity, int>(0, Allocator.Persistent);
-        ln.ItemsByEntities = new UnsafeParallelMultiHashMap<Entity, (ItemId, uint)>(0, Allocator.Persistent);
-        ln.EntitiesWithItems = new UnsafeParallelMultiHashMap<ItemId, (Entity, uint)>(0, Allocator.Persistent);
-        state.EntityManager.AddComponentData(state.SystemHandle, ln);
-    }
-
     public void OnDestroy(ref SystemState state)
     {
-        var ln = SystemAPI.GetSingleton<LogisticsNetwork>();
-        ln.Dispose();
+        foreach (var network in SystemAPI.Query<LogisticsNetwork>())
+        {
+            network.Dispose();
+        }
     }
 
     public void OnUpdate(ref SystemState state)
     {
-        var network = SystemAPI.GetSingletonRW<LogisticsNetwork>().ValueRW;
-        foreach (var (inventory, inNetwork, e) in SystemAPI.Query<DynamicBuffer<Inventory>, InLogisticsNetwork>()
+        var ecb = new EntityCommandBuffer(Allocator.Temp);
+        foreach (var (_, e) in SystemAPI.Query<GridStructure>().WithNone<LogisticsNetwork>().WithEntityAccess())
+        {
+            var ln = new LogisticsNetwork();
+            ln.Initialize();
+            ecb.AddComponent(e, ln);
+        }
+        foreach (var (ln, e) in SystemAPI.Query<LogisticsNetwork>().WithNone<GridStructure>().WithEntityAccess())
+        {
+            ln.Dispose();
+            ecb.RemoveComponent<LogisticsNetwork>(e);
+        }
+        if(!ecb.IsEmpty)
+            ecb.Playback(state.EntityManager);
+        
+        var networkLookup = SystemAPI.GetComponentLookup<LogisticsNetwork>();
+        foreach (var (inventory, inNetwork, e) in SystemAPI.Query<DynamicBuffer<Inventory>, OnGrid>()
                                                            .WithAll<InventoryContentsChanged>()
                                                            .WithEntityAccess())
         {
+            if(!networkLookup.TryGetComponent(inNetwork.Grid, out var network))
+                return;
+            
             foreach (var entry in network.ItemsByEntities.GetValuesForKey(e))
             {
                 var amnt = network.HasItems[entry.Item1];
@@ -61,9 +71,12 @@ partial struct LogisticsNetworkSystem : ISystem
             }
         }
 
-        network.EntitiesWithItems.Clear();
-        foreach(var entry in network.ItemsByEntities)
-            network.EntitiesWithItems.Add(entry.Value.Item1, (entry.Key, entry.Value.Item2));
+        foreach (var network in SystemAPI.Query<LogisticsNetwork>())
+        {
+            network.EntitiesWithItems.Clear();
+            foreach(var entry in network.ItemsByEntities)
+                network.EntitiesWithItems.Add(entry.Value.Item1, (entry.Key, entry.Value.Item2));
+        }
     }
     
 }

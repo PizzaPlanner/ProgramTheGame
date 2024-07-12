@@ -9,7 +9,10 @@
         "Unity.Collections",
         "Unity.Entities.Hybrid",
         "Unity.Mathematics.Extensions",
-        "Core"
+        "Core",
+        "Rooms",
+        "Identifiables",
+        "Identifiables.Authoring"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

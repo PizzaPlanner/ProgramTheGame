@@ -1,0 +1,10 @@
+﻿using System.Collections.Generic;
+using UnityEngine.UIElements;
+
+namespace Identifiables.UI
+{
+    public interface IWikiProvider
+    {
+        VisualElement ProvideWikiDetails(Identifieable id);
+    }
+}

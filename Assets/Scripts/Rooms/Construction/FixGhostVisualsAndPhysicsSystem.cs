@@ -11,16 +11,16 @@ public struct URPMaterialPropertyInvalid : IComponentData, IQueryTypeParameter
     public float Value;
 }
 
+public struct Ghost : IComponentData
+{
+    public bool GhostBuildable;
+}
+
 [UpdateInGroup(typeof(SimulationSystemGroup), OrderLast = true)]
 [UpdateAfter(typeof(EndSimulationEntityCommandBufferSystem))]
 [CreateAfter(typeof(EntitiesGraphicsSystem))]
 public partial class FixGhostVisualsAndPhysicsSystem : SystemBase
 {
-    public struct FixGhostandChildren : IComponentData
-    {
-        public bool GhostBuildable;
-    }
-
     struct RelatedToGhost : IComponentData
     {
         public Entity Ghost;
@@ -29,7 +29,7 @@ public partial class FixGhostVisualsAndPhysicsSystem : SystemBase
     BatchMaterialID ghostMaterialId, ghostBlockedMaterialId;
     protected override void OnCreate()
     {
-        RequireForUpdate<FixGhostandChildren>();
+        RequireForUpdate<Ghost>();
         var ghostMat = Addressables.LoadAssetAsync<Material>("GhostMaterial").WaitForCompletion();
         // var ghostBlockedMat = Addressables.LoadAssetAsync<Material>("GhostErrorMaterial").WaitForCompletion();
         var graphicsSystem = World.GetExistingSystemManaged<EntitiesGraphicsSystem>();
@@ -41,7 +41,7 @@ public partial class FixGhostVisualsAndPhysicsSystem : SystemBase
     {
         var ecb = new EntityCommandBuffer(Allocator.Temp);
         foreach (var (ghost, linkedEntities, parent) 
-                 in SystemAPI.Query<FixGhostandChildren, DynamicBuffer<LinkedEntityGroup>>().WithEntityAccess())
+                 in SystemAPI.Query<Ghost, DynamicBuffer<LinkedEntityGroup>>().WithChangeFilter<Ghost>().WithEntityAccess())
         {
             foreach (var link in linkedEntities)
             {
@@ -53,12 +53,11 @@ public partial class FixGhostVisualsAndPhysicsSystem : SystemBase
                     ecb.AddComponent(e, new URPMaterialPropertyInvalid { Value = ghost.GhostBuildable ? 0 : 1 });
                 }
             }
-            ecb.RemoveComponent<FixGhostandChildren>(parent);
         }
         ecb.Playback(EntityManager);
 
         foreach (var (color, parent) in
-                 SystemAPI.Query<RefRW<MaterialMeshInfo>, RelatedToGhost>())
+                 SystemAPI.Query<RefRW<MaterialMeshInfo>, RelatedToGhost>().WithChangeFilter<RelatedToGhost>())
         {
             color.ValueRW.MaterialID = ghostMaterialId;
         }

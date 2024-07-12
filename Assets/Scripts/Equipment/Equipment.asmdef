@@ -17,7 +17,8 @@
         "Chip",
         "Core.UI",
         "Core",
-        "Modding.API"
+        "Modding.API",
+        "Tasks"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

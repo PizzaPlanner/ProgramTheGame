@@ -1,51 +1,30 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Unity.Entities;
+using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace Identifiables.UI
 {
-    public class Tooltip : VisualElement
-    {
-        
-    }
     
     [UxmlElement]
-    public partial class IdentifiableButton : VisualElement
+    public partial class IdentifiableButton : VisualElement, ITooltipProvider
     {
         public IdentifiableButton()
         {
-            Add(new VisualElement{name = "Icon"});
-            Add(new VisualElement{name = "Frame"});
-            Add(new Label());
-            // RegisterCallback<MouseEnterEvent>(x =>
-            // {
-            //     RegisterCallback<KeyDownEvent>(ShowWiki, TrickleDown.TrickleDown);
-            //     if(Target == default)
-            //         return;
-            //     // this.schedule.Execute(() =>
-            //     // {
-            //     //     
-            //     // }).StartingIn(200);
-            //     // focusable = true;
-            //     // Focus();
-            // });
-            // RegisterCallback<MouseLeaveEvent>(x =>
-            // {
-            //     UnregisterCallback<KeyDownEvent>(ShowWiki);
-            //     schedule.Execute(() =>
-            //     {
-            //         
-            //     }).ExecuteLater(0);
-            //     focusable = false;
-            // });
+            Add(new VisualElement{name = "Icon", pickingMode = PickingMode.Ignore});
+            Add(new VisualElement{name = "Frame", pickingMode = PickingMode.Ignore});
+            Add(new Label() { pickingMode = PickingMode.Ignore });
+            RegisterCallback<MouseDownEvent>(x =>
+            {
+                if(x.button != 2 || Target == default)
+                    return;
+                UISystemGroup.ShowMenu<Wiki>().OpenTab(Target);
+            });
             AddToClassList("id-button");
-        }
-
-        void ShowWiki(KeyDownEvent evt)
-        {
-            if(evt.keyCode != KeyCode.F1 || Target == default)
-                return;
-            UISystemGroup.ShowMenu<Wiki>().OpenTab(Target);
+            ITooltipProvider.RegisterCallbacks(this);
         }
 
         Identifieable _id;
@@ -58,5 +37,10 @@ namespace Identifiables.UI
             } 
             get => _id;
         }
+
+        public IEnumerable<VisualElement> TooltipContent => new[]
+        {
+            new TooltipTitle(Target.DefaultName.Value)
+        }.Concat(ClassListContains("cancelable") ? new[]{ new Label("Press LM to cancel")} : Array.Empty<VisualElement>());
     }
 }

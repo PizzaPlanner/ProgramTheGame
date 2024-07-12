@@ -1,8 +1,6 @@
 ﻿using Identifiables;
-using Identifiables.UI;
 using Unity.Collections;
 using Unity.Entities;
-using UnityEngine.UIElements;
 
 public struct Tags : IBufferElementData
 {
@@ -10,7 +8,6 @@ public struct Tags : IBufferElementData
 }
 
 [UpdateInGroup(typeof(IdentifiablesMappingGroup), OrderFirst = true)]
-[UpdateAfter(typeof(IdentifiableLibrary))]
 partial class TagMappingSystem : IdentifiableMappingSystem
 {
     protected override void OnDestroy()
@@ -27,7 +24,7 @@ partial class TagMappingSystem : IdentifiableMappingSystem
             Tag.Library.Data.Dispose();
         if (Tag.TagMap.Data.IsCreated)
             Tag.TagMap.Data.Dispose();
-        Tag.Library.Data = new NativeArray<TagList>(IdentifiableLibrary.Data.Length, Allocator.Persistent);
+        Tag.Library.Data = new (0, Allocator.Persistent);
         Tag.TagMap.Data = new (32, Allocator.Persistent);
         foreach (var (tags, id) in SystemAPI.Query<DynamicBuffer<Tags>, Identifieable>()
                                       .WithAll<Prefab, Identifieable>()
@@ -44,7 +41,7 @@ partial class TagMappingSystem : IdentifiableMappingSystem
                 Tag.TagMap.Data.Add(tag.Tag, id);
             }
 
-            Tag.Library.Data[id.CurrentIndex] = list;
+            Tag.Library.Data[id] = list;
         }
     }
 }

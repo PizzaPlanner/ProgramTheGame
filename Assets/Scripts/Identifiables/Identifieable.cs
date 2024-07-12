@@ -45,16 +45,14 @@ namespace Identifiables
 
     public partial struct Identifieable
     {
+        public Entity SpawnablePrefab => IdentifiablesMappingGroup.Find(Value).SpawnablePrefab;
+        public Texture2D Icon => IdentifiablesMappingGroup.Find(Value).Icon;
         [CreateProperty]
-        public ushort CurrentIndex => IdentifiableLibrary.Find(Value).Value;
-        public Entity SpawnablePrefab => IdentifiableLibrary.Find(Value).SpawnablePrefabDefault;
-        public Texture2D Icon => IdentifiableLibrary.Find(Value).Icon;
-        [CreateProperty]
-        public FixedString64Bytes DefaultName => IdentifiableLibrary.Find(Value).DefaultName;
+        public FixedString64Bytes DefaultName => IdentifiablesMappingGroup.Find(Value).DefaultName;
         [CreateProperty]
         public ulong StableId => Value;
         public Identifieable Origin => default;
-        public static IdentifiableData[] All => IdentifiableLibrary.Data;
+        public static IdentifiableData[] All => IdentifiablesMappingGroup.TagMap.Data.GetValueArray(Allocator.Temp).ToArray();
         
         public static Identifieable FromName(FixedString64Bytes defaultName)
         {

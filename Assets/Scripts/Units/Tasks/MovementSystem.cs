@@ -2,6 +2,7 @@
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEngine;
 using UnityEngine.Experimental.AI;
 
 namespace Units
@@ -31,28 +32,38 @@ namespace Units
             
             var taskLookup = SystemAPI.GetComponentLookup<Task>(true);
             var ltwLookup = SystemAPI.GetComponentLookup<LocalToWorld>(true);
-            foreach (var (todos, ltw, movable, e) in 
-                     SystemAPI.Query<DynamicBuffer<ToDos>, RefRW<LocalTransform>, Movable>().WithEntityAccess())
+            foreach (var (todos, transform, ltw, movable, e) in 
+                     SystemAPI.Query<DynamicBuffer<ToDos>, RefRW<LocalTransform>, LocalToWorld, Movable>().WithEntityAccess())
             {
-                if (!taskLookup.TryGetComponent(todos[0].Task, out var task) 
-                    || !ltwLookup.TryGetComponent(task.Target, out var toLtw))
+                if(todos.Length == 0)
+                    continue;
+                
+                if (!taskLookup.TryGetComponent(todos[0].Task, out var task))
                 {
                     todos.RemoveAt(0);
-                    return;
+                    continue;
+                }
+
+                if (!ltwLookup.TryGetComponent(task.Target, out var toLtw))
+                {
+                    var td = todos[0];
+                    td.Status = TaskOutcome.Unreachable;
+                    var todosRW = todos;
+                    todosRW[0] = td;
+                    continue;
                 }
                 
                 var locationTo = navQuery.MapLocation(toLtw.Position, (float3)1, 0);
-                var delta = (float3)locationTo.position - ltw.ValueRO.Position;
+                var delta = (float3)locationTo.position - ltw.Position;
                 var isInTaskRange = math.lengthsq(delta) < 0.3f;
                 if (!isInTaskRange)
                 {
                     var direction = math.normalize(delta);
-                    ltw.ValueRW.Rotation = quaternion.LookRotationSafe(direction, math.up());
-                    ltw.ValueRW.Position += direction * deltaTime * movable.MovementSpeed;
+                    transform.ValueRW.Rotation = quaternion.LookRotationSafe(direction, math.up());
+                    transform.ValueRW.Position += direction * deltaTime * movable.MovementSpeed;
                 }
 
-                if (task.Target != e)
-                    SystemAPI.SetComponentEnabled<WorkedOn>(todos[0].Task, isInTaskRange);
+                SystemAPI.SetComponentEnabled<WorkedOn>(todos[0].Task, isInTaskRange);
             }
         }
     }

@@ -15,7 +15,7 @@ partial struct GasPainterSystem : ISystem
 
     public void OnUpdate(ref SystemState state)
     {
-        var grid = SystemAPI.GetSingletonEntity<CurrentGrid>();
+        var grid = SystemAPI.GetSingleton<CurrentGrid>().Grid;
         if(!SystemAPI.HasComponent<GasModel>(grid))
             return;
         var model = SystemAPI.GetComponentRW<GasModel>(grid).ValueRW;

@@ -3,6 +3,11 @@ using Unity.Mathematics;
 
 namespace Core.Equipment
 {
+    public struct Brain : IComponentData
+    {
+        
+    }
+    
     public struct Stomach : IComponentData
     {
         public int Fullness;

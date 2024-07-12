@@ -1,4 +1,5 @@
 ﻿using Unity.Entities;
+using Unity.Rendering;
 using Unity.Transforms;
 using UnityEditor;
 using UnityEngine;
@@ -28,6 +29,7 @@ partial struct UnspawnableThingFixLTWSystem : ISystem
     {
         var query = SystemAPI.QueryBuilder()
                              .WithAll<LinkedEntityGroup, NoOneWantsToSpawnMe>()
+                             .WithNone<Child, Parent, MaterialMeshInfo>()
                              .WithOptions(EntityQueryOptions.IncludePrefab).Build();
         state.EntityManager.RemoveComponent<LinkedEntityGroup>(query);
     }

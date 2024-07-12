@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: -5051792277644950993}
   - component: {fileID: 308810711421503718}
   - component: {fileID: 1075871867722435678}
+  - component: {fileID: 6175824735256123482}
   m_Layer: 0
   m_Name: StarterShip
   m_TagString: Untagged
@@ -63,8 +64,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Slots:
-  - Item: {fileID: 0}
-    Amount: 0
+  - Item: {fileID: 697860641069326925, guid: c42440416ef81f64693865cd7d1325d9, type: 3}
+    Amount: 20
     Filter: {fileID: 0}
     TransferDirection: 3
   - Item: {fileID: 0}
@@ -149,8 +150,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MaxStackSize: 1
-  BelongsToNetwork: {fileID: 0}
-  IdleTask: {fileID: 11400000, guid: 46ac7f1e7d7fb1c4abfc0a07a15331f8, type: 2}
+--- !u!114 &6175824735256123482
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6595311514760627798}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 68a92fc250ef4511b43df6da7fdcee09, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Parent: {fileID: 0}
 --- !u!1001 &1979220276000412070
 PrefabInstance:
   m_ObjectHideFlags: 0

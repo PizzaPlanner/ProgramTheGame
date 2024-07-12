@@ -9,8 +9,7 @@
         "Unity.Transforms",
         "Unity.Addressables",
         "Unity.ResourceManager",
-        "Lookups",
-        "Core.UI"
+        "Lookups"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

@@ -2,7 +2,9 @@
 
 namespace Equipment
 {
-    public struct GrantPlayerControl : IComponentData { }
+    public interface IComponentForWearer<T> : IComponentData where T : unmanaged, IComponentData { }
+    
+    public struct GrantPlayerControl : IComponentForWearer<CanReceivePlayerOrders> { }
 
     public struct CanReceivePlayerOrders : IComponentData { }
 }

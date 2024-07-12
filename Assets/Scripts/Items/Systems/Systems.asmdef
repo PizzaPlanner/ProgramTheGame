@@ -11,7 +11,8 @@
         "Identifiables",
         "Chip",
         "Modding.API",
-        "Identifiables.UI"
+        "Identifiables.UI",
+        "Core"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

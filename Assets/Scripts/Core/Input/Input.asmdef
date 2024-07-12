@@ -5,6 +5,8 @@
         "Unity.InputSystem",
         "Unity.Entities",
         "Unity.Collections",
+        "Unity.Transforms",
+        "Unity.Mathematics",
         "Core"
     ],
     "includePlatforms": [],

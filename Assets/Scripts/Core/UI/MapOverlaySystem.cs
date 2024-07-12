@@ -41,7 +41,7 @@ namespace Core
         
         protected override void OnUpdate()
         {
-            var gridEntity = SystemAPI.GetSingletonEntity<CurrentGrid>();
+            var gridEntity = SystemAPI.GetSingleton<CurrentGrid>().Grid;
             var bounds = SystemAPI.GetComponent<GridStructure>(gridEntity).LocalAABB;
             if(math.any(bounds.Scale != _lastGridBounds.Scale))
                 RecreateTexture(bounds);

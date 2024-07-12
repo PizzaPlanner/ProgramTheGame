@@ -46,7 +46,7 @@ public class VariableRefElement : VisualElement, IMakeChipCode
             var dropdown = this.Q<DropdownField>();
             dropdown.choices = new[]{"No Parameter"}
                                .Concat(LogicParametersMappingSystem
-                                       .GetAllParameters(id).Where(x => !_isLeft || x.Access == LogicAccessType.ReadWrite)
+                                       .ParametersOf(id).Where(x => !_isLeft || x.Access == LogicAccessType.ReadWrite)
                                        .Select(x => x.Name.Value)).ToList();
             dropdown.value = dropdown.choices.Contains(dropdown.value) ? dropdown.value : dropdown.choices[0];
             if(dropdown.choices.Count == 1)

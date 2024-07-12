@@ -5,6 +5,13 @@ using Unity.Entities;
 
 namespace Units
 {
+    [InternalBufferCapacity(4)]
+    public struct Skills : IBufferElementData
+    {
+        public Identifieable Task;
+        public int Level;
+    }
+    
     [InternalBufferCapacity(5)]
     public struct ToDos : IBufferElementData
     {
@@ -12,13 +19,29 @@ namespace Units
         public TaskOutcome Status;
         public int PerceivedPriority;
 
-        public ToDos Prioritize(ComponentLookup<Task> rtl, TaskAffinities affinities)
+        public ToDos Prioritize(ComponentLookup<Task> rtl, ComponentLookup<TaskRequirement> requirementsLookup, DynamicBuffer<Skills> skills)
         {
-            if (Status == TaskOutcome.Rejected || !rtl.TryGetComponent(Task, out var task))
+            PerceivedPriority = int.MinValue;
+            if (!rtl.TryGetComponent(Task, out var task) || task.Target == Entity.Null)
             {
-                PerceivedPriority = int.MinValue;
+                Status = TaskOutcome.Unreachable;
                 return this;
             }
+            if(!requirementsLookup.TryGetComponent(Task, out var requirement))
+                PerceivedPriority = 0;
+            else
+            {
+                foreach (var skill in skills)
+                    if(skill.Task == requirement.Skill && skill.Level >= requirement.MinLevel)
+                        PerceivedPriority = 0;
+
+                if (PerceivedPriority != 0)
+                {
+                    Status = TaskOutcome.LackingSkill;
+                    return this;
+                }
+            }
+            
             PerceivedPriority = Status switch
             {
                 TaskOutcome.Approaching => 10,
@@ -37,22 +60,8 @@ namespace Units
                 TaskPriority.DirectCommand => 100,
                 _ => 0
             };
-            // if(affinities.Affinities.TryGetValue(task.Type, out var affinity))
-            //     PerceivedPriority += affinity switch
-            //     {
-            //         TaskAffinity.Refuses => int.MinValue,
-            //         TaskAffinity.Hates => -50,
-            //         TaskAffinity.Normal => 0,
-            //         TaskAffinity.Likes => 15,
-            //         _ => 0
-            //     };
             return this;
         }
-    }
-
-    public struct TaskAffinities : IComponentData
-    {
-        public UnsafeHashMap<Identifieable, TaskAffinity> Affinities;
     }
 
     public enum TaskOutcome
@@ -61,7 +70,8 @@ namespace Units
         UnderConsideration,
         Approaching,
         Working,
-        Rejected
+        LackingSkill,
+        Unreachable
     }
 
     public enum TaskAffinity

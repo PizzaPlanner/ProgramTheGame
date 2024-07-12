@@ -35,15 +35,15 @@ public struct Tag : IEquatable<Tag>
         return Id.GetHashCode();
     }
     
-    internal static readonly SharedStatic<NativeArray<TagList>> Library =
-        SharedStatic<NativeArray<TagList>>
+    internal static readonly SharedStatic<NativeParallelHashMap<Identifieable, TagList>> Library =
+        SharedStatic<NativeParallelHashMap<Identifieable, TagList>>
             .GetOrCreate<TagMappingSystem>();
     
     internal static readonly SharedStatic<NativeParallelMultiHashMap<Tag, Identifieable>> TagMap =
         SharedStatic<NativeParallelMultiHashMap<Tag, Identifieable>>
             .GetOrCreate<TagMappingSystem, TagList>();
 
-    public static TagList TagsOf(Identifieable id) => Library.Data[id.CurrentIndex];
+    public static TagList TagsOf(Identifieable id) => Library.Data[id];
 
     internal static NativeHashSet<Tag> AllTags
     {

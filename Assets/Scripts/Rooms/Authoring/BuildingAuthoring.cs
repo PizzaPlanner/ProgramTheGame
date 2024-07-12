@@ -41,9 +41,9 @@ public class BuildingAuthoring : MonoBehaviour
 
     void OnDrawGizmosSelected()
     {
-        Debug.DrawLine(float3.zero, new float3(0, 0, Size.y + 1));
-        Debug.DrawLine(float3.zero, new float3(Size.x + 1, 0, 0));
-        Debug.DrawLine(new float3(Size.x + 1, 0, Size.y + 1), new float3(Size.x + 1, 0, 0));
-        Debug.DrawLine(new float3(Size.x + 1, 0, Size.y + 1), new float3(0, 0, Size.y + 1));
+        Gizmos.DrawLine(float3.zero, new float3(0, 0, Size.y + 1));
+        Gizmos.DrawLine(float3.zero, new float3(Size.x + 1, 0, 0));
+        Gizmos.DrawLine(new float3(Size.x + 1, 0, Size.y + 1), new float3(Size.x + 1, 0, 0));
+        Gizmos.DrawLine(new float3(Size.x + 1, 0, Size.y + 1), new float3(0, 0, Size.y + 1));
     }
 }

@@ -7,7 +7,8 @@
         "Unity.Burst",
         "Unity.Collections",
         "Unity.Transforms",
-        "Identifiables"
+        "Identifiables",
+        "Core"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

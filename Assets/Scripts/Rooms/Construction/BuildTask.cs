@@ -1,4 +1,4 @@
-﻿using Unity.Entities;
+﻿    using Unity.Entities;
 using UnityEngine;
 
 namespace Units
@@ -15,7 +15,7 @@ namespace Units
                 if (!SystemAPI.HasComponent<UnderConstruction>(task.Origin))
                 {
                     ecb.DestroyEntity(e);
-                    return;
+                    continue;
                 }
                 
                 var uc = SystemAPI.GetComponentRW<UnderConstruction>(task.Origin);

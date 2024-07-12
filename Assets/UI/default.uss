@@ -397,6 +397,28 @@ SignalSelectionIdCollection > IntegerField {
     border-bottom-color: rgb(81, 174, 255);
 }
 
+UnitTaskList {
+    flex-direction: row;
+}
+
+UnitTaskList > UnitTaskButton.id-button {
+    height: 24px;
+    width: 24px;
+}
+
+UnitTaskList > UnitTaskButton.id-button.first {
+    height: 32px;
+    width: 32px;
+}
+
+UnitTaskButton.cancelable > #Frame {
+    border-color: rgb(230, 255, 27);
+}
+
+UnitTaskButton.cancelable:hover > #Frame {
+    border-width: 3px;
+}
+
 SelectionWheel {
     padding-top: 3px;
     padding-right: 3px;
@@ -430,4 +452,66 @@ SelectionWheelButton {
     border-right-width: 2px;
     border-bottom-width: 2px;
     border-left-width: 2px;
+}
+
+SystemView {
+    padding: 3px;
+}
+
+
+ShipUI {
+    min-height: 28px;
+    min-width: 50px;
+}
+ShipUI > #Header {
+    background-color: rgba(0, 0, 0, 0.2);
+    color: rgb(255, 255, 255);
+    flex-direction: row;
+}
+ShipUI.current-grid > #Header {
+    background-color: rgba(150, 100, 0, 0.4);
+}
+
+ShipUI > #Header > Button {
+    width: 16px;
+    height: 16px;
+}
+
+ShipUI > #Crew {
+    margin-left: 6px;
+    flex-direction: row;
+}
+ShipUI > #Docked {
+    margin-left: 6px;
+    flex-direction: column;
+}
+ShipUI SignalButton > IdentifiableButton#CurrentTask {
+    width: 24px;
+    height: 24px;
+    position: absolute;
+    bottom: -12px;
+    left: 5px;
+}
+
+BuildingBuildElement {
+    position: absolute;
+    bottom: 0;
+    flex-direction: row;
+    align-self: center;
+    padding: 10px;
+}
+
+Tooltip {
+    background-color: rgb(25, 35, 45);
+    border-color: rgb(67, 88, 102);
+    border-width: 1px;
+    color: rgb(255, 230, 230);
+    padding: 5px;
+}
+Tooltip > Label {
+    padding: 0;
+    margin: 3px;
+}
+TooltipTitle {
+    font-size: 16px;
 }

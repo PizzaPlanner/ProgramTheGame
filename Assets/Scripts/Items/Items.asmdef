@@ -11,7 +11,9 @@
         "Unity.Mathematics.Extensions",
         "Unity.Physics",
         "Identifiables",
-        "Chip"
+        "Chip",
+        "Tasks",
+        "Core"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

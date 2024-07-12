@@ -23,10 +23,7 @@ public struct BuildTool : ICursorTool
 
 }
 
-internal struct CurrentGhost : IComponentData
-{
-    public bool Buildable;
-}
+internal struct CurrentGhost : IComponentData { }
 
 partial class BuildToolUISystem : HotkeyToggleUISystem<BuildingBuildElement, BuildTool>
 {
@@ -55,18 +52,32 @@ partial class BuildToolUISystem : HotkeyToggleUISystem<BuildingBuildElement, Bui
     {
         var ecb = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>()
                            .CreateCommandBuffer(World.Unmanaged);
-        if (!SystemAPI.TryGetSingletonEntity<CurrentGrid>(out var parent))
+        if (!SystemAPI.TryGetSingleton<CurrentGrid>(out var cgrid))
         {
             ClearGhost(ecb);
             return;
         }
+        var parent = cgrid.Grid;
         
         var rooms = SystemAPI.GetComponent<RoomModel>(parent);
         var pointerOverUI = SystemAPI.HasSingleton<PointerOverUI>();
         var pointedCell = GridStructure.CursorToCell(SystemAPI.GetComponent<LocalToWorld>(parent));
-        var ghostQuery = GetEntityQuery(typeof(CurrentGhost), typeof(Parent));
+        var ghostQuery = GetEntityQuery(typeof(CurrentGhost), typeof(Building), typeof(Parent));
         if (!ghostQuery.IsEmptyIgnoreFilter)
         {
+            var canDrag = false;
+            var root = Entity.Null;
+            var entities = ghostQuery.ToEntityArray(Allocator.Temp);
+            var parents = ghostQuery.ToComponentDataArray<Parent>(Allocator.Temp);
+            for (int i = 0; i < entities.Length; i++)
+            {
+                if (!SystemAPI.HasComponent<CurrentGhost>(parents[i].Value))
+                {
+                    root = entities[i];
+                    canDrag = SystemAPI.GetComponent<Building>(root).DraggableDimension != PlacementType.Single;
+                }
+            }
+            
             if (BuildTool.PlaceBuilding.WasPressedThisFrame())
             {
                 if (!pointerOverUI)
@@ -102,9 +113,19 @@ partial class BuildToolUISystem : HotkeyToggleUISystem<BuildingBuildElement, Bui
             }
             else
             {
-                if(!BuildTool.PlaceBuilding.inProgress)
+
+                if (!BuildTool.PlaceBuilding.inProgress)
                     DragArea.Min = pointedCell;
-                if (math.any(pointedCell != DragArea.Max))
+                
+                if (root != Entity.Null && !canDrag)
+                {
+                    var trw = SystemAPI.GetComponentRW<LocalTransform>(root);
+                    trw.ValueRW.Position = GridStructure.CellToLocal(DragArea.Min);
+                    var grb = SystemAPI.GetComponentRW<GridBounds>(root);
+                    grb.ValueRW.Min = DragArea.Min; 
+                    DragArea.Max = DragArea.Min;
+                }
+                else if (math.any(pointedCell != DragArea.Max))
                 {
                     DragArea.Max = pointedCell;
                     var delta = new GridBounds
@@ -132,16 +153,24 @@ partial class BuildToolUISystem : HotkeyToggleUISystem<BuildingBuildElement, Bui
 
     void PlaceGhost(int2 cell, EntityCommandBuffer ecb, RoomModel rooms)
     {
-        var currentParent = SystemAPI.GetSingletonEntity<GridStructure>();
-        var e = ecb.Instantiate(GhostPrefab);
-        ecb.AddComponent(e, new Parent{Value = currentParent});
-        ecb.AddComponent<UnderConstruction>(e);
-        ecb.AddComponent<CurrentGhost>(e);
-        
-        var newBounds = SystemAPI.GetComponent<GridBounds>(GhostPrefab).WithOffset(cell); 
-        ecb.SetComponent(e, newBounds);
-        ecb.AddComponent(e, new FixGhostVisualsAndPhysicsSystem.FixGhostandChildren { GhostBuildable = !rooms.IsOccupied(newBounds) });
-        ecb.SetComponent(e, LocalTransform.FromPosition(GridStructure.CellCenterToLocal(cell)));
+        var currentParent = SystemAPI.GetSingleton<CurrentGrid>().Grid;
+        var plan = ecb.CreateEntity();
+        ecb.AddComponent(plan, new PlannedConstruction
+        {
+            Location = cell, 
+            Parent = currentParent,
+            Prefab = SystemAPI.GetComponent<Identifieable>(GhostPrefab),
+            IsPlacementMode = true
+        });
+        // var e = ecb.Instantiate(GhostPrefab);
+        // ecb.AddComponent(e, new Parent{Value = currentParent});
+        // ecb.AddComponent<UnderConstruction>(e);
+        // ecb.AddComponent<CurrentGhost>(e);
+        //
+        // var newBounds = SystemAPI.GetComponent<GridBounds>(GhostPrefab).WithOffset(cell); 
+        // ecb.SetComponent(e, newBounds);
+        // ecb.AddComponent(e, new FixGhostVisualsAndPhysicsSystem.F ixGhostandChildren { GhostBuildable = !rooms.IsOccupied(newBounds) });
+        // ecb.SetComponent(e, LocalTransform.FromPosition(GridStructure.CellCenterToLocal(cell)));
     }
 }
 

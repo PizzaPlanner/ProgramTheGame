@@ -22,6 +22,7 @@ public partial class UISystemGroup : ComponentSystemGroup
         base.OnCreate();
         Root = new VisualElement();
         Menu = new IngameMenu();
+        AddOverlay(new Tooltip());
     }
 
     // Because of Domain reload, dangling UI creates some weird situations

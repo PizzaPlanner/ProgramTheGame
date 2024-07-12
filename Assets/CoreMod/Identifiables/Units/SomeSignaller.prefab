@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 308810711421503718}
   - component: {fileID: -5942648328531916514}
   - component: {fileID: -7689310197241819319}
+  - component: {fileID: -3090611205173747411}
   m_Layer: 0
   m_Name: SomeSignaller
   m_TagString: Untagged
@@ -138,8 +139,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MaxStackSize: 1
-  BelongsToNetwork: {fileID: 0}
-  IdleTask: {fileID: 11400000, guid: 46ac7f1e7d7fb1c4abfc0a07a15331f8, type: 2}
 --- !u!114 &-7689310197241819319
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -150,6 +149,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 23a64bd7ff35410c9752960049af6e35, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &-3090611205173747411
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6595311514760627798}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 68a92fc250ef4511b43df6da7fdcee09, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1001 &3072592592385049462

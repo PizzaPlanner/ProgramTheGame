@@ -67,11 +67,6 @@ namespace Units
 
         protected override void OnUpdate()
         {
-            var localPlayer = SystemAPI.GetSingletonEntity<LocalPlayer>();
-            var selection = SystemAPI.GetBuffer<UnitGroup>(localPlayer);
-            
-            selectionUI.SetGroup(selection, ref CheckedStateRef);
-            
             if(SystemAPI.HasSingleton<PointerOverUI>())
                 return;
             
@@ -85,13 +80,29 @@ namespace Units
                 End = mouseRay.origin + mouseRay.direction * 100,
                 Filter = CollisionFilter.Default
             };
-            if(!collisionWorld.CastRay(input, out var hit) || !SystemAPI.HasComponent<Identifieable>(hit.Entity))
+            if (!collisionWorld.CastRay(input, out var hit) || !SystemAPI.HasComponent<Identifieable>(hit.Entity))
+            {
+                if (Hovered != Entity.Null)
+                {
+                    EntityManager.RemoveComponent<HoverIndicator>(GetEntityQuery(typeof(HoverIndicator)));
+                }
                 Hovered = Entity.Null;
+            }
             else
+            {
+                if (Hovered != hit.Entity)
+                {
+                    EntityManager.RemoveComponent<HoverIndicator>(GetEntityQuery(typeof(HoverIndicator)));
+                    EntityManager.AddComponent<HoverIndicator>(hit.Entity);
+                }
                 Hovered = hit.Entity;
+            }
             
-            var ecb = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>()
-                               .CreateCommandBuffer(World.Unmanaged);
+            var localPlayer = SystemAPI.GetSingletonEntity<LocalPlayer>();
+            var selection = SystemAPI.GetBuffer<UnitGroup>(localPlayer);
+            
+            selectionUI.SetGroup(selection, ref CheckedStateRef);
+            
             if (SelectTool.Select.WasPressedThisFrame() && Hovered != Entity.Null)
             {
                 if (!Input.GetKey(KeyCode.LeftShift))

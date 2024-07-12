@@ -1,5 +1,6 @@
 ﻿using Core;
 using Identifiables;
+using Identifiables.UI;
 using Programmable;
 using System;
 using System.Collections.Generic;
@@ -35,24 +36,18 @@ public struct ItemTypeLogicParameter
     }
 }
 
-public partial class LogicParametersMappingSystem : IdentifiableMappingSystem
+public partial class LogicParametersMappingSystem : IdentifiableMappingSystem, IWikiProvider
 {
-    static readonly SharedStatic<BlobAssetReference<BlobArray<BlobArray<ItemTypeLogicParameter>>>> TypeParameters =
-        SharedStatic<BlobAssetReference<BlobArray<BlobArray<ItemTypeLogicParameter>>>>.GetOrCreate<ItemTypeLogicParameter>();
+    // static readonly SharedStatic<BlobAssetReference<BlobArray<BlobArray<ItemTypeLogicParameter>>>> TypeParameters =
+    //     SharedStatic<BlobAssetReference<BlobArray<BlobArray<ItemTypeLogicParameter>>>>.GetOrCreate<ItemTypeLogicParameter>();
+    
+    static readonly SharedStatic<UnsafeHashMap<Identifieable, NativeArray<ItemTypeLogicParameter>>> TypeParameters2 =
+        SharedStatic<UnsafeHashMap<Identifieable, NativeArray<ItemTypeLogicParameter>>>.GetOrCreate<ItemTypeLogicParameter>();
     
     public static NativeList<TypeIndex> AllParameterTypeIndices { get; private set; }
-
-    public static NativeArray<ItemTypeLogicParameter> GetAllParameters(Identifieable id)
-    {
-        ref var parameters = ref ParametersOf(id);
-        var numIds = parameters.Length;
-        var array = new NativeArray<ItemTypeLogicParameter>(numIds, Allocator.Temp);
-        for (int i = 0; i < numIds; i++)
-            array[i] = parameters[i];
-        return array;
-    }
     
-    static ref BlobArray<ItemTypeLogicParameter> ParametersOf(Identifieable id) => ref TypeParameters.Data.Value[id.CurrentIndex];
+    public static NativeArray<ItemTypeLogicParameter> ParametersOf(Identifieable id) => TypeParameters2.Data.TryGetValue(id, out var array) ? array 
+        : new NativeArray<ItemTypeLogicParameter>(0, Allocator.Temp);
 
     public static bool TryGetLogicParameter(Identifieable id, int index, out ItemTypeLogicParameter data)
     {
@@ -64,6 +59,7 @@ public partial class LogicParametersMappingSystem : IdentifiableMappingSystem
     protected override void OnCreate()
     {
         AllParameterTypeIndices = new (Allocator.Persistent);
+        TypeParameters2.Data = new(0, Allocator.Persistent);
     }
 
     protected override void OnStartRunning()
@@ -75,8 +71,12 @@ public partial class LogicParametersMappingSystem : IdentifiableMappingSystem
 
     protected override void OnDestroy()
     {
-        if(TypeParameters.Data.IsCreated)
-            TypeParameters.Data.Dispose();
+        if (TypeParameters2.Data.IsCreated)
+        {
+            foreach(var array in TypeParameters2.Data.GetValueArray(Allocator.Temp))
+                array.Dispose();
+            TypeParameters2.Data.Dispose();
+        }
         AllParameterTypeIndices.Dispose();
     }
 
@@ -139,20 +139,13 @@ public partial class LogicParametersMappingSystem : IdentifiableMappingSystem
                 idTypeMap.Add(id, typeParams);
         }
         
-        var blobBuilder = new BlobBuilder(Allocator.Temp);
-        ref var root = ref blobBuilder.ConstructRoot<BlobArray<BlobArray<ItemTypeLogicParameter>>>();
-        var idArrayBuilder = blobBuilder.Allocate(ref root, IdentifiableLibrary.Length);
         foreach (var key in idTypeMap)
         {
-            var paramBuilder = blobBuilder.Allocate(ref idArrayBuilder[key.Key.CurrentIndex], key.Value.Count);
+            var array = new NativeArray<ItemTypeLogicParameter>(key.Value.Count, Allocator.Persistent);
             for (int i = 0; i < key.Value.Count; i++)
-            {
-                paramBuilder[i] = key.Value[i];
-            }
+                array[i] = key.Value[i];
+            TypeParameters2.Data[key.Key] = array;
         }
-        if(TypeParameters.Data.IsCreated)
-            TypeParameters.Data.Dispose();
-        TypeParameters.Data = blobBuilder.CreateBlobAssetReference<BlobArray<BlobArray<ItemTypeLogicParameter>>>(Allocator.Persistent);
     }
 
     LogicType TypeToLogicType(Type type)
@@ -166,15 +159,12 @@ public partial class LogicParametersMappingSystem : IdentifiableMappingSystem
         return LogicType.Number;
     }
 
-    public override VisualElement ProvideWikiDetails(Identifieable id)
+    public VisualElement ProvideWikiDetails(Identifieable id)
     {
-        var numParams = TypeParameters.Data.Value[id.CurrentIndex].Length;
-        if(numParams == 0)
+        var typeParams = ParametersOf(id);
+        if(typeParams.Length == 0)
             return null;
         
-        var typeParams = new ItemTypeLogicParameter[numParams];
-        for (int i = 0; i < numParams; i++)
-            typeParams[i] = ParametersOf(id)[i];
         var ve = new Foldout(){text = "Logic Parameters"};
         
         var mc = new MultiColumnListView();
@@ -208,7 +198,7 @@ public partial class LogicParametersMappingSystem : IdentifiableMappingSystem
         mc.columns.resizable = false;
         mc.columns.reorderable = false;
         mc.fixedItemHeight = 32;
-        mc.itemsSource = typeParams;
+        mc.itemsSource = typeParams.ToArray();
         ve.Add(mc);
         return ve;
     }

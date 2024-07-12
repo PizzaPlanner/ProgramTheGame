@@ -1,5 +1,4 @@
-﻿
-namespace Core.Status
+﻿namespace Core.Status
 {
     public struct Hungry : IStatus { }
     public struct Starving : IStatus { }

@@ -13,8 +13,9 @@ public struct PlannedConstruction : IComponentData
     public Identifieable Prefab;
     public Cell Location;
     public byte Rotation;
-    public bool IsGhost => Materials.Length > 0;
+    public bool IsGhost => Materials.Length > 0 || IsPlacementMode;
     public FixedList64Bytes<BuildMaterials> Materials;
+    public bool IsPlacementMode;
     // public FixedString64Bytes Name;
     
     public LocalTransform ToTransform => LocalTransform.FromPosition(GridStructure.CellCenterToLocal(Location));
@@ -27,6 +28,7 @@ public partial struct BuildJob : IJobEntity
     [NativeDisableContainerSafetyRestriction] public ComponentLookup<RoomModel> roomLookup;
     [ReadOnly] public ComponentLookup<GridBounds> boundsLookup;
     [ReadOnly] public ComponentLookup<Building> buildingLookup;
+    [ReadOnly] public ComponentLookup<Ghost> ghostLookup;
     public ComponentLookup<GridStructure> structureLookup;
 
     void Execute(Entity e, in PlannedConstruction planned)
@@ -37,8 +39,13 @@ public partial struct BuildJob : IJobEntity
         var prefab = planned.Prefab.SpawnablePrefab;
         if (prefab == Entity.Null || !boundsLookup.TryGetComponent(prefab, out var bounds))
         {
-            Debug.LogWarning($"Discarded invalid pending part with ID {planned.Prefab.StableId}");
-            return;
+            if(structureLookup.TryGetComponent(prefab, out var s))
+                bounds = s.LocalAABB;
+            else
+            {
+                Debug.LogWarning($"Discarded invalid pending part with ID {planned.Prefab.StableId}");
+                return;
+            }
         }
         if (!roomLookup.TryGetComponent(planned.Parent, out var Rooms))
         {
@@ -52,27 +59,41 @@ public partial struct BuildJob : IJobEntity
             Max = (int2)planned.Location + bounds.Max,
         };
         
-        if (Rooms.IsOccupied(area))
+        if (Rooms.IsOccupied(area) && !planned.IsPlacementMode)
         {
             Debug.LogWarning($"Discarded pending part in invalid or occupied area {bounds.Min}/{bounds.Max}");
             return;
         }
         
-        var building = buildingLookup[prefab];
+        if (!buildingLookup.TryGetComponent(prefab, out var building))
+        {
+            Debug.Log($"Discarded pending part that is not a building");
+            return;
+        }
+        
+        var isPlacing = planned.IsPlacementMode || ghostLookup.HasComponent(planned.Parent); 
 
         // Create Part
         var entity = ecb.Instantiate(prefab);
         ecb.SetComponent(entity, planned.ToTransform);
-        ecb.AddComponent(entity, new Parent { Value = planned.Parent });
         ecb.SetComponent(entity, area);
+        ecb.AddComponent(entity, new Parent { Value = planned.Parent });
+        if(!isPlacing)
+            ecb.SetComponent(entity, new OnGrid { Grid = planned.Parent });
         
-        if(building.Layer != BuildingLayer.Floor)
+        if(building.Layer != BuildingLayer.Floor && !isPlacing)
             Rooms.AddOccupiedArea(area);
-        if (planned.IsGhost)
+
+        if (isPlacing)
         {
+            ecb.AddComponent<CurrentGhost>(entity);
+            ecb.AddComponent(entity, new Ghost { GhostBuildable = !Rooms.IsOccupied(area) });
+        }
+        else if (planned.IsGhost)
+        {
+
             CreateBuildTasks(planned, entity, building);
-            ecb.AddComponent(entity,
-                new FixGhostVisualsAndPhysicsSystem.FixGhostandChildren { GhostBuildable = true });
+            ecb.AddComponent(entity, new Ghost { GhostBuildable = true });
         }
         else
         {
@@ -95,7 +116,8 @@ public partial struct BuildJob : IJobEntity
         {
             Target = entity, 
             Priority = TaskPriority.MediumPriority,
-            Origin = entity
+            Origin = entity,
+            CrewProvider = planned.Parent
         });
         ecb.AddComponent(entity, new UnderConstruction
         {
@@ -107,12 +129,14 @@ public partial struct BuildJob : IJobEntity
             ecb.SetComponent(order, new Task
             {
                 Priority = TaskPriority.MediumPriority,
-                Origin = entity
+                Origin = entity,
+                CrewProvider = planned.Parent
             });
             ecb.SetComponent(order, new ItemOrderTask
             {
                 Amount = requirement.Amount, 
-                Item = requirement.Item
+                Item = requirement.Item,
+                ParentGrid = planned.Parent
             });
             ecb.AppendToBuffer(constructTask, new TaskDependencies
             {

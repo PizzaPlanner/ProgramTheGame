@@ -30,10 +30,8 @@ public class ItemButton : IdentifiableButton
     public ItemButton()
     {
         AddToClassList("item-button");
-        var icon = new VisualElement{name = "Icon"};
         var label = new Label("Test") { name = "Name" };
         var stack = new Label("x10") { name = "Stack" };
-        Add(icon);
         Add(label);
         Add(stack);
     }

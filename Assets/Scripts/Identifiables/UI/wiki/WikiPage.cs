@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Unity.Entities;
@@ -56,7 +57,7 @@ namespace Identifiables.UI
                 if(mappingSystem is IdentifiableMappingSystem s)
                     _onOpenDetails += page =>
                     {
-                        var details = s.ProvideWikiDetails(page.Content);
+                        var details = s is IWikiProvider wp ? wp.ProvideWikiDetails(page.Content) : DefaultWikiDetails(page.Content, s.Relations);
                         if(details != null)
                             page.AddDetails(details);
                     };
@@ -64,7 +65,26 @@ namespace Identifiables.UI
             this.Q<LandingPage>().Init();
             didInit = Identifieable.All.Length > 0;
         }
-        
+
+        static VisualElement DefaultWikiDetails(Identifieable id, Dictionary<Identifieable, List<IdentifiableMappingSystem.IdentifiableLink>> Relations)
+        {
+            if(!Relations.TryGetValue(id, out var relations))
+                return null;
+            var perRelationLookup = new Dictionary<string, VisualElement>();
+            var details = new VisualElement();
+            foreach (var relation in relations)
+            {
+                if (!perRelationLookup.TryGetValue(relation.Relation, out var foldout))
+                {
+                    foldout = new Foldout{name = relation.Relation, text = relation.Relation};
+                    perRelationLookup[relation.Relation] = foldout;
+                    details.Add(foldout);
+                }
+                foldout.Add(new WikiSearchResultButton(relation.To));
+            }
+            return details;
+        }
+
         Action<DetailPage> _onOpenDetails;
     }
 }

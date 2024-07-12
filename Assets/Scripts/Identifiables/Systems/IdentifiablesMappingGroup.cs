@@ -1,6 +1,7 @@
 using Identifiables;
 using Lookups;
 using System.Collections.Generic;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Transforms;
@@ -11,6 +12,10 @@ using UnityEngine;
 public partial class IdentifiablesMappingGroup : ComponentSystemGroup
 {
     EntityQuery query, idQuery;
+    
+    internal static readonly SharedStatic<NativeParallelHashMap<ulong, IdentifiableData>> TagMap =
+        SharedStatic<NativeParallelHashMap<ulong, IdentifiableData>>
+            .GetOrCreate<IdentifiablesMappingGroup>();
     
     public struct Mapped : IComponentData { }
     
@@ -25,6 +30,15 @@ public partial class IdentifiablesMappingGroup : ComponentSystemGroup
                            .WithOptions(EntityQueryOptions.IncludePrefab).Build();
         RequireForUpdate(query);
         LoadedMods = new();
+        TagMap.Data = new(0, Allocator.Persistent);
+    }
+    
+    internal static IdentifiableData Find(ulong Value) => TagMap.Data.TryGetValue(Value, out var item) ? item : default; 
+
+    protected override void OnDestroy()
+    {
+        if(TagMap.Data.IsCreated)
+            TagMap.Data.Dispose();
     }
     
     List<ulong> LoadedMods; 
@@ -46,7 +60,7 @@ public partial class IdentifiablesMappingGroup : ComponentSystemGroup
     {
         var modId = SystemAPI.GetComponent<Identifieable>(mod).StableId;
         var modDef = SystemAPI.GetComponent<ModDefinition>(mod);
-        if (LoadedMods.Contains(modId))
+        if (LoadedMods.Contains(modId) && Application.isPlaying)
         {
             Debug.Log($"Skipped loading Mod {modDef.Name}, since it is already loaded");
             EntityManager.DestroyEntity(mod);
@@ -55,26 +69,6 @@ public partial class IdentifiablesMappingGroup : ComponentSystemGroup
         var modContent = SystemAPI.GetBuffer<LinkedEntityGroup>(mod).ToNativeArray(Allocator.Temp);
         
         var takenIds = new NativeHashSet<ulong>(0, Allocator.Temp);
-        BlobBuilderArray<IdentifiableData> arrayBuilder;
-        BlobBuilder builder;
-        var builderIdOffset = 1;
-        if (SystemAPI.TryGetSingleton<IdentifiableLibrary.TComponent>(out var oldIds))
-        {
-            builderIdOffset = oldIds.Data.Value.Data.Length;
-            builder = IdentifiableLibrary.MakeBuilder(modContent.Length + builderIdOffset, out arrayBuilder);
-            for (int i = 1; i < oldIds.Data.Value.Data.Length; i++)
-            {
-                arrayBuilder[i] = oldIds.Data.Value.Data[i];
-                takenIds.Add(arrayBuilder[i].AssetGuid);
-            }
-            oldIds.Data.Dispose();
-            EntityManager.DestroyEntity(SystemAPI.GetSingletonEntity<IdentifiableLibrary.TComponent>());
-        }
-        else
-        {
-            builder = IdentifiableLibrary.MakeBuilder(modContent.Length + builderIdOffset, out arrayBuilder);
-        }
-        
         for(int i = 0; i < modContent.Length; i++)
         {
             var e = modContent[i].Value;
@@ -88,24 +82,19 @@ public partial class IdentifiablesMappingGroup : ComponentSystemGroup
                 Debug.LogError($"ID {preId.AssetGuid} used by '{preId.TranslationKey}' is already taken!");
             else
             {
-                arrayBuilder[i + builderIdOffset] = new IdentifiableData
+                TagMap.Data[preId.AssetGuid] = new IdentifiableData
                 {
                     Icon = preId.Icon.Value,
                     SpawnablePrefab = preId.Prefab,
                     DefaultName = preId.Name,
                     AssetGuid = preId.AssetGuid
                 };
-                takenIds.Add(arrayBuilder[i + builderIdOffset].AssetGuid);
+                takenIds.Add(preId.AssetGuid);
 #if UNITY_EDITOR
                 EntityManager.SetName(e, preId.Name.Value);
 #endif
             }
         }
-        var blobAsset = builder.CreateBlobAssetReference<IdentifiableLibrary.TLibrary>(Allocator.Persistent);
-        EntityManager.CreateSingleton(new LibraryAsset<IdentifiableData>.TComponent
-        {
-            Data = blobAsset
-        });
         Debug.Log($"Loaded Mod {modDef.Name} with {modContent.Length} IDs");
         LoadedMods.Add(modId);
     }

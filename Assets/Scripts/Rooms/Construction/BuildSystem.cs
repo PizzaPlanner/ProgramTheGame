@@ -1,7 +1,9 @@
 using Identifiables;
 using Unity.Burst;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Transforms;
+using UnityEngine;
 
 partial struct BuildSystem : ISystem
 {
@@ -16,28 +18,15 @@ partial struct BuildSystem : ISystem
     {
         var ecb = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>()
                            .CreateCommandBuffer(state.WorldUnmanaged);
-        
-        // Spawn buildings and ghosts based on planned constructions
-        new BuildJob()
-        {
-            ecb = ecb,
-            constructTaskPrefab = Identifieable.FromName("BuildTask").SpawnablePrefab,
-            orderTaskPrefab = Identifieable.FromName("ItemOrderTask").SpawnablePrefab,
-            boundsLookup = SystemAPI.GetComponentLookup<GridBounds>(true),
-            roomLookup = SystemAPI.GetComponentLookup<RoomModel>(false),
-            structureLookup = SystemAPI.GetComponentLookup<GridStructure>(false),
-            buildingLookup = SystemAPI.GetComponentLookup<Building>(true)
-                
-        }.Run();
 
         // Recreate finished constructions as non-ghosts
         foreach (var (id, bounds, parent, underConstruction, e) in 
                  SystemAPI.Query<Identifieable, GridBounds, Parent, UnderConstruction>()
-                                                 .WithEntityAccess()
-                                                 .WithNone<PendingItemOrders, CurrentGhost>())
+                          .WithEntityAccess()
+                          .WithNone<CurrentGhost>())
         {
             if(underConstruction.Duration > 0)
-                return;
+                continue;
             
             var roomModel = SystemAPI.GetComponent<RoomModel>(parent.Value);
             roomModel.FreeOccupation(bounds);
@@ -51,11 +40,12 @@ partial struct BuildSystem : ISystem
             });
         }
         
+        var ecbNow = new EntityCommandBuffer(Allocator.Temp);
         // Remove dangling rooms
         foreach (var (model, e) in SystemAPI.Query<RoomModel>().WithNone<LocalToWorld>().WithEntityAccess())
         {
             model.Dispose();
-            ecb.RemoveComponent<RoomModel>(e);
+            ecbNow.RemoveComponent<RoomModel>(e);
         }
 
         // Initialize new rooms
@@ -63,8 +53,9 @@ partial struct BuildSystem : ISystem
         {
             var roomModel = new RoomModel();
             roomModel.Initialize();
-            ecb.AddComponent(e, roomModel);
+            ecbNow.AddComponent(e, roomModel);
         }
+        ecbNow.Playback(state.EntityManager);
         
         // Calculate rooms
         new GridRoomRecalculationJob
@@ -73,5 +64,19 @@ partial struct BuildSystem : ISystem
         }.Run();
         
         state.EntityManager.RemoveComponent<PendingGridUpdate>(state.GetEntityQuery(ComponentType.ReadOnly<PendingGridUpdate>()));
+        
+        // Spawn buildings and ghosts based on planned constructions
+        new BuildJob()
+        {
+            ecb = ecb,
+            constructTaskPrefab = Identifieable.FromName("BuildTask").SpawnablePrefab,
+            orderTaskPrefab = Identifieable.FromName("ItemOrderTask").SpawnablePrefab,
+            boundsLookup = SystemAPI.GetComponentLookup<GridBounds>(true),
+            roomLookup = SystemAPI.GetComponentLookup<RoomModel>(false),
+            structureLookup = SystemAPI.GetComponentLookup<GridStructure>(false),
+            buildingLookup = SystemAPI.GetComponentLookup<Building>(true),
+            ghostLookup = SystemAPI.GetComponentLookup<Ghost>(true)
+                
+        }.Run();
     }
 }

@@ -15,7 +15,7 @@ partial struct RoomGridOverlaySystem : ISystem
 
     public void OnUpdate(ref SystemState state)
     {
-        var gridEntity = SystemAPI.GetSingletonEntity<CurrentGrid>();
+        var gridEntity = SystemAPI.GetSingleton<CurrentGrid>().Grid;
         if(!SystemAPI.HasComponent<RoomModel>(gridEntity))
             return;
         

@@ -23,7 +23,8 @@
         "Core.Input",
         "Modding.API",
         "Rooms",
-        "Tasks"
+        "Tasks",
+        "Equipment.UI"
 
     ],
     "includePlatforms": [],

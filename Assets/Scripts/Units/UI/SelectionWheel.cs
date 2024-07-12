@@ -1,6 +1,7 @@
 ﻿using Equipment;
 using Identifiables;
 using System;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
@@ -39,19 +40,17 @@ namespace Units
             wheel._entityManager = state.EntityManager;
             wheel._origin = origin;
             wheel._target = target;
+            var skills = state.EntityManager.GetBuffer<Skills>(origin, true).AsNativeArray();
             if (state.EntityManager.HasComponent<Infestable>(target))
-                wheel.Add(new SelectionWheelButton("Infest", wheel.OnClick));
+                wheel.Add(new SelectionWheelButton("InfestTask", skills, state.EntityManager, wheel.OnClick));
             if (state.EntityManager.HasComponent<Mineable>(target))
-                wheel.Add(new SelectionWheelButton("Mine", wheel.OnClick));
+                wheel.Add(new SelectionWheelButton("MineTask", skills, state.EntityManager, wheel.OnClick));
             if (state.EntityManager.HasComponent<UnderConstruction>(target))
-                wheel.Add(new SelectionWheelButton("BuildTask", wheel.OnClick));
-            wheel.Add(new SelectionWheelButton("Approach", wheel.OnClick));
+                wheel.Add(new SelectionWheelButton("BuildTask", skills, state.EntityManager, wheel.OnClick));
+            wheel.Add(new SelectionWheelButton("ApproachTask", skills,state.EntityManager,  wheel.OnClick));
 
             if (wheel.childCount == 0)
-            {
-                Debug.Log($"Schade, nothing to do on {target}");
-                UISystemGroup.Hide(wheel);   
-            }
+                UISystemGroup.Hide(wheel);
             else
                 wheel.Focus();
         }
@@ -78,10 +77,19 @@ namespace Units
 
     public class SelectionWheelButton : Label
     {
-        public SelectionWheelButton(string taskId, Action<Identifieable> onClick)
+        public SelectionWheelButton(string taskId, NativeArray<Skills> originSkills, EntityManager em, Action<Identifieable> onClick)
         {
+            var tid = Identifieable.FromName(taskId);
+            if (em.HasComponent<TaskRequirement>(tid.SpawnablePrefab))
+            {
+                style.display = DisplayStyle.None;
+                var requiredSkills = em.GetComponentData<TaskRequirement>(tid.SpawnablePrefab);
+                foreach(var skill in originSkills)
+                    if(skill.Task == requiredSkills.Skill && skill.Level >= requiredSkills.MinLevel)
+                        style.display = DisplayStyle.Flex;
+            }
             text = taskId;
-            RegisterCallback<MouseDownEvent>(_ => onClick(Identifieable.FromName(taskId)));
+            RegisterCallback<MouseDownEvent>(_ => onClick(tid));
         }
     }
 }

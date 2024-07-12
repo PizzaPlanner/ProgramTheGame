@@ -1,4 +1,6 @@
-﻿using Programmable;
+﻿using Identifiables;
+using Programmable;
+using Units;
 using Unity.Entities;
 
 public partial struct Miner : IChipTargetable
@@ -14,11 +16,17 @@ partial struct MiningSystem : ISystem
     public void OnUpdate(ref SystemState state)
     {
         var store = SystemAPI.GetSingleton<TransactionStore>();
-        foreach (var (miner, targeter, equipped) in SystemAPI.Query<RefRW<Miner>, EntityTargeter, Equipped>())
+        foreach (var (miner, equipped) in SystemAPI.Query<RefRW<Miner>, Equipped>())
         {
-            miner.ValueRW.CanMineTarget = targeter.Target != Entity.Null 
-                                          && miner.ValueRW.MinerRange >= targeter.DistanceToTarget
-                                          && SystemAPI.HasComponent<Mineable>(targeter.Target);
+            var todos = SystemAPI.GetBuffer<ToDos>(equipped.Wearer);
+            if(todos.Length == 0)
+                continue;
+            var task = SystemAPI.GetComponent<Task>(todos[0].Task);
+            var id = SystemAPI.GetComponent<Identifieable>(todos[0].Task);
+            miner.ValueRW.CanMineTarget = task.Target != Entity.Null 
+                                          && SystemAPI.HasComponent<Mineable>(task.Target)
+                                          && id == Identifieable.FromName("MineTask")
+                                          && SystemAPI.IsComponentEnabled<WorkedOn>(todos[0].Task);
 
             if (!miner.ValueRW.CanMineTarget)
             {
@@ -30,7 +38,7 @@ partial struct MiningSystem : ISystem
                 continue;
             
             miner.ValueRW.ReadyIn = miner.ValueRW.Cooldown;
-            var mineable = SystemAPI.GetComponentRW<Mineable>(targeter.Target);
+            var mineable = SystemAPI.GetComponentRW<Mineable>(task.Target);
             // TODO: Dont reduce mineable amount if transaction fails
             store.CreateBuilder.AddTo(equipped.Wearer, mineable.ValueRW.MinedItem, 1);
             mineable.ValueRW.AmountLeft--;

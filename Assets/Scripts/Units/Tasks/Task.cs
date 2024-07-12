@@ -11,11 +11,24 @@ namespace Units
         public Entity Executor;
         public Entity Origin;
         public bool IsPersonalized;
+        public Entity CrewProvider;
+    }
+
+    public struct TaskRequirement : IComponentData
+    {
+        public Identifieable Skill;
+        public int MinLevel;
     }
 
     [InternalBufferCapacity(1)]
     public struct TaskDependencies : IBufferElementData
     {
         public Entity Dependency;
+    }
+    
+    [InternalBufferCapacity(4)]
+    public struct BroadcastStatus : IBufferElementData
+    {
+        public Entity BroadcastedTo;
     }
 }

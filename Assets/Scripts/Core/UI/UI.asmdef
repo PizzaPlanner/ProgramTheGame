@@ -8,10 +8,10 @@
         "Unity.Burst",
         "Unity.Collections",
         "Unity.Entities.Graphics",
-        "Unity.Mathematics.Extensions",
         "Unity.Addressables",
         "Unity.ResourceManager",
         "Unity.InputSystem",
+        "Identifiables",
         "Core.Input",
         "Core"
     ],

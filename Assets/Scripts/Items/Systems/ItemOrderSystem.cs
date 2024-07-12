@@ -113,24 +113,24 @@ partial struct OrderJob : IJobEntity
     }
 }
 
-[UpdateAfter(typeof(LogisticsNetworkSystem))]
-[UpdateBefore(typeof(TransformSystemGroup))]
-partial struct ItemOrderSystem : ISystem
-{
-    public void OnCreate(ref SystemState state)
-    {
-        state.RequireForUpdate<LogisticsNetwork>();
-    }
-
-    public void OnUpdate(ref SystemState state)
-    {
-        state.CompleteDependency();
-        new OrderJob
-        {
-            ltwLookup = SystemAPI.GetComponentLookup<LocalToWorld>(true),
-            network = SystemAPI.GetSingleton<LogisticsNetwork>(),
-            ecb = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>().CreateCommandBuffer(state.WorldUnmanaged),
-            store = SystemAPI.GetSingleton<TransactionStore>()
-        }.Run();       
-    }
-}
+// [UpdateAfter(typeof(LogisticsNetworkSystem))]
+// [UpdateBefore(typeof(TransformSystemGroup))]
+// partial struct ItemOrderSystem : ISystem
+// {
+//     public void OnCreate(ref SystemState state)
+//     {
+//         state.RequireForUpdate<LogisticsNetwork>();
+//     }
+//
+//     public void OnUpdate(ref SystemState state)
+//     {
+//         state.CompleteDependency();
+//         new OrderJob
+//         {
+//             ltwLookup = SystemAPI.GetComponentLookup<LocalToWorld>(true),
+//             network = SystemAPI.GetSingleton<LogisticsNetwork>(),
+//             ecb = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>().CreateCommandBuffer(state.WorldUnmanaged),
+//             store = SystemAPI.GetSingleton<TransactionStore>()
+//         }.Run();       
+//     }
+// }

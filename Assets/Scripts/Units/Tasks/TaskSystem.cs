@@ -1,4 +1,4 @@
-﻿using Unity.Collections;
+﻿using Core.Grid;
 using Unity.Entities;
 
 namespace Units
@@ -7,23 +7,24 @@ namespace Units
     {
         public void OnUpdate(ref SystemState state)
         {
-            var workerQuery = SystemAPI.QueryBuilder().WithAll<ToDos>().Build();
-            var workers = workerQuery.ToEntityArray(Allocator.TempJob);
             var taskLookup = SystemAPI.GetComponentLookup<Task>(true);
+            var requirementLookup = SystemAPI.GetComponentLookup<TaskRequirement>(true);
+            var crewLookup = SystemAPI.GetBufferLookup<Crew>(true);
+            var ecb = SystemAPI.GetSingleton<BeginInitializationEntityCommandBufferSystem.Singleton>()
+                               .CreateCommandBuffer(state.WorldUnmanaged).AsParallelWriter();
             state.Dependency = new TodoPriorityJob
             {
+                requirementLookup = requirementLookup,
                 taskLookup = taskLookup,
                 workedOnLookup = SystemAPI.GetComponentLookup<WorkedOn>(true)
             }.ScheduleParallel(state.Dependency);
             state.Dependency = new TaskRequestJob
             {
                 todoLookup = SystemAPI.GetBufferLookup<ToDos>(),
-                upForWork = workers,
                 storageLookup = SystemAPI.GetEntityStorageInfoLookup(),
-                ecb = SystemAPI.GetSingleton<BeginInitializationEntityCommandBufferSystem.Singleton>()
-                               .CreateCommandBuffer(state.WorldUnmanaged).AsParallelWriter()
+                crewLookup = crewLookup,
+                ecb = ecb
             }.ScheduleParallel(state.Dependency);
-            workers.Dispose(state.Dependency);
         }
     }
 }
