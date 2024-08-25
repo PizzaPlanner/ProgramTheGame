@@ -19,7 +19,9 @@
         "Core.UI",
         "Chip",
         "Items.Systems",
-        "Modding.API"
+        "Modding.API",
+        "Units.UI",
+        "Construction"
 
     ],
     "includePlatforms": [],

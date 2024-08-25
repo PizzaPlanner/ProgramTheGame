@@ -1,7 +1,6 @@
 ﻿using Core.Grid;
 using Units;
 using Unity.Entities;
-using UnityEngine;
 
 public class UnitAuthoring : ItemAuthoring
 {
@@ -14,11 +13,9 @@ public class UnitAuthoring : ItemAuthoring
             {
                 MaxStack = 1
             });
-            AddBuffer<ToDos>(e);
-            AddBuffer<Skills>(e);
             AddComponent<Unit>(e);
             AddComponent<CrewMember>(e);
-            AddComponent<CanTransportItemOrders>(e);
+            AddBuffer<Statuses>(e);
         }
     }
 }

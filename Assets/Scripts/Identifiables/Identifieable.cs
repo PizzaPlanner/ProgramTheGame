@@ -37,10 +37,10 @@ namespace Identifiables
             return Value == other.Value;
         }
 
-        // public override string ToString()
-        // {
-        //     return $"Id[{Value.Value}]({Value.DefaultName})";
-        // }
+        public override string ToString()
+        {
+            return $"Id[{Value}]({DefaultName})";
+        }
     }
 
     public partial struct Identifieable

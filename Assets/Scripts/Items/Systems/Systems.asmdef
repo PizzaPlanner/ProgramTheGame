@@ -12,7 +12,9 @@
         "Chip",
         "Modding.API",
         "Identifiables.UI",
-        "Core"
+        "Core",
+        "Construction",
+        "Tasks"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

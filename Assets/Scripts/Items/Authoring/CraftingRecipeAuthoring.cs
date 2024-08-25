@@ -32,7 +32,7 @@ public class CraftingRecipeAuthoring : MonoBehaviour
             var self = GetEntity(TransformUsageFlags.None);
             AddComponent(self, new CraftingRecipe
             {
-                Duration = (int)(authoring.Duration * 20)
+                Duration = authoring.Duration
             });
             var inBuffer = AddBuffer<CraftingInput>(self);
             foreach (var thing in authoring.Input)

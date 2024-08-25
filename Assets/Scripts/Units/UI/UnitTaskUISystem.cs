@@ -1,5 +1,8 @@
 ﻿using Identifiables;
 using Identifiables.UI;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Unity.Entities;
 using UnityEngine.UIElements;
 
@@ -9,18 +12,41 @@ namespace Units
     {
         protected override void OnUpdate()
         {
-            foreach (var (todos, ui, e) in SystemAPI.Query<DynamicBuffer<ToDos>, SelectionUI>().WithEntityAccess())
+            var ecb = SystemAPI.GetSingleton<BeginInitializationEntityCommandBufferSystem.Singleton>().CreateCommandBuffer(World.Unmanaged);
+            foreach (var (todos, e) in SystemAPI.Query<DynamicBuffer<ToDos>>().WithAll<Selected>().WithEntityAccess())
             {
-                if(ui.UI == null)
-                    continue;
-                
-                var window = ui.UI.Q<UnitTaskList>();
+                if(!UISystemGroup.TryGet<SelectedUnitElement>(out var ui))
+                    return;
+            
+                var window = ui.Q<UnitTaskList>();
                 if (window == null)
                 {
                     window = new UnitTaskList();
-                    ui.UI.Add(window);
+                    ui.Add("ToDos", window);
                 }
+                
                 window.Update(e, todos, SystemAPI.GetComponentLookup<Task>(true), SystemAPI.GetComponentLookup<Identifieable>(true));
+            }
+            foreach (var (orders, e) in SystemAPI.Query<DynamicBuffer<TaskProvider>>().WithAll<Selected>().WithEntityAccess())
+            {
+                if(!UISystemGroup.TryGet<SelectedUnitElement>(out var ui))
+                    return;
+            
+                var window = ui.Q<UnitOrderList>();
+                if (window == null)
+                {
+                    window = new UnitOrderList();
+                    ui.Add("Orders", window);
+                }
+                
+                window.Update(ecb, orders, 
+                    SystemAPI.GetComponentLookup<Task>(true),
+                    SystemAPI.GetBufferLookup<TaskProvider>(true),
+                    SystemAPI.GetComponentLookup<TaskProgress>(true),
+                    SystemAPI.GetComponentLookup<Identifieable>(true),
+                    SystemAPI.GetBufferLookup<BroadcastStatus>(true),
+                    SystemAPI.GetBufferLookup<ToDos>(true)
+                    );
             }
         }
     }
@@ -43,22 +69,7 @@ namespace Units
                 
                 var taskBtn = this[q] as UnitTaskButton;
                 taskBtn.Target = id;
-                if(task.Priority == TaskPriority.DirectCommand)
-                    taskBtn.AddToClassList("cancelable");
-                else
-                    taskBtn.RemoveFromClassList("cancelable");
-                if(q == 0)
-                    taskBtn.AddToClassList("first");
-                else
-                    taskBtn.RemoveFromClassList("first");
-                if (taskBtn.wantCancel && task.Priority == TaskPriority.DirectCommand)
-                {
-                    taskBtn.wantCancel = false;
-                    todos.RemoveAt(i--);
-                    taskBtn.RemoveFromHierarchy();
-                }
-                else
-                    q++;
+                q++;
             }
 
             for (int j = q; j < childCount; j++)
@@ -73,6 +84,113 @@ namespace Units
         public UnitTaskButton()
         {
             RegisterCallback<MouseDownEvent>(_ => wantCancel = true);
+        }
+    }
+    
+    class UnitOrderList : VisualElement
+    {
+        public void Update(EntityCommandBuffer ecb, DynamicBuffer<TaskProvider> orders, ComponentLookup<Task> taskLookup, 
+                           BufferLookup<TaskProvider> dependencies, ComponentLookup<TaskProgress> progresses, 
+                           ComponentLookup<Identifieable> idLookup, BufferLookup<BroadcastStatus> broadcastLookup, BufferLookup<ToDos> todoLookup)
+        {
+            var q = 0;
+            for (int i = 0; i < orders.Length; i++)
+                AddOrUpdateTask(orders[i].Task);
+
+            for (int j = q; j < childCount; j++)
+                this[j].RemoveFromHierarchy();
+            
+            
+            void AddOrUpdateTask(Entity taskEntity)
+            {
+                if (dependencies.TryGetBuffer(taskEntity, out var deps))
+                {
+                    foreach(var dependency in deps)
+                        AddOrUpdateTask(dependency.Task);
+                }
+                
+                if (childCount <= q)
+                {
+                    var btn = new UnitOrderButton();
+                    Add(btn);
+                }
+                if(!taskLookup.TryGetComponent(taskEntity, out var task))
+                    return;
+                var id = idLookup[taskEntity];
+                
+                var orderBtn = this[q] as UnitOrderButton;
+                orderBtn.TaskButton.Target = id;
+                
+                if(task.Priority == TaskPriority.DirectCommand)
+                    orderBtn.TaskButton.AddToClassList("cancelable");
+                else
+                    orderBtn.TaskButton.RemoveFromClassList("cancelable");
+                if (orderBtn.TaskButton.wantCancel && task.Priority == TaskPriority.DirectCommand)
+                {
+                    orderBtn.TaskButton.wantCancel = false;
+                    ecb.DestroyEntity(taskEntity);
+                }
+                else
+                    q++;
+                
+                if(progresses.TryGetComponent(taskEntity, out var progress))
+                    orderBtn.Progress = progress;
+                else
+                    orderBtn.Progress = default;
+                
+                if(deps.Length > 0)
+                    orderBtn.AddToClassList("has-dependencies");
+                else
+                    orderBtn.RemoveFromClassList("has-dependencies");
+                if(deps.Length > 0)
+                    orderBtn.Text.text = "Waiting for Requirements";
+                else if(task.IsPersonalized)
+                    orderBtn.Text.text = "Doing it myself";
+                else
+                {
+                    var text = "";
+                    foreach(var target in broadcastLookup[taskEntity].AsNativeArray())
+                        for (var i = 0; i < todoLookup[target.BroadcastedTo].Length; i++)
+                        {
+                            var todo = todoLookup[target.BroadcastedTo][i];
+                            if (todo.Task == taskEntity)
+                                text += $"{idLookup[target.BroadcastedTo].DefaultName}: {todo.Status} (#{i})\n";
+                        }
+
+                    if(text == "")
+                        orderBtn.Text.text = "No one can do this";
+                    else
+                        orderBtn.Text.text = text;
+                }
+            }
+        }
+
+    }
+
+    class UnitOrderButton : VisualElement
+    {
+        public UnitTaskButton TaskButton;
+        public Label Text;
+        public PercentProgressBar ProgressBar;
+        public UnitOrderButton()
+        {
+            Add(TaskButton = new UnitTaskButton());
+            Add(Text = new Label("ERROR: No Order"));
+            Add(ProgressBar = new PercentProgressBar());
+        }
+
+        public TaskProgress Progress
+        {
+            set
+            {
+                if(value.RequiredValue <= 0)
+                    RemoveFromClassList("has-progress");
+                else
+                {
+                    AddToClassList("has-progress");
+                    ProgressBar.value = value.Value / value.RequiredValue;
+                }
+            }
         }
     }
 }

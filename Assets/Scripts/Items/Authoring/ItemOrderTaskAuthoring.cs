@@ -1,3 +1,4 @@
+using Units;
 using Unity.Entities;
 using Unity.Transforms;
 using UnityEngine;
@@ -10,6 +11,10 @@ public class ItemOrderTaskAuthoring : MonoBehaviour
         {
             var e = GetEntity(TransformUsageFlags.None);
             AddComponent(e, new ItemOrderTask { }); // To be filled at runtime
+            AddComponent(e, new TaskProgress
+            {
+                RequiredValue = 1
+            });
         }
     }
 }

@@ -13,5 +13,5 @@ public struct CrafterLogic : IChipTargetable
 
 public struct PendingCrafterTransaction : IComponentData
 {
-    public int Transaction;
+    public Entity Task;
 }

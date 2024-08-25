@@ -129,4 +129,5 @@ MonoBehaviour:
   Icon: {fileID: 2800000, guid: 0acbf5ed67bbcb34882575e8df4608d0, type: 3}
   Tags:
   - {fileID: 11400000, guid: 80f258bf514ce4c4a9d95803e10e81d5, type: 2}
+  - {fileID: 11400000, guid: 5ed3341e415bbb9438eb586c02aceb3e, type: 2}
   Reference: {fileID: 5304243422145376601}

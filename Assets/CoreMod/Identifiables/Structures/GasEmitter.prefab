@@ -17,6 +17,7 @@ GameObject:
   - component: {fileID: -6789885427361924502}
   - component: {fileID: -2540546713244925093}
   - component: {fileID: 6902779840683867879}
+  - component: {fileID: 2718921238540234507}
   m_Layer: 0
   m_Name: GasEmitter
   m_TagString: Untagged
@@ -192,7 +193,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 68a92fc250ef4511b43df6da7fdcee09, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Parent: {fileID: 0}
+--- !u!114 &2718921238540234507
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3605263813790912188}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 05c99c16b30b41f08c98b3eee73cbfc6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &-8927736695948970044
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -21,8 +21,7 @@ namespace Units
         
         public static void ShowWheel(Entity target, Entity origin, ref SystemState state)
         {
-            if(!state.EntityManager.HasBuffer<ToDos>(origin) 
-               || !state.EntityManager.HasComponent<CanReceivePlayerOrders>(origin))
+            if(!state.EntityManager.HasBuffer<ToDos>(origin))
                 return;
             
             var wheel = UISystemGroup.Show<SelectionWheel>();
@@ -49,6 +48,7 @@ namespace Units
                 wheel.Add(new SelectionWheelButton("BuildTask", skills, state.EntityManager, wheel.OnClick));
             wheel.Add(new SelectionWheelButton("ApproachTask", skills,state.EntityManager,  wheel.OnClick));
 
+            Debug.Log($"Wheel with {wheel.childCount} members");
             if (wheel.childCount == 0)
                 UISystemGroup.Hide(wheel);
             else
@@ -63,9 +63,9 @@ namespace Units
                 Priority = TaskPriority.DirectCommand,
                 Target = _target,
                 Executor = _origin,
-                Origin = _origin,
-                IsPersonalized = true
+                Origin = _origin
             });
+            _entityManager.GetBuffer<TaskProvider>(_origin).Add(new TaskProvider{Task = todo});
             _entityManager.GetBuffer<ToDos>(_origin).Insert(0, new ToDos()
             {
                 Status = TaskOutcome.Requested,

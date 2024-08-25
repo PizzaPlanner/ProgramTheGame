@@ -10,6 +10,8 @@
         "Unity.Entities.Graphics",
         "Unity.Mathematics.Extensions",
         "Unity.Physics",
+        "Unity.Addressables",
+        "Unity.ResourceManager",
         "Items",
         "Identifiables",
         "Equipment",
@@ -17,7 +19,11 @@
         "Chip",
         "Items.UI",
         "Core",
-        "Modding.API"
+        "Modding.API",
+        "Core.UI",
+        "Units.UI",
+        "Equipment.UI",
+        "Identifiables.UI"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

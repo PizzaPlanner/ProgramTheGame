@@ -49,6 +49,7 @@ public class Tooltip : VisualElement
 
     public static void Hide()
     {
-        UISystemGroup.Hide(_current);
+        if(_current != null)
+            UISystemGroup.Hide(_current);
     }
 }

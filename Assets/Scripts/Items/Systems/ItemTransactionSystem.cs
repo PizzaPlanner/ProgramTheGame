@@ -387,7 +387,8 @@ public partial struct ItemTransactionSystem : ISystem
         var store = SystemAPI.GetSingleton<TransactionStore>();
         state.CompleteDependency();
         var ecb = new EntityCommandBuffer(Allocator.Temp);
-        foreach (var (starterInventory, e) in SystemAPI.Query<DynamicBuffer<StarterInventory>>().WithEntityAccess())
+        foreach (var (starterInventory, e) in SystemAPI.Query<DynamicBuffer<StarterInventory>>()
+                                                       .WithNone<Ghost>().WithEntityAccess())
         {
             ecb.RemoveComponent<StarterInventory>(e);
             foreach(var startItem in starterInventory)

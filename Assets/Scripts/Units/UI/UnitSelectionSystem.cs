@@ -2,7 +2,10 @@
 using Core.Input;
 using Equipment;
 using Identifiables;
+using Identifiables.UI;
+using System.Collections.Generic;
 using Unity.Entities;
+using Unity.Mathematics;
 using Unity.Physics;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -26,7 +29,7 @@ namespace Units
     }
 
     [UpdateInGroup(typeof(UISystemGroup))]
-    public partial class UnitSelectionSystem : SystemBase
+    public partial class UnitSelectionSystem : SystemBase, ITooltipProvider
     {
         public Entity Hovered;
         bool IsDragging;
@@ -36,39 +39,14 @@ namespace Units
             RequireForUpdate<LocalPlayer>();
         }
         
-        UnitGroupElement selectionUI;
-        MainUnitElement  mainUnitUI;
-        InventoryButton _dragFrom;
-
-        bool initialized;
-        protected override void OnStartRunning()
-        {
-            if(initialized)
-                return;
-            var localPlayer = SystemAPI.GetSingletonEntity<LocalPlayer>();
-            EntityManager.AddBuffer<UnitGroup>(localPlayer);
-            selectionUI = new UnitGroupElement(){name = "CurrentSelection"};
-            UISystemGroup.AddOverlay(selectionUI);
-            mainUnitUI =  new MainUnitElement();
-            UISystemGroup.AddOverlay(mainUnitUI);
-            InventoryButton.OnDragDrop += OnDragDrop;
-            EntityManager.AddComponentObject(localPlayer, new SelectionUI{ UI = selectionUI });
-            initialized = true;
-        }
-
-        protected override void OnStopRunning()
-        {
-            if(!SystemAPI.TryGetSingletonEntity<LocalPlayer>(out var localPlayer))
-                return;
-            var selection = SystemAPI.GetBuffer<UnitGroup>(localPlayer);
-            selection.Clear();
-            selectionUI.SetGroup(selection, ref CheckedStateRef);
-        }
-
+        // InventoryButton _dragFrom;
+        
         protected override void OnUpdate()
         {
             if(SystemAPI.HasSingleton<PointerOverUI>())
                 return;
+            
+            var selected = SystemAPI.TryGetSingletonEntity<Selected>(out var e) ? e : Entity.Null;
             
             var mouseRay = Camera.main.ScreenPointToRay(Input.mousePosition);
             var physicsWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>();
@@ -87,6 +65,7 @@ namespace Units
                     EntityManager.RemoveComponent<HoverIndicator>(GetEntityQuery(typeof(HoverIndicator)));
                 }
                 Hovered = Entity.Null;
+                Tooltip.Hide();
             }
             else
             {
@@ -96,77 +75,52 @@ namespace Units
                     EntityManager.AddComponent<HoverIndicator>(hit.Entity);
                 }
                 Hovered = hit.Entity;
+                Tooltip.Show(this, new float2(Input.mousePosition.x, Screen.height - Input.mousePosition.y));
             }
-            
-            var localPlayer = SystemAPI.GetSingletonEntity<LocalPlayer>();
-            var selection = SystemAPI.GetBuffer<UnitGroup>(localPlayer);
-            
-            selectionUI.SetGroup(selection, ref CheckedStateRef);
-            
-            if (SelectTool.Select.WasPressedThisFrame() && Hovered != Entity.Null)
+            if (SelectTool.Select.WasPressedThisFrame() && !IsDragging && Hovered != selected)
             {
-                if (!Input.GetKey(KeyCode.LeftShift))
+                if (SystemAPI.HasComponent<Selected>(selected))
                 {
-                    selection.Clear();
-                    selection.Add(new UnitGroup{ Unit = Hovered });
+                    EntityManager.RemoveComponent<Selected>(selected);
                 }
-                else
+                if (Hovered != Entity.Null)
                 {
-                    var isInGroup = -1;
-                    for (var i = 0; i < selection.Length; i++)
-                        isInGroup = selection[i].Unit == Hovered ? i : isInGroup;
-
-                    if(isInGroup >= 0)
-                        selection.RemoveAt(isInGroup);
-                    else
-                        selection.Add(new UnitGroup{ Unit = Hovered });
+                    selected = Hovered;
+                    EntityManager.AddComponent<Selected>(selected);
                 }
             }
-            else if (Hovered != Entity.Null && SelectTool.Select.WasReleasedThisFrame() && _dragFrom != null && SystemAPI.HasBuffer<Inventory>(Hovered))
-            {
-                
-                SystemAPI.GetSingleton<TransactionStore>().CreateBuilder
-                         .Transfer(_dragFrom.Container, _dragFrom.SlotId, Hovered, -1);
-                Debug.Log($"Scheduled Transaction from {_dragFrom.Container} to {Hovered}");
-                
-            }
-            else if (Hovered == Entity.Null && SelectTool.Select.WasPressedThisFrame() && !Input.GetKey(KeyCode.LeftShift) && !IsDragging)
-            {
-                selection.Clear();
-            }
-            else if (Input.GetMouseButtonDown(1) && Hovered != null)
+            // else if (Hovered != Entity.Null && SelectTool.Select.WasReleasedThisFrame() && _dragFrom != null && SystemAPI.HasBuffer<Inventory>(Hovered))
+            // {
+            //     
+            //     SystemAPI.GetSingleton<TransactionStore>().CreateBuilder
+            //              .Transfer(_dragFrom.Container, _dragFrom.SlotId, Hovered, -1);
+            //     Debug.Log($"Scheduled Transaction from {_dragFrom.Container} to {Hovered}");
+            //     
+            // }
+            else if (Input.GetMouseButtonDown(1) 
+                     && Hovered != Entity.Null 
+                     && selected != Entity.Null)
             {
                 MoveCommandIndicator.Play(hit.Position);
-                foreach(var unit in selection)
-                    if (SystemAPI.HasComponent<CanReceivePlayerOrders>(unit.Unit))
-                    {
-                        SelectionWheel.ShowWheel(Hovered, unit.Unit, ref CheckedStateRef);
-                    }
-            }
-
-            if (selection.Length == 0 && _firstSelected != Entity.Null)
-            {
-                EntityManager.RemoveComponent<SelectionUI>(_firstSelected);
-                _firstSelected = Entity.Null;
-                mainUnitUI.style.display = DisplayStyle.None;
-            } else if (selection.Length > 0 && _firstSelected != selection[0].Unit)
-            {
-                var newUnit = selection[0].Unit;
-                if(_firstSelected != Entity.Null)
-                    EntityManager.RemoveComponent<SelectionUI>(_firstSelected);
-                _firstSelected = newUnit;
-                EntityManager.AddComponentObject(_firstSelected, new SelectionUI{UI = mainUnitUI});
-                mainUnitUI.style.display = DisplayStyle.Flex;
-                Debug.Log($"First selected: {_firstSelected}");
+                SelectionWheel.ShowWheel(Hovered, selected, ref CheckedStateRef);
             }
                 
-            _dragFrom = null;
+            // _dragFrom = null;
         }
-        Entity _firstSelected;
 
-        void OnDragDrop(InventoryButton from, InventoryButton to)
+        // void OnDragDrop(InventoryButton from, InventoryButton to)
+        // {
+        //     _dragFrom = from;
+        // }
+
+        public IEnumerable<VisualElement> TooltipContent
         {
-            _dragFrom = from;
+            get
+            {
+                if(Hovered == Entity.Null)
+                    yield break;
+                yield return new IdentifiableButton { Target = EntityManager.GetComponentData<Identifieable>(Hovered) };
+            }
         }
     }
 }

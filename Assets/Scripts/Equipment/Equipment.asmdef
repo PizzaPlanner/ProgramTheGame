@@ -18,7 +18,8 @@
         "Core.UI",
         "Core",
         "Modding.API",
-        "Tasks"
+        "Tasks",
+        "Construction"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

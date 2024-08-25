@@ -1,3 +1,4 @@
+using Units;
 using Unity.Entities;
 using UnityEngine;
 
@@ -11,6 +12,9 @@ public class CrafterAuthoring : MonoBehaviour
             AddComponent(self, new CrafterLogic { });
             AddBuffer<CraftingQueue>(self);
             AddBuffer<Craftables>(self);
+            AddBuffer<TaskProvider>(self);
+            AddBuffer<Skills>(self);
+            AddBuffer<ToDos>(self);
         }
     }
 }

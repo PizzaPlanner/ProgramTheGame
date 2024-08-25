@@ -37,7 +37,7 @@ partial struct LogisticsNetworkSystem : ISystem
                                                            .WithEntityAccess())
         {
             if(!networkLookup.TryGetComponent(inNetwork.Grid, out var network))
-                return;
+                continue;
             
             foreach (var entry in network.ItemsByEntities.GetValuesForKey(e))
             {
@@ -56,18 +56,6 @@ partial struct LogisticsNetworkSystem : ISystem
                 network.HasItems[item.Type] = amnt;
                 
                 network.ItemsByEntities.Add(e, (item.Type, item.Amount));
-            }
-
-            if (SystemAPI.HasComponent<CanTransportItemOrders>(e))
-            {
-                var freeSpace = 0;
-                foreach(var slot in inventory)
-                    freeSpace += slot.Type == default ? 1 : 0;
-                
-                if(freeSpace == 0)
-                    network.CarriersWithSpace.Remove(e);
-                else
-                    network.CarriersWithSpace[e] = freeSpace;
             }
         }
 

@@ -2,6 +2,7 @@
 using Programmable;
 using Units;
 using Unity.Entities;
+using static Unity.Entities.SystemAPI;
 
 public partial struct Miner : IChipTargetable
 {
@@ -15,33 +16,39 @@ partial struct MiningSystem : ISystem
 {
     public void OnUpdate(ref SystemState state)
     {
-        var store = SystemAPI.GetSingleton<TransactionStore>();
-        foreach (var (miner, equipped) in SystemAPI.Query<RefRW<Miner>, Equipped>())
+        var ecb = GetSingleton<BeginInitializationEntityCommandBufferSystem.Singleton>()
+            .CreateCommandBuffer(state.WorldUnmanaged);
+        var store = GetSingleton<TransactionStore>();
+        var mineSkill = Identifieable.FromName("MineSkill");
+        foreach (var (task, progress, e) in 
+                 Query<Task, RefRW<TaskProgress>>().WithAll<MiningTask, WorkedOn>().WithEntityAccess())
         {
-            var todos = SystemAPI.GetBuffer<ToDos>(equipped.Wearer);
-            if(todos.Length == 0)
-                continue;
-            var task = SystemAPI.GetComponent<Task>(todos[0].Task);
-            var id = SystemAPI.GetComponent<Identifieable>(todos[0].Task);
-            miner.ValueRW.CanMineTarget = task.Target != Entity.Null 
-                                          && SystemAPI.HasComponent<Mineable>(task.Target)
-                                          && id == Identifieable.FromName("MineTask")
-                                          && SystemAPI.IsComponentEnabled<WorkedOn>(todos[0].Task);
-
-            if (!miner.ValueRW.CanMineTarget)
-            {
-                miner.ValueRW.ReadyIn = miner.ValueRW.Cooldown;
-                continue;
-            }
-            miner.ValueRW.ReadyIn--;
-            if(miner.ValueRW.ReadyIn > 0)
+            if(!Exists(task.Target))
+                ecb.DestroyEntity(e);
+            
+            var mineable = GetComponent<Mineable>(task.Target);
+            var speedMod = 1f;
+            var skills = GetBuffer<Skills>(task.Executor);
+            foreach(var skill in skills)
+                if(skill.Task == mineSkill)
+                    speedMod += skill.Level * 0.2f;
+            progress.ValueRW.Value += Time.DeltaTime * speedMod;
+            if (progress.ValueRW.Value < progress.ValueRW.RequiredValue)
                 continue;
             
-            miner.ValueRW.ReadyIn = miner.ValueRW.Cooldown;
-            var mineable = SystemAPI.GetComponentRW<Mineable>(task.Target);
-            // TODO: Dont reduce mineable amount if transaction fails
-            store.CreateBuilder.AddTo(equipped.Wearer, mineable.ValueRW.MinedItem, 1);
-            mineable.ValueRW.AmountLeft--;
+            progress.ValueRW.Value -= progress.ValueRW.RequiredValue;
+            if(mineable.IsInfiniteSource)
+                store.CreateBuilder.AddTo(task.Executor, mineable.MinedItem, 1);
+            else
+                store.CreateBuilder.Transfer(task.Target, task.Executor, mineable.MinedItem, 1);
+        }
+        
+        foreach (var (inventory, mineable, e) in Query<DynamicBuffer<Inventory>, RefRW<Mineable>>()
+                                                 .WithNone<Ghost>().WithEntityAccess())
+        {
+            mineable.ValueRW.TicksWithoutItems++;
+            if(mineable.ValueRW.TicksWithoutItems > 5 && inventory.HasNoItems())
+                ecb.DestroyEntity(e);
         }
     }
 }

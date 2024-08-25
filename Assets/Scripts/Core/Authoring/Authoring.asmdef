@@ -12,7 +12,9 @@
         "Core",
         "Rooms",
         "Identifiables",
-        "Identifiables.Authoring"
+        "Identifiables.Authoring",
+        "Construction",
+        "Construction.Systems"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

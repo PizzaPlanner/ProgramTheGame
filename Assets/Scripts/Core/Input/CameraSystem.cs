@@ -18,11 +18,19 @@ public struct Navigation : IInputActionState
 
 partial struct CameraSystem : ISystem
 {
+    public struct CameraAnchor : IComponentData
+    {
+        public float3 Position;
+        public float CameraDistance;
+    }
+    
+    const float ZOOM_FACTOR = 45f;
     const float ROTATION_FACTOR = 14f;
-    const float MOVE_FACTOR = 3f;
+    const float MOVE_FACTOR = 8f;
     public void OnCreate(ref SystemState state)
     {
         state.RequireForUpdate<CurrentGrid>();
+        state.EntityManager.CreateSingleton<CameraAnchor>();
     }
 
     public void OnUpdate(ref SystemState state)
@@ -30,6 +38,8 @@ partial struct CameraSystem : ISystem
         var ship = SystemAPI.GetSingleton<CurrentGrid>().Grid;
         if(!SystemAPI.HasComponent<LocalToWorld>(ship))
             return;
+        
+        var camAnchor = SystemAPI.GetSingletonRW<CameraAnchor>();
         
         var shipLtw = SystemAPI.GetComponent<LocalToWorld>(ship);
         var cam = Camera.main.transform;
@@ -39,10 +49,10 @@ partial struct CameraSystem : ISystem
         var zoom = Navigation.Zoom.ReadValue<float>();
         
         if(zoom != 0)
-            cam.position += cam.forward * zoom * SystemAPI.Time.DeltaTime * ROTATION_FACTOR;
+            camAnchor.ValueRW.CameraDistance -= zoom * SystemAPI.Time.DeltaTime * ZOOM_FACTOR;
         
-        cam.RotateAround(cam.position, shipLtw.Up, rotate * SystemAPI.Time.DeltaTime * ROTATION_FACTOR);
-        
+        cam.RotateAround(camAnchor.ValueRW.Position, shipLtw.Up, rotate * SystemAPI.Time.DeltaTime * ROTATION_FACTOR);
+        cam.position = camAnchor.ValueRW.Position - (float3)cam.forward * camAnchor.ValueRW.CameraDistance;
         if(math.all(wasd.xy == 0))
             return;
         var direction = math.normalizesafe(shipLtw.Right * wasd.x + shipLtw.Forward * wasd.y);
@@ -52,6 +62,6 @@ partial struct CameraSystem : ISystem
         var camYaw = quaternion.Euler(0, euler.y, 0); // Camera rotation with only yaw
         
         direction = math.mul(camYaw, direction);
-        cam.position += (Vector3)(direction * SystemAPI.Time.DeltaTime * MOVE_FACTOR);
+        camAnchor.ValueRW.Position += (direction * SystemAPI.Time.DeltaTime * MOVE_FACTOR);
     }
 }

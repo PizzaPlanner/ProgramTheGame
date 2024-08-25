@@ -18,7 +18,8 @@
         "Tasks",
         "Core.Authoring",
         "Identifiables.Authoring",
-        "Core"
+        "Core",
+        "Equipment"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

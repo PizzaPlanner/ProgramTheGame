@@ -10,6 +10,7 @@ public class BuildTaskAuthoring : MonoBehaviour
         {
             var e= GetEntity(TransformUsageFlags.None);
             AddComponent<BuildTask>(e);
+            AddComponent<TaskProgress>(e);
         }
     }
 }

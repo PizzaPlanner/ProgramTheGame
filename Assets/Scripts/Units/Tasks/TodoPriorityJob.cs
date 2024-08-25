@@ -10,33 +10,43 @@ namespace Units
     {
         [ReadOnly] public ComponentLookup<Task> taskLookup;
         [ReadOnly] public ComponentLookup<TaskRequirement> requirementLookup;
-        [ReadOnly] public ComponentLookup<WorkedOn> workedOnLookup;
+        public ComponentLookup<WorkedOn> workedOnLookup;
+        public Entity IdleTaskPrefab;
         struct PrioritySorter : IComparer<ToDos>
         {
             public int Compare(ToDos x, ToDos y) => y.PerceivedPriority.CompareTo(x.PerceivedPriority);
         }
+        
         void Execute(ref DynamicBuffer<ToDos> todos, in DynamicBuffer<Skills> skills)
         {
             if (todos.Length == 0)
                 return;
-            
+                        
             for (int i = 0; i < todos.Length; i++)
                 todos[i] = todos[i].Prioritize(taskLookup, requirementLookup, skills);
             todos.AsNativeArray().Sort(new PrioritySorter());
             var best = todos[0];
-            if (best.Status is TaskOutcome.Approaching or TaskOutcome.Working) 
+            if (best.Status is TaskOutcome.Approaching or TaskOutcome.Working)
+            {
+                workedOnLookup.SetComponentEnabled(best.Task, best.Status == TaskOutcome.Working);
                 return;
+            }
             
             // Switched active ToDo
-            best.Status = TaskOutcome.Approaching;
-            todos[0] = best;
+            if (best.PerceivedPriority > (int)TaskPriority.Idle)
+            {
+                best.Status = TaskOutcome.Approaching;
+                todos[0] = best;
+            }
             for (int i = 1; i < todos.Length; i++)
             {
-                if(todos[i].Status == TaskOutcome.Working)
-                    workedOnLookup.SetComponentEnabled(todos[i].Task, false);
                 var td = todos[i];
-                td.Status = TaskOutcome.UnderConsideration;
-                todos[i] = td;
+                if (td.Status is TaskOutcome.Requested or TaskOutcome.Approaching or TaskOutcome.Working)
+                {
+                    workedOnLookup.SetComponentEnabled(todos[i].Task, false);
+                    td.Status = TaskOutcome.UnderConsideration;
+                    todos[i] = td;
+                }
             }
         }
     }

@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 3724361011114579357}
   - component: {fileID: -5380242976130347905}
   - component: {fileID: 5923588122422854532}
+  - component: {fileID: -2431404326971592238}
   m_Layer: 0
   m_Name: MineTask
   m_TagString: Untagged
@@ -60,6 +61,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   RequiredSkill: {fileID: 0}
   MinSkillLevel: 1
+--- !u!114 &-2431404326971592238
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3605263813790912188}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9fbe54b44ca24dbd9e7b3438d7adeeb0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &5657100428946741286
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -10,12 +10,12 @@ public class CraftingWindow : VisualElement, IComponentData
 {
     public Entity Queue { get; set; }
 
-    private EquipmentProgressBar queue;
+    private PercentProgressBar queue;
     IdentifiableButton SelectRecipeButton;
     public CraftingWindow()
     {
         SelectRecipeButton = new IdentifiableButton(){name = "OpenRecipes"};
-        queue = new EquipmentProgressBar();
+        queue = new PercentProgressBar();
         SelectRecipeButton.RegisterCallback<MouseDownEvent>(OnStartSelectRecipe);
         Add(SelectRecipeButton);
         Add(queue);

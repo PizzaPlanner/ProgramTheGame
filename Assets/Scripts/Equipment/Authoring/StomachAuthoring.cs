@@ -2,7 +2,6 @@
 using Unity.Entities;
 using UnityEngine;
 
-[RequireComponent(typeof(StatusProviderAuthoring))]
 public class StomachAuthoring : MonoBehaviour
 {
     public ushort Capacity;

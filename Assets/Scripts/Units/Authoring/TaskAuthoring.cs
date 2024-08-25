@@ -13,7 +13,7 @@ public class TaskAuthoring : MonoBehaviour
             var e= GetEntity(TransformUsageFlags.None);
             AddComponent<Task>(e);
             AddComponent<WorkedOn>(e);
-            AddBuffer<TaskDependencies>(e);
+            AddBuffer<TaskProvider>(e);
             AddBuffer<BroadcastStatus>(e);
             SetComponentEnabled<WorkedOn>(e, false);
             if(authoring.RequiredSkill != null)

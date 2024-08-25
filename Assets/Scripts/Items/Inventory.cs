@@ -83,4 +83,12 @@ public static class InventoryHelper
 
         return has >= amount;
     }
+
+    public static bool HasNoItems(this DynamicBuffer<Inventory> buffer)
+    {
+        foreach(var entry in buffer)
+            if(entry.Amount > 0)
+                return false;
+        return true;
+    }
 }

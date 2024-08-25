@@ -1,10 +1,6 @@
-﻿using Unity.Collections;
-using Unity.Entities;
+﻿using Unity.Entities;
 
-public struct UnderConstruction : IComponentData
-{
-    public float Duration;
-}
+public struct UnderConstruction : IComponentData { }
 
 public enum BuildingLayer
 {

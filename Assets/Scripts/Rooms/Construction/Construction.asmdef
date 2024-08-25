@@ -1,0 +1,24 @@
+{
+    "name": "Construction",
+    "rootNamespace": "",
+    "references": [
+        "Unity.Entities",
+        "Unity.Entities.Graphics",
+        "Unity.Mathematics",
+        "Unity.Mathematics.Extensions",
+        "Unity.Burst",
+        "Unity.Collections",
+        "Unity.Transforms",
+        "Identifiables",
+        "Items"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": true,
+    "overrideReferences": true,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

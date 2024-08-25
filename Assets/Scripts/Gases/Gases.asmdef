@@ -12,6 +12,7 @@
         "Unity.InputSystem",
         "Core",
         "Rooms",
+        "Construction",
         "Core.Input",
         "Core.UI"
     ],

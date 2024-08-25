@@ -18,24 +18,13 @@ public enum OrderState
     Cancelled
 }
 
-public struct ItemOrder : IComponentData 
-{
-    public ItemId Item;
-    public ushort Amount;
-    public OrderState State;
-    public int Transaction;
-    public Entity Requester;
-    public Entity Transporter;
-    public Entity Storage;
-    public int StaleTicks;
-}
-
 public struct ItemOrderTask : IComponentData
 {
     public ItemId Item;
     public ushort Amount;
     public OrderState State;
     public Entity ParentGrid;
+    public Entity Requester;
 }
 
 public struct ItemPickupTask : IComponentData
@@ -57,7 +46,7 @@ partial struct ItemPickupTaskJob : IJobEntity
     {
         if(task.Executor == Entity.Null)
             return;
-
+        
         if (task.Target == Entity.Null)
         {
             if (!networkLookup.TryGetComponent(order.ParentGrid, out var network))
@@ -65,9 +54,9 @@ partial struct ItemPickupTaskJob : IJobEntity
                 Debug.LogError("Logistics member must have Grid!");
                 return;
             }
-            AssignTarget(ref task, ltwLookup, network, order.Item, order.Amount);
+            AssignTarget(ref task, task.Executor, ltwLookup, network, order.Item, order.Amount);
         }
-
+        
         if (workedOn.ValueRO)
         {
             transactionStore.CreateBuilder.Transfer(task.Target, task.Executor, order.Item, order.Amount);
@@ -75,11 +64,11 @@ partial struct ItemPickupTaskJob : IJobEntity
         }
     }
 
-    public static void AssignTarget(ref Task task, ComponentLookup<LocalToWorld> ltwLookup, LogisticsNetwork network, ItemId item, ushort amount)
+    public static void AssignTarget(ref Task task, Entity requester, ComponentLookup<LocalToWorld> ltwLookup, LogisticsNetwork network, ItemId item, ushort amount)
     {
-        if (!ltwLookup.TryGetComponent(task.Executor, out var selfLtw))
+        if (!ltwLookup.TryGetComponent(requester, out var selfLtw))
         {
-            Debug.LogError("Logistics member must have LTW!");
+            Debug.LogError($"Item requester {requester} has no LTW");
             return;
         }
         
@@ -98,7 +87,6 @@ partial struct ItemPickupTaskJob : IJobEntity
         }
 
         task.Target = bestEntity;
-        Debug.Log($"Best entity for order is {bestEntity}");
     }
 }
 
@@ -107,25 +95,53 @@ partial struct ItemOrderTaskJob : IJobEntity
 {
     [ReadOnly] public BufferLookup<Inventory> inventoryLookup;
     [ReadOnly] public ComponentLookup<LocalToWorld> ltwLookup;
+    [ReadOnly] public BufferLookup<ToDos> todoLookup;
     [ReadOnly] public ComponentLookup<LogisticsNetwork> networkLookup;
+    public float deltaTime;
     public EntityCommandBuffer ecb;
     public TransactionStore transactionStore;
     
-    void Execute(Entity e, ref Task task, ref ItemOrderTask order, EnabledRefRO<WorkedOn> workedOn)
+    void Execute(Entity e, ref Task task, ref ItemOrderTask order, ref TaskProgress progress, EnabledRefRW<WorkedOn> workedOn, DynamicBuffer<BroadcastStatus> broadcastedTo)
     {
-        if(task.Executor == Entity.Null)
-            return;
+        // Find best executor
+        if (task.Executor == Entity.Null)
+        {
+            if (!ltwLookup.TryGetComponent(order.Requester, out var requesterLtw))
+            {
+                Debug.LogError($"Item Order towards {order.Requester} has no LTW");
+                return;
+            }
+            var bestExec = Entity.Null;
+            var bestDistance = float.PositiveInfinity;
+            foreach(var target in broadcastedTo)
+                if (todoLookup[target.BroadcastedTo].Length > 0 && todoLookup[target.BroadcastedTo][0].Task == e && ltwLookup.TryGetComponent(target.BroadcastedTo, out var targetLtw))
+                {
+                    var distSq = math.distancesq(targetLtw.Position, requesterLtw.Position);
+                    if(distSq >= bestDistance)
+                        continue;
+                    bestExec = target.BroadcastedTo;
+                    bestDistance = distSq;
+                }
+            if(bestExec == Entity.Null)
+                return;
+            task.Executor = bestExec;
+            order.State = OrderState.Requested;
+        }
 
         var inventory = inventoryLookup[task.Executor];
         if (inventory.Contains(order.Item, order.Amount))
         {
-            task.Target = task.Origin;
+            task.Target = order.Requester;
             order.State = OrderState.Transporting;
-            if (workedOn.ValueRO)
-            {
-                transactionStore.CreateBuilder.RemoveFrom(task.Executor, order.Item, order.Amount);
-                ecb.DestroyEntity(e);
-            }
+            if (!workedOn.ValueRO) 
+                return;
+            
+            progress.Value += deltaTime;
+            if (progress.Value < progress.RequiredValue)
+                return;
+            
+            transactionStore.CreateBuilder.Transfer(task.Executor, order.Requester, order.Item, order.Amount);
+            ecb.DestroyEntity(e);
         }
         else if(order.State != OrderState.Assigned)
         {
@@ -134,19 +150,28 @@ partial struct ItemOrderTaskJob : IJobEntity
                 Debug.LogError("Logistics member must have Grid!");
                 return;
             }
-            ItemPickupTaskJob.AssignTarget(ref task, ltwLookup, network, order.Item, order.Amount);
+            ItemPickupTaskJob.AssignTarget(ref task, task.Executor, ltwLookup, network, order.Item, order.Amount);
             if(task.Target != Entity.Null)
                 order.State = OrderState.Assigned;
+            else
+                Debug.Log($"Could not fill order for {order.Amount}x{order.Item}");
         }
         else if (workedOn.ValueRO)
         {
+            progress.Value += deltaTime;
+            if (progress.Value < progress.RequiredValue)
+                return;
+            
             transactionStore.CreateBuilder.Transfer(task.Target, task.Executor, order.Item, order.Amount);
             order.State = OrderState.Requested;
-            task.Target = task.Origin;
+            task.Target = order.Requester;
+            workedOn.ValueRW = false;
+            progress.Value = 0;
         }
     }
 }
 
+[UpdateAfter(typeof(TaskApproachSystem))]
 partial struct ItemOrderTaskSystem : ISystem
 {
     public void OnUpdate(ref SystemState state)
@@ -156,6 +181,7 @@ partial struct ItemOrderTaskSystem : ISystem
         var inventoryLookup = SystemAPI.GetBufferLookup<Inventory>(true);
         var ltwLookup = SystemAPI.GetComponentLookup<LocalToWorld>(true);
         var networkLookup = SystemAPI.GetComponentLookup<LogisticsNetwork>(true);
+        var todoLookup = SystemAPI.GetBufferLookup<ToDos>(true);
         state.Dependency = new ItemPickupTaskJob
         {
             transactionStore = transactionStore,
@@ -165,11 +191,13 @@ partial struct ItemOrderTaskSystem : ISystem
         }.Schedule(state.Dependency);
         state.Dependency = new ItemOrderTaskJob
         {
-            transactionStore = transactionStore,
+            deltaTime = SystemAPI.Time.DeltaTime,
             ecb = ecb,
+            transactionStore = transactionStore,
             inventoryLookup = inventoryLookup,
             ltwLookup = ltwLookup,
-            networkLookup = networkLookup
+            networkLookup = networkLookup,
+            todoLookup = todoLookup,
         }.Schedule(state.Dependency);
     }
 }

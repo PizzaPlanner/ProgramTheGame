@@ -20,7 +20,6 @@ partial struct CurrentGridSystem : ISystem
             state.EntityManager.CreateSingleton(new CurrentGrid{Grid = grids[0]});
         else
             grid.ValueRW.Grid = grids[0];
-            
     }
 }
 

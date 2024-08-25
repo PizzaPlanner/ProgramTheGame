@@ -11,7 +11,7 @@ namespace Units
         public Identifieable Task;
         public int Level;
     }
-    
+
     [InternalBufferCapacity(5)]
     public struct ToDos : IBufferElementData
     {
@@ -24,7 +24,7 @@ namespace Units
             PerceivedPriority = int.MinValue;
             if (!rtl.TryGetComponent(Task, out var task) || task.Target == Entity.Null)
             {
-                Status = TaskOutcome.Unreachable;
+                Status = TaskOutcome.MissingRequirement;
                 return this;
             }
             if(!requirementsLookup.TryGetComponent(Task, out var requirement))
@@ -49,17 +49,7 @@ namespace Units
                 _ => 0
             };
 
-            PerceivedPriority += task.Priority switch
-            {
-                TaskPriority.OnHold => -100,
-                TaskPriority.Idle => -30,
-                TaskPriority.LowPriority => 0,
-                TaskPriority.MediumPriority => 5,
-                TaskPriority.HighPriority => 10,
-                TaskPriority.Emergency => 50,
-                TaskPriority.DirectCommand => 100,
-                _ => 0
-            };
+            PerceivedPriority += (int)task.Priority;
             return this;
         }
     }
@@ -71,7 +61,8 @@ namespace Units
         Approaching,
         Working,
         LackingSkill,
-        Unreachable
+        Unreachable,
+        MissingRequirement
     }
 
     public enum TaskAffinity
@@ -84,12 +75,12 @@ namespace Units
     
     public enum TaskPriority
     {
-        OnHold,
-        Idle,
-        LowPriority,
-        MediumPriority,
-        HighPriority,
-        Emergency,
-        DirectCommand,
+        OnHold = -100,
+        Idle = -30,
+        LowPriority = 0,
+        MediumPriority = 5,
+        HighPriority = 10,
+        Emergency = 20,
+        DirectCommand = 100,
     }
 }

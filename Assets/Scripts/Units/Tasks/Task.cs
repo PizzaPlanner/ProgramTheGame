@@ -10,20 +10,20 @@ namespace Units
         public Entity Target;
         public Entity Executor;
         public Entity Origin;
-        public bool IsPersonalized;
+        public bool IsPersonalized => Origin == Executor;
         public Entity CrewProvider;
+    }
+
+    public struct TaskProgress : IComponentData
+    {
+        public float Value;
+        public float RequiredValue;
     }
 
     public struct TaskRequirement : IComponentData
     {
         public Identifieable Skill;
         public int MinLevel;
-    }
-
-    [InternalBufferCapacity(1)]
-    public struct TaskDependencies : IBufferElementData
-    {
-        public Entity Dependency;
     }
     
     [InternalBufferCapacity(4)]

@@ -3,5 +3,6 @@
 public struct Mineable : IComponentData
 {
     public ItemId MinedItem;
-    public int AmountLeft;
+    public bool IsInfiniteSource;
+    public int TicksWithoutItems;
 }

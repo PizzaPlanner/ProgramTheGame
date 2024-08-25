@@ -15,7 +15,9 @@
         "Items.Authoring",
         "Identifiables",
         "Rooms",
-        "Core"
+        "Core",
+        "Construction",
+        "Tasks"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

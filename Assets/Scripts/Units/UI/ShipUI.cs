@@ -17,12 +17,22 @@ public partial class ShipUI : VisualElement, IComponentData, IDisposable
     public ShipUI()
     {
         VisualElement header;
+        SignalButton icon = new SignalButton(){name = "Icon"};
         Add(header = new VisualElement(){name = "Header"});
         Add(new VisualElement(){name = "Crew"});
         Add(new VisualElement(){name = "Docked"});
+        header.Add(icon);
         header.Add(new Label("Field"));
         header.Add(new Button(OnChangeCurrent));
         header.Add(new Button(OnAddCrew){name = "AddCrew"});
+        
+        icon.RegisterCallback<MouseDownEvent>(_ =>
+        {
+            var em = World.All[0].EntityManager;
+            using var query = em.CreateEntityQuery(typeof(Selected));
+            em.RemoveComponent<Selected>(query);
+            em.AddComponent<Selected>(Target);
+        });
     }
 
     void OnAddCrew()
@@ -35,9 +45,23 @@ public partial class ShipUI : VisualElement, IComponentData, IDisposable
         wantCurrent = true;
     }
 
+    Entity _target;
+    public Entity Target
+    {
+        set
+        {
+            this.Q("Header").Q<SignalButton>().Entity = value;
+            _target = value;
+        }
+        get => _target;
+    }
     public Identifieable Id
     {
-        set => this.Q("Header").Q<Label>().text = value.DefaultName.Value;
+        set
+        {
+            this.Q("Header").Q<Label>().text = value.DefaultName.Value;
+            this.Q("Header").Q<SignalButton>().Target = value;
+        }
     }
 
     public bool IsCurrent
@@ -70,7 +94,12 @@ public partial class ShipUI : VisualElement, IComponentData, IDisposable
                 Target = em.GetComponentData<Identifieable>(member.Member),
                 Entity = member.Member
             };
-            memberUI.RegisterCallback<MouseDownEvent>(_ => Debug.Log($"Clicked {member.Member}"));
+            memberUI.RegisterCallback<MouseDownEvent>(_ =>
+            {
+                using var query = em.CreateEntityQuery(typeof(Selected));
+                em.RemoveComponent<Selected>(query);
+                em.AddComponent<Selected>(member.Member);
+            });
             memberUI.Add(new IdentifiableButton(){name = "CurrentTask"});
             c.Add(memberUI);
         }
@@ -128,17 +157,20 @@ partial class ShipUISystem : UISystem
 
     protected override void OnUpdate()
     {
-        UISystemGroup.TryGet<SystemView>(out var view);
         var noUIQuery = SystemAPI.QueryBuilder().WithAll<GridStructure, Crew>().WithNone<ShipUI, Ghost>().Build();
         foreach (var e in noUIQuery.ToEntityArray(Allocator.Temp))
         {
             ShipUI ui;
             if (SystemAPI.HasComponent<Identifieable>(e))
-                ui = new ShipUI(){Id = SystemAPI.GetComponent<Identifieable>(e)};
+                ui = new ShipUI()
+                {
+                    Id = SystemAPI.GetComponent<Identifieable>(e), 
+                    Target = e
+                };
             else
                 ui = new ShipUI();
             
-            view.Add(ui);
+            _view.Add(ui);
             EntityManager.AddComponentObject(e, ui);
         }
         
@@ -164,13 +196,10 @@ partial class ShipUISystem : UISystem
             }
             ui.wantCurrent = false;
 
-            var canSwitch = SystemAPI.TryGetSingletonBuffer<UnitGroup>(out var selected);
+            var canSwitch = SystemAPI.TryGetSingletonEntity<Selected>(out var selected);
             ui.CanSwitchCrew = canSwitch;
             if (canSwitch && ui.wantSwitchCrew)
-            {
-                foreach(var unit in selected)
-                    SystemAPI.GetComponentRW<OnGrid>(unit.Unit).ValueRW.Grid = e;
-            }
+                    SystemAPI.GetComponentRW<OnGrid>(selected).ValueRW.Grid = e;
             ui.wantSwitchCrew = false;
             
             
@@ -182,11 +211,11 @@ partial class ShipUISystem : UISystem
                 {
                     var parentUI = SystemAPI.ManagedAPI.GetComponent<ShipUI>(parent);
                     if(ui.parent.parent != parentUI)
-                        ui.DockTo(parentUI, view);
+                        ui.DockTo(parentUI, _view);
                 }
             }
-            else if(ui.parent != view)
-                view.Add(ui);
+            else if(ui.parent != _view)
+                _view.Add(ui);
         }
     }
 }

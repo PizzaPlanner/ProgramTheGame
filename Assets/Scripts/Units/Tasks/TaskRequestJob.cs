@@ -1,6 +1,7 @@
 ﻿using Core.Grid;
 using Unity.Collections;
 using Unity.Entities;
+using UnityEngine;
 
 namespace Units
 {
@@ -11,23 +12,32 @@ namespace Units
         public BufferLookup<ToDos> todoLookup;
         public EntityCommandBuffer.ParallelWriter ecb;
         [ReadOnly] public BufferLookup<Crew> crewLookup;
-        void Execute(Entity t, [ChunkIndexInQuery] int sortKey, ref Task task, ref DynamicBuffer<TaskDependencies> dependencies, ref DynamicBuffer<BroadcastStatus> radio)
+        void Execute(Entity t, [ChunkIndexInQuery] int sortKey, ref Task task, ref DynamicBuffer<TaskProvider> dependencies, ref DynamicBuffer<BroadcastStatus> radio)
         {
-            if(!storageLookup.Exists(task.Origin))
+            if (!storageLookup.Exists(task.Origin))
+            {
+                Debug.Log($"Remove dangling task {t} of destroyed {task.Origin}");
                 ecb.DestroyEntity(sortKey, t);
-            foreach(var dpd in dependencies)
-                if(storageLookup.Exists(dpd.Dependency))
+                return;
+            }
+
+            for (var i = 0; i < dependencies.Length; i++)
+            {
+                var dependency = dependencies[i];
+                if (storageLookup.Exists(dependency.Task))
                     return;
-            
+                dependencies.RemoveAt(i--);
+            }
+
             if (task.Executor == Entity.Null)
             {
                 if(!crewLookup.TryGetBuffer(task.CrewProvider, out var crew))
                     return;
-
+                
                 foreach (var member in crew)
                 {
                     var todos = todoLookup[member.Member];
-                    if (todos.Length > 0 && todos[0].Task == t)
+                    if (IsTaskTopToDo(todos, t))
                     {
                         task.Executor = member.Member;
                         break;
@@ -44,8 +54,8 @@ namespace Units
                     }
                 }
             }
-            
-            if(task.IsPersonalized)
+
+            if (task.IsPersonalized)
                return; 
 
             if (VerifyExecutor(t, task))
@@ -71,8 +81,12 @@ namespace Units
         {
             if(!todoLookup.TryGetBuffer(task.Executor, out var todos))
                 return false;
-            return todos[0].Task == t;
+            return IsTaskTopToDo(todos, t);
         }
+
+        bool IsTaskTopToDo(DynamicBuffer<ToDos> todos, Entity task) => todos.Length > 0 
+                                                                       && todos[0].Task == task 
+                                                                       && todos[0].Status is TaskOutcome.Approaching or TaskOutcome.Working;
 
         bool Request(Entity t, DynamicBuffer<ToDos> todos)
         {

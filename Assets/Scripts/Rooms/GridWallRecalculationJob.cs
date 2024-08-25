@@ -5,7 +5,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
 
-internal struct PendingGridUpdate : IComponentData { }
+public struct PendingGridUpdate : IComponentData { }
 
 [WithAll(typeof(PendingGridUpdate), typeof(RoomModel))]
 public partial struct GridRoomRecalculationJob : IJobEntity

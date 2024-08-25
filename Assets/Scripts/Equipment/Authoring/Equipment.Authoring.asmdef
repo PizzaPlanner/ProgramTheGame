@@ -17,7 +17,9 @@
         "Items",
         "Chip",
         "Core",
-        "Identifiables.Authoring"
+        "Identifiables.Authoring",
+        "Units.Authoring",
+        "Tasks"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

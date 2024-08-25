@@ -18,4 +18,26 @@ public struct Status : IComponentData
     }
 }
 
+public struct Statuses : IBufferElementData
+{
+    public Identifieable Id;
+}
+
+public static class StatusExtensions
+{
+    public static void Add(this DynamicBuffer<Statuses> stats, Identifieable status)
+    {
+        stats.Add(new Statuses{Id = status});
+    }
+    
+    public static void Remove(this DynamicBuffer<Statuses> stats, Identifieable status)
+    {
+        for (int i = 0; i < stats.Length; i++)
+        {
+            if(stats[i].Id == status)
+                stats.RemoveAt(i--);
+        }
+    }
+}
+
 public interface IStatus : IComponentData { }

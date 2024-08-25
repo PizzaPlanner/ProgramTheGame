@@ -33,36 +33,6 @@
     border-bottom-color: rgb(81, 174, 255);
 }
 
-UnitGroupElement {
-    align-items: center;
-}
-
-UnitGroupElement > #Units {
-    border-left-color: rgba(0, 225, 255, 0.62);
-    border-right-color: rgba(0, 225, 255, 0.62);
-    border-top-color: rgba(0, 225, 255, 0.62);
-    border-bottom-color: rgba(0, 225, 255, 0.62);
-    flex-direction: column;
-    align-self: flex-start;
-    border-top-width: 2px;
-    border-right-width: 2px;
-    border-bottom-width: 2px;
-    border-left-width: 2px;
-    background-color: rgba(0, 170, 255, 0.43);
-    position: absolute;
-    left: 15px;
-    top: 15px;
-}
-
-MainUnitElement {
-    position: absolute;
-    flex-direction: row;
-    align-items: flex-start;
-    justify-content: center;
-    align-self: center;
-    top: 0;
-}
-
 InventoryButton {
     margin-top: 1px;
     margin-right: 1px;
@@ -151,11 +121,6 @@ InventoryButton.empty > #Icon {
     opacity: 0.3;
 }
 
-EquippedItemActionsElement {
-    align-items: flex-start;
-    margin-top: 5px;
-}
-
 CraftingWindow {
 }
 
@@ -229,19 +194,12 @@ CraftingQueueElement > .progress-background > .progress-foreground {
 }
 
 InventoryElement {
-    flex-direction: row;
+    flex-direction: column;
     padding-top: 2px;
     padding-right: 2px;
     padding-bottom: 2px;
     padding-left: 2px;
-    flex-shrink: 0;
-}
-
-EquippedItemActionsElement > InventoryElement {
-    padding-top: 0;
-    padding-right: 0;
-    padding-bottom: 0;
-    padding-left: 0;
+    flex-wrap: wrap;
 }
 
 InventoryElement > #Items {
@@ -257,13 +215,9 @@ InventoryElement > #Items > InventoryButton {
 }
 
 InventoryElement > #Equipment {
-    margin-left: 48px;
     flex-direction: row;
-}
-
-InventoryElement > #Equipment > #EquipWrapper {
-    margin-right: 5px;
-    margin-left: 5px;
+    flex-grow: 1;
+    flex-shrink: 0;
 }
 
 CraftingWindow > #OpenRecipes {
@@ -419,6 +373,44 @@ UnitTaskButton.cancelable:hover > #Frame {
     border-width: 3px;
 }
 
+UnitOrderList UnitTaskButton.id-button {
+    height: 32px;
+    width: 32px;
+}
+
+UnitOrderButton {
+    flex-direction: row;
+}
+
+UnitOrderButton > Label {
+    flex-shrink: 1;
+    white-space: normal;
+}
+
+UnitOrderButton > PercentProgressBar {
+    display: none;
+    position: absolute;
+    left: 36px;
+    bottom: 0;
+    right: 0;
+    height: 8px;
+    margin: 0;
+}
+
+UnitOrderButton.has-progress > PercentProgressBar {
+    display: flex;
+}
+
+PercentProgressBar > #unity-progress-bar {
+    height: 100%;
+    min-height: 0;
+    max-height: none;
+}
+
+UnitOrderButton.has-progress * {
+    margin: 0;
+}
+
 SelectionWheel {
     padding-top: 3px;
     padding-right: 3px;
@@ -472,6 +464,12 @@ ShipUI.current-grid > #Header {
     background-color: rgba(150, 100, 0, 0.4);
 }
 
+ShipUI > #Header > SignalButton
+{
+    width: 24px;
+    height: 24px;
+}
+
 ShipUI > #Header > Button {
     width: 16px;
     height: 16px;
@@ -514,4 +512,89 @@ Tooltip > Label {
 }
 TooltipTitle {
     font-size: 16px;
+}
+
+StatBar {
+    flex-direction: row;
+    flex-grow: 1;
+}
+
+StatBar > .id-button {
+    width: 32px;
+    height: 32px;
+}
+StatBar > #Bar {
+    margin: 1px;
+    height: 32px;
+    flex-grow: 1;
+    background-color: rgb(15,25,35);
+    padding: 2px;
+}
+
+StatBar > #Bar > #Progress {
+    background-color: rgb(150,180,125);
+    flex-grow: 1;
+}
+
+StatBar#Lungs > #Bar > #Progress {
+    background-color: rgb(104,136,180);
+}
+
+StatBar#Stomach > #Bar > #Progress {
+    background-color: rgb(10,166,104);
+}
+
+StatBar.low > #Bar > #Progress {
+    background-color: rgb(180,50,35);
+}
+
+StatBar.critical > #Bar > #Progress {
+    background-color: rgb(255,35,35);
+}
+
+
+StatsUI > #Stats 
+{
+    margin: 3px;
+    flex-direction: row;
+    flex-wrap: wrap;    
+}
+
+StatsUI > #Stats > .id-button
+{
+    height: 24px;
+    width: 24px;
+}
+
+SelectedUnitElement {
+    color: rgb(255, 240, 250);
+    background-color: rgba(52, 140, 120, 0.5);
+    padding: 5px;
+    position: absolute;
+    width: 300px;
+    height: 500px;
+    align-items: stretch;
+    bottom: 0;
+    left: 0;
+}
+SelectedUnitElement > #Header {
+    flex-direction: row;
+}
+
+SelectedUnitElement Foldout
+{
+    margin: 2px;
+    border-color: rgb(25, 32, 11);
+    border-width: 1px;
+}
+
+SelectedUnitElement Foldout > Toggle
+{
+    margin: 0;
+    flex-direction: row-reverse;
+}
+
+SelectedUnitElement Foldout > #unity-content
+{
+    margin: 2px;
 }

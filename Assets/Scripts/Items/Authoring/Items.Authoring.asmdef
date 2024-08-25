@@ -18,7 +18,8 @@
         "Equipment",
         "Chip",
         "Lookups",
-        "Modding.API"
+        "Modding.API",
+        "Tasks"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
