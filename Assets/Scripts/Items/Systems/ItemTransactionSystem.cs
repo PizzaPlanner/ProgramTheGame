@@ -340,7 +340,7 @@ internal partial struct PrepareTransactionsJob : IJob
         return (t.Type is ItemTransaction.TransactionType.GenericAdd or ItemTransaction.TransactionType.AddAndSpawn or ItemTransaction.TransactionType.GenericRemove 
                     || (r.IsIncoming && slot.CanTransferInto) || (!r.IsIncoming && slot.CanTransferOut))  
                 && (slot.Type == r.ReservedType || (slot.Type == default && !slot.IsTypeLocked)) 
-                && (slot.SlotFilter.Id == default || Tag.TagsOf(r.ReservedType.BaseId).HasTag(slot.SlotFilter));
+                && (slot.SlotFilter.Id == default || Tag.HasTag(r.ReservedType.BaseId, slot.SlotFilter));
     }
 
     internal static void RemoveAllReservations(int id, ref ItemTransaction.TransactionHeader header, BufferLookup<ReservedSpace> reservationLookup)

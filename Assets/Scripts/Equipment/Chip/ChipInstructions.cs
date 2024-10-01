@@ -22,6 +22,6 @@ public struct AnyLogicValue
 
 public struct ParameterAccess
 {
-    public Identifieable TypeId;
+    public Identifiable TypeId;
     public int TypeParameterIndex;
 }

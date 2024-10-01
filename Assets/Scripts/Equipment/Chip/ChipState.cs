@@ -29,5 +29,5 @@ public struct ChipRegisters : IChipTargetable
     public Cell xy0, xy1, xy2, xy3;
     
     [LogicWritable]
-    public Identifieable id0, id1, id2, id3;
+    public Identifiable id0, id1, id2, id3;
 }

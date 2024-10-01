@@ -9,6 +9,6 @@ using UnityEngine.AddressableAssets;
 public sealed class ModCollectionAsset : IdentifiableAsset
 {
     public IdentifiableAsset[] Identifiables;
-    public override IEnumerable<Identifieable> TypeImpliedTags => new []{ Identifieable.FromName("TagMod") };
+    public override IEnumerable<Identifiable> TypeImpliedTags => new []{ Identifiable.FromName("TagMod") };
 }
 #endif

@@ -11,7 +11,7 @@ using UnityEngine;
 [UpdateInGroup(typeof(InitializationSystemGroup), OrderFirst = true)]
 public partial class IdentifiablesMappingGroup : ComponentSystemGroup
 {
-    EntityQuery query, idQuery;
+    EntityQuery modQuery, idQuery;
     
     internal static readonly SharedStatic<NativeParallelHashMap<ulong, IdentifiableData>> TagMap =
         SharedStatic<NativeParallelHashMap<ulong, IdentifiableData>>
@@ -22,13 +22,14 @@ public partial class IdentifiablesMappingGroup : ComponentSystemGroup
     protected override void OnCreate()
     {
         base.OnCreate();
-        query = SystemAPI.QueryBuilder()
+        modQuery = SystemAPI.QueryBuilder()
                          .WithAll<Prefab, ModDefinition>()
                          .WithOptions(EntityQueryOptions.IncludePrefab)
                          .WithNone<Mapped>().Build();
-        idQuery = SystemAPI.QueryBuilder().WithAll<Prefab, PreIdentifiable, Tags>()
+        idQuery = SystemAPI.QueryBuilder().WithAll<Prefab, Tags>()
+                           .WithNone<Mapped>()
                            .WithOptions(EntityQueryOptions.IncludePrefab).Build();
-        RequireForUpdate(query);
+        RequireForUpdate(modQuery);
         LoadedMods = new();
         TagMap.Data = new(0, Allocator.Persistent);
     }
@@ -39,26 +40,28 @@ public partial class IdentifiablesMappingGroup : ComponentSystemGroup
     {
         if(TagMap.Data.IsCreated)
             TagMap.Data.Dispose();
+        // modQuery.Dispose();
+        // idQuery.Dispose();
     }
     
     List<ulong> LoadedMods; 
 
     protected override void OnUpdate()
     {
-        var modEntities = query.ToEntityArray(Allocator.Temp);
+        var modEntities = modQuery.ToEntityArray(Allocator.Temp);
         foreach(var mod in modEntities)
             LoadMod(mod);
         
         base.OnUpdate();
         
-        EntityManager.RemoveComponent<PreIdentifiable>(idQuery);
         EntityManager.RemoveComponent<Tags>(idQuery);
-        EntityManager.AddComponent<Mapped>(query);
+        EntityManager.AddComponent<Mapped>(idQuery);
+        EntityManager.AddComponent<Mapped>(modQuery);
     }
 
     void LoadMod(Entity mod)
     {
-        var modId = SystemAPI.GetComponent<Identifieable>(mod).StableId;
+        var modId = SystemAPI.GetComponent<Identifiable>(mod).StableId;
         var modDef = SystemAPI.GetComponent<ModDefinition>(mod);
         if (LoadedMods.Contains(modId) && Application.isPlaying)
         {
@@ -72,26 +75,20 @@ public partial class IdentifiablesMappingGroup : ComponentSystemGroup
         for(int i = 0; i < modContent.Length; i++)
         {
             var e = modContent[i].Value;
-            var preId = SystemAPI.GetComponent<PreIdentifiable>(e);
+            var preId = SystemAPI.GetComponent<IdentifiableData>(e);
             if (SystemAPI.HasComponent<Parent>(e) && SystemAPI.GetComponent<Parent>(e).Value != Entity.Null)
                 return;
 
             if(preId.AssetGuid == 0)
                 Debug.LogError($"Entity {e} has invalid ID 0");
             else if (takenIds.Contains(preId.AssetGuid))
-                Debug.LogError($"ID {preId.AssetGuid} used by '{preId.TranslationKey}' is already taken!");
+                Debug.LogError($"ID {preId.AssetGuid} used by '{preId.DefaultName}' is already taken!");
             else
             {
-                TagMap.Data[preId.AssetGuid] = new IdentifiableData
-                {
-                    Icon = preId.Icon.Value,
-                    SpawnablePrefab = preId.Prefab,
-                    DefaultName = preId.Name,
-                    AssetGuid = preId.AssetGuid
-                };
+                TagMap.Data[preId.AssetGuid] = preId;
                 takenIds.Add(preId.AssetGuid);
 #if UNITY_EDITOR
-                EntityManager.SetName(e, preId.Name.Value);
+                EntityManager.SetName(e, preId.DefaultName.Value);
 #endif
             }
         }

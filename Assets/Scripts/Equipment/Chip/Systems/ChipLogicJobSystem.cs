@@ -32,13 +32,13 @@ partial class ChipLogicJobSystem : SystemBase
             InventoryLookup = SystemAPI.GetBufferLookup<Inventory>(true),
             entityHandle = SystemAPI.GetEntityTypeHandle(),
             equippedHandle = SystemAPI.GetComponentTypeHandle<Equipped>(true),
-            idHandle = SystemAPI.GetComponentTypeHandle<Identifieable>(true),
+            idHandle = SystemAPI.GetComponentTypeHandle<Identifiable>(true),
             instructionsHandle = SystemAPI.GetBufferTypeHandle<ChipInstructions>(true),
             chipStateHandle = SystemAPI.GetComponentTypeHandle<ChipState>(),
             EntityLookup = SystemAPI.GetEntityStorageInfoLookup(),
             DynamicTypeHandles = dynamicTypeHandles,
             EntityManager = EntityManager
-        }.Run(GetEntityQuery(typeof(ChipState), typeof(ChipInstructions), typeof(Identifieable), typeof(Equipped)));
+        }.Run(GetEntityQuery(typeof(ChipState), typeof(ChipInstructions), typeof(Identifiable), typeof(Equipped)));
         
     }
 }

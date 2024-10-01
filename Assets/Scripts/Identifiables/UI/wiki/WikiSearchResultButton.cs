@@ -7,8 +7,8 @@ namespace Identifiables.UI
 {
     public class WikiSearchResultButton : VisualElement
     {
-        Identifieable _target;
-        public WikiSearchResultButton(Identifieable target)
+        Identifiable _target;
+        public WikiSearchResultButton(Identifiable target)
         {
             _target = target;
             var icon = new VisualElement{name = "Icon"};
@@ -16,7 +16,7 @@ namespace Identifiables.UI
             Add(icon);
             RegisterCallback<MouseDownEvent>(x => GetFirstAncestorOfType<Wiki>().OpenTab(target));
             Add(new Label{text = target.DefaultName.Value});
-            foreach(var tag in Tag.TagsOf(target).Value)
+            foreach(var tag in Tag.AllTagsForId(target))
                 AddToClassList(tag.Id.DefaultName.Value.ToLower());
         }
 

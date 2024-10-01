@@ -26,7 +26,7 @@ namespace Units
                     // Recreate ghost as actual building
                     var parent = SystemAPI.GetComponent<Parent>(task.Target);
                     var bounds = SystemAPI.GetComponent<GridBounds>(task.Target);
-                    var id = SystemAPI.GetComponent<Identifieable>(task.Target);
+                    var id = SystemAPI.GetComponent<Identifiable>(task.Target);
                     ecb.DestroyEntity(task.Origin);
                     var plan = ecb.CreateEntity();
                     ecb.AddComponent(plan, new PlannedConstruction

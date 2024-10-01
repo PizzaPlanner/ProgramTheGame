@@ -50,9 +50,9 @@ namespace Identifiables.Authoring
             baker.AddComponent(id, prefab.Id);
             var preId = prefab.ToPreId;
             if (prefab is IdentifiableThingAsset)
-                preId.Prefab = id;
+                preId.SpawnablePrefab = id;
             baker.AddComponent(id, preId);
-            var tagSet = new NativeHashSet<Identifieable>(0, Allocator.Temp);
+            var tagSet = new NativeHashSet<Identifiable>(0, Allocator.Temp);
             foreach(var thing in prefab.TypeImpliedTags)
                 tagSet.Add(thing);
             var tagList = prefab.Tags.ToList();
@@ -76,9 +76,9 @@ namespace Identifiables.Authoring
             foreach(var tag in tagSet)
                 tags.Add(new Tags{Tag = tag});
             
-            // Fix for prefabs always having transform components even if everything has TransformUsageFlags.None
-            if (prefab is IdentifiableThingAsset ita && !tagSet.Contains(Identifieable.FromName("TagSpawnable")) && ita.Reference.transform.childCount == 0)
-                baker.AddComponent<NoOneWantsToSpawnMe>(baker.GetEntity(ita.Reference, TransformUsageFlags.ManualOverride));
+            // Fix for prefabs always having a LinkedEntityGroup
+            if (prefab is IdentifiableThingAsset ita && !tagSet.Contains(Identifiable.FromName("TagSpawnable")) && ita.Reference.transform.childCount == 0)
+                baker.AddComponent<NoLinkedEntities>(baker.GetEntity(ita.Reference, TransformUsageFlags.ManualOverride));
         }
     }
 }

@@ -120,6 +120,7 @@ namespace Core.Input
         {
             _entityLookup.Dispose();
             _actionSets.Dispose();
+            _setDefaults.Dispose();
         }
 
         protected override void OnUpdate()

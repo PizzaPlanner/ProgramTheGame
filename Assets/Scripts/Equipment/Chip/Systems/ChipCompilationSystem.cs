@@ -8,7 +8,7 @@ partial class ChipCompilationSystem : SystemBase
     protected override void OnUpdate()
     {
         var ecb = new EntityCommandBuffer(Allocator.Temp);
-        foreach (var (chip, state, id, e) in SystemAPI.Query<LogicChip, RefRW<ChipState>, Identifieable>()
+        foreach (var (chip, state, id, e) in SystemAPI.Query<LogicChip, RefRW<ChipState>, Identifiable>()
                                                            .WithNone<ChipInstructions>().WithEntityAccess())
         {
             chip.LastError = ChipScriptParser.GetFrom(chip, id, out var results);

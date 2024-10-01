@@ -25,7 +25,7 @@ namespace Units
                     ui.Add("ToDos", window);
                 }
                 
-                window.Update(e, todos, SystemAPI.GetComponentLookup<Task>(true), SystemAPI.GetComponentLookup<Identifieable>(true));
+                window.Update(e, todos, SystemAPI.GetComponentLookup<Task>(true), SystemAPI.GetComponentLookup<Identifiable>(true));
             }
             foreach (var (orders, e) in SystemAPI.Query<DynamicBuffer<TaskProvider>>().WithAll<Selected>().WithEntityAccess())
             {
@@ -43,7 +43,7 @@ namespace Units
                     SystemAPI.GetComponentLookup<Task>(true),
                     SystemAPI.GetBufferLookup<TaskProvider>(true),
                     SystemAPI.GetComponentLookup<TaskProgress>(true),
-                    SystemAPI.GetComponentLookup<Identifieable>(true),
+                    SystemAPI.GetComponentLookup<Identifiable>(true),
                     SystemAPI.GetBufferLookup<BroadcastStatus>(true),
                     SystemAPI.GetBufferLookup<ToDos>(true)
                     );
@@ -53,7 +53,7 @@ namespace Units
 
     class UnitTaskList : VisualElement
     {
-        public void Update(Entity entity, DynamicBuffer<ToDos> todos, ComponentLookup<Task> taskLookup, ComponentLookup<Identifieable> idLookup)
+        public void Update(Entity entity, DynamicBuffer<ToDos> todos, ComponentLookup<Task> taskLookup, ComponentLookup<Identifiable> idLookup)
         {
             var q = 0;
             for (int i = 0; i < todos.Length; i++)
@@ -91,7 +91,7 @@ namespace Units
     {
         public void Update(EntityCommandBuffer ecb, DynamicBuffer<TaskProvider> orders, ComponentLookup<Task> taskLookup, 
                            BufferLookup<TaskProvider> dependencies, ComponentLookup<TaskProgress> progresses, 
-                           ComponentLookup<Identifieable> idLookup, BufferLookup<BroadcastStatus> broadcastLookup, BufferLookup<ToDos> todoLookup)
+                           ComponentLookup<Identifiable> idLookup, BufferLookup<BroadcastStatus> broadcastLookup, BufferLookup<ToDos> todoLookup)
         {
             var q = 0;
             for (int i = 0; i < orders.Length; i++)

@@ -2,6 +2,7 @@ using Identifiables;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
+using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
@@ -56,14 +57,14 @@ partial struct BuildSystem : ISystem
         new BuildJob()
         {
             ecb = ecb,
-            constructTaskPrefab = Identifieable.FromName("BuildTask").SpawnablePrefab,
-            orderTaskPrefab = Identifieable.FromName("ItemOrderTask").SpawnablePrefab,
+            constructTaskPrefab = Identifiable.FromName("BuildTask").SpawnablePrefab,
+            orderTaskPrefab = Identifiable.FromName("ItemOrderTask").SpawnablePrefab,
             boundsLookup = SystemAPI.GetComponentLookup<GridBounds>(true),
             roomLookup = SystemAPI.GetComponentLookup<RoomModel>(false),
+            massLookup = SystemAPI.GetComponentLookup<MassModel>(false),
             structureLookup = SystemAPI.GetComponentLookup<GridStructure>(false),
             buildingLookup = SystemAPI.GetComponentLookup<Building>(true),
             ghostLookup = SystemAPI.GetComponentLookup<Ghost>(true)
-                
         }.Run();
     }
 }

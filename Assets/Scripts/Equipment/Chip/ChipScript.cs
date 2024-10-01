@@ -44,7 +44,7 @@ public class CSLineToken
     public string OriginalLine;
     public string[] Intermediate;
     
-    public ChipScriptLine[] ToScript(Identifieable executorId) => Intermediate.Select(x => ChipScriptLine.From(x, OriginalLine, executorId)).ToArray();
+    public ChipScriptLine[] ToScript(Identifiable executorId) => Intermediate.Select(x => ChipScriptLine.From(x, OriginalLine, executorId)).ToArray();
     
     public enum TokenType
     {
@@ -146,7 +146,7 @@ public class ChipScriptParser
     static readonly string[] Operators = new []{ ">=", ">", "<", "<=", "==", "!=", "+", "-", "*", "/", "%"};
     static readonly string[] Keywords = new [] { "not", "j", "jc" };
 
-    ChipScriptLine[] ResultFor(Identifieable executorId) => Token.SelectMany(x => x.ToScript(executorId)).ToArray();
+    ChipScriptLine[] ResultFor(Identifiable executorId) => Token.SelectMany(x => x.ToScript(executorId)).ToArray();
 
     public Error LastError;
     
@@ -158,7 +158,7 @@ public class ChipScriptParser
         Empty,
         SyntaxError
     }
-    public static Error GetFrom(LogicChip script, Identifieable executorId, out NativeArray<ChipInstructions> instructions)
+    public static Error GetFrom(LogicChip script, Identifiable executorId, out NativeArray<ChipInstructions> instructions)
     {
         instructions = default;
         if(script.LastError != Error.NoError)
@@ -244,7 +244,7 @@ public class ChipScriptParser
                 token.Type = CSToken.TokenType.Keyword;
             else if(word.Split('.', StringSplitOptions.RemoveEmptyEntries).Length == 2)
                 token.Type = CSToken.TokenType.Parameter;
-            else if(long.TryParse(word, out _) || Identifieable.FromName(word) != default)
+            else if(long.TryParse(word, out _) || Identifiable.FromName(word) != default)
                 token.Type = CSToken.TokenType.Constant;
             else
                 token.Type = CSToken.TokenType.Unknown;
@@ -289,8 +289,8 @@ public struct ChipScriptLine
     public bool IsValid;
     public bool WritesToExecutor;
     public bool ReadsFromExecutor;
-    public Identifieable LeftId;
-    public Identifieable RightId;
+    public Identifiable LeftId;
+    public Identifiable RightId;
     public int LeftIndex;
     public int RightIndex;
     public LogicType RightType;
@@ -298,7 +298,7 @@ public struct ChipScriptLine
     public long RightConstant;
     public bool RightIsConstant;
 
-    public static ChipScriptLine From(string intermediate, string original, Identifieable selfId)
+    public static ChipScriptLine From(string intermediate, string original, Identifiable selfId)
     {
         var lr = intermediate.Split('=');
         if (lr.Length != 2)
@@ -324,7 +324,7 @@ public struct ChipScriptLine
         else
         {
             var idName = left.Split('.')[0];
-            csl.LeftId = Identifieable.FromName(idName);
+            csl.LeftId = Identifiable.FromName(idName);
             if (csl.LeftId == default)
             {
                 Debug.LogError($"Invalid script line '{original}': No ID associated with {idName}");
@@ -340,7 +340,7 @@ public struct ChipScriptLine
         }
         else if (!right.Contains('.'))
         {
-            var id = Identifieable.FromName(right);
+            var id = Identifiable.FromName(right);
             csl.RightConstant = (long)id.StableId;
             csl.RightType = LogicType.Type;
             csl.RightIsConstant = true;
@@ -355,7 +355,7 @@ public struct ChipScriptLine
             }
             else
             {
-                csl.RightId = Identifieable.FromName(idName);
+                csl.RightId = Identifiable.FromName(idName);
                 if (csl.RightId == default)
                 {
                     Debug.LogError($"Invalid script line '{original}': No ID associated with {idName}");

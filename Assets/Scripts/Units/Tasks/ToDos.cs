@@ -8,7 +8,7 @@ namespace Units
     [InternalBufferCapacity(4)]
     public struct Skills : IBufferElementData
     {
-        public Identifieable Task;
+        public Identifiable Task;
         public int Level;
     }
 

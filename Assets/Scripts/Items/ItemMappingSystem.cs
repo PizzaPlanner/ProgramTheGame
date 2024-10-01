@@ -6,12 +6,12 @@ using Unity.Transforms;
 
 public partial class ItemMappingSystem : IdentifiableMappingSystem
 {
-    internal readonly static SharedStatic<NativeParallelHashMap<Identifieable, Item>> ItemsById 
-        = SharedStatic<NativeParallelHashMap<Identifieable, Item>>.GetOrCreate<ItemMappingSystem>();
+    internal readonly static SharedStatic<NativeParallelHashMap<Identifiable, Item>> ItemsById 
+        = SharedStatic<NativeParallelHashMap<Identifiable, Item>>.GetOrCreate<ItemMappingSystem>();
 
     protected override void OnCreate()
     {
-        ItemsById.Data = new NativeParallelHashMap<Identifieable, Item>(0, Allocator.Persistent);
+        ItemsById.Data = new NativeParallelHashMap<Identifiable, Item>(0, Allocator.Persistent);
     }
 
     protected override void OnDestroy()
@@ -22,20 +22,21 @@ public partial class ItemMappingSystem : IdentifiableMappingSystem
     protected override void OnUpdate()
     {
         foreach (var (item, id) in
-                 SystemAPI.Query<Item, Identifieable>()
-                          .WithAll<Prefab, PreIdentifiable>()
-                          .WithNone<Parent>()
+                 SystemAPI.Query<Item, Identifiable>()
+                          .WithAll<Prefab>()
+                          .WithNone<Parent, IdentifiablesMappingGroup.Mapped>()
                           .WithOptions(EntityQueryOptions.IncludePrefab))
         {
             ItemsById.Data[id] = item;
         }
 
         foreach (var (id, starterInventory) in 
-                 SystemAPI.Query<Identifieable, DynamicBuffer<StarterInventory>>()
-                          .WithAll<Prefab, PreIdentifiable>()
+                 SystemAPI.Query<Identifiable, DynamicBuffer<StarterInventory>>()
+                          .WithAll<Prefab>()
+                          .WithNone<IdentifiablesMappingGroup.Mapped>()
                           .WithOptions(EntityQueryOptions.IncludePrefab))
         {
-            var handledIds = new NativeList<Identifieable>(Allocator.Temp);
+            var handledIds = new NativeList<Identifiable>(Allocator.Temp);
             foreach (var item in starterInventory)
             {
                 if(handledIds.Contains(id))

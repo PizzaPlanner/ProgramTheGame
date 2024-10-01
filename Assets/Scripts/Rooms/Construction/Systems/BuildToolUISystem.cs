@@ -18,14 +18,14 @@ public struct BuildTool : ICursorTool
     public static InputAction PlaceBuilding => InputActions.For<BuildTool>()["PlaceBuilding"];
     public static InputAction Cancel => InputActions.For<BuildTool>()["Cancel"];
     public static InputAction Rotate => InputActions.For<BuildTool>()["Rotate"];
-
+    
+    public bool IsCreativeMode;
 }
 
 internal struct CurrentGhost : IComponentData { }
 
 partial class BuildToolUISystem : HotkeyToggleUISystem<BuildingBuildElement, BuildTool>
 {
-    bool isInCreativeMode => false;
     protected override BuildingBuildElement MakeWindow() => new();
     protected override string MenuEntry => "Build";
 
@@ -50,6 +50,7 @@ partial class BuildToolUISystem : HotkeyToggleUISystem<BuildingBuildElement, Bui
     {
         var ecb = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>()
                            .CreateCommandBuffer(World.Unmanaged);
+        var buildTool = SystemAPI.GetSingleton<BuildTool>();
         if (!SystemAPI.TryGetSingleton<CurrentGrid>(out var cgrid))
         {
             ClearGhost(ecb);
@@ -92,8 +93,8 @@ partial class BuildToolUISystem : HotkeyToggleUISystem<BuildingBuildElement, Bui
                 {
                     var plan = ecb.CreateEntity();
                     var mats = new FixedList64Bytes<BuildMaterials>();
-                    var prefab = SystemAPI.GetComponent<Identifieable>(ghost);
-                    if(!isInCreativeMode)
+                    var prefab = SystemAPI.GetComponent<Identifiable>(ghost);
+                    if(!buildTool.IsCreativeMode)
                         foreach(var mat in SystemAPI.GetBuffer<BuildMaterials>(prefab.SpawnablePrefab))
                             mats.Add(mat);
                     ecb.AddComponent(plan, new PlannedConstruction
@@ -101,7 +102,10 @@ partial class BuildToolUISystem : HotkeyToggleUISystem<BuildingBuildElement, Bui
                         Location = SystemAPI.GetComponent<GridBounds>(ghost).Min,
                         Materials = mats,
                         Parent = SystemAPI.GetComponent<Parent>(ghost).Value,
-                        Prefab = prefab
+                        Prefab = prefab,
+                        Energy = 25,
+                        Mass = 100,
+                        PrimaryElement = Identifiable.FromName("Ice")
                     });
                 }
                 ClearGhost(ecb);
@@ -158,7 +162,7 @@ partial class BuildToolUISystem : HotkeyToggleUISystem<BuildingBuildElement, Bui
         {
             Location = cell, 
             Parent = currentParent,
-            Prefab = SystemAPI.GetComponent<Identifieable>(GhostPrefab),
+            Prefab = SystemAPI.GetComponent<Identifiable>(GhostPrefab),
             IsPlacementMode = true
         });
         // var e = ecb.Instantiate(GhostPrefab);
@@ -179,10 +183,10 @@ class BuildingBuildElement : VisualElement
     public BuildingBuildElement()
     {
         var buildingTag = Tag.FromName("TagBuilding");
-        foreach (var idd in Identifieable.All)
+        foreach (var idd in Identifiable.All)
         {
-            var id = Identifieable.FromGuid(idd.AssetGuid);
-            if (Tag.TagsOf(id).HasTag(buildingTag))
+            var id = Identifiable.FromGuid(idd.AssetGuid);
+            if (Tag.HasTag(id, buildingTag))
             {
                 var button = new IdentifiableButton(){Target = id};
                 button.RegisterCallback<MouseDownEvent>(_ => WantBuildPrefab = button.Target.SpawnablePrefab);

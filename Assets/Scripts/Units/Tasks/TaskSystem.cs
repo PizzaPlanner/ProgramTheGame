@@ -27,7 +27,7 @@ namespace Units
             var crewLookup = SystemAPI.GetBufferLookup<Crew>(true);
             var ecb = SystemAPI.GetSingleton<BeginInitializationEntityCommandBufferSystem.Singleton>()
                                .CreateCommandBuffer(state.WorldUnmanaged).AsParallelWriter();
-            var idleTask = Identifieable.FromName("IdleTask").SpawnablePrefab;
+            var idleTask = Identifiable.FromName("IdleTask").SpawnablePrefab;
             state.Dependency = new ClearDanglingDependenciesJob
             {
                 storageLookup = SystemAPI.GetEntityStorageInfoLookup()

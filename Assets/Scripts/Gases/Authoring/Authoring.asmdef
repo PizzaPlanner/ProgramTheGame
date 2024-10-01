@@ -13,7 +13,8 @@
         "Unity.ResourceManager",
         "Unity.Mathematics.Extensions",
         "Identifiables",
-        "Gases"
+        "Gases",
+        "Identifiables.Authoring"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

@@ -55,7 +55,7 @@ public partial class ShipUI : VisualElement, IComponentData, IDisposable
         }
         get => _target;
     }
-    public Identifieable Id
+    public Identifiable Id
     {
         set
         {
@@ -91,7 +91,7 @@ public partial class ShipUI : VisualElement, IComponentData, IDisposable
         {
             var memberUI = new SignalButton
             {
-                Target = em.GetComponentData<Identifieable>(member.Member),
+                Target = em.GetComponentData<Identifiable>(member.Member),
                 Entity = member.Member
             };
             memberUI.RegisterCallback<MouseDownEvent>(_ =>
@@ -113,9 +113,9 @@ public partial class ShipUI : VisualElement, IComponentData, IDisposable
             parent.Q("Docked").Add(this);
     }
 
-    public void UpdateCrewTasks(DynamicBuffer<Crew> crew, ComponentLookup<Task> taskLookup, BufferLookup<ToDos> todosLookup, ComponentLookup<Identifieable> idLookup)
+    public void UpdateCrewTasks(DynamicBuffer<Crew> crew, ComponentLookup<Task> taskLookup, BufferLookup<ToDos> todosLookup, ComponentLookup<Identifiable> idLookup)
     {
-        var idle = Identifieable.FromName("IdleTask");
+        var idle = Identifiable.FromName("IdleTask");
         var crewBtns = this.Q("Crew");
         if(crew.Length != crewBtns.childCount)
             return;
@@ -161,10 +161,10 @@ partial class ShipUISystem : UISystem
         foreach (var e in noUIQuery.ToEntityArray(Allocator.Temp))
         {
             ShipUI ui;
-            if (SystemAPI.HasComponent<Identifieable>(e))
+            if (SystemAPI.HasComponent<Identifiable>(e))
                 ui = new ShipUI()
                 {
-                    Id = SystemAPI.GetComponent<Identifieable>(e), 
+                    Id = SystemAPI.GetComponent<Identifiable>(e), 
                     Target = e
                 };
             else
@@ -185,7 +185,7 @@ partial class ShipUISystem : UISystem
         var cgrid = SystemAPI.GetSingletonRW<CurrentGrid>();
         var taskLookup = SystemAPI.GetComponentLookup<Task>(true); 
         var todosLookup = SystemAPI.GetBufferLookup<ToDos>(true);
-        var idLookup = SystemAPI.GetComponentLookup<Identifieable>(true);
+        var idLookup = SystemAPI.GetComponentLookup<Identifiable>(true);
         foreach (var (crew, ui, e) in SystemAPI.Query<DynamicBuffer<Crew>, ShipUI>().WithEntityAccess())
         {
             ui.UpdateCrewTasks(crew, taskLookup, todosLookup, idLookup);

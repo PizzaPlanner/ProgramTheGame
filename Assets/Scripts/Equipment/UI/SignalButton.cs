@@ -8,14 +8,14 @@ using UnityEngine.UIElements;
 
 public class SignalButton : IdentifiableButton
 {
-    TagList _assignableTo;
-    public TagList AssignableTo
+    Tag[] _assignableTo;
+    public Tag[] AssignableTo
     {
         set
         {
-            if(!_assignableTo.IsUnset)
+            if(_assignableTo is { Length: > 0 })
                 UnregisterCallback<MouseDownEvent>(OnClickAssign);
-            if(!value.IsUnset)
+            if(value is { Length: > 0 })
                 RegisterCallback<MouseDownEvent>(OnClickAssign);
             _assignableTo = value;
         }
@@ -38,7 +38,7 @@ public class SignalButton : IdentifiableButton
     int _value;
 
     Entity _entity;
-    Identifieable _value1;
+    Identifiable _value1;
 
     public Entity Entity
     {
@@ -55,7 +55,7 @@ public class SignalButton : IdentifiableButton
 
     void OnClickAssign(MouseDownEvent evt)
     {
-        if(AssignableTo.IsUnset)
+        if(AssignableTo == null || AssignableTo.Length == 0)
             return;
             
         SignalSelectionWindow.Show(this, x =>
@@ -68,11 +68,11 @@ public class SignalButton : IdentifiableButton
         }, AssignableTo);
     }
     
-    public Action<Identifieable> OnValueChanged;
+    public Action<Identifiable> OnValueChanged;
 }
 
 public class SignalSelectionIdCollection : VisualElement
 {
-    public TagList Tag;
+    public Tag Tag;
     public Tab Tab;
 }

@@ -41,15 +41,15 @@ public partial class LogicParametersMappingSystem : IdentifiableMappingSystem, I
     // static readonly SharedStatic<BlobAssetReference<BlobArray<BlobArray<ItemTypeLogicParameter>>>> TypeParameters =
     //     SharedStatic<BlobAssetReference<BlobArray<BlobArray<ItemTypeLogicParameter>>>>.GetOrCreate<ItemTypeLogicParameter>();
     
-    static readonly SharedStatic<UnsafeHashMap<Identifieable, NativeArray<ItemTypeLogicParameter>>> TypeParameters2 =
-        SharedStatic<UnsafeHashMap<Identifieable, NativeArray<ItemTypeLogicParameter>>>.GetOrCreate<ItemTypeLogicParameter>();
+    static readonly SharedStatic<UnsafeHashMap<Identifiable, NativeArray<ItemTypeLogicParameter>>> TypeParameters2 =
+        SharedStatic<UnsafeHashMap<Identifiable, NativeArray<ItemTypeLogicParameter>>>.GetOrCreate<ItemTypeLogicParameter>();
     
     public static NativeList<TypeIndex> AllParameterTypeIndices { get; private set; }
     
-    public static NativeArray<ItemTypeLogicParameter> ParametersOf(Identifieable id) => TypeParameters2.Data.TryGetValue(id, out var array) ? array 
+    public static NativeArray<ItemTypeLogicParameter> ParametersOf(Identifiable id) => TypeParameters2.Data.TryGetValue(id, out var array) ? array 
         : new NativeArray<ItemTypeLogicParameter>(0, Allocator.Temp);
 
-    public static bool TryGetLogicParameter(Identifieable id, int index, out ItemTypeLogicParameter data)
+    public static bool TryGetLogicParameter(Identifiable id, int index, out ItemTypeLogicParameter data)
     {
         data = ParametersOf(id).Length > index ? ParametersOf(id)[index] : default;
         return ParametersOf(id).Length > index;
@@ -83,10 +83,12 @@ public partial class LogicParametersMappingSystem : IdentifiableMappingSystem, I
     // TODO: Make sure all types have sequential layout
     protected override void OnUpdate()
     {
-        var idTypeMap = new Dictionary<Identifieable, List<ItemTypeLogicParameter>>(); 
+        var idTypeMap = new Dictionary<Identifiable, List<ItemTypeLogicParameter>>(); 
         foreach (var (id, e) in
-                 SystemAPI.Query<Identifieable>()
-                          .WithAll<Prefab, PreIdentifiable>()
+                 SystemAPI.Query<Identifiable>()
+                          .WithAll<Prefab>()
+                          .WithNone<IdentifiablesMappingGroup.Mapped>()
+                          .WithOptions(EntityQueryOptions.IncludePrefab)
                           .WithEntityAccess())
         {
             var chipTypes = new List<Type>(); 
@@ -154,12 +156,12 @@ public partial class LogicParametersMappingSystem : IdentifiableMappingSystem, I
             return LogicType.Unit;
         if(type == typeof(Cell))
             return LogicType.Coordinate;
-        if(type == typeof(Identifieable))
+        if(type == typeof(Identifiable))
             return LogicType.Type;
         return LogicType.Number;
     }
 
-    public VisualElement ProvideWikiDetails(Identifieable id)
+    public VisualElement ProvideWikiDetails(Identifiable id)
     {
         var typeParams = ParametersOf(id);
         if(typeParams.Length == 0)

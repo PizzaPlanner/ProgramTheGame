@@ -27,7 +27,7 @@ public class CraftingWindow : VisualElement, IComponentData
             button =>
             {
                 SelectedRecipe = button.Target;
-            }, TagList.From(Tag.FromName("TagRecipe"), Tag.FromName("TagControlFlow")),
+            }, new[] { Tag.FromName("TagRecipe"), Tag.FromName("TagControlFlow") },
             button =>
             {
                 if(button.Target == default)
@@ -39,7 +39,7 @@ public class CraftingWindow : VisualElement, IComponentData
             });
     }
     
-    public Identifieable SelectedRecipe; 
+    public Identifiable SelectedRecipe; 
 
     public DynamicBuffer<Craftables> Craftables { get; set; }
 

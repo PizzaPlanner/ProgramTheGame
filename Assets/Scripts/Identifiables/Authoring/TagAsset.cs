@@ -8,6 +8,6 @@ using UnityEngine.AddressableAssets;
 public class TagAsset : IdentifiableAsset
 {
     public TagAsset[] RequiresOtherTags;
-    public override IEnumerable<Identifieable> TypeImpliedTags => new []{ Identifieable.FromName("Tag") };
+    public override IEnumerable<Identifiable> TypeImpliedTags => new []{ Identifiable.FromName("Tag") };
 }
 #endif

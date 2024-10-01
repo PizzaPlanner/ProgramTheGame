@@ -21,12 +21,12 @@ namespace Identifiables.UI
             Add(refs);
         }
         
-        Identifieable _content;
-        public Identifieable Content
+        Identifiable _content;
+        public Identifiable Content
         {
             set
             {
-                this.Q<Label>("Title").text = $"Translate({value.DefaultName.Value}) (from {value.Origin})";
+                this.Q<Label>("Title").text = $"Translate({value.DefaultName.Value})";
                 this.Q<Label>("Description").text = "lorem ispum\nlorem ipsum\nHello World?";
                 this.Q<Label>("IdRef").text = $"Id:   <link=\"id\">{value.StableId.ToString()}</link>\nName: <link=\"name\">{value.DefaultName.Value}</link>";
                 this.Q("Icon").style.backgroundImage = value.Icon;

@@ -28,7 +28,7 @@ namespace Identifiables.UI
             Add(tabs);
         }
         
-        public void OpenTab(Identifieable id)
+        public void OpenTab(Identifiable id)
         {
             var openTabs = this.Q<TabView>().Query<DetailPage>().Where(x => x.Content == id);
             if (openTabs.ToList().Count == 0)
@@ -63,10 +63,10 @@ namespace Identifiables.UI
                     };
 
             this.Q<LandingPage>().Init();
-            didInit = Identifieable.All.Length > 0;
+            didInit = Identifiable.All.Length > 0;
         }
 
-        static VisualElement DefaultWikiDetails(Identifieable id, Dictionary<Identifieable, List<IdentifiableMappingSystem.IdentifiableLink>> Relations)
+        static VisualElement DefaultWikiDetails(Identifiable id, Dictionary<Identifiable, List<IdentifiableMappingSystem.IdentifiableLink>> Relations)
         {
             if(!Relations.TryGetValue(id, out var relations))
                 return null;

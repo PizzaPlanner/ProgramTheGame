@@ -17,11 +17,11 @@ namespace Core.Equipment
     [UpdateInGroup(typeof(TickBasedSystemGroup))]
     partial struct StomachSystem : ISystem
     {
-        Identifieable HungryStatus, StarvingStatus;
+        Identifiable HungryStatus, StarvingStatus;
         public void OnCreate(ref SystemState state)
         {
-            HungryStatus = Identifieable.FromName("Hungry");
-            StarvingStatus = Identifieable.FromName("Starving");
+            HungryStatus = Identifiable.FromName("Hungry");
+            StarvingStatus = Identifiable.FromName("Starving");
         }
 
         public void OnUpdate(ref SystemState state)

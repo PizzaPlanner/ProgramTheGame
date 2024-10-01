@@ -277,6 +277,25 @@ IngameMenu > #ChipEditor {
     background-image: url("project://database/Assets/3rdParty/2000_Icons/500_weapons/Book_20.png?fileID=2800000&guid=19ac1da5e8eb2d24e93e4925cea79a06&type=3#Book_20");
 }
 
+IngameMenu > #TemperatureOverlay {
+    background-image: url("project://database/Assets/3rdParty/64%20flat%20icons/png/64px/Inventory_PotionSmall.png?fileID=2800000&guid=cd108ac1e6a3b8a49929c82009040ada&type=3#Inventory_PotionSmall");
+}
+
+IngameMenu > #PressureOverlay {
+    background-image: url("project://database/Assets/3rdParty/64%20flat%20icons/png/64px/Modifiers_Luck.png?fileID=2800000&guid=d7bfe709e7c05f54fbef7ab6c7979ebb&type=3#Modifiers_Luck");
+}
+
+.overlayPopup {
+    border-width: 2px;
+    border-color: rgb(17, 22, 35);
+    background-color: rgba(24, 42, 49, 0.66);
+    color: rgb(255, 255, 255);
+    position: absolute;
+    bottom: 36px;
+    right: 5px;
+}
+
+
 SignalButton.shows-entity > #Frame {
     border-left-color: rgba(0, 188, 0, 0.76);
     border-right-color: rgba(0, 188, 0, 0.76);
@@ -450,22 +469,22 @@ SystemView {
     padding: 3px;
 }
 
-
 ShipUI {
     min-height: 28px;
     min-width: 50px;
 }
+
 ShipUI > #Header {
     background-color: rgba(0, 0, 0, 0.2);
     color: rgb(255, 255, 255);
     flex-direction: row;
 }
+
 ShipUI.current-grid > #Header {
     background-color: rgba(150, 100, 0, 0.4);
 }
 
-ShipUI > #Header > SignalButton
-{
+ShipUI > #Header > SignalButton {
     width: 24px;
     height: 24px;
 }
@@ -479,10 +498,12 @@ ShipUI > #Crew {
     margin-left: 6px;
     flex-direction: row;
 }
+
 ShipUI > #Docked {
     margin-left: 6px;
     flex-direction: column;
 }
+
 ShipUI SignalButton > IdentifiableButton#CurrentTask {
     width: 24px;
     height: 24px;
@@ -506,10 +527,12 @@ Tooltip {
     color: rgb(255, 230, 230);
     padding: 5px;
 }
+
 Tooltip > Label {
     padding: 0;
     margin: 3px;
 }
+
 TooltipTitle {
     font-size: 16px;
 }
@@ -523,45 +546,43 @@ StatBar > .id-button {
     width: 32px;
     height: 32px;
 }
+
 StatBar > #Bar {
     margin: 1px;
     height: 32px;
     flex-grow: 1;
-    background-color: rgb(15,25,35);
+    background-color: rgb(15, 25, 35);
     padding: 2px;
 }
 
 StatBar > #Bar > #Progress {
-    background-color: rgb(150,180,125);
+    background-color: rgb(150, 180, 125);
     flex-grow: 1;
 }
 
 StatBar#Lungs > #Bar > #Progress {
-    background-color: rgb(104,136,180);
+    background-color: rgb(104, 136, 180);
 }
 
 StatBar#Stomach > #Bar > #Progress {
-    background-color: rgb(10,166,104);
+    background-color: rgb(10, 166, 104);
 }
 
 StatBar.low > #Bar > #Progress {
-    background-color: rgb(180,50,35);
+    background-color: rgb(180, 50, 35);
 }
 
 StatBar.critical > #Bar > #Progress {
-    background-color: rgb(255,35,35);
+    background-color: rgb(255, 35, 35);
 }
 
-
-StatsUI > #Stats 
-{
+StatsUI > #Stats {
     margin: 3px;
     flex-direction: row;
-    flex-wrap: wrap;    
+    flex-wrap: wrap;
 }
 
-StatsUI > #Stats > .id-button
-{
+StatsUI > #Stats > .id-button {
     height: 24px;
     width: 24px;
 }
@@ -577,24 +598,39 @@ SelectedUnitElement {
     bottom: 0;
     left: 0;
 }
+
 SelectedUnitElement > #Header {
     flex-direction: row;
 }
 
-SelectedUnitElement Foldout
-{
+SelectedUnitElement Foldout {
     margin: 2px;
     border-color: rgb(25, 32, 11);
     border-width: 1px;
 }
 
-SelectedUnitElement Foldout > Toggle
-{
+SelectedUnitElement Foldout > Toggle {
     margin: 0;
     flex-direction: row-reverse;
 }
 
-SelectedUnitElement Foldout > #unity-content
-{
+SelectedUnitElement Foldout > #unity-content {
     margin: 2px;
+}
+
+MassVolumeUI > #MolesContainer {
+    flex-direction: row;
+}
+
+MassVolumeUI > #MolesContainer > IdentifiableButton {
+    width: 32px;
+    height: 32px;
+    margin-bottom: 24px;
+}
+
+MassVolumeUI > #MolesContainer > IdentifiableButton > Label {
+    background-color: rgba(0,0,0,0.5);
+    position: absolute;
+    padding: 2px;
+    bottom: -24px;
 }

@@ -4,6 +4,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UIElements;
 
 public struct RoomOverlayHotkey : IMapOverlay
 {
@@ -12,6 +13,11 @@ public struct RoomOverlayHotkey : IMapOverlay
 
 partial class RoomOverlayLystem : MapOverlaySystem<RoomOverlayHotkey>
 {
+    protected override VisualElement MakeWindow()
+    {
+        return new Label("Showing Rooms");
+    }
+
     protected override string MenuEntry => "Rooms";
     protected override void SetPixels(Entity gridEntity, Texture2D texture, GridBounds bounds)
     {

@@ -16,7 +16,6 @@ namespace Identifiables.UI
         {
             Add(new VisualElement{name = "Icon", pickingMode = PickingMode.Ignore});
             Add(new VisualElement{name = "Frame", pickingMode = PickingMode.Ignore});
-            Add(new Label() { pickingMode = PickingMode.Ignore });
             RegisterCallback<MouseDownEvent>(x =>
             {
                 if(x.button != 2 || Target == default)
@@ -27,8 +26,8 @@ namespace Identifiables.UI
             ITooltipProvider.RegisterCallbacks(this);
         }
 
-        Identifieable _id;
-        public Identifieable Target
+        Identifiable _id;
+        public Identifiable Target
         {
             set
             {

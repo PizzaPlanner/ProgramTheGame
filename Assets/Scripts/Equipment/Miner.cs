@@ -19,7 +19,7 @@ partial struct MiningSystem : ISystem
         var ecb = GetSingleton<BeginInitializationEntityCommandBufferSystem.Singleton>()
             .CreateCommandBuffer(state.WorldUnmanaged);
         var store = GetSingleton<TransactionStore>();
-        var mineSkill = Identifieable.FromName("MineSkill");
+        var mineSkill = Identifiable.FromName("MineSkill");
         foreach (var (task, progress, e) in 
                  Query<Task, RefRW<TaskProgress>>().WithAll<MiningTask, WorkedOn>().WithEntityAccess())
         {

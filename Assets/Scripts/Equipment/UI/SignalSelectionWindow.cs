@@ -1,7 +1,10 @@
 ﻿using Identifiables;
+using Identifiables.UI;
 using Modding.API;
 using Modding.API.Tags;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.UIElements;
@@ -15,6 +18,7 @@ public partial class SignalSelectionWindow : ScrollView
     public SignalSelectionWindow()
     {
         focusable = true;
+        styleSheets.Add(Addressables.LoadAssetAsync<StyleSheet>("UI/Stylesheets/Wiki.uss").WaitForCompletion());
     }
 
     public void Init()
@@ -23,7 +27,11 @@ public partial class SignalSelectionWindow : ScrollView
         foreach (var tag in Tag.All)
         {
             var tab = new Tab(tag.DefaultName.Value);
-            tab.Add(new SignalSelectionIdCollection() { name = tag.DefaultName.Value, Tag = TagList.From(tag), Tab = tab });
+            tab.tabHeader.Clear();
+            var headerBtn = new WikiSearchResultButton(tag);
+            headerBtn.SetEnabled(false);
+            tab.tabHeader.Add(headerBtn);
+            tab.Add(new SignalSelectionIdCollection() { name = tag.DefaultName.Value, Tag = tag, Tab = tab });
             Add(tab);
         }
         RegisterCallback<FocusOutEvent>(_ => style.display = DisplayStyle.None);
@@ -31,7 +39,7 @@ public partial class SignalSelectionWindow : ScrollView
         foreach (var collection in this.Query<SignalSelectionIdCollection>().Build())
         {
             collection.Clear();
-            if (collection.name == "ControlFlow")
+            if (collection.name == "TagControlFlow")
             {
                 collection.Add(MakeButton(default));
                 collection.Add(new Label("Clear selection"));
@@ -42,19 +50,14 @@ public partial class SignalSelectionWindow : ScrollView
                 collection.Add(constBtn);
                 collection.Add(constVal);
             }
-            foreach (var idd in Identifieable.All)
-            {
-                var id = Identifieable.FromGuid(idd.AssetGuid);
-                if(!Tag.TagsOf(id).Contains(collection.Tag))
-                    continue;
+            foreach (var id in Tag.AllIdsForTag(collection.Tag))
                 collection.Add(MakeButton(id));
-            }
         }
         
         Instance = this;
     }
 
-    SignalButton MakeButton(Identifieable id)
+    SignalButton MakeButton(Identifiable id)
     {
         var btn = new SignalButton(){Target = id};
         btn.RegisterCallback<MouseDownEvent>(_ =>
@@ -66,7 +69,7 @@ public partial class SignalSelectionWindow : ScrollView
         return btn;
     }
 
-    public static void Show(VisualElement nextTo, Action<SignalButton> action, TagList tags, Func<SignalButton, bool> signalFilter = null)
+    public static void Show(VisualElement nextTo, Action<SignalButton> action, Tag[] tags, Func<SignalButton, bool> signalFilter = null)
     {
         foreach (var collection in Instance.Query<SignalSelectionIdCollection>().Build())
         {
@@ -78,7 +81,7 @@ public partial class SignalSelectionWindow : ScrollView
         }
         Instance.OnSignalSelected = action;
         Instance.style.display = DisplayStyle.Flex;
-        Instance.transform.position = nextTo.worldBound.center;
+        // Instance.transform.position = nextTo.worldBound.center;
         Instance.BringToFront();
     }
 }

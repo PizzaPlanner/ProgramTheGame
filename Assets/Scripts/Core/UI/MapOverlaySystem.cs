@@ -9,27 +9,24 @@ namespace Core
 {
     public abstract partial class MapOverlaySystem<T> : HotkeyToggleUISystem<VisualElement, T> where T : unmanaged, IMapOverlay
     {
-        protected sealed override VisualElement MakeWindow() => null;
         protected virtual string TextureProperty => "_Data0";
 
         GameObject _overlay;
         Texture2D _texture;
         GridBounds _lastGridBounds;
-        protected override void OnStartRunning()
-        {
-            _overlay = Addressables.InstantiateAsync("GasOverlayPlane").WaitForCompletion();
-            var gridEntity = SystemAPI.GetSingletonEntity<CurrentGrid>();
-            var bounds = SystemAPI.GetComponent<GridStructure>(gridEntity).LocalAABB; 
-            RecreateTexture(bounds);
-        }
-        
+        Entity _lastGrid;
+
         protected override void OnStopRunning()
         {
+            base.OnStopRunning();
+            _lastGrid = Entity.Null;
             GameObject.Destroy(_overlay);
         }
 
         void RecreateTexture(GridBounds bounds)
         {
+            if (_overlay == null)
+                _overlay = Addressables.InstantiateAsync("GasOverlayPlane").WaitForCompletion();
             _texture = new Texture2D(bounds.Scale.x, bounds.Scale.y, TextureFormat.RGBA32, false)
             {
                 filterMode = FilterMode.Point
@@ -42,9 +39,16 @@ namespace Core
         protected override void OnUpdate()
         {
             var gridEntity = SystemAPI.GetSingleton<CurrentGrid>().Grid;
+            if (!SystemAPI.HasComponent<GridStructure>(gridEntity))
+            {
+                _lastGrid = Entity.Null;
+                return;
+            }
+            
             var bounds = SystemAPI.GetComponent<GridStructure>(gridEntity).LocalAABB;
-            if(math.any(bounds.Scale != _lastGridBounds.Scale))
+            if(math.any(bounds.Scale != _lastGridBounds.Scale) || _lastGrid != gridEntity)
                 RecreateTexture(bounds);
+            _lastGrid = gridEntity;
             var ltw = SystemAPI.GetComponent<LocalToWorld>(gridEntity);
             _overlay.transform.position = GridStructure.LocalToWorld(ltw, bounds.Center);
             _overlay.transform.rotation = ltw.Rotation;

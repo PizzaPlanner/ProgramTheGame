@@ -22,7 +22,7 @@ namespace Units
 
     public struct TaskRequirement : IComponentData
     {
-        public Identifieable Skill;
+        public Identifiable Skill;
         public int MinLevel;
     }
     

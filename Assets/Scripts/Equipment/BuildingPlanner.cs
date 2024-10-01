@@ -6,6 +6,6 @@ namespace Equipment
     public struct BuildingPlanner : IChipTargetable
     {
         [LogicWritable]
-        public Identifieable Building;
+        public Identifiable Building;
     }
 }

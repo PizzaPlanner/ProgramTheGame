@@ -24,11 +24,11 @@ namespace Identifiables.UI
 
         public void Init()
         {
-            var all = Identifieable.All;
+            var all = Identifiable.All;
             var target = searches.Q("navigate");
             foreach (var id in all)
             {
-                target.Add(new WikiSearchResultButton(Identifieable.FromGuid(id.AssetGuid)));
+                target.Add(new WikiSearchResultButton(Identifiable.FromGuid(id.AssetGuid)));
             }
 
             foreach (var tag in Tag.All)

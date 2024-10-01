@@ -5,10 +5,10 @@ using Unity.Entities;
 
 partial class StatusMappingSystem : IdentifiableMappingSystem
 {
-    internal readonly static SharedStatic<NativeParallelHashMap<Identifieable, TypeIndex>> StatusTypesById 
-        = SharedStatic<NativeParallelHashMap<Identifieable, TypeIndex>>.GetOrCreate<StatusMappingSystem>();
+    internal readonly static SharedStatic<NativeParallelHashMap<Identifiable, TypeIndex>> StatusTypesById 
+        = SharedStatic<NativeParallelHashMap<Identifiable, TypeIndex>>.GetOrCreate<StatusMappingSystem>();
 
-    public static bool TryGetStatus(Identifieable id, out TypeIndex type) => StatusTypesById.Data.TryGetValue(id, out type);
+    public static bool TryGetStatus(Identifiable id, out TypeIndex type) => StatusTypesById.Data.TryGetValue(id, out type);
     
     protected override void OnCreate()
     {
@@ -23,8 +23,9 @@ partial class StatusMappingSystem : IdentifiableMappingSystem
 
     protected override void OnUpdate()
     {
-        foreach (var (id, e) in SystemAPI.Query<Identifieable>()
-                                         .WithAll<Prefab, PreIdentifiable, Status>()
+        foreach (var (id, e) in SystemAPI.Query<Identifiable>()
+                                         .WithAll<Prefab, Status>()
+                                         .WithNone<IdentifiablesMappingGroup.Mapped>()
                                          .WithOptions(EntityQueryOptions.IncludePrefab)
                                          .WithEntityAccess())
         {

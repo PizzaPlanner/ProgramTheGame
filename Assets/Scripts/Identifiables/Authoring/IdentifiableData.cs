@@ -12,15 +12,15 @@ public class IdentifiableAsset : ScriptableObject
     public Texture2D Icon;
     public TagAsset[] Tags;
     
-    public Identifieable Id => Identifieable.FromGuid(NameHash);
+    public Identifiable Id => Identifiable.FromGuid(NameHash);
     
     public virtual void AssignEditorValues() { }
-    public virtual IEnumerable<Identifieable> TypeImpliedTags { get; } = new Identifieable[]{ };
+    public virtual IEnumerable<Identifiable> TypeImpliedTags { get; } = new Identifiable[]{ };
     
-    public PreIdentifiable ToPreId => new PreIdentifiable
+    public IdentifiableData ToPreId => new IdentifiableData
     {
         Icon = Icon,
-        Name = name,
+        DefaultName = name,
         AssetGuid = NameHash
     };
 }

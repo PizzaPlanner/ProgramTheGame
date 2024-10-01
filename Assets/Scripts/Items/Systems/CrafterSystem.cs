@@ -10,8 +10,8 @@ partial struct CrafterSystem : ISystem
         var ecb = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>()
                            .CreateCommandBuffer(state.WorldUnmanaged);
         var store = SystemAPI.GetSingletonRW<TransactionStore>();
-        craftTaskPrefab = Identifieable.FromName("CraftTask").SpawnablePrefab;
-        orderTaskPrefab = Identifieable.FromName("ItemOrderTask").SpawnablePrefab;
+        craftTaskPrefab = Identifiable.FromName("CraftTask").SpawnablePrefab;
+        orderTaskPrefab = Identifiable.FromName("ItemOrderTask").SpawnablePrefab;
         
         // Queue up a new craft task
         foreach (var (crafter, recipes, taskProviders, onGrid, e) in 
@@ -45,7 +45,7 @@ partial struct CrafterSystem : ISystem
                 continue;
             }
                 
-            var craftTask = CreateCraftTask(ref state, e, onGrid.Grid, crafter.ValueRW.Recipe, ecb);
+            CreateCraftTask(ref state, e, onGrid.Grid, crafter.ValueRW.Recipe, ecb);
         }
         
         // Finish crafting
@@ -73,7 +73,7 @@ partial struct CrafterSystem : ISystem
     }
     
     Entity craftTaskPrefab, orderTaskPrefab;
-    Entity CreateCraftTask(ref SystemState state, Entity crafter, Entity crewContext, Identifieable recipe, EntityCommandBuffer ecb)
+    Entity CreateCraftTask(ref SystemState state, Entity crafter, Entity crewContext, Identifiable recipe, EntityCommandBuffer ecb)
     {
         var inventory = SystemAPI.GetBuffer<Inventory>(crafter);
         var recipeInput = SystemAPI.GetBuffer<CraftingInput>(recipe.SpawnablePrefab);

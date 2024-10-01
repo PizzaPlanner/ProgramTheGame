@@ -5,6 +5,6 @@ namespace Identifiables.UI
 {
     public interface IWikiProvider
     {
-        VisualElement ProvideWikiDetails(Identifieable id);
+        VisualElement ProvideWikiDetails(Identifiable id);
     }
 }

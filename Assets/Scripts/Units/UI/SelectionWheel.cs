@@ -55,7 +55,7 @@ namespace Units
                 wheel.Focus();
         }
 
-        void OnClick(Identifieable id)
+        void OnClick(Identifiable id)
         {
             var todo = _entityManager.Instantiate(id.SpawnablePrefab);
             _entityManager.SetComponentData(todo, new Task
@@ -77,9 +77,9 @@ namespace Units
 
     public class SelectionWheelButton : Label
     {
-        public SelectionWheelButton(string taskId, NativeArray<Skills> originSkills, EntityManager em, Action<Identifieable> onClick)
+        public SelectionWheelButton(string taskId, NativeArray<Skills> originSkills, EntityManager em, Action<Identifiable> onClick)
         {
-            var tid = Identifieable.FromName(taskId);
+            var tid = Identifiable.FromName(taskId);
             if (em.HasComponent<TaskRequirement>(tid.SpawnablePrefab))
             {
                 style.display = DisplayStyle.None;

@@ -10,13 +10,16 @@ using Debug = UnityEngine.Debug;
 public struct PlannedConstruction : IComponentData
 {
     public Entity Parent;
-    public Identifieable Prefab;
+    public Identifiable Prefab;
     public Cell Location;
     public byte Rotation;
     public bool IsGhost => Materials.Length > 0 || IsPlacementMode;
     public FixedList64Bytes<BuildMaterials> Materials;
     public bool IsPlacementMode;
     // public FixedString64Bytes Name;
+    public Identifiable PrimaryElement;
+    public float Mass;
+    public float Energy;
     
     public LocalTransform ToTransform => LocalTransform.FromPosition(GridStructure.CellToLocal(Location));
 }
@@ -26,6 +29,7 @@ public partial struct BuildJob : IJobEntity
     public EntityCommandBuffer ecb;
     public Entity constructTaskPrefab, orderTaskPrefab;
     [NativeDisableContainerSafetyRestriction] public ComponentLookup<RoomModel> roomLookup;
+    [NativeDisableContainerSafetyRestriction] public ComponentLookup<MassModel> massLookup;
     [ReadOnly] public ComponentLookup<GridBounds> boundsLookup;
     [ReadOnly] public ComponentLookup<Building> buildingLookup;
     [ReadOnly] public ComponentLookup<Ghost> ghostLookup;
@@ -102,13 +106,18 @@ public partial struct BuildJob : IJobEntity
         {
             ecb.AddComponent<PendingGridUpdate>(planned.Parent);
             ecb.RemoveComponent<BuildMaterials>(entity);
-            if(building.Layer == BuildingLayer.Wall)
-                Rooms.AddWall(area);
-            area = area.Extend(2);
             var gridBbox = structureLookup[planned.Parent];
-            gridBbox.BoundsMin = math.min(gridBbox.BoundsMin, area.Min);
-            gridBbox.BoundsMax = math.max(gridBbox.BoundsMax, area.Max);
+            gridBbox.BoundsMin = math.min(gridBbox.BoundsMin, area.Min - 2);
+            gridBbox.BoundsMax = math.max(gridBbox.BoundsMax, area.Max + 2);
             structureLookup[planned.Parent] = gridBbox;
+            var massModel = massLookup[planned.Parent];
+            massModel.Resize(gridBbox.BoundsMin, gridBbox.BoundsMax);
+            massLookup[planned.Parent] = massModel;
+            if (building.Layer == BuildingLayer.Wall)
+            {
+                massModel.AddWall(area.Min, planned.PrimaryElement, planned.Mass, planned.Energy);
+                Rooms.AddWall(area);
+            }
         }
     }
 

@@ -7,8 +7,8 @@ using Unity.Collections;
 
 public struct Tag : IEquatable<Tag>
 {
-    public Identifieable Id;
-    public static IEnumerable<Identifieable> All 
+    public Identifiable Id;
+    public static IEnumerable<Identifiable> All 
     {
         get
         {
@@ -17,9 +17,9 @@ public struct Tag : IEquatable<Tag>
         }
     }
     
-    public static implicit operator Tag(Identifieable id) => new Tag{ Id = id };
+    public static implicit operator Tag(Identifiable id) => new Tag{ Id = id };
 
-    public static Tag FromName(FixedString64Bytes name) => new Tag{ Id = Identifieable.FromName(name) };
+    public static Tag FromName(FixedString64Bytes name) => new Tag{ Id = Identifiable.FromName(name) };
     public bool Equals(Tag other)
     {
         return Id == other.Id;
@@ -35,15 +35,13 @@ public struct Tag : IEquatable<Tag>
         return Id.GetHashCode();
     }
     
-    internal static readonly SharedStatic<NativeParallelHashMap<Identifieable, TagList>> Library =
-        SharedStatic<NativeParallelHashMap<Identifieable, TagList>>
+    internal static readonly SharedStatic<NativeParallelMultiHashMap<Identifiable, Tag>> Library =
+        SharedStatic<NativeParallelMultiHashMap<Identifiable, Tag>>
             .GetOrCreate<TagMappingSystem>();
     
-    internal static readonly SharedStatic<NativeParallelMultiHashMap<Tag, Identifieable>> TagMap =
-        SharedStatic<NativeParallelMultiHashMap<Tag, Identifieable>>
-            .GetOrCreate<TagMappingSystem, TagList>();
-
-    public static TagList TagsOf(Identifieable id) => Library.Data[id];
+    internal static readonly SharedStatic<NativeParallelMultiHashMap<Tag, Identifiable>> TagMap =
+        SharedStatic<NativeParallelMultiHashMap<Tag, Identifiable>>
+            .GetOrCreate<TagMappingSystem, Tag>();
 
     internal static NativeHashSet<Tag> AllTags
     {
@@ -55,36 +53,27 @@ public struct Tag : IEquatable<Tag>
             return hs;
         }
     }
-    public static IEnumerator<Identifieable> AllIdsForTag(Tag tag) => TagMap.Data.GetValuesForKey(tag);
-}
 
-public struct TagList
-{
-    public FixedList64Bytes<Tag> Value;
-    public bool IsUnset => Value.Length == 0;
-
-    public bool Contains(TagList data)
+    public static IEnumerable<Identifiable> AllIdsForTag(Tag tag)
     {
-        foreach(var tag in data.Value)
-            if(!HasTag(tag))
-                return false;
-        return true;
+        var e = TagMap.Data.GetValuesForKey(tag.Id);
+        while(e.MoveNext())
+            yield return e.Current;
     }
 
-    public bool HasTag(Tag tag)
+    public static IEnumerable<Tag> AllTagsForId(Identifiable id)
     {
-        return IsUnset || Value.Contains(tag);
+         var e = Library.Data.GetValuesForKey(id);
+         while(e.MoveNext())
+            yield return e.Current;
     }
-    
-    public static TagList MatchAll => new FixedList64Bytes<Tag>();
 
-    public static implicit operator TagList(FixedList64Bytes<Tag> tags) => new TagList{Value = tags};
-
-    public static TagList From(params Tag[] tag)
+    public static bool HasTag(Identifiable id, Tag tag)
     {
-        var l = new FixedList64Bytes<Tag>();
-        foreach(var t in tag)
-            l.Add(t);
-        return l;
+        var tags = Library.Data.GetValuesForKey(id);
+        while(tags.MoveNext())
+            if(tags.Current.Id == tag.Id)
+                return true;
+        return false;
     }
 }

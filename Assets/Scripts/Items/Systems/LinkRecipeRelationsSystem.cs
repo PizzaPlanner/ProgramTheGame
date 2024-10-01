@@ -9,8 +9,9 @@ partial class LinkRecipeRelationsSystem : IdentifiableMappingSystem
     protected override void OnUpdate()
     {
         foreach (var (inputs, outputs, recipe) in
-                 SystemAPI.Query<DynamicBuffer<CraftingInput>, DynamicBuffer<CraftingOutput>, Identifieable>()
-                          .WithAll<Prefab, PreIdentifiable>()
+                 SystemAPI.Query<DynamicBuffer<CraftingInput>, DynamicBuffer<CraftingOutput>, Identifiable>()
+                          .WithAll<Prefab>()
+                          .WithNone<IdentifiablesMappingGroup.Mapped>()
                           .WithOptions(EntityQueryOptions.IncludePrefab))
         {
             foreach (var input in inputs)

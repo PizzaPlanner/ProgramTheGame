@@ -17,11 +17,11 @@ namespace Core.Equipment
     [UpdateInGroup(typeof(TickBasedSystemGroup))]
     partial struct LungsSystem : ISystem
     {
-        Identifieable LowStatus, EmptyStatus;
+        Identifiable LowStatus, EmptyStatus;
         public void OnCreate(ref SystemState state)
         {
-            LowStatus = Identifieable.FromName("LowOxygen");
-            EmptyStatus = Identifieable.FromName("Suffocating");
+            LowStatus = Identifiable.FromName("LowOxygen");
+            EmptyStatus = Identifiable.FromName("Suffocating");
         }
 
         public void OnUpdate(ref SystemState state)

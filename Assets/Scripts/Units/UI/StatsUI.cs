@@ -68,7 +68,7 @@ public class StatsUI : VisualElement
         public StatBar(string stat)
         {
             name = stat;
-            Add(new IdentifiableButton(){Target = Identifieable.FromName(stat)});
+            Add(new IdentifiableButton(){Target = Identifiable.FromName(stat)});
             Add(new VisualElement(){name = "Bar"});
             this.Q("Bar").Add(Progress = new VisualElement{name = "Progress"});
             maxValue = 5;

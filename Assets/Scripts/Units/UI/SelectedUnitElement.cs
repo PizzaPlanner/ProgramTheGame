@@ -46,7 +46,7 @@ namespace Units
             Content.Clear();
             UnitChanged = true;
             style.display = DisplayStyle.Flex;
-            Icon.Target = em.GetComponentData<Identifieable>(selected);
+            Icon.Target = em.GetComponentData<Identifiable>(selected);
             Name.text = Icon.Target.DefaultName.Value;
             Add("Stats", new StatsUI());
         }

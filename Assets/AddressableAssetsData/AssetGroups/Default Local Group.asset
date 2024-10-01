@@ -20,11 +20,6 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 6f2e3dc8afc3a8f448589b2bf732a7fd
-    m_Address: Identifieables/Tags
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 36ed7fda7d2f36c47a369d9bea74e2d5
     m_Address: UI/Stylesheets/ChipEditor.uss
     m_ReadOnly: 0
@@ -37,6 +32,26 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: f4fa095e6adaf424992cf729631dcf02
     m_Address: GasOverlayPlane
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 78d57e1e61b155445b39d9e3c8fc0dbc
+    m_Address: GhostMaterial
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: a974d68596aa47f45a6c8ab2ac5199e7
+    m_Address: API/TagMod.asset
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 798284c9abe878a47b947b4ebf52801f
+    m_Address: API/Tag.asset
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 120d758a188f7934299a0406976912a9
+    m_Address: API/TagSpawnable.asset
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0

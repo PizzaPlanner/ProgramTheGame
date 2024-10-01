@@ -17,5 +17,5 @@ public class StatusAuthoring : MonoBehaviour
         }
     }
 
-    public Identifieable Id => GetComponent<IdentifieableAuthoring>().Id;
+    public Identifiable Id => GetComponent<IdentifieableAuthoring>().Id;
 }

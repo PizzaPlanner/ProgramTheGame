@@ -7,7 +7,8 @@ partial class LinkCrafterRecipesSystem : IdentifiableMappingSystem
     {
         
         foreach (var (craftIn, id) in 
-                 SystemAPI.Query<DynamicBuffer<CraftedIn>, Identifieable>().WithAll<Prefab, PreIdentifiable>()
+                 SystemAPI.Query<DynamicBuffer<CraftedIn>, Identifiable>().WithAll<Prefab>()
+                          .WithNone<IdentifiablesMappingGroup.Mapped>()
                           .WithOptions(EntityQueryOptions.IncludePrefab))
         {
             foreach (var c in craftIn)

@@ -51,6 +51,7 @@ namespace Equipment
         public void OnDestroy(ref SystemState state)
         {
             state.EntityManager.GetComponentData<AllSignals>(state.SystemHandle).SignalsBySender.Dispose();
+            state.EntityManager.GetComponentData<AllSignals>(state.SystemHandle).SignalCount.Dispose();
         }
 
         public void OnUpdate(ref SystemState state)

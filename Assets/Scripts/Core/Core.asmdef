@@ -11,7 +11,8 @@
         "Unity.Mathematics.Extensions",
         "Unity.Addressables",
         "Unity.ResourceManager",
-        "Bootstrap"
+        "Bootstrap",
+        "Identifiables"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

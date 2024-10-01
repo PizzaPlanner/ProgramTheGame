@@ -10,7 +10,8 @@ public class IdentifieableAuthoring : MonoBehaviour
 {
     [SerializeField] internal IdentifiableThingAsset Asset;
     public Texture2D Icon { set => Asset.Icon = value; get => Asset.Icon; }
-    public Identifieable Id => Asset.Id;
+    public Identifiable Id => Asset.Id;
+    public TagAsset[] Tags => Asset.Tags;
 
     public class IdentifieableAuthoringBaker : Baker<IdentifieableAuthoring>
     {

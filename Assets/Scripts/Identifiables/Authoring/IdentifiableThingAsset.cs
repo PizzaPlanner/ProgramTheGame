@@ -19,16 +19,16 @@ public class IdentifiableThingAsset : IdentifiableAsset
 }
 
 [BakingType]
-public struct NoOneWantsToSpawnMe : IComponentData { }
+public struct NoLinkedEntities : IComponentData { }
 
 [WorldSystemFilter(WorldSystemFilterFlags.BakingSystem)]
 [UpdateInGroup(typeof(PostBakingSystemGroup))]
-partial struct UnspawnableThingFixLTWSystem : ISystem
+partial struct FixUnneccessaryLEGSystem : ISystem
 {
     public void OnUpdate(ref SystemState state)
     {
         var query = SystemAPI.QueryBuilder()
-                             .WithAll<LinkedEntityGroup, NoOneWantsToSpawnMe>()
+                             .WithAll<LinkedEntityGroup, NoLinkedEntities>()
                              .WithNone<Child, Parent, MaterialMeshInfo>()
                              .WithOptions(EntityQueryOptions.IncludePrefab).Build();
         state.EntityManager.RemoveComponent<LinkedEntityGroup>(query);

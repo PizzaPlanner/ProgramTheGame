@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Identifiables
 {
-    public struct IdentifiableData
+    public struct IdentifiableData : IComponentData
     {
         public Entity SpawnablePrefab;
         public ulong AssetGuid;

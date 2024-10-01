@@ -10,9 +10,9 @@ public class VariableRefElement : VisualElement, IMakeChipCode
     {
         set
         {
-            this.Q<SignalButton>().AssignableTo = value
-                ? TagList.From(Tag.FromName("TagEquipment"), Tag.FromName("TagControlFlow"))
-                : TagList.MatchAll;
+            this.Q<SignalButton>().AssignableTo = value 
+                ? new[] { Tag.FromName("TagEquipment"), Tag.FromName("TagControlFlow") }
+                : Tag.All.Select(x => new Tag{Id = x}).ToArray();
             _isLeft = value;
         }
         get => _isLeft;
@@ -24,7 +24,7 @@ public class VariableRefElement : VisualElement, IMakeChipCode
     
     public VariableRefElement()
     {
-        Signal = new SignalButton() {AssignableTo = TagList.MatchAll};
+        Signal = new SignalButton() {AssignableTo = Tag.All.Select(x => new Tag{Id = x}).ToArray()};
         Signal.OnValueChanged = OnIdChanged;
         Add(Signal);
         Add(new DropdownField(){name = "Value"});
@@ -37,7 +37,7 @@ public class VariableRefElement : VisualElement, IMakeChipCode
     //     var p = LogicParametersMappingSystem.GetAllParameters(Signal.Target).First(x => x.Name == evt.newValue);
     // }
 
-    void OnIdChanged(Identifieable id)
+    void OnIdChanged(Identifiable id)
     {
         if (id == default)
             AddToClassList("id-unset");
@@ -74,7 +74,7 @@ public class VariableRefElement : VisualElement, IMakeChipCode
         {
             var left = csToken.Value.Split('.')[0];
             var right = csToken.Value.Split('.')[1];
-            Signal.Target = Identifieable.FromName(left);
+            Signal.Target = Identifiable.FromName(left);
             this.Q<DropdownField>().SetValueWithoutNotify(right);
         }
         else if (csToken.Type == CSToken.TokenType.Constant)

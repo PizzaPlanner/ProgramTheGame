@@ -19,7 +19,7 @@ unsafe partial struct ChipLogicJob : IJobChunk
     
     [ReadOnly] public BufferLookup<Inventory> InventoryLookup;
     [ReadOnly] public ComponentTypeHandle<Equipped> equippedHandle;
-    [ReadOnly] public ComponentTypeHandle<Identifieable> idHandle;
+    [ReadOnly] public ComponentTypeHandle<Identifiable> idHandle;
     [ReadOnly] public BufferTypeHandle<ChipInstructions> instructionsHandle;
     public ComponentTypeHandle<ChipState> chipStateHandle;
     public EntityStorageInfoLookup EntityLookup;
@@ -83,7 +83,7 @@ unsafe partial struct ChipLogicJob : IJobChunk
         }
     }
 
-    void ProcessLine<T>(ChipInstructions line, int entityIndexInChunk, Equipped* equipLookup, Entity* entityLookup, Identifieable* idLookup) where T: unmanaged
+    void ProcessLine<T>(ChipInstructions line, int entityIndexInChunk, Equipped* equipLookup, Entity* entityLookup, Identifiable* idLookup) where T: unmanaged
     {
         T result = line.Right.IsConstant ?
             UnsafeUtility.As<long, T>(ref line.Right.Constant)
@@ -139,7 +139,7 @@ unsafe partial struct ChipLogicJob : IJobChunk
         ((T*)location)[0] = data;
     }
 
-    Entity FindEquipmentForType(Entity wearer, Identifieable id)
+    Entity FindEquipmentForType(Entity wearer, Identifiable id)
     {
         if(!InventoryLookup.TryGetBuffer(wearer, out var inv))
             return Entity.Null;

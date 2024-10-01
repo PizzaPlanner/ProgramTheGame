@@ -26,22 +26,19 @@ partial class TagMappingSystem : IdentifiableMappingSystem
             Tag.TagMap.Data.Dispose();
         Tag.Library.Data = new (0, Allocator.Persistent);
         Tag.TagMap.Data = new (32, Allocator.Persistent);
-        foreach (var (tags, id) in SystemAPI.Query<DynamicBuffer<Tags>, Identifieable>()
-                                      .WithAll<Prefab, Identifieable>()
+        foreach (var (tags, id) in SystemAPI.Query<DynamicBuffer<Tags>, Identifiable>()
+                                      .WithAll<Prefab, Identifiable>()
                                       .WithOptions(EntityQueryOptions.IncludePrefab))
         {
-            var list = new FixedList64Bytes<Tag>();
             foreach (var tag in tags)
             {
                 var tagId = tag.Tag.Id;
-                list.Add(tagId);
                 
                 AddRelation(id, new IdentifiableLink{To = tagId, Relation = "Tags"});
                 AddRelation(tagId, new IdentifiableLink{To = id, Relation = "WithThisTag"});
                 Tag.TagMap.Data.Add(tag.Tag, id);
+                Tag.Library.Data.Add(id, tag.Tag);
             }
-
-            Tag.Library.Data[id] = list;
         }
     }
 }

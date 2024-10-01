@@ -22,7 +22,8 @@
         "Identifiables.UI",
         "Construction",
         "Units.UI",
-        "Units"
+        "Units",
+        "Elements"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

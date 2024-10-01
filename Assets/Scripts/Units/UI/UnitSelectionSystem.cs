@@ -58,7 +58,7 @@ namespace Units
                 End = mouseRay.origin + mouseRay.direction * 100,
                 Filter = CollisionFilter.Default
             };
-            if (!collisionWorld.CastRay(input, out var hit) || !SystemAPI.HasComponent<Identifieable>(hit.Entity))
+            if (!collisionWorld.CastRay(input, out var hit) || !SystemAPI.HasComponent<Identifiable>(hit.Entity))
             {
                 if (Hovered != Entity.Null)
                 {
@@ -119,7 +119,7 @@ namespace Units
             {
                 if(Hovered == Entity.Null)
                     yield break;
-                yield return new IdentifiableButton { Target = EntityManager.GetComponentData<Identifieable>(Hovered) };
+                yield return new IdentifiableButton { Target = EntityManager.GetComponentData<Identifiable>(Hovered) };
             }
         }
     }
