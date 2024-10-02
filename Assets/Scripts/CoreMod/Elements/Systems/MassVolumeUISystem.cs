@@ -49,7 +49,7 @@ public class MassVolumeUI : VisualElement
                     Target = gas.ElementType
                 };
                 container.Add(btn);
-                btn.Add(new Label(gas.Mass.ToString("N0")));
+                btn.Add(new Label($"{gas.Mass:N0}\n{gas.EnergyPerMass:N0}"));
             }
         }
     }

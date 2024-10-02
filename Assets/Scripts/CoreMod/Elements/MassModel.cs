@@ -34,6 +34,7 @@ public struct MassModel : IComponentData
         {
             _map.Mix(new int2(x, y), new int2(x + 1, y));
             _map.Mix(new int2(x, y), new int2(x, y + 1));
+            _map.PerformPhaseChanges(new int2(x, y));
         }
     }
     
@@ -51,7 +52,7 @@ public struct MassModel : IComponentData
         {
             // TODO: Move somewhere else?
         }
-        header.ElementCount = 0;
+        header.Dispose();
         header.Add(element, amount, energyPerAmount);
         header.IsSolidBlock = true;
     }

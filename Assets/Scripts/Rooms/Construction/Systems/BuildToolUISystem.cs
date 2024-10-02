@@ -18,8 +18,6 @@ public struct BuildTool : ICursorTool
     public static InputAction PlaceBuilding => InputActions.For<BuildTool>()["PlaceBuilding"];
     public static InputAction Cancel => InputActions.For<BuildTool>()["Cancel"];
     public static InputAction Rotate => InputActions.For<BuildTool>()["Rotate"];
-    
-    public bool IsCreativeMode;
 }
 
 internal struct CurrentGhost : IComponentData { }
@@ -50,7 +48,6 @@ partial class BuildToolUISystem : HotkeyToggleUISystem<BuildingBuildElement, Bui
     {
         var ecb = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>()
                            .CreateCommandBuffer(World.Unmanaged);
-        var buildTool = SystemAPI.GetSingleton<BuildTool>();
         if (!SystemAPI.TryGetSingleton<CurrentGrid>(out var cgrid))
         {
             ClearGhost(ecb);
@@ -94,7 +91,7 @@ partial class BuildToolUISystem : HotkeyToggleUISystem<BuildingBuildElement, Bui
                     var plan = ecb.CreateEntity();
                     var mats = new FixedList64Bytes<BuildMaterials>();
                     var prefab = SystemAPI.GetComponent<Identifiable>(ghost);
-                    if(!buildTool.IsCreativeMode)
+                    if(!_window.IsCreativeMode)
                         foreach(var mat in SystemAPI.GetBuffer<BuildMaterials>(prefab.SpawnablePrefab))
                             mats.Add(mat);
                     ecb.AddComponent(plan, new PlannedConstruction
@@ -105,7 +102,7 @@ partial class BuildToolUISystem : HotkeyToggleUISystem<BuildingBuildElement, Bui
                         Prefab = prefab,
                         Energy = 25,
                         Mass = 100,
-                        PrimaryElement = Identifiable.FromName("Ice")
+                        PrimaryElement = Identifiable.FromName("Insulation")
                     });
                 }
                 ClearGhost(ecb);
@@ -180,18 +177,16 @@ partial class BuildToolUISystem : HotkeyToggleUISystem<BuildingBuildElement, Bui
 class BuildingBuildElement : VisualElement
 {
     public Entity WantBuildPrefab;
+    public bool IsCreativeMode => this.Q<Toggle>().value;
     public BuildingBuildElement()
     {
         var buildingTag = Tag.FromName("TagBuilding");
-        foreach (var idd in Identifiable.All)
+        foreach (var id in Tag.AllIdsForTag(buildingTag))
         {
-            var id = Identifiable.FromGuid(idd.AssetGuid);
-            if (Tag.HasTag(id, buildingTag))
-            {
-                var button = new IdentifiableButton(){Target = id};
-                button.RegisterCallback<MouseDownEvent>(_ => WantBuildPrefab = button.Target.SpawnablePrefab);
-                Add(button);
-            }
+            var button = new IdentifiableButton(){Target = id};
+            button.RegisterCallback<MouseDownEvent>(_ => WantBuildPrefab = button.Target.SpawnablePrefab);
+            Add(button);
         }
+        Add(new Toggle("Instabuild"));
     }
 }

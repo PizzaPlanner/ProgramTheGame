@@ -132,6 +132,28 @@ public unsafe struct NativeElementMap : IDisposable
         chunkMax = newChunkMax;
         return this;
     }
+    
+    public void PerformPhaseChanges(int2 cell)
+    {
+        ref var header = ref CellRW(cell);
+        var temp = header.TemperatureKelvin;
+        for (int i = 0; i < header.ElementCount; i++)
+        {
+            var mass = header.GetMassRW(i);
+            if (temp < mass.ElementData.FreezeTemperature)
+            {
+                var toPhase = mass.Mass;
+                header.Remove(mass.ElementType, toPhase, out var energyPerMass);
+                header.Add(Element.From(mass.ElementType).FreezeTo, toPhase, energyPerMass);
+            }
+            else if (temp > mass.ElementData.MeltTemperature)
+            {
+                var toPhase = mass.Mass;
+                header.Remove(mass.ElementType, toPhase, out var energyPerMass);
+                header.Add(Element.From(mass.ElementType).MeltTo, toPhase, energyPerMass);
+            }
+        }
+    }
 
     public void Mix(int2 cellA, int2 cellB)
     {
@@ -154,9 +176,6 @@ public unsafe struct NativeElementMap : IDisposable
         if (!changedGas && !changedTemp) 
             return;
         
-        a.PerformPhaseChanges();
-        b.PerformPhaseChanges();
-        
         this[cellA] = a;
         this[cellB] = b;
     }
@@ -164,14 +183,29 @@ public unsafe struct NativeElementMap : IDisposable
     static (MassHeader, MassHeader, bool changed) ExchangeTemperature(MassHeader a, MassHeader b)
     {
         var tempDiff = a.TemperatureKelvin - b.TemperatureKelvin;
-        if(math.abs(tempDiff) < 0.01f)
+        if (math.abs(tempDiff) < 0.01f)
+            return (a, b, false); 
+        var aTC = a.ThermalConductivity;
+        var bTC = b.ThermalConductivity;
+        if(aTC == 0 || bTC == 0)
             return (a, b, false);
-        
-        var avgThermalConductivity = (a.ThermalConductivity + b.ThermalConductivity) * 0.5f;
-        var energyTransfer = avgThermalConductivity * tempDiff;
-        a.TotalEnergy -= energyTransfer;
-        b.TotalEnergy += energyTransfer;
+        var conductivity = 2 * aTC * bTC / (aTC + bTC);
+        const float EXCHANGE_FACTOR = 0.01f;
 
+        var heatTransfer = conductivity * tempDiff * EXCHANGE_FACTOR;
+        a.TemperatureKelvin -= heatTransfer;
+        b.TemperatureKelvin += heatTransfer;
+        // // TODO: Need exchange between masses in same cell!
+        // if (tempDiff > 0)
+        // {
+        // }
+        // else
+        // {
+        //     var heatTransfer = conductivity * -tempDiff * EXCHANGE_FACTOR;
+        //     a.TotalEnergy += energyTransfer;
+        //     b.TotalEnergy -= energyTransfer;
+        // }
+        
         return (a, b, true);
     }
 

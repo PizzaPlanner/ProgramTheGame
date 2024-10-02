@@ -119,8 +119,10 @@ MonoBehaviour:
   ColdStateChange:
     Temperature: 4
     ToElement: {fileID: 3575229165814279346, guid: 27ff976297851a84ba6709c9a02dbdbb, type: 3}
+  DefaultTemperature: 0
   ThermalConductivity: 2
   SpecificHeatCapacity: 4
+  Color: {r: 0, g: 0, b: 0, a: 0}
 --- !u!114 &-2831835008503104095
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -133,7 +135,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6d96781d50c744d5b90125a6e0a230bb, type: 3}
   m_Name: Water
   m_EditorClassIdentifier: 
-  Icon: {fileID: 2800000, guid: 29d958b0d66b31d4a98ea6f780462d35, type: 3}
+  Icon: {fileID: 2800000, guid: 7aa0f4f74b67b954dbf709eb8b0d8dfb, type: 3}
   Tags:
   - {fileID: 11400000, guid: 32fd927865654564c8e8cd9bc48c6b42, type: 2}
   Reference: {fileID: 5304243422145376601}
