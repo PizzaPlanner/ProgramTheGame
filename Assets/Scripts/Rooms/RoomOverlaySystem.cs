@@ -11,11 +11,30 @@ public struct RoomOverlayHotkey : IMapOverlay
     public InputAction ToggledByHotkey(InputActions actions) => actions.Overlays.Rooms;
 }
 
-partial class RoomOverlayLystem : MapOverlaySystem<RoomOverlayHotkey>
+partial class RoomOverlaySystem : MapOverlaySystem<RoomOverlayHotkey>
 {
     protected override VisualElement MakeWindow()
     {
-        return new Label("Showing Rooms");
+        var elm = new VisualElement();
+        elm.AddToClassList("overlayPopup");
+        elm.Add(new Label("Room Overlay"));
+        elm.Add(new Label("No Room"){name = "RoomNum"});
+        return elm;
+    }
+
+    protected override void OnUpdate()
+    {
+        base.OnUpdate();
+        if(!SystemAPI.HasComponent<RoomModel>(GridEntity))
+            return;
+        var roomModel = SystemAPI.GetComponent<RoomModel>(GridEntity);
+        var roomElm = _window.Q<Label>("RoomNum");
+        if(roomModel.CellRoomMap.TryGetValue(CellAtCursor, out var roomNum))
+            roomElm.text = $"Room {roomNum}";
+        else if(roomModel.Walls.Contains(CellAtCursor))
+            roomElm.text = $"Wall";
+        else
+            roomElm.text = $"No Room";
     }
 
     protected override string MenuEntry => "Rooms";

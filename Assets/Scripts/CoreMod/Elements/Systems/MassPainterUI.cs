@@ -16,7 +16,7 @@ public class MassPainterUI : VisualElement
         Add(Temperature = new IntegerField("C", 4));
     }
 
-    public MassData MassData => MassData.From(Element.Target, Mass.value, Temperature.value);
+    public MassData MassData => MassData.From(Element.Target, Mass.value);
 
     void OnSelectElement(MouseDownEvent evt)
     {

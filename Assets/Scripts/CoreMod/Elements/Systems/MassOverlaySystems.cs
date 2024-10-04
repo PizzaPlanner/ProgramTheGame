@@ -27,22 +27,20 @@ partial class PressureOverlaySystem : MapOverlaySystem<PressureOverlayHotkey>
     protected override void OnUpdate()
     {
         base.OnUpdate();
-        var grid = SystemAPI.GetSingleton<CurrentGrid>().Grid;
-        if(!SystemAPI.HasComponent<MassModel>(grid))
+        if(!SystemAPI.HasComponent<MassModel>(GridEntity))
             return;
-        var center = GridStructure.CursorToCell(SystemAPI.GetComponent<LocalToWorld>(grid));
-        var massModel = SystemAPI.GetComponent<MassModel>(grid);
-        _window.Q<MassVolumeUI>().Volume = massModel.AbsoluteCell(center);
-        _window.Q<MassVolumeUI>().Q<Label>().text = $"@{center}";
-        if(math.all(center == _lastCenter) && !Input.GetMouseButtonDown(0))
+        var massModel = SystemAPI.GetComponent<MassModel>(GridEntity);
+        _window.Q<MassVolumeUI>().Volume = massModel.AbsoluteCell(CellAtCursor);
+        _window.Q<MassVolumeUI>().Q<Label>().text = $"@{CellAtCursor}";
+        if(math.all(CellAtCursor == _lastCenter) && !Input.GetMouseButtonDown(0))
             return;
-        _lastCenter = center;
+        _lastCenter = CellAtCursor;
         if(!Input.GetMouseButton(0))
             return;
         var painter = _window.Q<MassPainterUI>();
         if(painter.Element.Target == default || painter.Mass.value <= 0)
             return;
-        massModel.AbsoluteCellRW(center).Add(painter.MassData);
+        massModel.AbsoluteCellRW(CellAtCursor).Add(painter.MassData, painter.Temperature.value + 273.15f);
     }
 
     protected override string MenuEntry => "PressureOverlay";
@@ -80,22 +78,20 @@ partial class TemperatureOverlaySystem : MapOverlaySystem<TemperatureOverlayHotk
     protected override void OnUpdate()
     {
         base.OnUpdate();
-        var grid = SystemAPI.GetSingleton<CurrentGrid>().Grid;
-        if(!SystemAPI.HasComponent<MassModel>(grid))
+        if(!SystemAPI.HasComponent<MassModel>(GridEntity))
             return;
-        var center = GridStructure.CursorToCell(SystemAPI.GetComponent<LocalToWorld>(grid));
-        var massModel = SystemAPI.GetComponent<MassModel>(grid);
-        _window.Q<MassVolumeUI>().Volume = massModel.AbsoluteCell(center);
-        _window.Q<MassVolumeUI>().Q<Label>().text = $"@{center}";
-        if(math.all(center == _lastCenter) && !Input.GetMouseButtonDown(0))
+        var massModel = SystemAPI.GetComponent<MassModel>(GridEntity);
+        _window.Q<MassVolumeUI>().Volume = massModel.AbsoluteCell(CellAtCursor);
+        _window.Q<MassVolumeUI>().Q<Label>().text = $"@{CellAtCursor}";
+        if(math.all(CellAtCursor == _lastCenter) && !Input.GetMouseButtonDown(0))
             return;
-        _lastCenter = center;
+        _lastCenter = CellAtCursor;
         if(!Input.GetMouseButton(0))
             return;
         var painter = _window.Q<MassPainterUI>();
         if(painter.Element.Target == default || painter.Mass.value <= 0)
             return;
-        massModel.AbsoluteCellRW(center).Add(painter.MassData);
+        massModel.AbsoluteCellRW(CellAtCursor).Add(painter.MassData, painter.Temperature.value + 273.15f);
     }
 
     protected override string MenuEntry => "TemperatureOverlay";

@@ -10,8 +10,10 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
 
-public struct BuildTool : ICursorTool
+public struct BuildTool : IInputActionState
 {
+    string[] IInputActionState.StateSets => new[]{"CursorTool", "MapOverlay"};
+    
     public InputActionMap StateFor(InputActions asset) => asset.BuildTool;
     public InputAction ToggledByHotkey(InputActions actions) => actions.Tools.Build;
     
@@ -22,10 +24,12 @@ public struct BuildTool : ICursorTool
 
 internal struct CurrentGhost : IComponentData { }
 
-partial class BuildToolUISystem : HotkeyToggleUISystem<BuildingBuildElement, BuildTool>
+partial class BuildToolUISystem : MapOverlaySystem<BuildTool>
 {
-    protected override BuildingBuildElement MakeWindow() => new();
+    protected override VisualElement MakeWindow() => new BuildingBuildElement();
     protected override string MenuEntry => "Build";
+    
+    BuildingBuildElement Window => _window as BuildingBuildElement; 
 
     protected override void OnStopRunning()
     {
@@ -46,6 +50,7 @@ partial class BuildToolUISystem : HotkeyToggleUISystem<BuildingBuildElement, Bui
     Entity GhostPrefab;
     protected override void OnUpdate()
     {
+        base.OnUpdate();
         var ecb = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>()
                            .CreateCommandBuffer(World.Unmanaged);
         if (!SystemAPI.TryGetSingleton<CurrentGrid>(out var cgrid))
@@ -91,7 +96,7 @@ partial class BuildToolUISystem : HotkeyToggleUISystem<BuildingBuildElement, Bui
                     var plan = ecb.CreateEntity();
                     var mats = new FixedList64Bytes<BuildMaterials>();
                     var prefab = SystemAPI.GetComponent<Identifiable>(ghost);
-                    if(!_window.IsCreativeMode)
+                    if(!Window.IsCreativeMode)
                         foreach(var mat in SystemAPI.GetBuffer<BuildMaterials>(prefab.SpawnablePrefab))
                             mats.Add(mat);
                     ecb.AddComponent(plan, new PlannedConstruction
@@ -134,21 +139,53 @@ partial class BuildToolUISystem : HotkeyToggleUISystem<BuildingBuildElement, Bui
                         Max = math.max(DragArea.Min, DragArea.Max),
                     };
                     ClearGhost(ecb);
-                    for(int x = delta.Min.x; x <= delta.Max.x; x++)
-                    for(int y = delta.Min.y; y <= delta.Max.y; y++)
-                        PlaceGhost(new int2(x,y), ecb, rooms);
+                    var dragType = SystemAPI.GetComponent<Building>(root).DraggableDimension;
+                    if(dragType == PlacementType.Rectangle)
+                        for(int x = delta.Min.x; x <= delta.Max.x; x++)
+                        for(int y = delta.Min.y; y <= delta.Max.y; y++)
+                            PlaceGhost(new int2(x,y), ecb, rooms);
+                    else if (dragType == PlacementType.RectangleBorder)
+                    {
+                        for (int x = delta.Min.x; x <= delta.Max.x; x++)
+                        {
+                            PlaceGhost(new int2(x,delta.Min.y), ecb, rooms);
+                            PlaceGhost(new int2(x,delta.Max.y), ecb, rooms);
+                        }
+
+                        for (int y = delta.Min.y + 1; y <= delta.Max.y - 1; y++)
+                        {
+                            PlaceGhost(new int2(delta.Min.x,y), ecb, rooms);
+                            PlaceGhost(new int2(delta.Max.x,y), ecb, rooms);
+                        }
+                    }
+                    else // Line
+                    {
+                        var isXLonger = delta.Max.x - delta.Min.x > delta.Max.y - delta.Min.y;
+                        if(isXLonger)
+                            for (int x = delta.Min.x; x <= delta.Max.x; x++)
+                                PlaceGhost(new int2(x,delta.Min.y), ecb, rooms);
+                        else
+                            for (int y = delta.Min.y; y <= delta.Max.y; y++)
+                                PlaceGhost(new int2(delta.Min.x, y), ecb, rooms);
+                    }
                 }
             }
         }
-        var toBuild = _window.WantBuildPrefab;
+        var toBuild = Window.WantBuildPrefab;
         if (toBuild == Entity.Null)
             return;
         
-        GhostPrefab = _window.WantBuildPrefab;
+        GhostPrefab = Window.WantBuildPrefab;
         DragArea = new GridBounds{Min = pointedCell, Max = pointedCell};
         ClearGhost(ecb);
         PlaceGhost(pointedCell, ecb, rooms);
-        _window.WantBuildPrefab = Entity.Null;
+        Window.WantBuildPrefab = Entity.Null;
+    }
+
+    protected override void SetPixels(Entity gridEntity, Texture2D texture, GridBounds bounds)
+    {
+        texture.SetPixelData(new NativeArray<byte>(4 * bounds.Size, Allocator.Temp), 0);
+        texture.Apply();
     }
 
     void PlaceGhost(int2 cell, EntityCommandBuffer ecb, RoomModel rooms)

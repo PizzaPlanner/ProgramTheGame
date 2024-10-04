@@ -141,17 +141,9 @@ public unsafe struct NativeElementMap : IDisposable
         {
             var mass = header.GetMassRW(i);
             if (temp < mass.ElementData.FreezeTemperature)
-            {
-                var toPhase = mass.Mass;
-                header.Remove(mass.ElementType, toPhase, out var energyPerMass);
-                header.Add(Element.From(mass.ElementType).FreezeTo, toPhase, energyPerMass);
-            }
+                header.Transform(mass.ElementType, Element.From(mass.ElementType).FreezeTo);
             else if (temp > mass.ElementData.MeltTemperature)
-            {
-                var toPhase = mass.Mass;
-                header.Remove(mass.ElementType, toPhase, out var energyPerMass);
-                header.Add(Element.From(mass.ElementType).MeltTo, toPhase, energyPerMass);
-            }
+                header.Transform(mass.ElementType, Element.From(mass.ElementType).MeltTo);
         }
     }
 
@@ -166,12 +158,10 @@ public unsafe struct NativeElementMap : IDisposable
         var changedGas = false;
         var changedTemp = false;
 
-        // Pressure is currently unrelated to temperature, but TC is proportional to mass,
-        // so first exchange the mass, then temperature
+        // Gas exchange already exchanges temperature, so no need to do this twice?
         if(!a.IsSolidBlock && !b.IsSolidBlock)
             (a, b, changedGas) = ExchangeGas(a, b);
-        if(a.ElementCount > 0 && b.ElementCount > 0)
-            (a, b, changedTemp) = ExchangeTemperature(a, b);
+        (a, b, changedTemp) = ExchangeTemperature(a, b);
 
         if (!changedGas && !changedTemp) 
             return;
@@ -190,22 +180,21 @@ public unsafe struct NativeElementMap : IDisposable
         if(aTC == 0 || bTC == 0)
             return (a, b, false);
         var conductivity = 2 * aTC * bTC / (aTC + bTC);
-        const float EXCHANGE_FACTOR = 0.01f;
-
-        var heatTransfer = conductivity * tempDiff * EXCHANGE_FACTOR;
-        a.TemperatureKelvin -= heatTransfer;
-        b.TemperatureKelvin += heatTransfer;
-        // // TODO: Need exchange between masses in same cell!
-        // if (tempDiff > 0)
-        // {
-        // }
-        // else
-        // {
-        //     var heatTransfer = conductivity * -tempDiff * EXCHANGE_FACTOR;
-        //     a.TotalEnergy += energyTransfer;
-        //     b.TotalEnergy -= energyTransfer;
-        // }
         
+        if (tempDiff > 0)
+        {
+            var tempTransferRate = tempDiff / a.TemperatureKelvin * conductivity * Element.MAX_CONDUCTIVITY_INVERSE;
+            var energyTransfer = tempTransferRate * a.TotalEnergy;
+            a.TotalEnergy -= energyTransfer;
+            b.TotalEnergy += energyTransfer;
+        }
+        else
+        {
+            var tempTransferRate = -tempDiff / b.TemperatureKelvin * conductivity * Element.MAX_CONDUCTIVITY_INVERSE;
+            var energyTransfer = tempTransferRate * b.TotalEnergy;
+            b.TotalEnergy -= energyTransfer;
+            a.TotalEnergy += energyTransfer;
+        }
         return (a, b, true);
     }
 
@@ -224,8 +213,8 @@ public unsafe struct NativeElementMap : IDisposable
         {
             var mass = high.GetMass(i);
             var deltaMass = mass.Mass * transferFactor;
-            high = high.Remove(mass.ElementType, deltaMass, out var energyPerMass);
-            low = low.Add(mass.ElementType, deltaMass, energyPerMass);
+            high = high.Remove(mass.ElementType, deltaMass, out var deltaEnergy);
+            low = low.Add(mass.ElementType, deltaMass, deltaEnergy);
         }
 
         a = pressureDiff > 0 ? high : low;

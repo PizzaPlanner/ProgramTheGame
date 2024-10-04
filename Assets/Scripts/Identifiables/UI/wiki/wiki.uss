@@ -220,3 +220,16 @@ DetailPage > #Header > #Icon {
 Wiki .unity-tab-view__header-container {
     flex-shrink: 0;
 }
+
+#Body Foldout#Element > #unity-content {
+    flex-direction: column;
+    flex-wrap: nowrap;
+}
+
+StateChangeWikiElement {
+    flex-direction: row;
+}
+
+StateChangeWikiElement > Label {
+    -unity-text-align: middle-center;
+}

@@ -21,6 +21,7 @@ public class ElementAuthoring : MonoBehaviour
     [Range(-273.15f, 5000f)]
     public float DefaultTemperature;
     
+    [Range(0, 1/Element.MAX_CONDUCTIVITY_INVERSE)]
     public float ThermalConductivity;
     public float SpecificHeatCapacity;
 

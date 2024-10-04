@@ -31,9 +31,9 @@ public partial struct MassUpdateSystem : ISystem
             ecb.RemoveComponent<MassModel>(e);
         }
         
-        foreach (var massModel in SystemAPI.Query<MassModel>())
+        foreach (var massModel in SystemAPI.Query<RefRW<MassModel>>())
         {
-            massModel.MixAll();
+            massModel.ValueRW.MixAll();
         }
     }
 }

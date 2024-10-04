@@ -19,6 +19,7 @@ public enum ElementPhase : byte
 
 public struct Element : IComponentData
 {
+    public const float MAX_CONDUCTIVITY_INVERSE = 0.01f;
     const float PHASE_CHANGE_TEMPERATURE_TOLERANCE = 3f;
     public struct Compact
     {

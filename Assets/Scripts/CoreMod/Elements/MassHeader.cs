@@ -10,11 +10,10 @@ using UnityEngine;
 public struct MassData
 {
     public float Mass;
-    internal float EnergyPerMass;
     public Identifiable ElementType;
     public Element.Compact ElementData;
 
-    public static MassData From(Identifiable type, float mass, float temperatureCelsius)
+    public static MassData From(Identifiable type, float mass)
     {
         var data = Element.From(type);
         return new MassData
@@ -22,7 +21,6 @@ public struct MassData
             Mass = mass,
             ElementData = data.AsCompact,
             ElementType = type,
-            EnergyPerMass = (temperatureCelsius + 273.15f) * data.SpecificHeatCapacity
         };
     }
 }
@@ -56,6 +54,7 @@ public unsafe struct MassHeader : IDisposable
         AllocatedUnused = 0;
         ElementCount = 0;
         IsSolidBlock = false;
+        TotalEnergy = 0;
     }
     
     public readonly float HeatCapacity
@@ -78,13 +77,15 @@ public unsafe struct MassHeader : IDisposable
         get
         {
             var result = 0f;
+            var totalMass = 0f;
             for (int i = 0; i < ElementCount; i++)
             {
                 var mass = GetMass(i);
                 result += mass.Mass * mass.ElementData.ThermalConductivity;
+                totalMass += mass.Mass;
             }
 
-            return result;
+            return math.select(0, result / totalMass, totalMass > 0);
         }
     }
     
@@ -118,90 +119,9 @@ public unsafe struct MassHeader : IDisposable
         }
     }
 
-    readonly float TotalEnergyPerMass
-    {
-        get
-        {
-            var result = 0f;
-            for (int i = 0; i < ElementCount; i++)
-                result += GetMass(i).EnergyPerMass;
-            return result;
-        }
-    }
-
-    public double TotalEnergy
-    {
-        readonly get
-        {
-            var result = 0d;
-            for (int i = 0; i < ElementCount; i++)
-                result += GetMass(i).EnergyPerMass * GetMass(i).Mass;
-            return result;
-        }
-        set
-        {
-            var totalMassInverse = 1 / TotalMass;
-            for (int i = 0; i < ElementCount; i++)
-            {
-                ref var mass = ref GetMassRW(i);
-                // mass.EnergyPerMass = (mass.Mass / TotalMass) * value / mass.Mass => mass.Mass cancels out
-                mass.EnergyPerMass = (float)(totalMassInverse * value);
-                if (math.isnan(mass.EnergyPerMass))
-                {
-                    Debug.LogWarning($"INCOMING NAN from {value} * {totalMassInverse}! RESET TO 0");
-                    mass.EnergyPerMass = 0;
-                }
-            }
-        }
-    }
-
-    public float WeightedTKelvin
-    {
-        get
-        {
-            var top = 0f;
-            var bottom = 0f;
-            for (int i = 0; i < ElementCount; i++)
-            {
-                var mass = GetMass(i);
-                top += mass.Mass * mass.EnergyPerMass / mass.ElementData.SpecificHeatCapacity;
-                bottom += mass.Mass;
-            }
-            return ElementCount > 0 ? top / bottom : 0f;
-        }
-    }
-
-    public float SpecificHeatCapacity
-    {
-        get
-        {
-            var top = 0f;
-            for (int i = 0; i < ElementCount; i++)
-            {
-                var mass = GetMass(i);
-                top += mass.ElementData.SpecificHeatCapacity;
-            }    
-            return top;
-        }
-    }
-
-    public float HarmonicThermalConductivity
-    {
-        get
-        {
-            var top = ElementCount * 1f;
-            var bottom = 0f;
-            for (int i = 0; i < ElementCount; i++)
-            {
-                var mass = GetMass(i);
-                top *= mass.ElementData.ThermalConductivity;
-                bottom += mass.ElementData.ThermalConductivity;
-            }
-            return bottom > 0 ? top / bottom : 0f;
-        }
-    }
+    public double TotalEnergy;
     
-    public float TemperatureKelvin
+    public double TemperatureKelvin
     {
         readonly get
         {
@@ -213,27 +133,59 @@ public unsafe struct MassHeader : IDisposable
         set => TotalEnergy = value * HeatCapacity;
     }
 
-    public float TemperatureCelsius
+    public double TemperatureCelsius
     {
         readonly get => TemperatureKelvin - 273.15f;
         set => TemperatureKelvin = value + 273.15f;
     }
-    
-    public MassHeader Add(MassData data) => Add(data.ElementType, data.Mass, data.EnergyPerMass);
-    
-    public MassHeader Add(Identifiable elementId, float amount, float energyPerAmount)
+
+    public MassHeader Transform(Identifiable idFrom, Identifiable idTo)
     {
-        if(amount <= 0 || energyPerAmount < 0)
-            return this;
+        var amountAvailable = 0f;
         for (int i = 0; i < ElementCount; i++)
         {
             var mass = GetMass(i);
+            if (mass.ElementType != idFrom) 
+                continue;
+            amountAvailable = mass.Mass;
+
+            for (int j = i + 1; j < ElementCount; j++)
+                SetMass(j - 1, GetMass(j));
+            ElementCount--;
+            // Don't shrink buffer, count might flip every other frame
+            AllocatedUnused++;
+            IsSolidBlock = false;
+            break;
+        }
+        
+        for (int i = 0; i < ElementCount; i++)
+        {
+            ref var mass = ref GetMassRW(i);
+            if (mass.ElementType != idTo) 
+                continue;
+            mass.Mass += amountAvailable;
+            amountAvailable = 0;
+        }
+        
+        if(amountAvailable > 0)
+            return Add(idTo, amountAvailable, 0);
+        return this;
+    }
+    
+    public MassHeader Add(MassData data, float temperatureKelvin) => Add(data.ElementType, data.Mass, 
+        temperatureKelvin * data.Mass * data.ElementData.SpecificHeatCapacity);
+    
+    public MassHeader Add(Identifiable elementId, float amount, double energyTotal)
+    {
+        if(amount <= 0 || energyTotal < 0)
+            return this;
+        for (int i = 0; i < ElementCount; i++)
+        {
+            ref var mass = ref GetMassRW(i);
             if (mass.ElementType != elementId) 
                 continue;
-            var totalEnergy = energyPerAmount * amount + mass.Mass * mass.EnergyPerMass;
+            TotalEnergy += energyTotal;
             mass.Mass += amount;
-            mass.EnergyPerMass = totalEnergy / mass.Mass;
-            SetMass(i, mass);
             return this;
         }
         
@@ -253,21 +205,22 @@ public unsafe struct MassHeader : IDisposable
             }
             _data = newData;
         }
+        TotalEnergy += energyTotal;
         SetMass(ElementCount - 1, new MassData
         {
             Mass = amount,
-            EnergyPerMass = energyPerAmount,
             ElementType = elementId,
             ElementData = Element.From(elementId).AsCompact
         });
         return this;
     }
 
-    public MassHeader Remove(Identifiable elementId, float amount, out float energyPerMass)
+    public MassHeader Remove(Identifiable elementId, float amount, out double energyRemoved)
     {
-        energyPerMass = 0;
+        energyRemoved = 0;
         if(amount <= 0)
             return this;
+        var tBefore = TemperatureKelvin;
         var wasLowerIndexRemoved = false;
         for (int i = 0; i < ElementCount; i++)
         {
@@ -277,17 +230,21 @@ public unsafe struct MassHeader : IDisposable
                 SetMass(i - 1, mass);
                 continue;
             }
-            
             if (mass.ElementType != elementId) 
                 continue;
-            energyPerMass = mass.EnergyPerMass;
+            
+            Debug.Assert(amount <= mass.Mass, $"Removed too much mass {amount} from {mass.Mass}");
             mass.Mass -= amount;
             if (mass.Mass <= 0)
                 wasLowerIndexRemoved = true;
             else
                 SetMass(i, mass);
+            
+            var heatCapacityRemoved = amount * mass.ElementData.SpecificHeatCapacity;
+            energyRemoved = tBefore * heatCapacityRemoved;
+            TotalEnergy -= energyRemoved;
         }
-
+        
         if (!wasLowerIndexRemoved)
             return this;
         ElementCount--;
