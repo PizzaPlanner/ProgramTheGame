@@ -106,6 +106,7 @@ public partial struct BuildJob : IJobEntity
         {
             ecb.AddComponent<PendingGridUpdate>(planned.Parent);
             ecb.RemoveComponent<BuildMaterials>(entity);
+            ecb.AddComponent(entity, new Matter{Energy = planned.Energy, Mass = MassData.From(planned.PrimaryElement, planned.Mass)});
             var gridBbox = structureLookup[planned.Parent];
             gridBbox.BoundsMin = math.min(gridBbox.BoundsMin, area.Min - 2);
             gridBbox.BoundsMax = math.max(gridBbox.BoundsMax, area.Max + 2);
@@ -113,7 +114,7 @@ public partial struct BuildJob : IJobEntity
             var massModel = massLookup[planned.Parent];
             massModel.Resize(gridBbox.BoundsMin, gridBbox.BoundsMax);
             massLookup[planned.Parent] = massModel;
-            if (building.Layer == BuildingLayer.Wall)
+            if (building.Layer is BuildingLayer.Wall or BuildingLayer.Door)
             {
                 massModel.AddWall(area.Min, planned.PrimaryElement, planned.Mass, planned.Energy);
                 Rooms.AddWall(area);

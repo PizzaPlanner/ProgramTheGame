@@ -512,14 +512,6 @@ ShipUI SignalButton > IdentifiableButton#CurrentTask {
     left: 5px;
 }
 
-BuildingBuildElement {
-    position: absolute;
-    bottom: 0;
-    flex-direction: row;
-    align-self: center;
-    padding: 10px;
-}
-
 Tooltip {
     background-color: rgb(25, 35, 45);
     border-color: rgb(67, 88, 102);

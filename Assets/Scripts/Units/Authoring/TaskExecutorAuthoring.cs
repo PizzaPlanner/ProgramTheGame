@@ -14,11 +14,12 @@ public class TaskExecutorAuthoring : MonoBehaviour
             AddBuffer<ToDos>(e);
             var skills = AddBuffer<Skills>(e);
             foreach(var skill in authoring.Skills)
-                skills.Add(new Skills
-                {
-                    Level = 1,
-                    Task = skill.Id
-                });
+                if(skill != null)
+                    skills.Add(new Skills
+                    {
+                        Level = 1,
+                        Task = skill.Id
+                    });
         }
     }
 }

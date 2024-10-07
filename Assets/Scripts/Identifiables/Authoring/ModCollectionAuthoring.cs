@@ -26,6 +26,7 @@ namespace Identifiables.Authoring
                 {
                     if(prefab is ModCollectionAsset)
                         continue;
+                    DependsOn(prefab);
                     prefab.AssignEditorValues();
                     if (prefab is IdentifiableThingAsset tp)
                         leg.Add(GetEntity(tp.Reference, TransformUsageFlags.None));

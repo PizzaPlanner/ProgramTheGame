@@ -1,15 +1,12 @@
 ﻿using Identifiables;
 using Identifiables.UI;
-using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Transforms;
-using UnityEngine;
 using UnityEngine.UIElements;
 
 public partial class ElementMappingSystem : IdentifiableMappingSystem, IWikiProvider
 {
-
     protected override void OnCreate()
     {
         Element.ElementById.Data = new NativeParallelHashMap<Identifiable, Element>(0, Allocator.Persistent);
@@ -29,10 +26,10 @@ public partial class ElementMappingSystem : IdentifiableMappingSystem, IWikiProv
                           .WithOptions(EntityQueryOptions.IncludePrefab))
         {
             Element.ElementById.Data[id] = item;
-            if (item.FreezeTo != default)
-                AddRelation(item.FreezeTo, new IdentifiableLink{Relation = "FrozenFrom", To = id});
-            if (item.MeltTo != default)
-                AddRelation(item.MeltTo, new IdentifiableLink{Relation = "MoltenFrom", To = id});
+            if (item.Freeze.To != default)
+                AddRelation(item.Freeze.To, new IdentifiableLink{Relation = "FrozenFrom", To = id});
+            if (item.Melt.To != default)
+                AddRelation(item.Melt.To, new IdentifiableLink{Relation = "MoltenFrom", To = id});
         }
     }
 
@@ -45,17 +42,17 @@ public partial class ElementMappingSystem : IdentifiableMappingSystem, IWikiProv
         var top = new Foldout(){text = "Element", name = "Element"};
         top.Add(new Label(elementText));
         var elm = new Foldout(){text = "StateChanges"};
-        if(element.FreezeTo != default)
-            elm.Add(new StateChangeWikiElement(id, element.FreezeTo, element.StablePhaseTemperatureKelvin.x));
-        if(element.MeltTo != default)
-            elm.Add(new StateChangeWikiElement(id, element.MeltTo, element.StablePhaseTemperatureKelvin.y));
+        if(element.Freeze.To != default)
+            elm.Add(new StateChangeWikiElement(id, element.Freeze));
+        if(element.Melt.To != default)
+            elm.Add(new StateChangeWikiElement(id, element.Melt));
         if(Relations.TryGetValue(id, out var relations))
             foreach (var relation in relations)
             {
                 if(relation.Relation == "MoltenFrom")
-                    elm.Add(new StateChangeWikiElement(relation.To, id, Element.From(relation.To).StablePhaseTemperatureKelvin.y));
+                    elm.Add(new StateChangeWikiElement(relation.To, new Element.StateChange { To = id, At = Element.From(relation.To).Melt.At }));
                 if(relation.Relation == "FrozenFrom")
-                    elm.Add(new StateChangeWikiElement(relation.To, id, Element.From(relation.To).StablePhaseTemperatureKelvin.x));
+                    elm.Add(new StateChangeWikiElement(relation.To, new Element.StateChange { To = id, At = Element.From(relation.To).Freeze.At }));
             }
         if(elm.contentContainer.childCount > 0)
             top.Add(elm);
@@ -65,10 +62,10 @@ public partial class ElementMappingSystem : IdentifiableMappingSystem, IWikiProv
 
 public class StateChangeWikiElement : VisualElement
 {
-    public StateChangeWikiElement(Identifiable idFrom, Identifiable idTo, float temperatureKelvin)
+    public StateChangeWikiElement(Identifiable idFrom, Element.StateChange stateChange)
     {
         Add(new WikiSearchResultButton(idFrom));
-        Add(new Label($" at {temperatureKelvin}K changes to "));
-        Add(new WikiSearchResultButton(idTo));
+        Add(new Label($" at {stateChange.At}K changes to "));
+        Add(new WikiSearchResultButton(stateChange.To));
     }
 }

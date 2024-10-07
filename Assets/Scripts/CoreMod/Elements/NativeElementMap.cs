@@ -6,6 +6,13 @@ using Unity.Collections.LowLevel.Unsafe;
 using Unity.Mathematics;
 using UnityEngine;
 
+public struct TemperatureExchanger
+{
+    public double Energy;
+    public double ThermalConductivity;
+    public double TemperatureKelvin;
+}
+
 [NativeContainer]
 public unsafe struct NativeElementMap : IDisposable
 {
@@ -141,9 +148,9 @@ public unsafe struct NativeElementMap : IDisposable
         {
             var mass = header.GetMassRW(i);
             if (temp < mass.ElementData.FreezeTemperature)
-                header.Transform(mass.ElementType, Element.From(mass.ElementType).FreezeTo);
+                header.Transform(mass.ElementType, Element.From(mass.ElementType).Freeze.To);
             else if (temp > mass.ElementData.MeltTemperature)
-                header.Transform(mass.ElementType, Element.From(mass.ElementType).MeltTo);
+                header.Transform(mass.ElementType, Element.From(mass.ElementType).Melt.To);
         }
     }
 
@@ -172,30 +179,68 @@ public unsafe struct NativeElementMap : IDisposable
 
     static (MassHeader, MassHeader, bool changed) ExchangeTemperature(MassHeader a, MassHeader b)
     {
+        bool changed = false;
+        (a.TotalEnergy, b.TotalEnergy, changed) = ExchangeTemperature(new TemperatureExchanger
+        {
+            Energy = a.TotalEnergy,
+            TemperatureKelvin = a.TemperatureKelvin,
+            ThermalConductivity = a.ThermalConductivity
+        },
+        new TemperatureExchanger
+        {
+            Energy = b.TotalEnergy,
+            TemperatureKelvin = b.TemperatureKelvin,
+            ThermalConductivity = b.ThermalConductivity
+        });
+        return (a, b, changed);
+    }
+
+    public static (MassHeader, Matter, bool changed) ExchangeTemperature(MassHeader a, Matter b)
+    {
+        bool changed = false;
+        (a.TotalEnergy, b.Energy, changed) = ExchangeTemperature(new TemperatureExchanger
+            {
+                Energy = a.TotalEnergy,
+                TemperatureKelvin = a.TemperatureKelvin,
+                ThermalConductivity = a.ThermalConductivity
+            },
+            new TemperatureExchanger
+            {
+                Energy = b.Energy,
+                TemperatureKelvin = b.TemperatureKelvin,
+                ThermalConductivity = b.ThermalConductivity
+            });
+        return (a, b, changed);
+    }
+    
+    
+
+    static (double energyA, double energyB, bool changed) ExchangeTemperature(TemperatureExchanger a, TemperatureExchanger b)
+    {
         var tempDiff = a.TemperatureKelvin - b.TemperatureKelvin;
         if (math.abs(tempDiff) < 0.01f)
-            return (a, b, false); 
+            return (a.Energy, b.Energy, false); 
         var aTC = a.ThermalConductivity;
         var bTC = b.ThermalConductivity;
         if(aTC == 0 || bTC == 0)
-            return (a, b, false);
+            return (a.Energy, b.Energy, false);
         var conductivity = 2 * aTC * bTC / (aTC + bTC);
         
         if (tempDiff > 0)
         {
             var tempTransferRate = tempDiff / a.TemperatureKelvin * conductivity * Element.MAX_CONDUCTIVITY_INVERSE;
-            var energyTransfer = tempTransferRate * a.TotalEnergy;
-            a.TotalEnergy -= energyTransfer;
-            b.TotalEnergy += energyTransfer;
+            var energyTransfer = tempTransferRate * a.Energy;
+            a.Energy -= energyTransfer;
+            b.Energy += energyTransfer;
         }
         else
         {
             var tempTransferRate = -tempDiff / b.TemperatureKelvin * conductivity * Element.MAX_CONDUCTIVITY_INVERSE;
-            var energyTransfer = tempTransferRate * b.TotalEnergy;
-            b.TotalEnergy -= energyTransfer;
-            a.TotalEnergy += energyTransfer;
+            var energyTransfer = tempTransferRate * b.Energy;
+            b.Energy -= energyTransfer;
+            a.Energy += energyTransfer;
         }
-        return (a, b, true);
+        return (a.Energy, b.Energy, true);
     }
 
     static (MassHeader, MassHeader, bool changed) ExchangeGas(MassHeader a, MassHeader b)

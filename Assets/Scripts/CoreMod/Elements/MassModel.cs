@@ -64,7 +64,7 @@ public struct MassModel : IComponentData
         _map.Dispose();
     }
 
-    public void AddWall(int2 cell, Identifiable element, float amount, float energyPerAmount)
+    public void AddWall(int2 cell, Identifiable element, float amount, double energy)
     {
         ref var header = ref _map.CellRW(cell);
         for (int i = 0; i < header.ElementCount; i++)
@@ -72,7 +72,14 @@ public struct MassModel : IComponentData
             // TODO: Move somewhere else?
         }
         header.Dispose();
-        header.Add(element, amount, energyPerAmount);
+        header.Add(element, amount, energy);
         header.IsSolidBlock = true;
+    }
+
+    public void RemoveWall(int2 cell)
+    {
+        ref var header = ref _map.CellRW(cell);
+        header.Dispose();
+        header.IsSolidBlock = false;
     }
 }

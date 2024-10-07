@@ -19,6 +19,12 @@ public enum ElementPhase : byte
 
 public struct Element : IComponentData
 {
+    public struct StateChange
+    {
+        public Identifiable To;
+        public Temperature At;
+    }
+    
     public const float MAX_CONDUCTIVITY_INVERSE = 0.01f;
     const float PHASE_CHANGE_TEMPERATURE_TOLERANCE = 3f;
     public struct Compact
@@ -26,7 +32,7 @@ public struct Element : IComponentData
         public half SpecificHeatCapacity;
         public half ThermalConductivity;
         public half2 StablePhaseTemperatureKelvin;
-        public ElementPhase Phase;    
+        public half PressureFromPhase;    
         public float FreezeTemperature => StablePhaseTemperatureKelvin.x - PHASE_CHANGE_TEMPERATURE_TOLERANCE;
         public float MeltTemperature => StablePhaseTemperatureKelvin.y + PHASE_CHANGE_TEMPERATURE_TOLERANCE;
     }
@@ -35,17 +41,20 @@ public struct Element : IComponentData
     {
       ThermalConductivity = new half(ThermalConductivity),
       SpecificHeatCapacity = new half(SpecificHeatCapacity),
-      StablePhaseTemperatureKelvin = new half2(StablePhaseTemperatureKelvin),
-      Phase = Phase
+      StablePhaseTemperatureKelvin = new half2((half)Freeze.At.Kelvin, (half)Melt.At.Kelvin),
+      PressureFromPhase = new half(Phase switch
+      {
+          ElementPhase.Gas => 100,
+          ElementPhase.Liquid => 10,
+          ElementPhase.Solid => 1,
+          _ => 0
+      })
     };
     
     public float SpecificHeatCapacity;
     public float ThermalConductivity;
-    public float2 StablePhaseTemperatureKelvin;
-    public Identifiable MeltTo, FreezeTo;
+    public StateChange Freeze, Melt;
     public ElementPhase Phase;
-    public float DefaultTemperature;
-    public Color OverlayColor;
 
     public static Element From(Identifiable id)
     {

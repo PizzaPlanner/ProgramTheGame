@@ -7,6 +7,7 @@ using Unity.Collections.LowLevel.Unsafe;
 using Unity.Mathematics;
 using UnityEngine;
 
+[Serializable]
 public struct MassData
 {
     public float Mass;
@@ -108,13 +109,7 @@ public unsafe struct MassHeader : IDisposable
         {
             var result = 0f;
             for (int i = 0; i < ElementCount; i++)
-                result += GetMass(i).Mass * GetMass(i).ElementData.Phase switch
-                {
-                    ElementPhase.Gas => 100,
-                    ElementPhase.Solid => 1,
-                    ElementPhase.Liquid => 10,
-                    _ => 0
-                };
+                result += GetMass(i).Mass * GetMass(i).ElementData.PressureFromPhase;
             return result;
         }
     }
@@ -128,7 +123,7 @@ public unsafe struct MassHeader : IDisposable
             var hc = HeatCapacity;
             if(hc <= 0)
                 return 0;
-            return (float)(TotalEnergy / hc);
+            return TotalEnergy / hc;
         }
         set => TotalEnergy = value * HeatCapacity;
     }

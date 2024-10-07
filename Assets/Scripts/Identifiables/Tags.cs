@@ -35,20 +35,20 @@ public struct Tag : IEquatable<Tag>
         return Id.GetHashCode();
     }
     
-    internal static readonly SharedStatic<NativeParallelMultiHashMap<Identifiable, Tag>> Library =
+    internal static readonly SharedStatic<NativeParallelMultiHashMap<Identifiable, Tag>> TagsOfIdMap =
         SharedStatic<NativeParallelMultiHashMap<Identifiable, Tag>>
-            .GetOrCreate<TagMappingSystem>();
+            .GetOrCreate<Tag>();
     
-    internal static readonly SharedStatic<NativeParallelMultiHashMap<Tag, Identifiable>> TagMap =
+    internal static readonly SharedStatic<NativeParallelMultiHashMap<Tag, Identifiable>> IdsForTagMap =
         SharedStatic<NativeParallelMultiHashMap<Tag, Identifiable>>
-            .GetOrCreate<TagMappingSystem, Tag>();
+            .GetOrCreate<Tag, Tag>();
 
     internal static NativeHashSet<Tag> AllTags
     {
         get
         {
             var hs = new NativeHashSet<Tag>(16, Allocator.Temp);
-            foreach(var tag in TagMap.Data.GetKeyArray(Allocator.Temp))
+            foreach(var tag in IdsForTagMap.Data.GetKeyArray(Allocator.Temp))
                 hs.Add(tag);
             return hs;
         }
@@ -56,21 +56,21 @@ public struct Tag : IEquatable<Tag>
 
     public static IEnumerable<Identifiable> AllIdsForTag(Tag tag)
     {
-        var e = TagMap.Data.GetValuesForKey(tag.Id);
+        var e = IdsForTagMap.Data.GetValuesForKey(tag.Id);
         while(e.MoveNext())
             yield return e.Current;
     }
 
     public static IEnumerable<Tag> AllTagsForId(Identifiable id)
     {
-         var e = Library.Data.GetValuesForKey(id);
+         var e = TagsOfIdMap.Data.GetValuesForKey(id);
          while(e.MoveNext())
             yield return e.Current;
     }
 
     public static bool HasTag(Identifiable id, Tag tag)
     {
-        var tags = Library.Data.GetValuesForKey(id);
+        var tags = TagsOfIdMap.Data.GetValuesForKey(id);
         while(tags.MoveNext())
             if(tags.Current.Id == tag.Id)
                 return true;
