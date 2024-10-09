@@ -64,8 +64,10 @@ MonoBehaviour:
   ColdStateChange:
     Temperature: 0
     ToElement: {fileID: 0}
+  DefaultTemperature: 0
   ThermalConductivity: 1
   SpecificHeatCapacity: 0.2
+  Color: {r: 0, g: 0, b: 0, a: 0}
 --- !u!114 &3174735954207645279
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -78,7 +80,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6d96781d50c744d5b90125a6e0a230bb, type: 3}
   m_Name: Oxygen
   m_EditorClassIdentifier: 
-  Icon: {fileID: 2800000, guid: 29d958b0d66b31d4a98ea6f780462d35, type: 3}
+  Icon: {fileID: 2800000, guid: 1988697c0a95b0f4aadbe8703fcd8bfd, type: 3}
   Tags:
   - {fileID: 11400000, guid: a4a83cc9c9616dd45bc542f4fef85605, type: 2}
   Reference: {fileID: 5304243422145376601}

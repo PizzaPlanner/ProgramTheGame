@@ -89,9 +89,13 @@ MonoBehaviour:
   Size:
     x: 0
     y: 0
-  Input:
-  - Prefab: {fileID: 697860641069326925, guid: c42440416ef81f64693865cd7d1325d9, type: 3}
-    Amount: 2
+  PrimaryElementAmount: 500
+  Variants:
+  - {fileID: 6240678538308625820, guid: c42440416ef81f64693865cd7d1325d9, type: 3}
+  - {fileID: -8225056346494171970, guid: 3245cd94c258ce647a5d748badd6c948, type: 3}
+  - {fileID: 2337124727977563792, guid: 0943a7d7aaf1139489e477a2deb0426a, type: 3}
+  - {fileID: -2056211199530363027, guid: 9fbc316f8e8545941811bda52bae3fe0, type: 3}
+  OtherMaterials: []
 --- !u!114 &460068120002007332
 MonoBehaviour:
   m_ObjectHideFlags: 0

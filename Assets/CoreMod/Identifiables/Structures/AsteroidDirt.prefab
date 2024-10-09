@@ -89,7 +89,10 @@ MonoBehaviour:
   Size:
     x: 0
     y: 0
-  Input: []
+  PrimaryElementAmount: 100
+  Variants:
+  - {fileID: 6240678538308625820, guid: c42440416ef81f64693865cd7d1325d9, type: 3}
+  OtherMaterials: []
 --- !u!114 &6240614005169757687
 MonoBehaviour:
   m_ObjectHideFlags: 0

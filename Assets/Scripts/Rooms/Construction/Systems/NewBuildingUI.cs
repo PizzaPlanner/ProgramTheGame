@@ -6,8 +6,8 @@ using UnityEngine.UIElements;
 
 class NewBuildingUI : VisualElement
 {
-    public Entity WantBuildPlan;
-    public int VariantId;
+    public Identifiable WantBuildPlan;
+    public Identifiable VariantMaterial;
     public bool IsCreativeMode => this.Q<Toggle>().value;
     
     VisualElement BuildingSelection, VariantSelection;
@@ -29,22 +29,34 @@ class NewBuildingUI : VisualElement
     public void  ShowBasic()
     {
         RemoveFromClassList("with-variants");
+        this.Query<BuildingPlanElement>().ForEach(x => x.RemoveFromClassList("selected"));
         VariantSelection.Clear();
         VariantSelection.RemoveFromHierarchy();
     }
 
     public void ShowVariants(BuildingPlanElement target)
     {
-        AddToClassList("with-variants");
+        this.Query<BuildingPlanElement>().ForEach(x => x.RemoveFromClassList("selected"));
+        target.AddToClassList("selected");
         VariantSelection.Clear();
         var mgr = World.DefaultGameObjectInjectionWorld.EntityManager;
         var variants = mgr.GetBuffer<BuildingVariant>(target.Q<IdentifiableButton>().Target.SpawnablePrefab);
+        if (variants.Length == 0)
+        {
+            WantBuildPlan = target.Q<IdentifiableButton>().Target;
+            VariantMaterial = default;
+        }
+        AddToClassList("with-variants");
         foreach (var variant in variants)
         {
             var recipe = new VisualElement{name = "Recipe"};
-            recipe.Add(new IdentifiableButton(){ Target = variant.MainElement });
-            recipe.Add(new Label($"{variant.ResultMass}kg"));
-            recipe.RegisterCallback<MouseDownEvent>(_ => WantBuildPlan = variant.Variant);
+            recipe.Add(new IdentifiableButton(){ Target = variant.Element });
+            recipe.Add(new Label($"{variant.RequiredMass}"));
+            recipe.RegisterCallback<MouseDownEvent>(_ =>
+            {
+                WantBuildPlan = target.Q<IdentifiableButton>().Target;
+                VariantMaterial = variant.Element; 
+            });
             VariantSelection.Add(recipe);
             // foreach(var mat in mgr.GetBuffer<BuildMaterials>(variant.Variant))
             //     Add();

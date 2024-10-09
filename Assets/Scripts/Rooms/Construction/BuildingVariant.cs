@@ -1,9 +1,9 @@
 ﻿using Identifiables;
 using Unity.Entities;
 
+[InternalBufferCapacity(0)]
 public struct BuildingVariant : IBufferElementData
 {
-    public Entity Variant;
-    public Identifiable MainElement;
-    public double ResultMass;
+    public Identifiable Element;
+    public Mass RequiredMass;
 }

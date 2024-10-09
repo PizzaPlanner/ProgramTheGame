@@ -128,7 +128,7 @@ public unsafe struct NativeElementMap : IDisposable
                 header = UnsafeUtility.ReadArrayElement<MassHeader>(_massMap, indexInOld);
             }
             else
-                header = new MassHeader(Allocator.Persistent);
+                header = new MassHeader(Allocator.Persistent) { HeaderType = MassHeader.VolumeType.TileExposedToSpace };
             UnsafeUtility.WriteArrayElement(newTiles, indexInNew, header);
         }
         // TODO: If shrinking is supported, need to free all leftover headers as well? How to handle the contents?
@@ -143,7 +143,7 @@ public unsafe struct NativeElementMap : IDisposable
     public void PerformPhaseChanges(int2 cell)
     {
         ref var header = ref CellRW(cell);
-        var temp = header.TemperatureKelvin;
+        var temp = header.Temperature.Kelvin;
         for (int i = 0; i < header.ElementCount; i++)
         {
             var mass = header.GetMassRW(i);
@@ -153,119 +153,27 @@ public unsafe struct NativeElementMap : IDisposable
                 header.Transform(mass.ElementType, Element.From(mass.ElementType).Melt.To);
         }
     }
+    
+    public void VentToSpace(int2 location)
+    {
+        ref var cell = ref CellRW(location);
+        if(cell.HeaderType != MassHeader.VolumeType.TileExposedToSpace)
+            return;
+
+        cell.Reduce(0.7f);
+    }
 
     public void Mix(int2 cellA, int2 cellB)
     {
         if (!IsInBounds(cellA) || !IsInBounds(cellB))
             return;
         
-        var a = this[cellA];
-        var b = this[cellB];
+        ref var a = ref CellRW(cellA);
+        ref var b = ref CellRW(cellB);
         
-        var changedGas = false;
-        var changedTemp = false;
-
-        // Gas exchange already exchanges temperature, so no need to do this twice?
-        if(!a.IsSolidBlock && !b.IsSolidBlock)
-            (a, b, changedGas) = ExchangeGas(a, b);
-        (a, b, changedTemp) = ExchangeTemperature(a, b);
-
-        if (!changedGas && !changedTemp) 
-            return;
-        
-        this[cellA] = a;
-        this[cellB] = b;
-    }
-
-    static (MassHeader, MassHeader, bool changed) ExchangeTemperature(MassHeader a, MassHeader b)
-    {
-        bool changed = false;
-        (a.TotalEnergy, b.TotalEnergy, changed) = ExchangeTemperature(new TemperatureExchanger
-        {
-            Energy = a.TotalEnergy,
-            TemperatureKelvin = a.TemperatureKelvin,
-            ThermalConductivity = a.ThermalConductivity
-        },
-        new TemperatureExchanger
-        {
-            Energy = b.TotalEnergy,
-            TemperatureKelvin = b.TemperatureKelvin,
-            ThermalConductivity = b.ThermalConductivity
-        });
-        return (a, b, changed);
-    }
-
-    public static (MassHeader, Matter, bool changed) ExchangeTemperature(MassHeader a, Matter b)
-    {
-        bool changed = false;
-        (a.TotalEnergy, b.Energy, changed) = ExchangeTemperature(new TemperatureExchanger
-            {
-                Energy = a.TotalEnergy,
-                TemperatureKelvin = a.TemperatureKelvin,
-                ThermalConductivity = a.ThermalConductivity
-            },
-            new TemperatureExchanger
-            {
-                Energy = b.Energy,
-                TemperatureKelvin = b.TemperatureKelvin,
-                ThermalConductivity = b.ThermalConductivity
-            });
-        return (a, b, changed);
-    }
-    
-    
-
-    static (double energyA, double energyB, bool changed) ExchangeTemperature(TemperatureExchanger a, TemperatureExchanger b)
-    {
-        var tempDiff = a.TemperatureKelvin - b.TemperatureKelvin;
-        if (math.abs(tempDiff) < 0.01f)
-            return (a.Energy, b.Energy, false); 
-        var aTC = a.ThermalConductivity;
-        var bTC = b.ThermalConductivity;
-        if(aTC == 0 || bTC == 0)
-            return (a.Energy, b.Energy, false);
-        var conductivity = 2 * aTC * bTC / (aTC + bTC);
-        
-        if (tempDiff > 0)
-        {
-            var tempTransferRate = tempDiff / a.TemperatureKelvin * conductivity * Element.MAX_CONDUCTIVITY_INVERSE;
-            var energyTransfer = tempTransferRate * a.Energy;
-            a.Energy -= energyTransfer;
-            b.Energy += energyTransfer;
-        }
-        else
-        {
-            var tempTransferRate = -tempDiff / b.TemperatureKelvin * conductivity * Element.MAX_CONDUCTIVITY_INVERSE;
-            var energyTransfer = tempTransferRate * b.Energy;
-            b.Energy -= energyTransfer;
-            a.Energy += energyTransfer;
-        }
-        return (a.Energy, b.Energy, true);
-    }
-
-    static (MassHeader, MassHeader, bool changed) ExchangeGas(MassHeader a, MassHeader b)
-    {
-        var pressureDiff = a.Pressure - b.Pressure;
-        if(math.abs(pressureDiff) < 0.01f)
-            return (a, b, false);
-        var totalPressure = a.Pressure + b.Pressure;
-        var transferFactor = math.abs(pressureDiff) / totalPressure * 0.5f;
-        
-        var high = pressureDiff > 0 ? a : b;
-        var low = pressureDiff > 0 ? b : a;
-
-        for (int i = 0; i < high.ElementCount; i++)
-        {
-            var mass = high.GetMass(i);
-            var deltaMass = mass.Mass * transferFactor;
-            high = high.Remove(mass.ElementType, deltaMass, out var deltaEnergy);
-            low = low.Add(mass.ElementType, deltaMass, deltaEnergy);
-        }
-
-        a = pressureDiff > 0 ? high : low;
-        b = pressureDiff > 0 ? low : high;
-
-        return (a, b, true);
+        if(a.HeaderType != MassHeader.VolumeType.TileBlocked && b.HeaderType != MassHeader.VolumeType.TileBlocked)
+            IMatterComposition.ExchangeGas(ref a, ref b);
+        IMatterComposition.ExchangeTemperature(ref a, ref b);
     }
     
     public void Dispose()

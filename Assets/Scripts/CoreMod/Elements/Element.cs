@@ -32,7 +32,7 @@ public struct Element : IComponentData
         public half SpecificHeatCapacity;
         public half ThermalConductivity;
         public half2 StablePhaseTemperatureKelvin;
-        public half PressureFromPhase;    
+        public half PressureFromPhase;
         public float FreezeTemperature => StablePhaseTemperatureKelvin.x - PHASE_CHANGE_TEMPERATURE_TOLERANCE;
         public float MeltTemperature => StablePhaseTemperatureKelvin.y + PHASE_CHANGE_TEMPERATURE_TOLERANCE;
     }

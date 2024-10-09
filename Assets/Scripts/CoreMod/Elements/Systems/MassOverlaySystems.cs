@@ -40,7 +40,7 @@ partial class PressureOverlaySystem : MapOverlaySystem<PressureOverlayHotkey>
         var painter = _window.Q<MassPainterUI>();
         if(painter.Element.Target == default || painter.Mass.value <= 0)
             return;
-        massModel.AbsoluteCellRW(CellAtCursor).Add(painter.MassData, painter.Temperature.value + 273.15f);
+        massModel.AbsoluteCellRW(CellAtCursor).Add(painter.MassData);
     }
 
     protected override string MenuEntry => "PressureOverlay";
@@ -91,7 +91,7 @@ partial class TemperatureOverlaySystem : MapOverlaySystem<TemperatureOverlayHotk
         var painter = _window.Q<MassPainterUI>();
         if(painter.Element.Target == default || painter.Mass.value <= 0)
             return;
-        massModel.AbsoluteCellRW(CellAtCursor).Add(painter.MassData, painter.Temperature.value + 273.15f);
+        massModel.AbsoluteCellRW(CellAtCursor).Add(painter.MassData);
     }
 
     protected override string MenuEntry => "TemperatureOverlay";
@@ -101,7 +101,7 @@ partial class TemperatureOverlaySystem : MapOverlaySystem<TemperatureOverlayHotk
         for (var x = 0; x < model.Size.x; x++)
         for (var y = 0; y < model.Size.y; y++)
         {
-            var temperature = (float)model.RelativeCell(new int2(x, y)).TemperatureKelvin;
+            var temperature = (float)model.RelativeCell(new int2(x, y)).Temperature;
             texture.SetPixel(x, y, new Color(0, 0, 0, temperature * 0.001f));
         }
     }

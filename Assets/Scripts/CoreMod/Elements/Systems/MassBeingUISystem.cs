@@ -9,7 +9,7 @@ namespace CoreMod.Elements.Systems
     {
         protected override void OnUpdate()
         {
-            foreach (var (massBeing, e) in SystemAPI.Query<Matter>().WithAll<Selected>().WithEntityAccess())
+            foreach (var (massBeing, e) in SystemAPI.Query<MassData>().WithAll<Selected>().WithEntityAccess())
             {
                 if(!UISystemGroup.TryGet<SelectedUnitElement>(out var ui))
                     return;
@@ -32,11 +32,11 @@ namespace CoreMod.Elements.Systems
         {
             Add(new Label(""));
         }
-        public Matter Mass
+        public MassData Mass
         {
             set
             {
-                this.Q<Label>().text = $"{value.Mass.ElementType.DefaultName}: {value.Mass.Mass}kg at {value.TemperatureKelvin}K";
+                this.Q<Label>().text = $"{value.ElementType.DefaultName}: {value.Mass}kg at {value.Temperature}";
             }
         }
     }

@@ -27,13 +27,16 @@ namespace Units
                     var parent = SystemAPI.GetComponent<Parent>(task.Target);
                     var bounds = SystemAPI.GetComponent<GridBounds>(task.Target);
                     var id = SystemAPI.GetComponent<Identifiable>(task.Target);
+                    var materials = SystemAPI.GetComponent<ConstructionVariant>(task.Target);
                     ecb.DestroyEntity(task.Origin);
                     var plan = ecb.CreateEntity();
                     ecb.AddComponent(plan, new PlannedConstruction
                     {
                         Location = bounds.Min,
                         Parent = parent.Value,
-                        Prefab = id
+                        Prefab = id,
+                        Mode = ConstructionMode.Complete,
+                        Materials = materials
                     });
                 }
             }

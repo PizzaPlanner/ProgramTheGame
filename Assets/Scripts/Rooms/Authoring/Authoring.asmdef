@@ -17,7 +17,10 @@
         "Rooms",
         "Core",
         "Construction",
-        "Tasks"
+        "Tasks",
+        "Elements",
+        "Elements.Authoring",
+        "Construction.Systems"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

@@ -43,16 +43,16 @@ public partial class ElementMappingSystem : IdentifiableMappingSystem, IWikiProv
         top.Add(new Label(elementText));
         var elm = new Foldout(){text = "StateChanges"};
         if(element.Freeze.To != default)
-            elm.Add(new StateChangeWikiElement(id, element.Freeze));
+            elm.Add(new StateChangeWikiElement(id, element.Freeze, false));
         if(element.Melt.To != default)
-            elm.Add(new StateChangeWikiElement(id, element.Melt));
+            elm.Add(new StateChangeWikiElement(id, element.Melt, true));
         if(Relations.TryGetValue(id, out var relations))
             foreach (var relation in relations)
             {
                 if(relation.Relation == "MoltenFrom")
-                    elm.Add(new StateChangeWikiElement(relation.To, new Element.StateChange { To = id, At = Element.From(relation.To).Melt.At }));
+                    elm.Add(new StateChangeWikiElement(relation.To, new Element.StateChange { To = id, At = Element.From(relation.To).Melt.At }, true));
                 if(relation.Relation == "FrozenFrom")
-                    elm.Add(new StateChangeWikiElement(relation.To, new Element.StateChange { To = id, At = Element.From(relation.To).Freeze.At }));
+                    elm.Add(new StateChangeWikiElement(relation.To, new Element.StateChange { To = id, At = Element.From(relation.To).Freeze.At }, false));
             }
         if(elm.contentContainer.childCount > 0)
             top.Add(elm);
@@ -62,10 +62,11 @@ public partial class ElementMappingSystem : IdentifiableMappingSystem, IWikiProv
 
 public class StateChangeWikiElement : VisualElement
 {
-    public StateChangeWikiElement(Identifiable idFrom, Element.StateChange stateChange)
+    public StateChangeWikiElement(Identifiable idFrom, Element.StateChange stateChange, bool isMelt)
     {
+        Add(new Label($"{stateChange.At}") { name = isMelt ? "Melt" : "Freeze" });
         Add(new WikiSearchResultButton(idFrom));
-        Add(new Label($" at {stateChange.At}K changes to "));
+        Add(new Label($" > "));
         Add(new WikiSearchResultButton(stateChange.To));
     }
 }

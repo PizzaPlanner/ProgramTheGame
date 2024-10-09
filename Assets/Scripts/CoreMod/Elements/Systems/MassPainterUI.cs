@@ -12,11 +12,11 @@ public class MassPainterUI : VisualElement
         Add(new Label("Paint Elements"));
         Add(Element = new IdentifiableButton());
         Element.RegisterCallback<MouseDownEvent>(OnSelectElement);
-        Add(Mass = new IntegerField("pa", 4));
+        Add(Mass = new IntegerField("kg", 4));
         Add(Temperature = new IntegerField("C", 4));
     }
 
-    public MassData MassData => MassData.From(Element.Target, Mass.value);
+    public MassData MassData => MassData.From(Element.Target, (uint)(Mass.value * 1000), new Temperature{Celsius = Temperature.value});
 
     void OnSelectElement(MouseDownEvent evt)
     {

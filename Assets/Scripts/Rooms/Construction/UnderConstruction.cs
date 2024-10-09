@@ -1,4 +1,6 @@
-﻿using Unity.Entities;
+﻿using Identifiables;
+using Unity.Collections;
+using Unity.Entities;
 
 public struct UnderConstruction : IComponentData { }
 
@@ -27,3 +29,4 @@ public struct Building : IComponentData
 
 public struct Floor : IComponentData { }
 
+public struct Wall : IComponentData { }

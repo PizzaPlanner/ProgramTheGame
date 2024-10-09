@@ -14,8 +14,17 @@ NewBuildingUI > #Buildings {
 
 BuildingPlanElement > #Anchor {
     position: absolute;
-    flex-direction: column-reverse;
     top: -20px;
+    left: 50%;
+    align-items: center;
+}
+
+BuildingPlanElement {
+    margin-top: 10px;
+}
+
+BuildingPlanElement.selected {
+    margin-top: 0;
 }
 
 #BuildingVariants {
@@ -25,7 +34,17 @@ BuildingPlanElement > #Anchor {
     border-color: rgb(43, 89, 188);
 }
 
-#BuildingVariants > #BuildingVariant {
+#BuildingVariants #unity-content-container {
+    flex-direction: row;
+}
+
+#BuildingVariants #Recipe {
     border-width: 1px;
     border-color: rgb(43, 89, 188);
+    font-size: 12px;
+}
+
+#BuildingVariants .id-button {
+    width: 42px;
+    height: 42px;
 }

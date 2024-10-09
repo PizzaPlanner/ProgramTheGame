@@ -1,7 +1,16 @@
-﻿using System;
+﻿using Identifiables;
+using System;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
+
+[Serializable]
+public class BuildingVariantAuthoring
+{
+    public ElementAuthoring Element;
+    public uint Mass;
+}
 
 public class BuildingAuthoring : MonoBehaviour
 {
@@ -9,7 +18,9 @@ public class BuildingAuthoring : MonoBehaviour
     public PlacementType PlacementType; 
     public float Duration;
     public int2 Size;
-    public CraftingRecipeAuthoring.ItemWithAmount[] Input;
+    public ushort PrimaryElementAmount;
+    public ElementAuthoring[] Variants;
+    public CraftingRecipeAuthoring.ItemWithAmount[] OtherMaterials;
     
     class BuildingBaker : Baker<BuildingAuthoring>
     {
@@ -29,13 +40,30 @@ public class BuildingAuthoring : MonoBehaviour
             });
             if(authoring.Layer == BuildingLayer.Floor)
                 AddComponent<Floor>(self);
-            var mats = AddBuffer<BuildMaterials>(self);
-            foreach(var mat in authoring.Input)
-                mats.Add(new BuildMaterials
+            if(authoring.Layer == BuildingLayer.Wall)
+                AddComponent<Wall>(self);
+            var variants = AddBuffer<BuildingVariant>(self);
+            foreach (var variant in authoring.Variants)
+            {
+                variants.Add(new BuildingVariant()
                 {
-                    Item = mat.Prefab.Id,
+                    Element = variant.GetComponent<IdentifieableAuthoring>().Id,
+                    RequiredMass = authoring.PrimaryElementAmount
+                });
+            }
+            var currentVariant = new ConstructionVariant
+            {
+                BuildMaterials = new FixedList64Bytes<ConstructionVariant.Material>()
+            };
+            if(authoring.Variants.Length > 0)
+                currentVariant.BuildMaterials.Add(new ConstructionVariant.Material{ Amount = authoring.PrimaryElementAmount, IsVariant = true });
+            foreach(var mat in authoring.OtherMaterials)
+                currentVariant.BuildMaterials.Add(new ConstructionVariant.Material
+                {
+                    Item = mat.Prefab.GetComponent<IdentifieableAuthoring>().Id,
                     Amount = mat.Amount
                 });
+            AddComponent(self, currentVariant);
         }
     }
 

@@ -1,7 +1,6 @@
 ﻿using Core;
 using Core.Input;
 using Identifiables;
-using Identifiables.UI;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -26,20 +25,21 @@ internal struct CurrentGhost : IComponentData { }
 
 partial class BuildToolUISystem : MapOverlaySystem<BuildTool>
 {
-    protected override VisualElement MakeWindow() => new BuildingBuildElement();
+    protected override VisualElement MakeWindow() => new NewBuildingUI();
     protected override string MenuEntry => "Build";
     
-    BuildingBuildElement Window => _window as BuildingBuildElement; 
+    NewBuildingUI Window => _window as NewBuildingUI; 
 
     protected override void OnStopRunning()
     {
         base.OnStopRunning();
         var ecb = new EntityCommandBuffer(Allocator.Temp);
-        ClearGhost(ecb);
+        ClearPreview(ecb);
         ecb.Playback(EntityManager);
+        Window.ShowBasic();
     }
 
-    void ClearGhost(EntityCommandBuffer ecb)
+    void ClearPreview(EntityCommandBuffer ecb)
     {
         var entities = GetEntityQuery(typeof(CurrentGhost)).ToEntityArray(Allocator.Temp);
         foreach(var e in entities)
@@ -47,7 +47,8 @@ partial class BuildToolUISystem : MapOverlaySystem<BuildTool>
     }
 
     GridBounds DragArea;
-    Entity GhostPrefab;
+    Identifiable GhostPrefab;
+    Identifiable GhostMaterial;
     protected override void OnUpdate()
     {
         base.OnUpdate();
@@ -55,7 +56,7 @@ partial class BuildToolUISystem : MapOverlaySystem<BuildTool>
                            .CreateCommandBuffer(World.Unmanaged);
         if (!SystemAPI.TryGetSingleton<CurrentGrid>(out var cgrid))
         {
-            ClearGhost(ecb);
+            ClearPreview(ecb);
             return;
         }
         var parent = cgrid.Grid;
@@ -87,34 +88,27 @@ partial class BuildToolUISystem : MapOverlaySystem<BuildTool>
                     DragArea.Max = DragArea.Min = pointedCell;
                 }
                 else
-                    ClearGhost(ecb);
+                    ClearPreview(ecb);
             }
             else if(BuildTool.PlaceBuilding.WasReleasedThisFrame() && !pointerOverUI)
             {
                 foreach (var ghost in ghostQuery.ToEntityArray(Allocator.Temp))
                 {
                     var plan = ecb.CreateEntity();
-                    var mats = new FixedList64Bytes<BuildMaterials>();
-                    var prefab = SystemAPI.GetComponent<Identifiable>(ghost);
-                    if(!Window.IsCreativeMode)
-                        foreach(var mat in SystemAPI.GetBuffer<BuildMaterials>(prefab.SpawnablePrefab))
-                            mats.Add(mat);
                     ecb.AddComponent(plan, new PlannedConstruction
                     {
                         Location = SystemAPI.GetComponent<GridBounds>(ghost).Min,
-                        Materials = mats,
+                        Materials = SystemAPI.GetComponent<ConstructionVariant>(ghost),
                         Parent = SystemAPI.GetComponent<Parent>(ghost).Value,
-                        Prefab = prefab,
-                        Energy = 25,
-                        Mass = 100,
-                        PrimaryElement = Identifiable.FromName("Insulation")
+                        Prefab = SystemAPI.GetComponent<Identifiable>(ghost),
+                        Mode = Window.IsCreativeMode ? ConstructionMode.Complete : ConstructionMode.UnderConstruction
                     });
                 }
-                ClearGhost(ecb);
-                PlaceGhost(pointedCell, ecb, rooms);
+                ClearPreview(ecb);
+                PlacePreview(pointedCell, ecb, rooms);
             } else if (BuildTool.Cancel.WasPressedThisFrame())
             {
-                ClearGhost(ecb);
+                ClearPreview(ecb);
             }
             else
             {
@@ -138,24 +132,24 @@ partial class BuildToolUISystem : MapOverlaySystem<BuildTool>
                         Min = math.min(DragArea.Min, DragArea.Max),
                         Max = math.max(DragArea.Min, DragArea.Max),
                     };
-                    ClearGhost(ecb);
+                    ClearPreview(ecb);
                     var dragType = SystemAPI.GetComponent<Building>(root).DraggableDimension;
                     if(dragType == PlacementType.Rectangle)
                         for(int x = delta.Min.x; x <= delta.Max.x; x++)
                         for(int y = delta.Min.y; y <= delta.Max.y; y++)
-                            PlaceGhost(new int2(x,y), ecb, rooms);
+                            PlacePreview(new int2(x,y), ecb, rooms);
                     else if (dragType == PlacementType.RectangleBorder)
                     {
                         for (int x = delta.Min.x; x <= delta.Max.x; x++)
                         {
-                            PlaceGhost(new int2(x,delta.Min.y), ecb, rooms);
-                            PlaceGhost(new int2(x,delta.Max.y), ecb, rooms);
+                            PlacePreview(new int2(x,delta.Min.y), ecb, rooms);
+                            PlacePreview(new int2(x,delta.Max.y), ecb, rooms);
                         }
 
                         for (int y = delta.Min.y + 1; y <= delta.Max.y - 1; y++)
                         {
-                            PlaceGhost(new int2(delta.Min.x,y), ecb, rooms);
-                            PlaceGhost(new int2(delta.Max.x,y), ecb, rooms);
+                            PlacePreview(new int2(delta.Min.x,y), ecb, rooms);
+                            PlacePreview(new int2(delta.Max.x,y), ecb, rooms);
                         }
                     }
                     else // Line
@@ -163,23 +157,25 @@ partial class BuildToolUISystem : MapOverlaySystem<BuildTool>
                         var isXLonger = delta.Max.x - delta.Min.x > delta.Max.y - delta.Min.y;
                         if(isXLonger)
                             for (int x = delta.Min.x; x <= delta.Max.x; x++)
-                                PlaceGhost(new int2(x,delta.Min.y), ecb, rooms);
+                                PlacePreview(new int2(x,delta.Min.y), ecb, rooms);
                         else
                             for (int y = delta.Min.y; y <= delta.Max.y; y++)
-                                PlaceGhost(new int2(delta.Min.x, y), ecb, rooms);
+                                PlacePreview(new int2(delta.Min.x, y), ecb, rooms);
                     }
                 }
             }
         }
-        var toBuild = Window.WantBuildPrefab;
-        if (toBuild == Entity.Null)
+        var toBuild = Window.WantBuildPlan;
+        if (toBuild == default)
             return;
         
-        GhostPrefab = Window.WantBuildPrefab;
         DragArea = new GridBounds{Min = pointedCell, Max = pointedCell};
-        ClearGhost(ecb);
-        PlaceGhost(pointedCell, ecb, rooms);
-        Window.WantBuildPrefab = Entity.Null;
+        GhostPrefab = Window.WantBuildPlan;
+        GhostMaterial = Window.VariantMaterial;
+        ClearPreview(ecb);
+        PlacePreview(pointedCell, ecb, rooms);
+        Window.WantBuildPlan = default;
+        Window.VariantMaterial = default;
     }
 
     protected override void SetPixels(Entity gridEntity, Texture2D texture, GridBounds bounds)
@@ -188,42 +184,20 @@ partial class BuildToolUISystem : MapOverlaySystem<BuildTool>
         texture.Apply();
     }
 
-    void PlaceGhost(int2 cell, EntityCommandBuffer ecb, RoomModel rooms)
+    void PlacePreview(int2 cell, EntityCommandBuffer ecb, RoomModel rooms)
     {
         var currentParent = SystemAPI.GetSingleton<CurrentGrid>().Grid;
         var plan = ecb.CreateEntity();
+        var mats = SystemAPI.GetComponent<ConstructionVariant>(GhostPrefab.SpawnablePrefab);
+        if(mats.BuildMaterials.Length > 0 && mats.BuildMaterials[0].IsVariant)
+            mats.BuildMaterials[0] = new ConstructionVariant.Material{ Item = GhostMaterial, IsVariant = true, Amount = mats.BuildMaterials[0].Amount };
         ecb.AddComponent(plan, new PlannedConstruction
         {
             Location = cell, 
             Parent = currentParent,
-            Prefab = SystemAPI.GetComponent<Identifiable>(GhostPrefab),
-            IsPlacementMode = true
+            Prefab = GhostPrefab,
+            Mode = ConstructionMode.PlacementPreview,
+            Materials = mats
         });
-        // var e = ecb.Instantiate(GhostPrefab);
-        // ecb.AddComponent(e, new Parent{Value = currentParent});
-        // ecb.AddComponent<UnderConstruction>(e);
-        // ecb.AddComponent<CurrentGhost>(e);
-        //
-        // var newBounds = SystemAPI.GetComponent<GridBounds>(GhostPrefab).WithOffset(cell); 
-        // ecb.SetComponent(e, newBounds);
-        // ecb.AddComponent(e, new FixGhostVisualsAndPhysicsSystem.F ixGhostandChildren { GhostBuildable = !rooms.IsOccupied(newBounds) });
-        // ecb.SetComponent(e, LocalTransform.FromPosition(GridStructure.CellCenterToLocal(cell)));
-    }
-}
-
-class BuildingBuildElement : VisualElement
-{
-    public Entity WantBuildPrefab;
-    public bool IsCreativeMode => this.Q<Toggle>().value;
-    public BuildingBuildElement()
-    {
-        var buildingTag = Tag.FromName("TagBuilding");
-        foreach (var id in Tag.AllIdsForTag(buildingTag))
-        {
-            var button = new IdentifiableButton(){Target = id};
-            button.RegisterCallback<MouseDownEvent>(_ => WantBuildPrefab = button.Target.SpawnablePrefab);
-            Add(button);
-        }
-        Add(new Toggle("Instabuild"));
     }
 }

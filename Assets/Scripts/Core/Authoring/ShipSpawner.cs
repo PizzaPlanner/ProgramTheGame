@@ -13,7 +13,8 @@ public class ShipSpawner : MonoBehaviour
             {
                 Location = GridStructure.LocalToCell(authoring.transform.localPosition),
                 Parent = GetEntity(authoring.transform.parent, TransformUsageFlags.WorldSpace),
-                Prefab = authoring.Spawned.GetComponent<IdentifieableAuthoring>().Id
+                Prefab = authoring.Spawned.GetComponent<IdentifieableAuthoring>().Id,
+                Mode = ConstructionMode.Complete
             });
         }
     }

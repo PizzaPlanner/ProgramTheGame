@@ -10,7 +10,9 @@
         "Unity.Collections",
         "Unity.Transforms",
         "Identifiables",
-        "Items"
+        "Items",
+        "Core",
+        "Elements"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

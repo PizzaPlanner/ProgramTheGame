@@ -14,7 +14,8 @@
         "Identifiables",
         "Identifiables.Authoring",
         "Construction",
-        "Construction.Systems"
+        "Construction.Systems",
+        "Elements"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

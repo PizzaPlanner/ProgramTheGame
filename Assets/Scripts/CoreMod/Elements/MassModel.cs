@@ -1,11 +1,12 @@
 ﻿using Identifiables;
+using System;
 using System.Runtime.CompilerServices;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Properties;
 using UnityEngine;
 
-public struct MassModel : IComponentData
+public struct MassModel : ICleanupComponentData
 {
     NativeElementMap _map;
     
@@ -24,14 +25,45 @@ public struct MassModel : IComponentData
     bool _lastMixWasEven;
 
     [CreateProperty]
-    public double TotalEnergyInModel
+    public int TotalResidualEnergy
     {
         get
         {
-            var result = 0d;
+            var result = 0;
             for (var x = _map.Min.x; x <= _map.Max.x; x++)
             for (var y = _map.Min.y; y <= _map.Max.y; y++)
-                result += _map[new int2(x, y)].TotalEnergy;
+            {
+                result += _map[new int2(x, y)].ResidualEnergy;
+            }
+            return result;
+        }
+    }
+    
+    [CreateProperty]
+    public ulong TotalEnergyInModel
+    {
+        get
+        {
+            var result = 0ul;
+            for (var x = _map.Min.x; x <= _map.Max.x; x++)
+            for (var y = _map.Min.y; y <= _map.Max.y; y++)
+            {
+                result += _map[new int2(x, y)].Energy;
+                result += (ulong)_map[new int2(x, y)].ResidualEnergy;
+            }
+            return result;
+        }
+    }
+    
+    [CreateProperty]
+    public ulong TotalMassInModel
+    {
+        get
+        {
+            var result = 0u;
+            for (var x = _map.Min.x; x <= _map.Max.x; x++)
+            for (var y = _map.Min.y; y <= _map.Max.y; y++)
+                result += _map[new int2(x, y)].Mass;
             return result;
         }
     }
@@ -44,10 +76,11 @@ public struct MassModel : IComponentData
 
     public void MixAll()
     {
-        var min = _lastMixWasEven ? _map.Min : _map.Min + 1;
-        for (var x = min.x; x <= _map.Max.x; x+= 2)
-        for (var y = min.y; y <= _map.Max.y; y+= 2)
+        var min = _map.Min; // _lastMixWasEven ? _map.Min : _map.Min + 1;
+        for (var x = min.x; x <= _map.Max.x; x++)
+        for (var y = min.y; y <= _map.Max.y; y++)
         {
+            _map.VentToSpace(new int2(x, y));
             _map.Mix(new int2(x, y), new int2(x + 1, y));
             _map.Mix(new int2(x, y), new int2(x, y + 1));
             _map.Mix(new int2(x, y), new int2(x - 1, y));
@@ -64,7 +97,19 @@ public struct MassModel : IComponentData
         _map.Dispose();
     }
 
-    public void AddWall(int2 cell, Identifiable element, float amount, double energy)
+    public void AddFloor(int2 cell)
+    {
+        ref var header = ref _map.CellRW(cell);
+        header.HeaderType = MassHeader.VolumeType.Tile;
+    }
+    
+    public void RemoveFloor(int2 cell)
+    {
+        ref var header = ref _map.CellRW(cell);
+        header.HeaderType = MassHeader.VolumeType.TileExposedToSpace;
+    }
+    
+    public void AddWall(int2 cell)
     {
         ref var header = ref _map.CellRW(cell);
         for (int i = 0; i < header.ElementCount; i++)
@@ -72,14 +117,41 @@ public struct MassModel : IComponentData
             // TODO: Move somewhere else?
         }
         header.Dispose();
-        header.Add(element, amount, energy);
-        header.IsSolidBlock = true;
+        header.HeaderType = MassHeader.VolumeType.TileBlocked;
     }
 
     public void RemoveWall(int2 cell)
     {
         ref var header = ref _map.CellRW(cell);
         header.Dispose();
-        header.IsSolidBlock = false;
+        header.HeaderType = MassHeader.VolumeType.TileExposedToSpace;
+    }
+    
+    public void AddWall(GridBounds area)
+    {
+        for (int x = area.Min.x; x <= area.Max.x; x++)
+        for (int y = area.Min.y; y <= area.Max.y; y++)
+            AddWall(new int2(x, y));
+    }
+    
+    public void AddFloor(GridBounds area)
+    {
+        for (int x = area.Min.x; x <= area.Max.x; x++)
+        for (int y = area.Min.y; y <= area.Max.y; y++)
+            AddFloor(new int2(x, y));
+    }
+    
+    public void RemoveWall(GridBounds area)
+    {
+        for (int x = area.Min.x; x <= area.Max.x; x++)
+        for (int y = area.Min.y; y <= area.Max.y; y++)
+            RemoveWall(new int2(x, y));
+    }
+
+    public void RemoveFloor(GridBounds area)
+    {
+        for (int x = area.Min.x; x <= area.Max.x; x++)
+        for (int y = area.Min.y; y <= area.Max.y; y++)
+            RemoveFloor(new int2(x, y));
     }
 }

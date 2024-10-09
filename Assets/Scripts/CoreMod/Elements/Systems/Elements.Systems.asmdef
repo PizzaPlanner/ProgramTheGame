@@ -16,7 +16,10 @@
         "Core.Input",
         "Core.UI",
         "Elements",
-        "Equipment.UI"
+        "Equipment.UI",
+        "Units.UI",
+        "Units",
+        "Construction"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

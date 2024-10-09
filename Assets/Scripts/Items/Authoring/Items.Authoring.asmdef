@@ -19,7 +19,8 @@
         "Chip",
         "Lookups",
         "Modding.API",
-        "Tasks"
+        "Tasks",
+        "Elements.Authoring"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

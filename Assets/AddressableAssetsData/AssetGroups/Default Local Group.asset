@@ -55,6 +55,16 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 9d742aab04c74138bcc1f15978e28e04
+    m_Address: UI/Stylesheets/buildings.uss
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: b6323d28b277f8b419e88efec0109668
+    m_Address: Test/Materials
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: a45313afd0572864587f7bb3550ba570, type: 2}
   m_SchemaSet:

@@ -57,13 +57,8 @@ public class ElementAuthoring : MonoBehaviour
             {
                 ThermalConductivity = authoring.ThermalConductivity,
                 SpecificHeatCapacity = authoring.SpecificHeatCapacity,
-                StablePhaseTemperatureKelvin = new float2(
-                    freezeTo == default ? float.NegativeInfinity : Kelvin(authoring.ColdStateChange.Temperature),
-                    meltTo   == default ? float.PositiveInfinity : Kelvin(authoring.HotStateChange.Temperature)),
-                MeltTo = meltTo,
-                FreezeTo = freezeTo,
-                DefaultTemperature = authoring.DefaultTemperature,
-                OverlayColor = authoring.Color,
+                Melt = new Element.StateChange{At = meltTo == default ? float.PositiveInfinity : authoring.HotStateChange.Temperature + 273.15f, To = meltTo },
+                Freeze = new Element.StateChange{At = freezeTo == default ? float.NegativeInfinity : authoring.ColdStateChange.Temperature + 273.15f, To = freezeTo },
                 Phase = phase
             });
         }

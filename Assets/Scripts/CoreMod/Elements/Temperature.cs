@@ -1,6 +1,14 @@
-﻿public struct Temperature
+﻿using Unity.Mathematics;
+
+public struct Temperature
 {
-    public float Kelvin;
+    float _value;
+
+    public float Kelvin
+    {
+        get => _value;
+        set => _value = math.max(0, value);
+    }
 
     public float Celsius
     {
@@ -19,6 +27,6 @@
 
     public override string ToString()
     {
-        return $"{Kelvin:0.0}K";
+        return $"{Celsius:0.0}C";
     }
 }

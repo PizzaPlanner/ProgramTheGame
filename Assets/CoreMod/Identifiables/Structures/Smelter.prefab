@@ -87,7 +87,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Layer: 0
-  PlacementType: 3
+  PlacementType: 0
   Duration: 5
   Size:
     x: 1

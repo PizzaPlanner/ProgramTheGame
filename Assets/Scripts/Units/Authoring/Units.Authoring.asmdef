@@ -19,7 +19,8 @@
         "Core.Authoring",
         "Identifiables.Authoring",
         "Core",
-        "Equipment"
+        "Equipment",
+        "Elements.Authoring"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

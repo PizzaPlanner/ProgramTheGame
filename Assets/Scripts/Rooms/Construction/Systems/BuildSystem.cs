@@ -39,9 +39,21 @@ partial struct BuildSystem : ISystem
         // Clean up occupations
         foreach (var (baked, e) in SystemAPI.Query<BakedIntoRoomMap>().WithNone<LocalToWorld>().WithEntityAccess())
         {
-            var roomModel = SystemAPI.GetComponent<RoomModel>(baked.Grid);
-            roomModel.FreeOccupation(baked.Area);
+            var roomModel = SystemAPI.GetComponentRW<RoomModel>(baked.Grid);
+            var massModel = SystemAPI.GetComponentRW<MassModel>(baked.Grid);
+            roomModel.ValueRW.FreeOccupation(baked.Area);
             ecb.RemoveComponent<BakedIntoRoomMap>(e);
+            if (SystemAPI.HasComponent<Wall>(e))
+            {
+                roomModel.ValueRW.RemoveWall(baked.Area);
+                massModel.ValueRW.RemoveWall(baked.Area);
+            }
+            else if (SystemAPI.HasComponent<Floor>(e))
+            {
+                massModel.ValueRW.RemoveFloor(baked.Area);
+            }
+            else
+                roomModel.ValueRW.FreeOccupation(baked.Area);
         }
         ecbNow.Playback(state.EntityManager);
         

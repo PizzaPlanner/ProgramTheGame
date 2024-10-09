@@ -37,8 +37,8 @@ public class MassVolumeUI : VisualElement
         set
         {
             // Capacity.text = $"Capacity: {1 / value.VolumeCapacityInverse}L";
-            Pressure.text = $"Pressure: {(value.IsSolidBlock ? "-" : value.Pressure / 1000):0.00}kPa";
-            Temperature.text = $"Temperature: {value.TemperatureCelsius:N0}C\nEnergy: {value.TotalEnergy:N0}J\nHeat Capacity:{value.HeatCapacity:N0}";
+            Pressure.text = $"Pressure: {(value.ElementCount == 0 ? "-" : value.Pressure / 1000):0.00}kPa";
+            Temperature.text = $"Temperature: {value.Temperature}\nEnergy: {value.Energy:N0}J\nHeat Capacity:{value.HeatCapacity:N0}";
             var container = this.Q("MolesContainer");
             container.Clear();
             foreach (var gas in value.Masses)
