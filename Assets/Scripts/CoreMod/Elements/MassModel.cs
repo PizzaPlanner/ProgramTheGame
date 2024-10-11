@@ -1,10 +1,7 @@
-﻿using Identifiables;
-using System;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Properties;
-using UnityEngine;
 
 public struct MassModel : ICleanupComponentData
 {
@@ -12,6 +9,8 @@ public struct MassModel : ICleanupComponentData
     
     public MassModel(NativeElementMap map) { _map = map; _lastMixWasEven = false; }
     
+    public bool IsInBounds(int2 cell) => _map.IsInBounds(cell);
+    public bool IsEmpty(int2 cell) => !_map.IsInBounds(cell) || _map[cell].ElementCount == 0;
     public ref MassHeader AbsoluteCellRW(int2 cell) => ref _map.CellRW(cell);
     public ref MassHeader RelativeCellRW(int2 cell) => ref _map.CellRW(RelativeToAbsolute(cell));
 
@@ -77,8 +76,8 @@ public struct MassModel : ICleanupComponentData
     public void MixAll()
     {
         var min = _map.Min; // _lastMixWasEven ? _map.Min : _map.Min + 1;
-        for (var x = min.x; x <= _map.Max.x; x++)
-        for (var y = min.y; y <= _map.Max.y; y++)
+        for (var x = min.x + 1; x < _map.Max.x; x++)
+        for (var y = min.y + 1; y < _map.Max.y; y++)
         {
             _map.VentToSpace(new int2(x, y));
             _map.Mix(new int2(x, y), new int2(x + 1, y));
@@ -88,6 +87,17 @@ public struct MassModel : ICleanupComponentData
             _map.PerformPhaseChanges(new int2(x, y));
         }
         _lastMixWasEven = !_lastMixWasEven;
+    }
+
+    public void MixOne(int index)
+    {
+        var cell = _map.AsCell(index);
+        _map.VentToSpace(cell);
+        _map.Mix(cell, cell + new int2(1, 0));
+        _map.Mix(cell, cell + new int2(0, 1));
+        _map.Mix(cell, cell + new int2(-1, 0));
+        _map.Mix(cell, cell + new int2(0, -1));
+        _map.PerformPhaseChanges(cell);
     }
     
     public void Resize(int2 min, int2 max) => _map = _map.Resize(min, max);

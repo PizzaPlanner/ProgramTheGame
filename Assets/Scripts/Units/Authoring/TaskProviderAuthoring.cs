@@ -4,11 +4,11 @@ using UnityEngine;
 
 public class TaskProviderAuthoring : MonoBehaviour
 {
-    class Baker : Baker<TaskExecutorAuthoring>
+    class Baker : Baker<TaskProviderAuthoring>
     {
-        public override void Bake(TaskExecutorAuthoring authoring)
+        public override void Bake(TaskProviderAuthoring authoring)
         {
-            var e = GetEntity(TransformUsageFlags.Dynamic);
+            var e = GetEntity(TransformUsageFlags.None);
             AddBuffer<TaskProvider>(e);
         }
     }

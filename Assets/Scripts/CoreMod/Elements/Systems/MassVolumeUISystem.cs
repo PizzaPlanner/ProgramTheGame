@@ -45,7 +45,7 @@ public class MassVolumeUI : VisualElement
             {
                 var btn = new IdentifiableButton
                 {
-                    name = gas.ElementType.DefaultName.Value,
+                    name = gas.ElementType.ToString(),
                     Target = gas.ElementType
                 };
                 container.Add(btn);

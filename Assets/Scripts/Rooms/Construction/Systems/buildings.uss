@@ -10,6 +10,7 @@
 NewBuildingUI > #Buildings {
     flex-direction: row;
     padding: 10px;
+    background-color: rgb(22, 27, 45);
 }
 
 BuildingPlanElement > #Anchor {

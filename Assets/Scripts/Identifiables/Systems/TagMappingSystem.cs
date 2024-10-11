@@ -27,6 +27,7 @@ partial class TagMappingSystem : IdentifiableMappingSystem //, IWikiProvider
         Tag.IdsForTagMap.Data = new (32, Allocator.Persistent);
         foreach (var (tags, id) in SystemAPI.Query<DynamicBuffer<Tags>, Identifiable>()
                                       .WithAll<Prefab, Identifiable>()
+                                      .WithNone<IdentifiablesMappingGroup.Mapped>()
                                       .WithOptions(EntityQueryOptions.IncludePrefab))
         {
             foreach (var tag in tags)

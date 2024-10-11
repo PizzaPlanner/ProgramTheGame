@@ -13,7 +13,7 @@ public struct GridBounds : IComponentData
 
     public override string ToString() => $"Bounds[{Min},{Max}]";
 
-    public GridBounds WithOffset(Cell offset)
+    public GridBounds WithOffset(int2 offset)
     {
         Min += offset;
         Max += offset;
@@ -26,4 +26,17 @@ public struct GridBounds : IComponentData
         Max += ltrb.yz;
         return this;
     }
+}
+
+public struct GridParallelization
+{
+    public struct X0Y0 : IComponentData { }
+    public struct X1Y0 : IComponentData { }
+    public struct X2Y0 : IComponentData { }
+    public struct X0Y1 : IComponentData { }
+    public struct X1Y1 : IComponentData { }
+    public struct X2Y1 : IComponentData { }
+    public struct X0Y2 : IComponentData { }
+    public struct X1Y2 : IComponentData { }
+    public struct X2Y2 : IComponentData { }
 }

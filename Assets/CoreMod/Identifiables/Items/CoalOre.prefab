@@ -59,7 +59,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b38d79e42db94e7999fdd448d0f7f3db, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MaxStackSize: 20
+  MaxStackSize: 9999
 --- !u!114 &4158296539024455307
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -78,7 +78,6 @@ MonoBehaviour:
   ColdStateChange:
     Temperature: 0
     ToElement: {fileID: 0}
-  DefaultTemperature: 0
   ThermalConductivity: 0.15
   SpecificHeatCapacity: 3
   Color: {r: 0, g: 0, b: 0, a: 0}

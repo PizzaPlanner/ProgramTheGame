@@ -18,8 +18,8 @@ public class ElementAuthoring : MonoBehaviour
     public StateChangeData HotStateChange;
     public StateChangeData ColdStateChange;
     
-    [Range(-273.15f, 5000f)]
-    public float DefaultTemperature;
+    // [Range(-273.15f, 5000f)]
+    // public float DefaultTemperature;
     
     [Range(0, 1/Element.MAX_CONDUCTIVITY_INVERSE)]
     public float ThermalConductivity;

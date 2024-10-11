@@ -23,10 +23,13 @@ partial struct MiningSystem : ISystem
         foreach (var (task, progress, e) in 
                  Query<Task, RefRW<TaskProgress>>().WithAll<MiningTask, WorkedOn>().WithEntityAccess())
         {
-            if(!Exists(task.Target))
+            if (!HasComponent<MassData>(task.Target))
+            {
                 ecb.DestroyEntity(e);
+                return;
+            }
             
-            var mineable = GetComponent<Mineable>(task.Target);
+            var mass = GetComponent<MassData>(task.Target);
             var speedMod = 1f;
             var skills = GetBuffer<Skills>(task.Executor);
             foreach(var skill in skills)
@@ -37,18 +40,9 @@ partial struct MiningSystem : ISystem
                 continue;
             
             progress.ValueRW.Value -= progress.ValueRW.RequiredValue;
-            if(mineable.IsInfiniteSource)
-                store.CreateBuilder.AddTo(task.Executor, mineable.MinedItem, 1);
-            else
-                store.CreateBuilder.Transfer(task.Target, task.Executor, mineable.MinedItem, 1);
-        }
-        
-        foreach (var (inventory, mineable, e) in Query<DynamicBuffer<Inventory>, RefRW<Mineable>>()
-                                                 .WithNone<Ghost>().WithEntityAccess())
-        {
-            mineable.ValueRW.TicksWithoutItems++;
-            if(mineable.ValueRW.TicksWithoutItems > 5 && inventory.HasNoItems())
-                ecb.DestroyEntity(e);
+            store.CreateBuilder.AddTo(task.Executor, ItemId.From(mass.ElementType), mass.Mass);
+            ecb.DestroyEntity(task.Target);
+            ecb.DestroyEntity(e);
         }
     }
 }

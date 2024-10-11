@@ -39,7 +39,7 @@ namespace Identifiables
 
         public override string ToString()
         {
-            return $"Id[{Value}]({DefaultName})";
+            return DefaultName.Value;
         }
     }
 
@@ -56,11 +56,6 @@ namespace Identifiables
         public static Identifiable FromName(FixedString64Bytes defaultName)
         {
             var id = FromGuid(TypeHash.FNV1A64(defaultName));
-            #if UNITY_EDITOR
-                if(!Application.isPlaying)
-                    return id;
-            #endif
-            // TODO: Some kind of check?
             return id;
         }
         

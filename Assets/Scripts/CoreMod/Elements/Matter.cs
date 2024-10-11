@@ -11,6 +11,7 @@ public interface IMatterComposition
     public ulong Energy { get; set; }
     
     public float ThermalConductivity { get; }
+    public float HeatCapacity { get; }
     
     public static void ExchangeTemperature<T1, T2>(ref T1 a, ref T2 b)
         where T1: IMatterComposition
@@ -27,14 +28,14 @@ public interface IMatterComposition
         
         if (tempDiff > 0)
         {
-            var tempTransferRate = tempDiff / a.Temperature * conductivity * Element.MAX_CONDUCTIVITY_INVERSE;
-            var energyTransfer = (uint)(tempTransferRate * a.Energy);
+            var tempTransferRate = tempDiff / a.Temperature * conductivity * Element.MAX_CONDUCTIVITY_INVERSE * (a.HeatCapacity / b.HeatCapacity);
+            var energyTransfer = (uint)(tempTransferRate * a.Temperature);
             a.Energy -= energyTransfer;
             b.Energy += energyTransfer;
         }
         else
         {
-            var tempTransferRate = -tempDiff / b.Temperature * conductivity * Element.MAX_CONDUCTIVITY_INVERSE;
+            var tempTransferRate = -tempDiff / b.Temperature * conductivity * Element.MAX_CONDUCTIVITY_INVERSE * (b.HeatCapacity / a.HeatCapacity);
             var energyTransfer = (uint)(tempTransferRate * b.Energy);
             b.Energy -= energyTransfer;
             a.Energy += energyTransfer;

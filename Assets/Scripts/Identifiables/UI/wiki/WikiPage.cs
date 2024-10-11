@@ -30,7 +30,7 @@ namespace Identifiables.UI
             var openTabs = this.Q<TabView>().Query<DetailPage>().Where(x => x.Content == id);
             if (openTabs.ToList().Count == 0)
             {
-                var tab = new Tab(id.DefaultName.Value);
+                var tab = new Tab(id.ToString());
                 tab.closeable = true;
                 tab.closed += (e) => e.RemoveFromHierarchy();
                 var details = new DetailPage { Content = id };

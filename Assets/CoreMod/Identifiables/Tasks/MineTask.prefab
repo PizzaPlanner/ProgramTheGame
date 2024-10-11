@@ -59,7 +59,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: be730704e1014775828e35942fc30043, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  RequiredSkill: {fileID: 0}
+  RequiredSkill: {fileID: 11400000, guid: 18614828c65efa946b54e19359332d2a, type: 2}
   MinSkillLevel: 1
 --- !u!114 &-2431404326971592238
 MonoBehaviour:

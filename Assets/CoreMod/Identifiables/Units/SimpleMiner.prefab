@@ -223,7 +223,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Capacity: 5000
-  ConsumptionPerTick: 6
+  ConsumptionPerTick: 25
 --- !u!114 &-3930633258532720254
 MonoBehaviour:
   m_ObjectHideFlags: 0

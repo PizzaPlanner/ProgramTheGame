@@ -6,31 +6,16 @@ using Unity.Collections.LowLevel.Unsafe;
 using Unity.Mathematics;
 using UnityEngine;
 
-public struct TemperatureExchanger
-{
-    public double Energy;
-    public double ThermalConductivity;
-    public double TemperatureKelvin;
-}
-
-[NativeContainer]
 public unsafe struct NativeElementMap : IDisposable
 {
-    [NativeDisableUnsafePtrRestriction] void* _massMap;
+    [NativeDisableUnsafePtrRestriction]
+    void* _massMap;
 
     public readonly int2 Size => chunkMax - chunkMin + 1;
     public readonly int2 Min => chunkMin;
     public readonly int2 Max => chunkMax;
     int2 chunkMin, chunkMax;
-
-#if ENABLE_UNITY_COLLECTIONS_CHECKS
-
-    // The AtomicSafetyHandle field must be named exactly 'm_Safety'.
-    AtomicSafetyHandle m_Safety;
-
-    // Statically register this type with the safety system, using a name derived from the type itself
-    static readonly SharedStatic<int> s_staticSafetyId = SharedStatic<int>.GetOrCreate<NativeElementMap>();
-#endif
+    
     Allocator m_AllocatorLabel;
 
     public MassHeader this[int2 cell]
@@ -39,21 +24,11 @@ public unsafe struct NativeElementMap : IDisposable
         {
             if (!IsInBounds(cell))
                 return default;
-#if ENABLE_UNITY_COLLECTIONS_CHECKS
-            // Check that you can read from the native container right now.
-            AtomicSafetyHandle.CheckReadAndThrow(m_Safety);
-#endif
-            // Read from the buffer and return the value
             return UnsafeUtility.ReadArrayElement<MassHeader>(_massMap, AsIndex(cell));
         }
 
         private set
         {
-#if ENABLE_UNITY_COLLECTIONS_CHECKS
-            // Check that you can write to the native container right now.
-            AtomicSafetyHandle.CheckWriteAndThrow(m_Safety);
-#endif
-            // Write the value into the buffer
             UnsafeUtility.WriteArrayElement(_massMap, AsIndex(cell), value);
         }
     }
@@ -62,37 +37,23 @@ public unsafe struct NativeElementMap : IDisposable
 
     public ref MassHeader CellRW(int2 cell)
     {
-#if ENABLE_UNITY_COLLECTIONS_CHECKS
-        // Check that you can write to the native container right now.
-        AtomicSafetyHandle.CheckWriteAndThrow(m_Safety);
-#endif
         if (!IsInBounds(cell))
-            return ref _invalid;
+            throw new IndexOutOfRangeException();
         
         return ref UnsafeUtility.ArrayElementAsRef<MassHeader>(_massMap, AsIndex(cell));
     }
-    
-    static MassHeader _invalid;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    readonly int AsIndex(int2 cell) => (cell.y - chunkMin.y) * Size.x + (cell.x - chunkMin.x);
+    internal readonly int AsIndex(int2 cell) => (cell.y - chunkMin.y) * Size.x + (cell.x - chunkMin.x);
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    readonly int AsIndex(int2 cell, int2 min, int2 max) => (cell.y - min.y) * (max.x - min.x + 1) + (cell.x - min.x);
+    internal readonly int AsIndex(int2 cell, int2 min, int2 max) => (cell.y - min.y) * (max.x - min.x + 1) + (cell.x - min.x);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal readonly int2 AsCell(int index) => new int2((index % Size.x) + chunkMin.x, (index / Size.x) + chunkMin.y);
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly bool IsInBounds(int2 cell) => math.all(cell <= chunkMax & cell >= chunkMin); 
     public NativeElementMap(Allocator allocator, int2 chunkMin, int2 chunkMax)
     {
         m_AllocatorLabel = allocator;
-#if ENABLE_UNITY_COLLECTIONS_CHECKS
-        // Create the AtomicSafetyHandle and DisposeSentinel
-        m_Safety = AtomicSafetyHandle.Create();
-
-        // Set the safety ID on the AtomicSafetyHandle so that error messages describe this container type properly.
-        AtomicSafetyHandle.SetStaticSafetyId(ref m_Safety, s_staticSafetyId.Data);
-
-        // Automatically bump the secondary version any time this container is scheduled for writing in a job
-        AtomicSafetyHandle.SetBumpSecondaryVersionOnScheduleWrite(m_Safety, true);
-#endif
         _massMap = null;
         this.chunkMin = 1;
         this.chunkMax = -1;
@@ -101,10 +62,6 @@ public unsafe struct NativeElementMap : IDisposable
 
     public NativeElementMap Resize(int2 newChunkMin, int2 newChunkMax)
     {
-#if ENABLE_UNITY_COLLECTIONS_CHECKS
-        // Check that you can write to the native container right now.
-        AtomicSafetyHandle.CheckWriteAndBumpSecondaryVersion(m_Safety);
-#endif  
         if(math.all(newChunkMin == chunkMin) && math.all(newChunkMax == chunkMax))
             return this;
         
@@ -128,7 +85,9 @@ public unsafe struct NativeElementMap : IDisposable
                 header = UnsafeUtility.ReadArrayElement<MassHeader>(_massMap, indexInOld);
             }
             else
+            {
                 header = new MassHeader(Allocator.Persistent) { HeaderType = MassHeader.VolumeType.TileExposedToSpace };
+            }
             UnsafeUtility.WriteArrayElement(newTiles, indexInNew, header);
         }
         // TODO: If shrinking is supported, need to free all leftover headers as well? How to handle the contents?
@@ -163,16 +122,16 @@ public unsafe struct NativeElementMap : IDisposable
         cell.Reduce(0.7f);
     }
 
-    public void Mix(int2 cellA, int2 cellB)
+    internal void Mix(int2 cellA, int2 cellB)
     {
-        if (!IsInBounds(cellA) || !IsInBounds(cellB))
-            return;
-        
         ref var a = ref CellRW(cellA);
         ref var b = ref CellRW(cellB);
+
+        if (a.HeaderType == MassHeader.VolumeType.TileBlocked ||
+            b.HeaderType == MassHeader.VolumeType.TileBlocked) 
+            return;
         
-        if(a.HeaderType != MassHeader.VolumeType.TileBlocked && b.HeaderType != MassHeader.VolumeType.TileBlocked)
-            IMatterComposition.ExchangeGas(ref a, ref b);
+        IMatterComposition.ExchangeGas(ref a, ref b);
         IMatterComposition.ExchangeTemperature(ref a, ref b);
     }
     
@@ -181,11 +140,6 @@ public unsafe struct NativeElementMap : IDisposable
         for (var x = chunkMin.x; x < chunkMax.x; x++)
         for (var y = chunkMin.y; y < chunkMax.y; y++)
             this[x, y].Dispose();
-#if ENABLE_UNITY_COLLECTIONS_CHECKS
-        AtomicSafetyHandle.CheckDeallocateAndThrow(m_Safety);
-        AtomicSafetyHandle.Release(m_Safety);
-#endif
-        // Free the buffer
         UnsafeUtility.FreeTracked(_massMap, m_AllocatorLabel);
         _massMap = null;
         chunkMin = 1;

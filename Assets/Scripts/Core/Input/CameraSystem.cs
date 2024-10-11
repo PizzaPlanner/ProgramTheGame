@@ -39,10 +39,10 @@ partial struct CameraSystem : ISystem
         if(!SystemAPI.HasComponent<LocalToWorld>(ship))
             return;
         
+        var cam = Camera.main.transform;
         var camAnchor = SystemAPI.GetSingletonRW<CameraAnchor>();
         
         var shipLtw = SystemAPI.GetComponent<LocalToWorld>(ship);
-        var cam = Camera.main.transform;
         
         var wasd = (float2)Navigation.Move.ReadValue<Vector2>();
         var rotate = Navigation.Rotate.ReadValue<Vector2>().x;
@@ -53,6 +53,11 @@ partial struct CameraSystem : ISystem
         
         cam.RotateAround(camAnchor.ValueRW.Position, shipLtw.Up, rotate * SystemAPI.Time.DeltaTime * ROTATION_FACTOR);
         cam.position = camAnchor.ValueRW.Position - (float3)cam.forward * camAnchor.ValueRW.CameraDistance;
+        new FaceCameraJob
+        {
+            camForward = cam.forward,
+            camLocation = cam.position
+        }.ScheduleParallel();
         if(math.all(wasd.xy == 0))
             return;
         var direction = math.normalizesafe(shipLtw.Right * wasd.x + shipLtw.Forward * wasd.y);

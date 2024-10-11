@@ -39,7 +39,7 @@ namespace Identifiables.UI
 
         public IEnumerable<VisualElement> TooltipContent => new[]
         {
-            new TooltipTitle(Target.DefaultName.Value)
+            new TooltipTitle(Target.ToString())
         }.Concat(ClassListContains("cancelable") ? new[]{ new Label("Press LM to cancel")} : Array.Empty<VisualElement>());
     }
 }

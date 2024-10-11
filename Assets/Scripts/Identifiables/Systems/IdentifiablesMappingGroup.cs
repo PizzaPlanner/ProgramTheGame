@@ -18,6 +18,7 @@ public partial class IdentifiablesMappingGroup : ComponentSystemGroup
             .GetOrCreate<IdentifiablesMappingGroup>();
     
     public struct Mapped : IComponentData { }
+    public struct Loaded : IComponentData { }
     
     protected override void OnCreate()
     {
@@ -57,6 +58,8 @@ public partial class IdentifiablesMappingGroup : ComponentSystemGroup
         EntityManager.RemoveComponent<Tags>(idQuery);
         EntityManager.AddComponent<Mapped>(idQuery);
         EntityManager.AddComponent<Mapped>(modQuery);
+        if(!SystemAPI.HasSingleton<Loaded>())
+            EntityManager.CreateSingleton<Loaded>();
     }
 
     void LoadMod(Entity mod)
@@ -76,23 +79,31 @@ public partial class IdentifiablesMappingGroup : ComponentSystemGroup
         {
             var e = modContent[i].Value;
             var preId = SystemAPI.GetComponent<IdentifiableData>(e);
-            if (SystemAPI.HasComponent<Parent>(e) && SystemAPI.GetComponent<Parent>(e).Value != Entity.Null)
-                return;
-
-            if(preId.AssetGuid == 0)
-                Debug.LogError($"Entity {e} has invalid ID 0");
-            else if (takenIds.Contains(preId.AssetGuid))
-                Debug.LogError($"ID {preId.AssetGuid} used by '{preId.DefaultName}' is already taken!");
-            else
-            {
-                TagMap.Data[preId.AssetGuid] = preId;
-                takenIds.Add(preId.AssetGuid);
-#if UNITY_EDITOR
-                EntityManager.SetName(e, preId.DefaultName.Value);
-#endif
-            }
+            if(!RegisterAsIdentifiable(e, preId))
+                Debug.LogError($"Failed to register {e} as {preId.DefaultName}");
         }
         Debug.Log($"Loaded Mod {modDef.Name} with {modContent.Length} IDs");
         LoadedMods.Add(modId);
+    }
+
+    internal bool RegisterAsIdentifiable(Entity e, IdentifiableData data)
+    {
+        if (SystemAPI.HasComponent<Parent>(e) && SystemAPI.GetComponent<Parent>(e).Value != Entity.Null)
+            return false;
+
+        var id = Identifiable.FromName(data.DefaultName);
+        if(id.StableId == 0u || data.DefaultName.Value.Length < 2)
+            Debug.LogError($"ID '{data.DefaultName}' is too short!");
+        else if (TagMap.Data.ContainsKey(id.StableId))
+            Debug.LogError($"Failed to register {e} as ID '{data.DefaultName}': ID is already taken!");
+        else
+        {
+            TagMap.Data[id.StableId] = data;
+#if UNITY_EDITOR
+            EntityManager.SetName(e, $"{data.DefaultName.Value}");
+#endif
+            return true;
+        }
+        return false;
     }
 }

@@ -4,6 +4,7 @@
     "references": [
         "Unity.InputSystem",
         "Unity.Entities",
+        "Unity.Burst",
         "Unity.Collections",
         "Unity.Transforms",
         "Unity.Mathematics",

@@ -7,7 +7,6 @@ namespace Identifiables
     public struct IdentifiableData : IComponentData
     {
         public Entity SpawnablePrefab;
-        public ulong AssetGuid;
         public UnityObjectRef<Texture2D> Icon;
         public FixedString64Bytes DefaultName;
     }

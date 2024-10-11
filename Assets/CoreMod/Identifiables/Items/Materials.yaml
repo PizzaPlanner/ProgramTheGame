@@ -1,0 +1,58 @@
+Mod.API:
+  Tag:       [!Tag { }]
+  Mod:       [!Tag { }]
+
+Mod.Core:
+  Spawnable: [!Tag { }]
+  Item:      [!Tag { Implies: [Spawnable] }]
+  Solid:     [!Tag { Implies: [Item] }]
+  Liquid:    [!Tag { Implies: [Item] }]
+  Gas:       [!Tag { Implies: [Item] }]
+
+  CoalOre:
+  - !Solid
+    TC: 3
+    SHC: 1.4
+    Melts: { To: Dirt, At: 290 }
+  
+  Voidite:
+  - !Solid 
+    SHC: .inf
+    Melts: { To: VACUUM, At: 0.5K }
+  
+  CopperLiquid:
+  - !Liquid
+    Melts: { To: CopperGas, At: 2400C }
+    Freezes: { To: CopperIngot, At: 1200C }
+      
+  CopperIngot:
+  - !Solid
+    Melts: { To: CopperLiquid, At: 1200C }
+  
+  CopperOre:
+  - !Solid
+    Melts: { To: CopperLiquid, At: 1200C }
+  
+  CopperGas:
+  - !Gas
+    Freezes: { To: CopperLiquid, At: 1200C }
+  
+  Water:
+  - !Liquid
+    TC: 2
+    SHC: 4.184
+    Freezes: { To: Ice, At: -4C }
+    Melts: { To: Steam, At: 100C }
+
+  Ice:
+  - !Solid
+    TC: 0.4
+    SHC: 4.184
+    Melts: { To: Water, At: -4C }
+
+  Steam:
+  - !Gas
+    TC: 0.4
+    SHC: 4.184
+    Freezes: { To: Water, At: 100C }
+  

@@ -23,7 +23,9 @@
         "Core.UI",
         "Units.UI",
         "Equipment.UI",
-        "Identifiables.UI"
+        "Identifiables.UI",
+        "Tasks",
+        "Construction"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

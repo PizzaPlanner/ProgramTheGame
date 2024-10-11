@@ -1,0 +1,25 @@
+# Blueprint Version 4
+Name: BP_1
+Tags: [TagWorld]
+Atmosphere:
+  - At: [3, 2]
+    Type: Oxygen
+    Mass: 555
+    Temperature: 333
+Buildings:
+  - At: [3, 2]
+    Type: TileRock
+    Material: CopperOre
+    Mass: 521
+  - At: [3, 3]
+    Type: TileRock
+    Material: CopperOre
+    Mass: 524
+  - At: [3, 4]
+    Type: TileRock
+    Material: CopperOre
+    Mass: 525
+  - At: [2, 5]
+    Type: SimpleMiner
+  - At: [3, 5]
+    Type: SimpleMiner

@@ -1,9 +1,12 @@
 ﻿using Core;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Rendering;
 using UnityEngine.UIElements;
 
 public struct PressureOverlayHotkey : IMapOverlay
@@ -74,10 +77,30 @@ partial class TemperatureOverlaySystem : MapOverlaySystem<TemperatureOverlayHotk
         return elm;
     }
 
+    protected override void OnStopRunning()
+    {
+        base.OnStopRunning();
+        EntityManager.RemoveComponent<URPMaterialPropertyOverlayValue>(GetEntityQuery(typeof(URPMaterialPropertyOverlayValue)));
+    }
+
     int2 _lastCenter;
     protected override void OnUpdate()
     {
         base.OnUpdate();
+        var ecb = new EntityCommandBuffer(Allocator.Temp);
+        foreach (var (children, mass) in SystemAPI.Query<DynamicBuffer<LinkedEntityGroup>, MassData>())
+        {
+            foreach (var link in children)
+            {
+                var e = link.Value;
+                if (SystemAPI.HasComponent<MaterialMeshInfo>(e))
+                {
+                    ecb.AddComponent(e, new URPMaterialPropertyOverlayValue() { Value = mass.Temperature * 0.001f });
+                }
+            }
+        }
+        ecb.Playback(EntityManager);
+        
         if(!SystemAPI.HasComponent<MassModel>(GridEntity))
             return;
         var massModel = SystemAPI.GetComponent<MassModel>(GridEntity);
@@ -89,7 +112,7 @@ partial class TemperatureOverlaySystem : MapOverlaySystem<TemperatureOverlayHotk
         if(!Input.GetMouseButton(0))
             return;
         var painter = _window.Q<MassPainterUI>();
-        if(painter.Element.Target == default || painter.Mass.value <= 0)
+        if(painter.Element.Target == default || painter.Mass.value <= 0 || !massModel.IsInBounds(CellAtCursor))
             return;
         massModel.AbsoluteCellRW(CellAtCursor).Add(painter.MassData);
     }

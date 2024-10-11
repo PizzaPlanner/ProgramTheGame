@@ -66,6 +66,8 @@ public struct MassData : IComponentData, IMatterComposition
     public ulong Energy { get => _energy; set => _energy = value; }
     [CreateProperty]
     public float ThermalConductivity => ElementData.ThermalConductivity;
+    [CreateProperty]
+    public float HeatCapacity => ElementData.SpecificHeatCapacity * _mass;
 }
 
 public unsafe struct MassHeader : IDisposable, IMatterComposition
@@ -82,7 +84,7 @@ public unsafe struct MassHeader : IDisposable, IMatterComposition
         InPipe
     }
     internal byte ElementCount;
-    byte AllocatedUnused;
+    byte Capacity;
     void* _data;
     Allocator _allocator;
     public VolumeType HeaderType;
@@ -105,10 +107,26 @@ public unsafe struct MassHeader : IDisposable, IMatterComposition
     {
         _allocator = allocator;
         _data = null;
-        AllocatedUnused = 0;
+        Capacity = 0;
         ElementCount = 0;
         HeaderType = VolumeType.Unknown;
         _residualEnergy = 0;
+        if (allocator == Allocator.Persistent)
+        {
+            Capacity = 4;
+            ResizeToCapacity();
+        }
+    }
+
+    void ResizeToCapacity()
+    {
+        var newData = UnsafeUtility.MallocTracked(Capacity * sizeof(MassData), UnsafeUtility.AlignOf<MassData>(), _allocator, 1);
+        if (_data != null && ElementCount > 1)
+        {
+            UnsafeUtility.MemCpy(newData, _data, (ElementCount - 1) * sizeof(MassData));
+            UnsafeUtility.FreeTracked(_data, _allocator);
+        }
+        _data = newData;
     }
     
     public readonly float HeatCapacity
@@ -142,6 +160,7 @@ public unsafe struct MassHeader : IDisposable, IMatterComposition
             return math.select(0, result / totalMass, totalMass > 0);
         }
     }
+    
     
     public readonly Mass Mass
     {
@@ -206,6 +225,16 @@ public unsafe struct MassHeader : IDisposable, IMatterComposition
         }
     }
 
+    public readonly Mass GetMass(Identifiable id)
+    {
+        for (int i = 0; i < ElementCount; i++)
+        {
+            if(GetMass(i).ElementType == id)
+                return GetMass(i).Mass;
+        }
+        return default;
+    } 
+
     public MassHeader Reduce(float toPercentage)
     {
         for (int i = 0; i < ElementCount; i++)
@@ -219,8 +248,6 @@ public unsafe struct MassHeader : IDisposable, IMatterComposition
                     SetMass(j - 1, GetMass(j));
                 i--;
                 ElementCount--;
-                // Don't shrink buffer, count might flip every other frame
-                AllocatedUnused++;
             }
         }
         return this;
@@ -241,8 +268,6 @@ public unsafe struct MassHeader : IDisposable, IMatterComposition
             for (int j = i + 1; j < ElementCount; j++)
                 SetMass(j - 1, GetMass(j));
             ElementCount--;
-            // Don't shrink buffer, count might flip every other frame
-            AllocatedUnused++;
             break;
         }
         
@@ -279,17 +304,10 @@ public unsafe struct MassHeader : IDisposable, IMatterComposition
             return this;
         
         ElementCount++;
-        if(AllocatedUnused > 0)
-            AllocatedUnused--;
-        else
+        if(Capacity < ElementCount)
         {
-            var newData = UnsafeUtility.MallocTracked(ElementCount * sizeof(MassData), UnsafeUtility.AlignOf<MassData>(), _allocator, 1);
-            if (_data != null && ElementCount > 1)
-            {
-                UnsafeUtility.MemCpy(newData, _data, (ElementCount - 1) * sizeof(MassData));
-                UnsafeUtility.FreeTracked(_data, _allocator);
-            }
-            _data = newData;
+            Capacity = (byte)Mathf.NextPowerOfTwo(ElementCount);
+            ResizeToCapacity();
         }
         SetMass(ElementCount - 1, MassData.From(elementId, amount, energy));
         return this;
@@ -331,8 +349,6 @@ public unsafe struct MassHeader : IDisposable, IMatterComposition
         if (!wasLowerIndexRemoved)
             return this;
         ElementCount--;
-        // Don't shrink buffer, count might flip every other frame
-        AllocatedUnused++;
         return this;
     }
 
@@ -344,7 +360,7 @@ public unsafe struct MassHeader : IDisposable, IMatterComposition
     public void Dispose()
     {
         ElementCount = 0;
-        AllocatedUnused = 0;
+        Capacity = 0;
         if (_data == null) 
             return;
         UnsafeUtility.FreeTracked(_data, _allocator);

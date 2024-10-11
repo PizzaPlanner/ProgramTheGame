@@ -1,4 +1,5 @@
-﻿using Core.Grid;
+﻿using Core;
+using Core.Grid;
 using Identifiables;
 using Unity.Entities;
 
@@ -18,6 +19,7 @@ namespace Units
         }
     }
         
+    [UpdateInGroup(typeof(TickBasedSystemGroup))]
     partial struct TaskSystem : ISystem
     {
         public void OnUpdate(ref SystemState state)

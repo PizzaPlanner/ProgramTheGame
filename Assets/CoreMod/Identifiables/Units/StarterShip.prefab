@@ -67,7 +67,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Slots:
   - Item: {fileID: 697860641069326925, guid: c42440416ef81f64693865cd7d1325d9, type: 3}
-    Amount: 20
+    Amount: 5000
     Filter: {fileID: 0}
     TransferDirection: 3
   - Item: {fileID: 0}

@@ -1,6 +1,7 @@
 ﻿using Identifiables;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Transforms;
 
 namespace Core.Equipment
 {
@@ -26,29 +27,44 @@ namespace Core.Equipment
 
         public void OnUpdate(ref SystemState state)
         {
-            foreach (var (stomach, stats) in SystemAPI.Query<RefRW<Lungs>, DynamicBuffer<Statuses>>())
+            var oxygen = Identifiable.FromName("Oxygen");
+            foreach (var (lungs, stats, onGrid, transform) in SystemAPI.Query<RefRW<Lungs>, DynamicBuffer<Statuses>, OnGrid, LocalTransform>())
             {
-                var wasLowOxygen = stomach.ValueRW.IsLowOxygen;
-                var wasSuffocating = stomach.ValueRW.IsSuffocating;
-                stomach.ValueRW.Fullness = math.max(0, stomach.ValueRW.Fullness - stomach.ValueRW.ConsumptionPerTick);
+                if(onGrid.Grid == default) // TODO: Should not happen
+                    continue;
+                var wasLowOxygen = lungs.ValueRW.IsLowOxygen;
+                var wasSuffocating = lungs.ValueRW.IsSuffocating;
+                var gridMasses = SystemAPI.GetComponentRW<MassModel>(onGrid.Grid);
+                var cellInGrid = GridStructure.LocalToCell(transform.Position);
+                if (lungs.ValueRW.Fullness < lungs.ValueRW.Capacity - lungs.ValueRW.ConsumptionPerTick 
+                    && !gridMasses.ValueRW.IsEmpty(cellInGrid) 
+                    && gridMasses.ValueRW.AbsoluteCell(cellInGrid).GetMass(oxygen) > lungs.ValueRW.ConsumptionPerTick * 2)
+                {
+                    lungs.ValueRW.Fullness += lungs.ValueRW.ConsumptionPerTick;
+                    gridMasses.ValueRW.AbsoluteCellRW(cellInGrid).Remove(oxygen, (uint)lungs.ValueRW.ConsumptionPerTick, out _); // TODO: Heat up by output energy
+                }
+                else
+                {
+                    lungs.ValueRW.Fullness = math.max(0, lungs.ValueRW.Fullness - lungs.ValueRW.ConsumptionPerTick);
+                }
 
-                if (wasSuffocating && !stomach.ValueRW.IsSuffocating)
+                if (wasSuffocating && !lungs.ValueRW.IsSuffocating)
                 {
                     stats.Remove(EmptyStatus);
-                    if(stomach.ValueRW.IsLowOxygen)
+                    if(lungs.ValueRW.IsLowOxygen)
                         stats.Add(LowStatus);
-                    return;
+                    continue;
                 }
-                if (!wasSuffocating && stomach.ValueRW.IsSuffocating)
+                if (!wasSuffocating && lungs.ValueRW.IsSuffocating)
                 {
                     stats.Remove(LowStatus);
                     stats.Add(EmptyStatus);
-                    return;
+                    continue;
                 }
                 
-                if(wasLowOxygen && !stomach.ValueRW.IsLowOxygen)
+                if(wasLowOxygen && !lungs.ValueRW.IsLowOxygen)
                     stats.Remove(LowStatus);
-                else if(!wasLowOxygen && stomach.ValueRW.IsLowOxygen)
+                else if(!wasLowOxygen && lungs.ValueRW.IsLowOxygen)
                     stats.Add(LowStatus);
             }
         }

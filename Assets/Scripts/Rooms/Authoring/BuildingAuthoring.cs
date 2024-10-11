@@ -64,6 +64,7 @@ public class BuildingAuthoring : MonoBehaviour
                     Amount = mat.Amount
                 });
             AddComponent(self, currentVariant);
+            AddComponent<URPMaterialPropertyOverlayValue>(self);
         }
     }
 

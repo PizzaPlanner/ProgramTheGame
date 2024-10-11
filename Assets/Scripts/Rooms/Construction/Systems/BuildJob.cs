@@ -7,39 +7,6 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using Debug = UnityEngine.Debug;
 
-public enum ConstructionMode
-{
-    PlacementPreview,
-    UnderConstruction,
-    Complete
-}
-
-public struct ConstructionVariant : IComponentData
-{
-    public struct Material
-    {
-        public Identifiable Item;
-        public Mass Amount;
-        public bool IsVariant;
-    }
-    
-    public FixedList64Bytes<Material> BuildMaterials;
-    public MassData PrimaryMass => BuildMaterials.Length > 0 
-        ? MassData.From(BuildMaterials[0].Item, BuildMaterials[0].Amount, 0) 
-        : MassData.From(Identifiable.FromName("Voidite"), 1000, 0); 
-}
-
-public struct PlannedConstruction : IComponentData
-{
-    public Entity Parent;
-    public Identifiable Prefab;
-    public Cell Location;
-    public byte Rotation;
-    public ConstructionMode Mode;
-    public ConstructionVariant Materials;
-    public LocalTransform ToTransform => LocalTransform.FromPosition(GridStructure.CellToLocal(Location));
-}
-
 public partial struct BuildJob : IJobEntity
 {
     public EntityCommandBuffer ecb;
@@ -126,8 +93,8 @@ public partial struct BuildJob : IJobEntity
             ecb.SetComponent(entity, new OnGrid { Grid = planned.Parent });
             
             var gridBbox = structureLookup[planned.Parent];
-            gridBbox.BoundsMin = math.min(gridBbox.BoundsMin, area.Min - 2);
-            gridBbox.BoundsMax = math.max(gridBbox.BoundsMax, area.Max + 2);
+            gridBbox.BoundsMin = math.min(gridBbox.BoundsMin, area.Min - 4);
+            gridBbox.BoundsMax = math.max(gridBbox.BoundsMax, area.Max + 4);
             structureLookup[planned.Parent] = gridBbox;
             var massModel = massLookup[planned.Parent];
             massModel.Resize(gridBbox.BoundsMin, gridBbox.BoundsMax);
@@ -192,5 +159,9 @@ public partial struct BuildJob : IJobEntity
                 Task = order
             });
         }
+    }
+    
+    static int mod(int x, int m) {
+        return (x%m + m)%m;
     }
 }

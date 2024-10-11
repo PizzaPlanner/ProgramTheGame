@@ -32,7 +32,7 @@ namespace Identifiables.UI
                 body.Q<Label>("IdRef").text = $"Id:   <link=\"id\">{value.StableId.ToString()}</link>\nName: <link=\"name\">{value.DefaultName.Value}</link>";
                 body.Q<Label>("Description").text = "lorem ispum\nlorem ipsum\nHello World?";
                 var header = this.Q("Header");
-                header.Q<Label>("Title").text = $"{value.DefaultName.Value}";
+                header.Q<Label>("Title").text = $"{value}";
                 header.Q("Icon").style.backgroundImage = value.Icon;
                 // foreach(var tag in Tag.AllTagsForId(value))
                 //     header.Q("Tags").Add(new WikiSearchResultButton(tag.Id));

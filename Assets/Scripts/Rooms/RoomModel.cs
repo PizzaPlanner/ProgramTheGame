@@ -12,10 +12,10 @@ public struct Room
 
 public struct RoomModel : IDisposable, ICleanupComponentData
 {
-    public NativeParallelHashSet<Cell> OccupiedCells;
-    public NativeHashSet<Cell> Walls;
-    public NativeParallelHashMap<Cell, int> CellRoomMap;
-    public NativeList<Cell> WallChanges;
+    public NativeParallelHashSet<int2> OccupiedCells;
+    public NativeHashSet<int2> Walls;
+    public NativeParallelHashMap<int2, int> CellRoomMap;
+    public NativeList<int2> WallChanges;
     public int MaxRoom;
 
     public void Initialize()

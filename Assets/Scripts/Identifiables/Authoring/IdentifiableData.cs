@@ -8,11 +8,10 @@ using UnityEngine;
 [CreateAssetMenu]
 public class IdentifiableAsset : ScriptableObject
 {
-    protected ulong NameHash => TypeHash.FNV1A64(name);
     public Texture2D Icon;
     public TagAsset[] Tags;
     
-    public Identifiable Id => Identifiable.FromGuid(NameHash);
+    public Identifiable Id => Identifiable.FromName(name);
     
     public virtual void AssignEditorValues() { }
     public virtual IEnumerable<Identifiable> TypeImpliedTags { get; } = new Identifiable[]{ };
@@ -20,8 +19,7 @@ public class IdentifiableAsset : ScriptableObject
     public IdentifiableData ToPreId => new IdentifiableData
     {
         Icon = Icon,
-        DefaultName = name,
-        AssetGuid = NameHash
+        DefaultName = name
     };
 }
 #endif

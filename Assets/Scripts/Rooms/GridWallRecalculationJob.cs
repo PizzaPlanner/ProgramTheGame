@@ -20,8 +20,8 @@ public partial struct GridRoomRecalculationJob : IJobEntity
         
         var maxRoom = roomModel.MaxRoom;
         var bbox = grid.LocalAABB;
-        var toCheck = new NativeQueue<Cell>(Allocator.Temp);
-        var checkedCells = new NativeHashMap<Cell, int>(0, Allocator.Temp);
+        var toCheck = new NativeQueue<int2>(Allocator.Temp);
+        var checkedCells = new NativeHashMap<int2, int>(0, Allocator.Temp);
         var sameRoomMap = new NativeHashSet<(int, int)>(0, Allocator.Temp);
         var roomRemapMap = new NativeHashMap<int, int>(0, Allocator.Temp);
         

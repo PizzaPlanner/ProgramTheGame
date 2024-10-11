@@ -19,7 +19,8 @@
         "Core",
         "Modding.API",
         "Tasks",
-        "Construction"
+        "Construction",
+        "Elements"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

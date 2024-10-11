@@ -20,6 +20,8 @@ namespace Core
         GridBounds _lastGridBounds;
         Entity _lastGrid;
         bool _isBorderAnimDone;
+        uint _tickGroupRunMarker;
+        bool _shouldUpdateTexture;
 
         protected override void OnStopRunning()
         {
@@ -78,9 +80,20 @@ namespace Core
             var ltw = SystemAPI.GetComponent<LocalToWorld>(gridEntity);
             _overlay.transform.position = GridStructure.LocalToWorld(ltw, bounds.Center);
             _overlay.transform.rotation = ltw.Rotation;
-            
-            SetPixels(gridEntity, _texture, bounds);
-            _texture.Apply();
+
+            // Update texture 1 tick after TickBasedSystemGroup ran to spread load on big maps
+            var tickGroupVersion = World.GetExistingSystemManaged<TickBasedSystemGroup>().LastTick;
+            if (tickGroupVersion != _tickGroupRunMarker)
+            {
+                _tickGroupRunMarker = tickGroupVersion;
+                _shouldUpdateTexture = true;
+            }
+            else if (_shouldUpdateTexture)
+            {
+                SetPixels(gridEntity, _texture, bounds);
+                _texture.Apply();
+                _shouldUpdateTexture = false;
+            }
             
             CellAtCursor = GridStructure.CursorToCell(ltw);
             var mouseLocationRelative = CellAtCursor - bounds.Min;

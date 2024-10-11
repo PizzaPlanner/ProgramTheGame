@@ -28,7 +28,7 @@ namespace Identifiables.UI
             var target = searches.Q("navigate");
             foreach (var id in all)
             {
-                target.Add(new WikiSearchResultButton(Identifiable.FromGuid(id.AssetGuid)));
+                target.Add(new WikiSearchResultButton(Identifiable.FromName(id.DefaultName)));
             }
 
             foreach (var tag in Tag.All)
