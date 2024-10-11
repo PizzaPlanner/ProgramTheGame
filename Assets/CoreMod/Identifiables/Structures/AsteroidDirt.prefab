@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 5847055320590538475}
   - component: {fileID: 6240614005169757687}
   - component: {fileID: -5310317420030576044}
+  - component: {fileID: 404759063531143838}
   m_Layer: 0
   m_Name: AsteroidDirt
   m_TagString: Untagged
@@ -89,7 +90,6 @@ MonoBehaviour:
   Size:
     x: 0
     y: 0
-  PrimaryElementAmount: 100
   Variants:
   - {fileID: 6240678538308625820, guid: c42440416ef81f64693865cd7d1325d9, type: 3}
   OtherMaterials: []
@@ -117,6 +117,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 05c99c16b30b41f08c98b3eee73cbfc6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &404759063531143838
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3605263813790912188}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: efe7f1c79676474aa501f4d2595a7ce1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Element: {fileID: 6240678538308625820, guid: c42440416ef81f64693865cd7d1325d9, type: 3}
+  Mass: 10000
+  Temperature: -20
 --- !u!1 &4209637067704815615
 GameObject:
   m_ObjectHideFlags: 0

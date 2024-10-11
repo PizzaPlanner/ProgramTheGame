@@ -14,7 +14,8 @@
         "Identifiables.Authoring",
         "Construction",
         "Core",
-        "Core.Authoring"
+        "Core.Authoring",
+        "Elements"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

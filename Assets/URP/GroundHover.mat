@@ -43,7 +43,7 @@ Material:
     - _QueueOffset: 0
     - _Selected: 1
     m_Colors:
-    - _SelectedColor: {r: 1, g: 1, b: 1, a: 0.11764706}
+    - _SelectedColor: {r: 0, g: 1, b: 0.32272524, a: 0.65882355}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
 --- !u!114 &1592599012689503050

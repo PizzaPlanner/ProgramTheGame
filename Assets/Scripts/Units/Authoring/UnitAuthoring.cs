@@ -1,7 +1,9 @@
 ﻿using Core.Grid;
 using Units;
 using Unity.Entities;
+using UnityEngine;
 
+[RequireComponent(typeof(DefaultMassAuthoring))]
 public class UnitAuthoring : ItemAuthoring
 {
     class Baker : Baker<UnitAuthoring>

@@ -1,4 +1,5 @@
-﻿using Unity.Mathematics;
+﻿using System.Globalization;
+using Unity.Mathematics;
 
 public struct Temperature
 {
@@ -27,6 +28,6 @@ public struct Temperature
 
     public override string ToString()
     {
-        return $"{Celsius:0.0}C";
+        return $"{Celsius.ToString("#.#", CultureInfo.InvariantCulture)}C";
     }
 }

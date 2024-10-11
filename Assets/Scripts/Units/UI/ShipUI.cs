@@ -25,6 +25,7 @@ public partial class ShipUI : VisualElement, IComponentData, IDisposable
         header.Add(new Label("Field"));
         header.Add(new Button(OnChangeCurrent));
         header.Add(new Button(OnAddCrew){name = "AddCrew"});
+        header.Add(new Button(OnSaveBlueprint));
         
         icon.RegisterCallback<MouseDownEvent>(_ =>
         {
@@ -33,6 +34,11 @@ public partial class ShipUI : VisualElement, IComponentData, IDisposable
             em.RemoveComponent<Selected>(query);
             em.AddComponent<Selected>(Target);
         });
+    }
+
+    void OnSaveBlueprint()
+    {
+        BlueprintUtils.Save(_target, World.DefaultGameObjectInjectionWorld.EntityManager);
     }
 
     void OnAddCrew()
@@ -168,7 +174,7 @@ partial class ShipUISystem : UISystem
                     Target = e
                 };
             else
-                ui = new ShipUI();
+                ui = new ShipUI { Target = e };
             
             _view.Add(ui);
             EntityManager.AddComponentObject(e, ui);

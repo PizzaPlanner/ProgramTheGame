@@ -1,4 +1,5 @@
 using Grid.Blueprints;
+using Identifiables;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -15,9 +16,18 @@ public struct Blueprint : IComponentData
     public int2 Offset;
 }
 
+public struct DefaultMatterOverride
+{
+    public Mass Mass;
+    public Temperature Temperature;
+    public Identifiable Id;
+}
+
 public struct BlueprintContents : IBufferElementData
 {
-    public PlannedConstruction Data;
+    public DefaultMatterOverride Matter;
+    public int2 Location;
+    public Identifiable Prefab;
 }
 
 public interface IBlueprintParser
@@ -64,7 +74,10 @@ public static class BlueprintUtils
     public static void Save(Entity grid, EntityManager em)
     {
         var result = Serialize(grid, em);
-        
+        var toPath = Path.Combine(BaseFolder, "saved_bp.yaml");
+        Directory.CreateDirectory(Path.GetPathRoot(toPath));
+        File.WriteAllText(toPath, result);
+        Debug.Log($"Blueprint saved to {toPath}");
     }
 
     internal static string Serialize(Entity grid, EntityManager em)

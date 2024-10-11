@@ -15,7 +15,7 @@ MonoBehaviour:
   m_DefaultGroup: eb29362f08cfd0b47b42c597cd046314
   m_currentHash:
     serializedVersion: 2
-    Hash: 964e9db571329f54314707e508bec9a5
+    Hash: 7a87c14e8079cfb489e2ae9a5e8b8dea
   m_OptimizeCatalogSize: 0
   m_BuildRemoteCatalog: 0
   m_CatalogRequestsTimeout: 0
@@ -69,31 +69,31 @@ MonoBehaviour:
       m_Id: b625268b98339dc4aaee33bbb544a69f
       m_ProfileName: Default
       m_Values:
-      - m_Id: adc7d830137b38b45ae6c798edd1ea97
-        m_Value: '[UnityEditor.EditorUserBuildSettings.activeBuildTarget]'
-      - m_Id: 65e2079f8382b43409b7c3a6d841c75a
-        m_Value: '[UnityEngine.AddressableAssets.Addressables.BuildPath]/[BuildTarget]'
-      - m_Id: d737ecc502cffa842bcdb7d5417d65e9
-        m_Value: '{UnityEngine.AddressableAssets.Addressables.RuntimePath}/[BuildTarget]'
       - m_Id: 0e042f233c4d5024a9012f7495180aa0
         m_Value: 'ServerData/[BuildTarget]'
       - m_Id: 1b780e588dc3e294e86d13bcbb47d179
         m_Value: <undefined>
+      - m_Id: 65e2079f8382b43409b7c3a6d841c75a
+        m_Value: '[UnityEngine.AddressableAssets.Addressables.BuildPath]/[BuildTarget]'
+      - m_Id: adc7d830137b38b45ae6c798edd1ea97
+        m_Value: '[UnityEditor.EditorUserBuildSettings.activeBuildTarget]'
+      - m_Id: d737ecc502cffa842bcdb7d5417d65e9
+        m_Value: '{UnityEngine.AddressableAssets.Addressables.RuntimePath}/[BuildTarget]'
     m_ProfileEntryNames:
-    - m_Id: adc7d830137b38b45ae6c798edd1ea97
-      m_Name: BuildTarget
-      m_InlineUsage: 0
-    - m_Id: 65e2079f8382b43409b7c3a6d841c75a
-      m_Name: Local.BuildPath
-      m_InlineUsage: 0
-    - m_Id: d737ecc502cffa842bcdb7d5417d65e9
-      m_Name: Local.LoadPath
-      m_InlineUsage: 0
     - m_Id: 0e042f233c4d5024a9012f7495180aa0
       m_Name: Remote.BuildPath
       m_InlineUsage: 0
     - m_Id: 1b780e588dc3e294e86d13bcbb47d179
       m_Name: Remote.LoadPath
+      m_InlineUsage: 0
+    - m_Id: 65e2079f8382b43409b7c3a6d841c75a
+      m_Name: Local.BuildPath
+      m_InlineUsage: 0
+    - m_Id: adc7d830137b38b45ae6c798edd1ea97
+      m_Name: BuildTarget
+      m_InlineUsage: 0
+    - m_Id: d737ecc502cffa842bcdb7d5417d65e9
+      m_Name: Local.LoadPath
       m_InlineUsage: 0
     m_ProfileVersion: 1
   m_LabelTable:

@@ -74,13 +74,16 @@ public partial class IdentifiablesMappingGroup : ComponentSystemGroup
         }
         var modContent = SystemAPI.GetBuffer<LinkedEntityGroup>(mod).ToNativeArray(Allocator.Temp);
         
-        var takenIds = new NativeHashSet<ulong>(0, Allocator.Temp);
         for(int i = 0; i < modContent.Length; i++)
         {
             var e = modContent[i].Value;
+            if (!SystemAPI.HasComponent<IdentifiableData>(e))
+            {
+                Debug.LogError($"Something went wrong with {e}!");
+                continue;
+            }
             var preId = SystemAPI.GetComponent<IdentifiableData>(e);
-            if(!RegisterAsIdentifiable(e, preId))
-                Debug.LogError($"Failed to register {e} as {preId.DefaultName}");
+            RegisterAsIdentifiable(e, preId);
         }
         Debug.Log($"Loaded Mod {modDef.Name} with {modContent.Length} IDs");
         LoadedMods.Add(modId);

@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 460068120002007332}
   - component: {fileID: -5624043721593407137}
   - component: {fileID: -6241751731715633460}
+  - component: {fileID: 404759063531143838}
   m_Layer: 0
   m_Name: TileRock
   m_TagString: Untagged
@@ -90,7 +91,6 @@ MonoBehaviour:
   Size:
     x: 0
     y: 0
-  PrimaryElementAmount: 500
   Variants:
   - {fileID: 6240678538308625820, guid: c42440416ef81f64693865cd7d1325d9, type: 3}
   - {fileID: 4158296539024455307, guid: 976634ab73dbb57479c09040f428f6af, type: 3}
@@ -133,6 +133,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f619594fb691462297259b12b3fae45b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &404759063531143838
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3605263813790912188}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: efe7f1c79676474aa501f4d2595a7ce1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Element: {fileID: 6240678538308625820, guid: c42440416ef81f64693865cd7d1325d9, type: 3}
+  Mass: 1000
+  Temperature: -20
 --- !u!1 &5604092210760565406
 GameObject:
   m_ObjectHideFlags: 0

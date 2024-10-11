@@ -61,8 +61,6 @@ partial class BuildToolUISystem : MapOverlaySystem<BuildTool>
         }
         var parent = cgrid.Grid;
         var gridLtw = SystemAPI.GetComponent<LocalToWorld>(parent);
-        
-        var rooms = SystemAPI.GetComponent<RoomModel>(parent);
         var pointerOverUI = SystemAPI.HasSingleton<PointerOverUI>();
         var pointedCell = GridStructure.CursorToCell(gridLtw);
         var ghostQuery = GetEntityQuery(typeof(CurrentGhost), typeof(Building), typeof(Parent));
@@ -105,7 +103,7 @@ partial class BuildToolUISystem : MapOverlaySystem<BuildTool>
                     });
                 }
                 ClearPreview(ecb);
-                PlacePreview(pointedCell, ecb, rooms);
+                PlacePreview(pointedCell, ecb);
             } else if (BuildTool.Cancel.WasPressedThisFrame())
             {
                 ClearPreview(ecb);
@@ -137,19 +135,19 @@ partial class BuildToolUISystem : MapOverlaySystem<BuildTool>
                     if(dragType == PlacementType.Rectangle)
                         for(int x = delta.Min.x; x <= delta.Max.x; x++)
                         for(int y = delta.Min.y; y <= delta.Max.y; y++)
-                            PlacePreview(new int2(x,y), ecb, rooms);
+                            PlacePreview(new int2(x,y), ecb);
                     else if (dragType == PlacementType.RectangleBorder)
                     {
                         for (int x = delta.Min.x; x <= delta.Max.x; x++)
                         {
-                            PlacePreview(new int2(x,delta.Min.y), ecb, rooms);
-                            PlacePreview(new int2(x,delta.Max.y), ecb, rooms);
+                            PlacePreview(new int2(x,delta.Min.y), ecb);
+                            PlacePreview(new int2(x,delta.Max.y), ecb);
                         }
 
                         for (int y = delta.Min.y + 1; y <= delta.Max.y - 1; y++)
                         {
-                            PlacePreview(new int2(delta.Min.x,y), ecb, rooms);
-                            PlacePreview(new int2(delta.Max.x,y), ecb, rooms);
+                            PlacePreview(new int2(delta.Min.x,y), ecb);
+                            PlacePreview(new int2(delta.Max.x,y), ecb);
                         }
                     }
                     else // Line
@@ -157,10 +155,10 @@ partial class BuildToolUISystem : MapOverlaySystem<BuildTool>
                         var isXLonger = delta.Max.x - delta.Min.x > delta.Max.y - delta.Min.y;
                         if(isXLonger)
                             for (int x = delta.Min.x; x <= delta.Max.x; x++)
-                                PlacePreview(new int2(x,delta.Min.y), ecb, rooms);
+                                PlacePreview(new int2(x,delta.Min.y), ecb);
                         else
                             for (int y = delta.Min.y; y <= delta.Max.y; y++)
-                                PlacePreview(new int2(delta.Min.x, y), ecb, rooms);
+                                PlacePreview(new int2(delta.Min.x, y), ecb);
                     }
                 }
             }
@@ -173,7 +171,7 @@ partial class BuildToolUISystem : MapOverlaySystem<BuildTool>
         GhostPrefab = Window.WantBuildPlan;
         GhostMaterial = Window.VariantMaterial;
         ClearPreview(ecb);
-        PlacePreview(pointedCell, ecb, rooms);
+        PlacePreview(pointedCell, ecb);
         Window.WantBuildPlan = default;
         Window.VariantMaterial = default;
     }
@@ -184,13 +182,13 @@ partial class BuildToolUISystem : MapOverlaySystem<BuildTool>
         texture.Apply();
     }
 
-    void PlacePreview(int2 cell, EntityCommandBuffer ecb, RoomModel rooms)
+    void PlacePreview(int2 cell, EntityCommandBuffer ecb)
     {
         var currentParent = SystemAPI.GetSingleton<CurrentGrid>().Grid;
         var plan = ecb.CreateEntity();
         var mats = SystemAPI.GetComponent<ConstructionVariant>(GhostPrefab.SpawnablePrefab);
-        if(mats.BuildMaterials.Length > 0 && mats.BuildMaterials[0].IsVariant)
-            mats.BuildMaterials[0] = new ConstructionVariant.Material{ Item = GhostMaterial, IsVariant = true, Amount = mats.BuildMaterials[0].Amount };
+        mats.PrimaryMass = MassData.From(GhostMaterial, mats.BuildMaterials[0].Amount, 0);
+        mats.BuildMaterials[0] = new ConstructionVariant.Material{ Item = GhostMaterial, IsVariant = true, Amount = mats.BuildMaterials[0].Amount };
         ecb.AddComponent(plan, new PlannedConstruction
         {
             Location = cell, 

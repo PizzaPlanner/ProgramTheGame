@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 460068120002007332}
   - component: {fileID: -5624043721593407137}
   - component: {fileID: 2807449635505775803}
+  - component: {fileID: 404759063531143838}
   m_Layer: 0
   m_Name: Door
   m_TagString: Untagged
@@ -90,7 +91,6 @@ MonoBehaviour:
   Size:
     x: 2
     y: 0
-  PrimaryElementAmount: 0
   Variants:
   - {fileID: 2337124727977563792, guid: 0943a7d7aaf1139489e477a2deb0426a, type: 3}
   - {fileID: -8225056346494171970, guid: 3245cd94c258ce647a5d748badd6c948, type: 3}
@@ -132,6 +132,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3f029934c014403ea86449fcc96cad52, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &404759063531143838
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3605263813790912188}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: efe7f1c79676474aa501f4d2595a7ce1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Element: {fileID: 2337124727977563792, guid: 0943a7d7aaf1139489e477a2deb0426a, type: 3}
+  Mass: 400
+  Temperature: 25
 --- !u!1 &5604092210760565406
 GameObject:
   m_ObjectHideFlags: 0

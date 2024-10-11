@@ -16,8 +16,7 @@
         "YamlDotNet",
         "Construction",
         "Elements",
-        "Core",
-        "Construction.Systems"
+        "Core"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

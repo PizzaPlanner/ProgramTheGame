@@ -1,0 +1,30 @@
+# Blueprint Version 4
+Name: BP_2
+Tags: [TagWorld]
+Spawns:
+  AsteroidDirt:
+  - At: [3, 2]
+  - At: [3, 3]
+  - At: [3, 4]
+  - At: [3, 5]
+  TileRock:
+  - Matter: CopperOre
+    Mass: 511
+    At: [5, 4]
+  - At: [5, 3]
+  StarterCache:
+  - At: [2, 5]
+  CryoTank:
+  - At: [7, 7]
+  - At: [8, 7]
+  - At: [9, 7]
+  SimpleMiner:
+  - At: [2, 2]
+  - At: [2, 3]
+    Inventory: 
+    - Item: Silicon
+      Mass: 5000
+      Temperature: 37
+    - Item: IronOre
+      Mass: 2000
+      Temperature: 37

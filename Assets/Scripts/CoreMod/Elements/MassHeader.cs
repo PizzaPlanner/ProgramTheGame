@@ -2,6 +2,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
@@ -21,8 +22,8 @@ public readonly struct Mass
         if(_value < 2000)
             return $"{_value}g";
         if(_value < 2000000)
-            return $"{_value / 1000f:0.0}kg";
-        return $"{_value/1000000f:0.0}T";
+            return $"{(_value / 1000f).ToString(CultureInfo.InvariantCulture)}kg";
+        return $"{(_value / 1000000f).ToString(CultureInfo.InvariantCulture)}T";
     }
 }
 
@@ -59,7 +60,11 @@ public struct MassData : IComponentData, IMatterComposition
     }
 
     [CreateProperty]
-    public Temperature Temperature => _energy / (_mass * ElementData.SpecificHeatCapacity);
+    public Temperature Temperature
+    {
+        get => _energy / (_mass * ElementData.SpecificHeatCapacity);
+        set => _energy = (ulong)(value * ElementData.SpecificHeatCapacity * _mass);
+    }
     [CreateProperty]
     public Mass Mass { get => _mass; set => _mass = value; }
     [CreateProperty]

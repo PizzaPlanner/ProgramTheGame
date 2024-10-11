@@ -15,13 +15,8 @@ MonoBehaviour:
   m_GroupName: Default Local Group
   m_GUID: eb29362f08cfd0b47b42c597cd046314
   m_SerializeEntries:
-  - m_GUID: 9ce28cbc82cb155499395a371ea520d7
-    m_Address: UI/Stylesheets/Signals.uss
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 36ed7fda7d2f36c47a369d9bea74e2d5
-    m_Address: UI/Stylesheets/ChipEditor.uss
+  - m_GUID: 120d758a188f7934299a0406976912a9
+    m_Address: API/TagSpawnable.asset
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -30,8 +25,8 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: f4fa095e6adaf424992cf729631dcf02
-    m_Address: GasOverlayPlane
+  - m_GUID: 36ed7fda7d2f36c47a369d9bea74e2d5
+    m_Address: UI/Stylesheets/ChipEditor.uss
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -40,18 +35,13 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: a974d68596aa47f45a6c8ab2ac5199e7
-    m_Address: API/TagMod.asset
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 798284c9abe878a47b947b4ebf52801f
     m_Address: API/Tag.asset
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 120d758a188f7934299a0406976912a9
-    m_Address: API/TagSpawnable.asset
+  - m_GUID: 9ce28cbc82cb155499395a371ea520d7
+    m_Address: UI/Stylesheets/Signals.uss
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -60,8 +50,18 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: a974d68596aa47f45a6c8ab2ac5199e7
+    m_Address: API/TagMod.asset
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: b6323d28b277f8b419e88efec0109668
     m_Address: Test/Materials
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f4fa095e6adaf424992cf729631dcf02
+    m_Address: GasOverlayPlane
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -69,5 +69,5 @@ MonoBehaviour:
   m_Settings: {fileID: 11400000, guid: a45313afd0572864587f7bb3550ba570, type: 2}
   m_SchemaSet:
     m_Schemas:
-    - {fileID: 11400000, guid: 17c5a1680ca337e468427f0755ca8710, type: 2}
     - {fileID: 11400000, guid: 0d0c328ef6e9ab24fa53a13871924215, type: 2}
+    - {fileID: 11400000, guid: 17c5a1680ca337e468427f0755ca8710, type: 2}

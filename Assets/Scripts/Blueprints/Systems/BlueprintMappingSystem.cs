@@ -1,12 +1,15 @@
 using Identifiables;
+using System;
 using System.IO;
 using System.Linq;
 using System.Text;
+using Unity.Entities;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using static BlueprintUtils;
 
-public partial class BlueprintGeneratorSystem : IdentifiableMappingSystem
+[UpdateInGroup(typeof(IdentifiablesMappingGroup), OrderLast = true)]
+public partial class BlueprintMappingSystem : IdentifiableMappingSystem
 {
     void LoadBlueprints()
     {
@@ -30,12 +33,20 @@ public partial class BlueprintGeneratorSystem : IdentifiableMappingSystem
     {
         key = $"{type}/{key}";
 
-
-        if (!Deserialize(text, EntityManager, out var prefab))
+        try
         {
-            Debug.LogError($"Error loading Blueprint {key}");
-            return;
+            if (!Deserialize(text, EntityManager, out var prefab))
+            {
+                Debug.LogError($"Error loading Blueprint {key}");
+                return;
+            }
+
+            TryRegisterDynamicPrefab(prefab, $"Blueprint/{key}",
+                new[] { Identifiable.FromName("TagBlueprint"), Identifiable.FromName("TagSpawnable") });
         }
-        TryRegisterDynamicPrefab(prefab, $"Blueprint/{key}", new[] { Identifiable.FromName("TagBlueprint"), Identifiable.FromName("TagSpawnable") });
+        catch (Exception e)
+        {
+            Debug.LogError($"Error loading Blueprint {key}: {e.Message}");
+        }
     }
 }

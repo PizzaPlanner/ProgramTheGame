@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 460068120002007332}
   - component: {fileID: -6764621676663948122}
   - component: {fileID: 496334587082278357}
+  - component: {fileID: 404759063531143838}
   m_Layer: 0
   m_Name: ShipCore
   m_TagString: Untagged
@@ -91,9 +92,8 @@ MonoBehaviour:
   Size:
     x: 1
     y: 1
-  Input:
-  - Prefab: {fileID: 697860641069326925, guid: 5a580b2bc75411c4197f40047c32667d, type: 3}
-    Amount: 20
+  Variants: []
+  OtherMaterials: []
 --- !u!114 &460068120002007332
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -135,6 +135,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 05c99c16b30b41f08c98b3eee73cbfc6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &404759063531143838
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3605263813790912188}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: efe7f1c79676474aa501f4d2595a7ce1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Element: {fileID: -2056211199530363027, guid: 9fbc316f8e8545941811bda52bae3fe0, type: 3}
+  Mass: 550
+  Temperature: 150
 --- !u!1 &5604092210760565406
 GameObject:
   m_ObjectHideFlags: 0

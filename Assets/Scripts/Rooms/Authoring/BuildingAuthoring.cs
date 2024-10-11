@@ -12,13 +12,13 @@ public class BuildingVariantAuthoring
     public uint Mass;
 }
 
+[RequireComponent(typeof(DefaultMassAuthoring))]
 public class BuildingAuthoring : MonoBehaviour
 {
     public BuildingLayer Layer;
     public PlacementType PlacementType; 
     public float Duration;
     public int2 Size;
-    public ushort PrimaryElementAmount;
     public ElementAuthoring[] Variants;
     public CraftingRecipeAuthoring.ItemWithAmount[] OtherMaterials;
     
@@ -48,15 +48,14 @@ public class BuildingAuthoring : MonoBehaviour
                 variants.Add(new BuildingVariant()
                 {
                     Element = variant.GetComponent<IdentifieableAuthoring>().Id,
-                    RequiredMass = authoring.PrimaryElementAmount
+                    RequiredMass = authoring.GetComponent<DefaultMassAuthoring>().Mass
                 });
             }
             var currentVariant = new ConstructionVariant
             {
                 BuildMaterials = new FixedList64Bytes<ConstructionVariant.Material>()
             };
-            if(authoring.Variants.Length > 0)
-                currentVariant.BuildMaterials.Add(new ConstructionVariant.Material{ Amount = authoring.PrimaryElementAmount, IsVariant = true });
+            currentVariant.BuildMaterials.Add(new ConstructionVariant.Material{ Amount = authoring.GetComponent<DefaultMassAuthoring>().Mass, IsVariant = true });
             foreach(var mat in authoring.OtherMaterials)
                 currentVariant.BuildMaterials.Add(new ConstructionVariant.Material
                 {

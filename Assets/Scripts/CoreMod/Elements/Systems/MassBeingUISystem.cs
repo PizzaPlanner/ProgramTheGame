@@ -1,4 +1,6 @@
-﻿using Units;
+﻿using Identifiables;
+using Identifiables.UI;
+using Units;
 using Unity.Entities;
 using UnityEngine.UIElements;
 
@@ -30,13 +32,15 @@ namespace CoreMod.Elements.Systems
     {
         public MassBeingUI()
         {
+            Add(new IdentifiableButton());
             Add(new Label(""));
         }
         public MassData Mass
         {
             set
             {
-                this.Q<Label>().text = $"{value.ElementType.DefaultName}: {value.Mass}kg at {value.Temperature}";
+                this.Q<IdentifiableButton>().Target = value.ElementType;
+                this.Q<Label>().text = $"{value.Mass} at {value.Temperature}";
             }
         }
     }

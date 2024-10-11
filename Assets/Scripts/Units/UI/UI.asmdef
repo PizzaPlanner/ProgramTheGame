@@ -24,7 +24,8 @@
         "Construction",
         "Rooms",
         "Identifiables.UI",
-        "Equipment.UI"
+        "Equipment.UI",
+        "Blueprints"
 
     ],
     "includePlatforms": [],

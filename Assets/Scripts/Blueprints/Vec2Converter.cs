@@ -31,7 +31,7 @@ public sealed class Vec2Converter : IYamlTypeConverter
     
     public void WriteYaml(IEmitter emitter, object value, Type type)
     {
-        emitter.Emit(new SequenceStart(null, null, true, SequenceStyle.Flow));
+        emitter.Emit(new SequenceStart(null, null, false, SequenceStyle.Flow));
 
         if (type == typeof(float2))
         {

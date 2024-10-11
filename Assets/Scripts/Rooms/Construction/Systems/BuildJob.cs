@@ -73,6 +73,7 @@ public partial struct BuildJob : IJobEntity
             ecb.AddComponent<CurrentGhost>(entity);
             ecb.AddComponent(entity, new Ghost { GhostBuildable = !Rooms.IsOccupied(area) });
             ecb.SetComponent(entity, planned.Materials);
+            ecb.RemoveComponent<MassData>(entity);
         }
         else if (isUnderConstruction)
         {
@@ -81,6 +82,7 @@ public partial struct BuildJob : IJobEntity
             ecb.AddComponent(entity, new BakedIntoRoomMap { Grid = planned.Parent, Area = area });
             ecb.SetComponent(entity, new OnGrid { Grid = planned.Parent });
             ecb.SetComponent(entity, planned.Materials);
+            ecb.RemoveComponent<MassData>(entity);
             if(building.Layer != BuildingLayer.Floor)
                 Rooms.AddOccupiedArea(area);
         }
@@ -88,8 +90,9 @@ public partial struct BuildJob : IJobEntity
         {
             ecb.RemoveComponent<ConstructionVariant>(entity);
             ecb.AddComponent<PendingGridUpdate>(planned.Parent);
-            ecb.AddComponent(entity, planned.Materials.PrimaryMass);
             ecb.AddComponent(entity, new BakedIntoRoomMap { Grid = planned.Parent, Area = area });
+            if(planned.Materials.PrimaryMass.ElementType != default)
+                ecb.SetComponent(entity, planned.Materials.PrimaryMass);
             ecb.SetComponent(entity, new OnGrid { Grid = planned.Parent });
             
             var gridBbox = structureLookup[planned.Parent];

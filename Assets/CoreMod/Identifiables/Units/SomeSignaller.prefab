@@ -18,6 +18,7 @@ GameObject:
   - component: {fileID: -3090611205173747411}
   - component: {fileID: 8613357524837469950}
   - component: {fileID: -2951002237845520496}
+  - component: {fileID: 6380801680489609840}
   m_Layer: 0
   m_Name: SomeSignaller
   m_TagString: Untagged
@@ -193,6 +194,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 05c99c16b30b41f08c98b3eee73cbfc6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &6380801680489609840
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6595311514760627798}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: efe7f1c79676474aa501f4d2595a7ce1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Element: {fileID: 8326911734933721908, guid: 7c1cb09404340334e81d4ef17cdeab0b, type: 3}
+  Mass: 100
+  Temperature: 25
 --- !u!1001 &3072592592385049462
 PrefabInstance:
   m_ObjectHideFlags: 0

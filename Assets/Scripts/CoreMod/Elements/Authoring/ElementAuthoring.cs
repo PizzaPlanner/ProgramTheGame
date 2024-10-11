@@ -26,13 +26,12 @@ public class ElementAuthoring : MonoBehaviour
     public float SpecificHeatCapacity;
 
     public Color Color;
-    
-    class EBaker : Baker<ElementAuthoring>
+
+    public Element Element
     {
-        public override void Bake(ElementAuthoring authoring)
+        get
         {
-            var e = GetEntity(TransformUsageFlags.None);
-            var tags = authoring.GetComponent<IdentifieableAuthoring>().Tags;
+            var tags = GetComponent<IdentifieableAuthoring>().Tags;
             var phase = ElementPhase.None;
             foreach (var tag in tags)
             {
@@ -45,24 +44,31 @@ public class ElementAuthoring : MonoBehaviour
                 };
             }
             if(phase == ElementPhase.None)
-                throw new InvalidDataException($"Element {authoring.gameObject.name} has no phase tag assigned. Must be either TagSolid, TagLiquid, or TagGas.");
-            var freezeTo = authoring.ColdStateChange.ToElement == null 
+                throw new InvalidDataException($"Element {gameObject.name} has no phase tag assigned. Must be either TagSolid, TagLiquid, or TagGas.");
+            var freezeTo = ColdStateChange.ToElement == null 
                 ? default : 
-                authoring.ColdStateChange.ToElement.GetComponent<IdentifieableAuthoring>().Id;
-            var meltTo = authoring.HotStateChange.ToElement == null 
+                ColdStateChange.ToElement.GetComponent<IdentifieableAuthoring>().Id;
+            var meltTo = HotStateChange.ToElement == null 
                 ? default : 
-                authoring.HotStateChange.ToElement.GetComponent<IdentifieableAuthoring>().Id;
+                HotStateChange.ToElement.GetComponent<IdentifieableAuthoring>().Id;
             
-            AddComponent(e, new Element
+            return new Element
             {
-                ThermalConductivity = authoring.ThermalConductivity,
-                SpecificHeatCapacity = authoring.SpecificHeatCapacity,
-                Melt = new Element.StateChange{At = meltTo == default ? float.PositiveInfinity : authoring.HotStateChange.Temperature + 273.15f, To = meltTo },
-                Freeze = new Element.StateChange{At = freezeTo == default ? float.NegativeInfinity : authoring.ColdStateChange.Temperature + 273.15f, To = freezeTo },
+                ThermalConductivity = ThermalConductivity,
+                SpecificHeatCapacity = SpecificHeatCapacity,
+                Melt = new Element.StateChange{At = meltTo == default ? float.PositiveInfinity : HotStateChange.Temperature + 273.15f, To = meltTo },
+                Freeze = new Element.StateChange{At = freezeTo == default ? float.NegativeInfinity : ColdStateChange.Temperature + 273.15f, To = freezeTo },
                 Phase = phase
-            });
+            };
         }
-        
-        static float Kelvin(float celsius) => celsius + 273.15f;
+    }
+    
+    class EBaker : Baker<ElementAuthoring>
+    {
+        public override void Bake(ElementAuthoring authoring)
+        {
+            var e = GetEntity(TransformUsageFlags.None);
+            AddComponent(e, authoring.Element);
+        }
     }
 }

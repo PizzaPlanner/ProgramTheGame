@@ -31,7 +31,5 @@ public struct ConstructionVariant : IComponentData
     }
     
     public FixedList64Bytes<Material> BuildMaterials;
-    public MassData PrimaryMass => BuildMaterials.Length > 0 
-        ? MassData.From(BuildMaterials[0].Item, BuildMaterials[0].Amount, 0) 
-        : MassData.From(Identifiable.FromName("Voidite"), 1000, 0); 
+    public MassData PrimaryMass; 
 }

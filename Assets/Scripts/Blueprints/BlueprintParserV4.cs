@@ -20,26 +20,27 @@ namespace Grid.Blueprints
 {
     internal class BlueprintV4DataStructure
     {
+        
         public string Name;
-        public IList<string> Tags = new List<string>();
-        public IList<PartData> Buildings = new List<PartData>();
-        public IList<AtmoData> Atmosphere = new List<AtmoData>();
+        [YamlMember(DefaultValuesHandling = DefaultValuesHandling.OmitDefaults)]
+        public IList<Identifiable> Tags = new List<Identifiable>();
+        [YamlMember(DefaultValuesHandling = DefaultValuesHandling.OmitDefaults, ScalarStyle = ScalarStyle.Folded)]
+        public IDictionary<Identifiable, IList<PartData>> Spawns = new Dictionary<Identifiable, IList<PartData>>();
 
         internal class PartData
         {
             public int2 At;
-            public Identifiable Type;
-            public Identifiable Material;
-            public uint Mass;
-            public float Temperature;
+            public Mass Mass;
+            public Identifiable Matter;
+            public Temperature Temperature;
+            public List<InventoryData> Inventory = new List<InventoryData>();
         }
 
-        internal class AtmoData
+        internal class InventoryData
         {
-            public int2 At;
-            public Identifiable Type;
-            public uint Mass;
-            public float Temperature;
+            public Identifiable Item;
+            public Mass Mass;
+            public Temperature Temperature;
         }
     }
 
@@ -60,6 +61,8 @@ namespace Grid.Blueprints
                           .ConfigureDefaultValuesHandling(DefaultValuesHandling.OmitDefaults |
                                                           DefaultValuesHandling.OmitEmptyCollections)
                           .WithEventEmitter(x => new FlowArraysEmitter(x))
+                          .WithTypeConverter(new MassConverter())
+                          .WithTypeConverter(new TemperatureConverter())
                           .WithTypeConverter(new IdentifiableConverter())
                           .WithTypeConverter(new Vec2Converter());
             return builder.Build().Serialize(data);
@@ -70,13 +73,17 @@ namespace Grid.Blueprints
             for (int x = massModel.Min.x; x <= massModel.Max.x; x++)
             for (int y = massModel.Min.y; y <= massModel.Max.y; y++)
                 foreach (var mass in massModel.AbsoluteCell(new int2(x, y)).Masses)
-                    data.Atmosphere.Add(new BlueprintV4DataStructure.AtmoData()
+                {
+                    if(!data.Spawns.ContainsKey(mass.ElementType))
+                        data.Spawns[mass.ElementType] = new List<BlueprintV4DataStructure.PartData>();
+                    data.Spawns[mass.ElementType].Add(new BlueprintV4DataStructure.PartData
                     {
-                        At = new int2(x, y),
                         Temperature = mass.Temperature,
-                        Type = mass.ElementType,
+                        At = new int2(x, y),
                         Mass = mass.Mass,
                     });
+                    
+                }
         }
 
         void HandleChild(Child child, EntityManager em, BlueprintV4DataStructure data)
@@ -88,41 +95,45 @@ namespace Grid.Blueprints
             var id = em.GetComponentData<Identifiable>(child.Value);
             var mass = em.GetComponentData<MassData>(child.Value);
             var bounds = em.GetComponentData<GridBounds>(child.Value);
-            
+            var defaultMass = em.GetComponentData<MassData>(id.SpawnablePrefab);
+            if(!data.Spawns.ContainsKey(id))
+                data.Spawns[id] = new List<BlueprintV4DataStructure.PartData>();
             var partToAdd = new BlueprintV4DataStructure.PartData
             {
                 At = bounds.Min,
-                Type = id,
-                Material = mass.ElementType,
-                Temperature = mass.Temperature
+                Temperature = !Mathf.Approximately(mass.Temperature, defaultMass.Temperature) ? mass.Temperature : default,
+                Mass = mass.Mass != defaultMass.Mass ? mass.Mass : default,
+                Matter = mass.ElementType != defaultMass.ElementType ? mass.ElementType : default 
             };
-            data.Buildings.Add(partToAdd);
+            data.Spawns[id].Add(partToAdd);
         }
 
         public void Load(string data, EntityManager em, Entity prefab)
         {
             var builder = new DeserializerBuilder()
                           .WithNamingConvention(PascalCaseNamingConvention.Instance)
+                          .WithTypeConverter(new MassConverter())
+                          .WithTypeConverter(new TemperatureConverter())
                           .WithTypeConverter(new IdentifiableConverter())
                           .WithTypeConverter(new Vec2Converter());
 
             var blueprint = builder.Build().Deserialize<BlueprintV4DataStructure>(data);
             var content = em.GetBuffer<BlueprintContents>(prefab);
-            foreach (var entry in blueprint.Buildings)
-            {
-                content.Add(new BlueprintContents{ Data = new PlannedConstruction
+            foreach (var cell in blueprint.Spawns)
+                foreach(var part in cell.Value)
                 {
-                    Prefab = entry.Type,
-                    Location = entry.At,
-                    Materials = new ConstructionVariant
+                    content.Add(new BlueprintContents
                     {
-                        BuildMaterials = new FixedList64Bytes<ConstructionVariant.Material>()
+                        Prefab = cell.Key,
+                        Location = part.At,
+                        Matter = new DefaultMatterOverride
                         {
-                            new() { Item = entry.Material, Amount = entry.Mass }
+                            Id = part.Matter,
+                            Temperature =  part.Temperature,
+                            Mass =  part.Mass
                         }
-                    },
-                }});
-            }
+                    });
+                }
         }
 
         public string VersionIdentifier => "# Blueprint Version 4";
@@ -133,11 +144,18 @@ public class FlowArraysEmitter : ChainedEventEmitter
 {
     public FlowArraysEmitter(IEventEmitter nextEmitter) : base(nextEmitter) { }
 
-    bool ShouldFlow(Type type) => type == typeof(int[]) 
-                                  || type == typeof(uint[]) 
-                                  || type == typeof(byte[]);
+    bool ShouldFlow(Type type) => false;
 
-    bool ShouldBeImplicit(Type type) => type == typeof(int2);
+    bool ShouldBeImplicit(Type type) => false;
+
+    public override void Emit(ScalarEventInfo eventInfo, IEmitter emitter)
+    {
+        if(ShouldFlow(eventInfo.Source.Type))
+            eventInfo.Style = ScalarStyle.Plain;
+        if (ShouldBeImplicit(eventInfo.Source.Type))
+            eventInfo.IsPlainImplicit = true;
+        base.Emit(eventInfo, emitter);
+    }
 
     public override void Emit(MappingStartEventInfo eventInfo, IEmitter emitter)
     {
