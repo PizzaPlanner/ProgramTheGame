@@ -1,0 +1,715 @@
+# Blueprint Version 4
+Tags: []
+Spawns:
+  Foundation:
+  - At: [14, 10]
+    Matter: IronIngot
+  - At: [14, 9]
+    Matter: IronIngot
+  - At: [15, 4]
+    Matter: IronIngot
+  - At: [14, 8]
+    Matter: IronIngot
+  - At: [15, 3]
+    Matter: IronIngot
+  - At: [14, 7]
+    Matter: IronIngot
+  - At: [16, 18]
+    Matter: IronIngot
+  - At: [18, 3]
+    Matter: IronIngot
+  - At: [16, 17]
+    Matter: IronIngot
+  - At: [18, 2]
+    Matter: IronIngot
+  - At: [16, 16]
+    Matter: IronIngot
+  - At: [17, 19]
+    Matter: IronIngot
+  - At: [16, 15]
+    Matter: IronIngot
+  - At: [17, 18]
+    Matter: IronIngot
+  - At: [16, 14]
+    Matter: IronIngot
+  - At: [17, 17]
+    Matter: IronIngot
+  - At: [17, 16]
+    Matter: IronIngot
+  - At: [17, 15]
+    Matter: IronIngot
+  - At: [14, 6]
+    Matter: IronIngot
+  - At: [16, 13]
+    Matter: IronIngot
+  - At: [17, 14]
+    Matter: IronIngot
+  - At: [16, 12]
+    Matter: IronIngot
+  - At: [14, 5]
+    Matter: IronIngot
+  - At: [14, 4]
+    Matter: IronIngot
+  - At: [17, 13]
+    Matter: IronIngot
+  - At: [16, 11]
+    Matter: IronIngot
+  - At: [14, 3]
+    Matter: IronIngot
+  - At: [17, 12]
+    Matter: IronIngot
+  - At: [14, 2]
+    Matter: IronIngot
+  - At: [16, 10]
+    Matter: IronIngot
+  - At: [17, 11]
+    Matter: IronIngot
+  - At: [16, 9]
+    Matter: IronIngot
+  - At: [13, 19]
+    Matter: IronIngot
+  - At: [17, 10]
+    Matter: IronIngot
+  - At: [16, 8]
+    Matter: IronIngot
+  - At: [13, 18]
+    Matter: IronIngot
+  - At: [17, 9]
+    Matter: IronIngot
+  - At: [16, 7]
+    Matter: IronIngot
+  - At: [13, 17]
+    Matter: IronIngot
+  - At: [16, 6]
+    Matter: IronIngot
+  - At: [13, 16]
+    Matter: IronIngot
+  - At: [16, 5]
+    Matter: IronIngot
+  - At: [13, 15]
+    Matter: IronIngot
+  - At: [17, 8]
+    Matter: IronIngot
+  - At: [16, 4]
+    Matter: IronIngot
+  - At: [13, 14]
+    Matter: IronIngot
+  - At: [16, 3]
+    Matter: IronIngot
+  - At: [17, 7]
+    Matter: IronIngot
+  - At: [13, 13]
+    Matter: IronIngot
+  - At: [16, 2]
+    Matter: IronIngot
+  - At: [17, 6]
+    Matter: IronIngot
+  - At: [13, 12]
+    Matter: IronIngot
+  - At: [15, 19]
+    Matter: IronIngot
+  - At: [15, 18]
+    Matter: IronIngot
+  - At: [13, 11]
+    Matter: IronIngot
+  - At: [17, 5]
+    Matter: IronIngot
+  - At: [13, 10]
+    Matter: IronIngot
+  - At: [17, 4]
+    Matter: IronIngot
+  - At: [13, 9]
+    Matter: IronIngot
+  - At: [19, 4]
+    Matter: IronIngot
+  - At: [15, 17]
+    Matter: IronIngot
+  - At: [13, 8]
+    Matter: IronIngot
+  - At: [19, 3]
+    Matter: IronIngot
+  - At: [15, 16]
+    Matter: IronIngot
+  - At: [13, 7]
+    Matter: IronIngot
+  - At: [19, 2]
+    Matter: IronIngot
+  - At: [15, 15]
+    Matter: IronIngot
+  - At: [13, 6]
+    Matter: IronIngot
+  - At: [18, 19]
+    Matter: IronIngot
+  - At: [15, 14]
+    Matter: IronIngot
+  - At: [13, 5]
+    Matter: IronIngot
+  - At: [18, 18]
+    Matter: IronIngot
+  - At: [15, 13]
+    Matter: IronIngot
+  - At: [18, 17]
+    Matter: IronIngot
+  - At: [18, 16]
+    Matter: IronIngot
+  - At: [13, 4]
+    Matter: IronIngot
+  - At: [18, 15]
+    Matter: IronIngot
+  - At: [15, 12]
+    Matter: IronIngot
+  - At: [18, 14]
+    Matter: IronIngot
+  - At: [13, 3]
+    Matter: IronIngot
+  - At: [15, 11]
+    Matter: IronIngot
+  - At: [18, 13]
+    Matter: IronIngot
+  - At: [13, 2]
+    Matter: IronIngot
+  - At: [18, 12]
+    Matter: IronIngot
+  - At: [15, 10]
+    Matter: IronIngot
+  - At: [15, 2]
+    Matter: IronIngot
+  - At: [18, 11]
+    Matter: IronIngot
+  - At: [15, 9]
+    Matter: IronIngot
+  - At: [18, 10]
+    Matter: IronIngot
+  - At: [14, 19]
+    Matter: IronIngot
+  - At: [15, 8]
+    Matter: IronIngot
+  - At: [20, 5]
+    Matter: IronIngot
+  - At: [14, 18]
+    Matter: IronIngot
+  - At: [15, 7]
+    Matter: IronIngot
+  - At: [20, 4]
+    Matter: IronIngot
+  - At: [14, 17]
+    Matter: IronIngot
+  - At: [20, 3]
+    Matter: IronIngot
+  - At: [15, 6]
+    Matter: IronIngot
+  - At: [14, 16]
+    Matter: IronIngot
+  - At: [20, 2]
+    Matter: IronIngot
+  - At: [15, 5]
+    Matter: IronIngot
+  - At: [14, 15]
+    Matter: IronIngot
+  - At: [19, 19]
+    Matter: IronIngot
+  - At: [14, 14]
+    Matter: IronIngot
+  - At: [17, 3]
+    Matter: IronIngot
+  - At: [14, 13]
+    Matter: IronIngot
+  - At: [19, 18]
+    Matter: IronIngot
+  - At: [18, 9]
+    Matter: IronIngot
+  - At: [17, 2]
+    Matter: IronIngot
+  - At: [19, 17]
+    Matter: IronIngot
+  - At: [18, 8]
+    Matter: IronIngot
+  - At: [16, 19]
+    Matter: IronIngot
+  - At: [19, 16]
+    Matter: IronIngot
+  - At: [18, 7]
+    Matter: IronIngot
+  - At: [18, 6]
+    Matter: IronIngot
+  - At: [21, 6]
+    Matter: IronIngot
+  - At: [19, 15]
+    Matter: IronIngot
+  - At: [18, 5]
+    Matter: IronIngot
+  - At: [18, 4]
+    Matter: IronIngot
+  - At: [19, 14]
+    Matter: IronIngot
+  - At: [19, 13]
+    Matter: IronIngot
+  - At: [19, 12]
+    Matter: IronIngot
+  - At: [19, 11]
+    Matter: IronIngot
+  - At: [19, 10]
+    Matter: IronIngot
+  - At: [19, 9]
+    Matter: IronIngot
+  - At: [14, 12]
+    Matter: IronIngot
+  - At: [19, 8]
+    Matter: IronIngot
+  - At: [19, 7]
+    Matter: IronIngot
+  - At: [19, 6]
+    Matter: IronIngot
+  - At: [14, 11]
+    Matter: IronIngot
+  - At: [19, 5]
+    Matter: IronIngot
+  - At: [21, 5]
+    Matter: IronIngot
+  - At: [21, 4]
+    Matter: IronIngot
+  - At: [21, 3]
+    Matter: IronIngot
+  - At: [21, 2]
+    Matter: IronIngot
+  - At: [20, 19]
+    Matter: IronIngot
+  - At: [20, 18]
+    Matter: IronIngot
+  - At: [20, 17]
+    Matter: IronIngot
+  - At: [20, 16]
+    Matter: IronIngot
+  - At: [20, 15]
+    Matter: IronIngot
+  - At: [20, 14]
+    Matter: IronIngot
+  - At: [20, 13]
+    Matter: IronIngot
+  - At: [20, 12]
+    Matter: IronIngot
+  - At: [20, 11]
+    Matter: IronIngot
+  - At: [20, 10]
+    Matter: IronIngot
+  - At: [20, 9]
+    Matter: IronIngot
+  - At: [20, 8]
+    Matter: IronIngot
+  - At: [20, 7]
+    Matter: IronIngot
+  - At: [20, 6]
+    Matter: IronIngot
+  - At: [21, 19]
+    Matter: IronIngot
+  - At: [21, 18]
+    Matter: IronIngot
+  - At: [21, 17]
+    Matter: IronIngot
+  - At: [21, 16]
+    Matter: IronIngot
+  - At: [21, 15]
+    Matter: IronIngot
+  - At: [21, 14]
+    Matter: IronIngot
+  - At: [21, 13]
+    Matter: IronIngot
+  - At: [21, 12]
+    Matter: IronIngot
+  - At: [21, 11]
+    Matter: IronIngot
+  - At: [21, 10]
+    Matter: IronIngot
+  - At: [21, 9]
+    Matter: IronIngot
+  - At: [21, 8]
+    Matter: IronIngot
+  - At: [21, 7]
+    Matter: IronIngot
+  - At: [26, 15]
+    Matter: IronIngot
+  - At: [26, 14]
+    Matter: IronIngot
+  - At: [26, 13]
+    Matter: IronIngot
+  - At: [23, 10]
+    Matter: IronIngot
+  - At: [23, 9]
+    Matter: IronIngot
+  - At: [23, 8]
+    Matter: IronIngot
+  - At: [23, 7]
+    Matter: IronIngot
+  - At: [26, 12]
+    Matter: IronIngot
+  - At: [26, 11]
+    Matter: IronIngot
+  - At: [26, 10]
+    Matter: IronIngot
+  - At: [26, 9]
+    Matter: IronIngot
+  - At: [26, 8]
+    Matter: IronIngot
+  - At: [26, 7]
+    Matter: IronIngot
+  - At: [25, 15]
+    Matter: IronIngot
+  - At: [25, 14]
+    Matter: IronIngot
+  - At: [25, 13]
+    Matter: IronIngot
+  - At: [25, 12]
+    Matter: IronIngot
+  - At: [25, 11]
+    Matter: IronIngot
+  - At: [25, 10]
+    Matter: IronIngot
+  - At: [25, 9]
+    Matter: IronIngot
+  - At: [25, 8]
+    Matter: IronIngot
+  - At: [25, 7]
+    Matter: IronIngot
+  - At: [24, 15]
+    Matter: IronIngot
+  - At: [24, 14]
+    Matter: IronIngot
+  - At: [24, 13]
+    Matter: IronIngot
+  - At: [24, 11]
+    Matter: IronIngot
+  - At: [24, 10]
+    Matter: IronIngot
+  - At: [24, 9]
+    Matter: IronIngot
+  - At: [24, 8]
+    Matter: IronIngot
+  - At: [24, 7]
+    Matter: IronIngot
+  - At: [23, 15]
+    Matter: IronIngot
+  - At: [23, 14]
+    Matter: IronIngot
+  - At: [23, 13]
+    Matter: IronIngot
+  - At: [23, 11]
+    Matter: IronIngot
+  - At: [23, 11]
+    Matter: IronIngot
+  - At: [23, 10]
+    Matter: IronIngot
+  - At: [21, 14]
+    Matter: IronIngot
+  - At: [21, 13]
+    Matter: IronIngot
+  - At: [21, 12]
+    Matter: IronIngot
+  - At: [21, 11]
+    Matter: IronIngot
+  - At: [21, 10]
+    Matter: IronIngot
+  - At: [20, 14]
+    Matter: IronIngot
+  - At: [20, 13]
+    Matter: IronIngot
+  - At: [12, 11]
+    Matter: IronIngot
+  - At: [12, 10]
+    Matter: IronIngot
+  - At: [19, 11]
+    Matter: IronIngot
+  - At: [19, 10]
+    Matter: IronIngot
+  - At: [18, 14]
+    Matter: IronIngot
+  - At: [18, 13]
+    Matter: IronIngot
+  - At: [18, 12]
+    Matter: IronIngot
+  - At: [18, 11]
+    Matter: IronIngot
+  - At: [18, 10]
+    Matter: IronIngot
+  - At: [17, 14]
+    Matter: IronIngot
+  - At: [17, 13]
+    Matter: IronIngot
+  - At: [17, 12]
+    Matter: IronIngot
+  - At: [17, 11]
+    Matter: IronIngot
+  - At: [17, 10]
+    Matter: IronIngot
+  - At: [16, 14]
+    Matter: IronIngot
+  - At: [20, 12]
+    Matter: IronIngot
+  - At: [20, 11]
+    Matter: IronIngot
+  - At: [16, 13]
+    Matter: IronIngot
+  - At: [16, 12]
+    Matter: IronIngot
+  - At: [16, 11]
+    Matter: IronIngot
+  - At: [20, 10]
+    Matter: IronIngot
+  - At: [16, 10]
+    Matter: IronIngot
+  - At: [19, 14]
+    Matter: IronIngot
+  - At: [15, 14]
+    Matter: IronIngot
+  - At: [19, 13]
+    Matter: IronIngot
+  - At: [15, 13]
+    Matter: IronIngot
+  - At: [19, 12]
+    Matter: IronIngot
+  - At: [15, 12]
+    Matter: IronIngot
+  - At: [25, 14]
+    Matter: IronIngot
+  - At: [15, 11]
+    Matter: IronIngot
+  - At: [25, 13]
+    Matter: IronIngot
+  - At: [25, 12]
+    Matter: IronIngot
+  - At: [25, 11]
+    Matter: IronIngot
+  - At: [15, 10]
+    Matter: IronIngot
+  - At: [25, 10]
+    Matter: IronIngot
+  - At: [14, 14]
+    Matter: IronIngot
+  - At: [24, 14]
+    Matter: IronIngot
+  - At: [14, 13]
+    Matter: IronIngot
+  - At: [24, 13]
+    Matter: IronIngot
+  - At: [14, 11]
+    Matter: IronIngot
+  - At: [24, 11]
+    Matter: IronIngot
+  - At: [14, 10]
+    Matter: IronIngot
+  - At: [24, 10]
+    Matter: IronIngot
+  - At: [13, 14]
+    Matter: IronIngot
+  - At: [23, 14]
+    Matter: IronIngot
+  - At: [23, 13]
+    Matter: IronIngot
+  - At: [13, 13]
+    Matter: IronIngot
+  - At: [13, 10]
+    Matter: IronIngot
+  - At: [13, 11]
+    Matter: IronIngot
+  - At: [12, 11]
+    Matter: IronIngot
+  - At: [12, 10]
+    Matter: IronIngot
+  - At: [11, 12]
+    Matter: IronIngot
+  - At: [11, 11]
+    Matter: IronIngot
+  - At: [11, 10]
+    Matter: IronIngot
+  - At: [10, 12]
+    Matter: IronIngot
+  - At: [10, 11]
+    Matter: IronIngot
+  - At: [10, 10]
+    Matter: IronIngot
+  - At: [9, 12]
+    Matter: IronIngot
+  - At: [9, 11]
+    Matter: IronIngot
+  - At: [9, 10]
+    Matter: IronIngot
+  - At: [8, 12]
+    Matter: IronIngot
+  - At: [8, 11]
+    Matter: IronIngot
+  - At: [8, 10]
+    Matter: IronIngot
+  Wall:
+  - At: [22, 18]
+    Matter: SteelIngot
+  - At: [22, 17]
+    Matter: SteelIngot
+  - At: [22, 16]
+    Matter: SteelIngot
+  - At: [22, 15]
+    Matter: SteelIngot
+  - At: [22, 19]
+    Matter: SteelIngot
+  - At: [22, 14]
+    Matter: SteelIngot
+  - At: [12, 15]
+    Matter: SteelIngot
+  - At: [12, 18]
+    Matter: SteelIngot
+  - At: [12, 17]
+    Matter: SteelIngot
+  - At: [12, 16]
+    Matter: SteelIngot
+  - At: [12, 19]
+    Matter: SteelIngot
+  - At: [12, 14]
+    Matter: SteelIngot
+  - At: [12, 13]
+    Matter: SteelIngot
+  - At: [21, 20]
+    Matter: SteelIngot
+  - At: [20, 20]
+    Matter: SteelIngot
+  - At: [19, 20]
+    Matter: SteelIngot
+  - At: [18, 20]
+    Matter: SteelIngot
+  - At: [17, 20]
+    Matter: SteelIngot
+  - At: [16, 20]
+    Matter: SteelIngot
+  - At: [15, 20]
+    Matter: SteelIngot
+  - At: [14, 20]
+    Matter: SteelIngot
+  - At: [13, 20]
+    Matter: SteelIngot
+  - At: [22, 8]
+    Matter: SteelIngot
+  - At: [22, 7]
+    Matter: SteelIngot
+  - At: [22, 6]
+    Matter: SteelIngot
+  - At: [22, 5]
+    Matter: SteelIngot
+  - At: [22, 4]
+    Matter: SteelIngot
+  - At: [22, 3]
+    Matter: SteelIngot
+  - At: [22, 9]
+    Matter: SteelIngot
+  - At: [22, 2]
+    Matter: SteelIngot
+  - At: [21, 1]
+    Matter: SteelIngot
+  - At: [20, 1]
+    Matter: SteelIngot
+  - At: [19, 1]
+    Matter: SteelIngot
+  - At: [18, 1]
+    Matter: SteelIngot
+  - At: [17, 1]
+    Matter: SteelIngot
+  - At: [16, 1]
+    Matter: SteelIngot
+  - At: [15, 1]
+    Matter: SteelIngot
+  - At: [14, 1]
+    Matter: SteelIngot
+  - At: [13, 1]
+    Matter: SteelIngot
+  - At: [12, 8]
+    Matter: SteelIngot
+  - At: [12, 7]
+    Matter: SteelIngot
+  - At: [12, 6]
+    Matter: SteelIngot
+  - At: [12, 5]
+    Matter: SteelIngot
+  - At: [12, 4]
+    Matter: SteelIngot
+  - At: [12, 3]
+    Matter: SteelIngot
+  - At: [12, 9]
+    Matter: SteelIngot
+  - At: [12, 2]
+    Matter: SteelIngot
+  - At: [22, 13]
+    Matter: SteelIngot
+  - At: [11, 9]
+    Matter: SteelIngot
+  - At: [10, 9]
+    Matter: SteelIngot
+  - At: [9, 9]
+    Matter: SteelIngot
+  - At: [8, 9]
+    Matter: SteelIngot
+  - At: [7, 9]
+    Matter: SteelIngot
+  - At: [11, 13]
+    Matter: SteelIngot
+  - At: [10, 13]
+    Matter: SteelIngot
+  - At: [9, 13]
+    Matter: SteelIngot
+  - At: [8, 13]
+    Matter: SteelIngot
+  - At: [7, 13]
+    Matter: SteelIngot
+  - At: [7, 12]
+    Matter: SteelIngot
+  - At: [7, 11]
+    Matter: SteelIngot
+  - At: [7, 10]
+    Matter: SteelIngot
+  - At: [27, 15]
+    Matter: SteelIngot
+  - At: [27, 14]
+    Matter: SteelIngot
+  - At: [27, 13]
+    Matter: SteelIngot
+  - At: [27, 12]
+    Matter: SteelIngot
+  - At: [27, 11]
+    Matter: SteelIngot
+  - At: [22, 11]
+    Matter: SteelIngot
+  - At: [27, 10]
+    Matter: SteelIngot
+  - At: [22, 10]
+    Matter: SteelIngot
+  - At: [27, 9]
+    Matter: SteelIngot
+  - At: [27, 8]
+    Matter: SteelIngot
+  - At: [27, 7]
+    Matter: SteelIngot
+  - At: [27, 16]
+    Matter: SteelIngot
+  - At: [27, 6]
+    Matter: SteelIngot
+  - At: [26, 16]
+    Matter: SteelIngot
+  - At: [26, 6]
+    Matter: SteelIngot
+  - At: [25, 16]
+    Matter: SteelIngot
+  - At: [25, 6]
+    Matter: SteelIngot
+  - At: [24, 16]
+    Matter: SteelIngot
+  - At: [24, 6]
+    Matter: SteelIngot
+  - At: [23, 16]
+    Matter: SteelIngot
+  - At: [23, 6]
+    Matter: SteelIngot
+  Door:
+  - At: [12, 12]
+    Matter: SteelIngot
+  - At: [22, 12]
+    Matter: SteelIngot
+  ShipCore:
+  - At: [16, 16]
+  CryoTank:
+  - At: [23, 7]
+  - At: [25, 7]

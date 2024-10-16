@@ -20,7 +20,8 @@
         "Items",
         "Modding.API",
         "Units",
-        "Tasks"
+        "Tasks",
+        "Construction"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

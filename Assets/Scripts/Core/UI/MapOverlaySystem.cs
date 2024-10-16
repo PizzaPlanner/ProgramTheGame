@@ -23,6 +23,24 @@ namespace Core
         uint _tickGroupRunMarker;
         bool _shouldUpdateTexture;
 
+        protected virtual bool ShouldUpdateTexture()
+        {
+            // Update texture 1 tick after TickBasedSystemGroup ran to spread load on big maps
+            var tickGroupVersion = World.GetExistingSystemManaged<TickBasedSystemGroup>().LastTick;
+            if (tickGroupVersion != _tickGroupRunMarker)
+            {
+                _tickGroupRunMarker = tickGroupVersion;
+                _shouldUpdateTexture = true;
+                return false;
+            }
+            else if (_shouldUpdateTexture)
+            {
+                _shouldUpdateTexture = false;
+                return true;
+            }
+            return false;
+        }
+
         protected override void OnStopRunning()
         {
             base.OnStopRunning();
@@ -80,24 +98,16 @@ namespace Core
             var ltw = SystemAPI.GetComponent<LocalToWorld>(gridEntity);
             _overlay.transform.position = GridStructure.LocalToWorld(ltw, bounds.Center);
             _overlay.transform.rotation = ltw.Rotation;
-
-            // Update texture 1 tick after TickBasedSystemGroup ran to spread load on big maps
-            var tickGroupVersion = World.GetExistingSystemManaged<TickBasedSystemGroup>().LastTick;
-            if (tickGroupVersion != _tickGroupRunMarker)
-            {
-                _tickGroupRunMarker = tickGroupVersion;
-                _shouldUpdateTexture = true;
-            }
-            else if (_shouldUpdateTexture)
-            {
-                SetPixels(gridEntity, _texture, bounds);
-                _texture.Apply();
-                _shouldUpdateTexture = false;
-            }
             
             CellAtCursor = GridStructure.CursorToCell(ltw);
             var mouseLocationRelative = CellAtCursor - bounds.Min;
             SetOverlayMarkerLocation(mouseLocationRelative);
+            
+            if (ShouldUpdateTexture())
+            {
+                SetPixels(gridEntity, _texture, bounds);
+                _texture.Apply();
+            }
         }
         
         protected abstract void SetPixels(Entity gridEntity, Texture2D texture, GridBounds bounds);

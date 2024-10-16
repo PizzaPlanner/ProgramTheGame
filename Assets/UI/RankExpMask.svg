@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="100%" height="100%" viewBox="0 0 66 35" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:square;stroke-linejoin:round;stroke-miterlimit:1;">
+    <g transform="matrix(1,0,0,1,-30,-282)">
+        <g transform="matrix(-0.618489,7.5743e-17,-1.02065e-16,-0.833426,218.241,539.965)">
+            <g id="RankExpMask">
+                <path d="M199.072,267.539L302.928,267.539L302.949,309.524L199.051,309.524L199.072,267.539Z" style="fill:none;"/>
+                <clipPath id="_clip1">
+                    <path d="M199.072,267.539L302.928,267.539L302.949,309.524L199.051,309.524L199.072,267.539Z"/>
+                </clipPath>
+                <g clip-path="url(#_clip1)">
+                    <g id="RankExpMask1" serif:id="RankExpMask" transform="matrix(-1.97614,-1.39666e-16,2.42008e-16,-1.14046,624.491,547.394)">
+                        <path d="M216,215L189,240L162,215" style="fill:none;stroke:white;stroke-width:7.61px;"/>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

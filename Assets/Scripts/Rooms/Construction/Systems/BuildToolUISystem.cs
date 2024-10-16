@@ -66,7 +66,6 @@ partial class BuildToolUISystem : MapOverlaySystem<BuildTool>
         var ghostQuery = GetEntityQuery(typeof(CurrentGhost), typeof(Building), typeof(Parent));
         if (!ghostQuery.IsEmptyIgnoreFilter)
         {
-            var canDrag = false;
             var root = Entity.Null;
             var entities = ghostQuery.ToEntityArray(Allocator.Temp);
             var parents = ghostQuery.ToComponentDataArray<Parent>(Allocator.Temp);
@@ -75,7 +74,6 @@ partial class BuildToolUISystem : MapOverlaySystem<BuildTool>
                 if (!SystemAPI.HasComponent<CurrentGhost>(parents[i].Value))
                 {
                     root = entities[i];
-                    canDrag = SystemAPI.GetComponent<Building>(root).DraggableDimension != PlacementType.Single;
                 }
             }
             
@@ -114,15 +112,7 @@ partial class BuildToolUISystem : MapOverlaySystem<BuildTool>
                 if (!BuildTool.PlaceBuilding.inProgress)
                     DragArea.Min = pointedCell;
                 
-                if (root != Entity.Null && !canDrag)
-                {
-                    var trw = SystemAPI.GetComponentRW<LocalTransform>(root);
-                    trw.ValueRW.Position = GridStructure.CellToLocal(DragArea.Min);
-                    var grb = SystemAPI.GetComponentRW<GridBounds>(root);
-                    grb.ValueRW.Min = DragArea.Min; 
-                    DragArea.Max = DragArea.Min;
-                }
-                else if (math.any(pointedCell != DragArea.Max))
+                if (math.any(pointedCell != DragArea.Max))
                 {
                     DragArea.Max = pointedCell;
                     var delta = new GridBounds
@@ -132,7 +122,9 @@ partial class BuildToolUISystem : MapOverlaySystem<BuildTool>
                     };
                     ClearPreview(ecb);
                     var dragType = SystemAPI.GetComponent<Building>(root).DraggableDimension;
-                    if(dragType == PlacementType.Rectangle)
+                    if(dragType == PlacementType.Single)
+                        PlacePreview(DragArea.Max, ecb);
+                    else if(dragType == PlacementType.Rectangle)
                         for(int x = delta.Min.x; x <= delta.Max.x; x++)
                         for(int y = delta.Min.y; y <= delta.Max.y; y++)
                             PlacePreview(new int2(x,y), ecb);

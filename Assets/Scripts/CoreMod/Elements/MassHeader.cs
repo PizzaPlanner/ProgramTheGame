@@ -219,15 +219,16 @@ public unsafe struct MassHeader : IDisposable, IMatterComposition
         }
     }
     
-    public readonly Temperature Temperature
+    public Temperature Temperature
     {
-        get
+        readonly get
         {
             var hc = HeatCapacity;
             if(hc <= 0)
                 return 0;
             return Energy / hc;
         }
+        set => Energy = (ulong)(value * HeatCapacity);
     }
 
     public readonly Mass GetMass(Identifiable id)

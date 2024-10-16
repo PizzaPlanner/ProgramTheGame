@@ -24,7 +24,7 @@ partial struct MassesUpdateJob : IJobEntity
     [ReadOnly] public ComponentLookup<Wall> wallLookup;
     public ComponentLookup<MassModel> massModelLookup;
     public EntityCommandBuffer ecb;
-    void Execute(Entity e, OnGrid onGrid, LocalTransform transform, ref MassData massData)
+    void Execute(Entity e, in OnGrid onGrid, in LocalTransform transform, ref MassData massData)
     {
         if(!massModelLookup.TryGetComponent(onGrid.Grid, out var massModel))
             return;

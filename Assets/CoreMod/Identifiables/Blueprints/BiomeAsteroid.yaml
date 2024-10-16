@@ -1,0 +1,10 @@
+# Blueprint Version 4
+Name: BiomeAsteroid
+Tags: [TagBiome]
+Sample:
+- Type: Cloudy
+  Scale: 7
+  Min: 0.8
+  Parts:
+  - Floor: AsteroidDirt
+    Wall: TileRock

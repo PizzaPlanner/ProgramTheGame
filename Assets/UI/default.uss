@@ -371,6 +371,7 @@ SignalSelectionIdCollection > IntegerField {
 
 UnitTaskList {
     flex-direction: row;
+    flex-wrap: wrap;
 }
 
 UnitTaskList > UnitTaskButton.id-button {
@@ -546,25 +547,72 @@ StatBar > #Bar {
     padding: 2px;
 }
 
+#Needs {
+    flex-direction: row;
+    align-self: flex-start;
+}
+
+#Needs StatBar {
+    background-image: url("project://database/Assets/UI/bg_default.png?fileID=2800000&guid=6fcdc6be826fab74280e89ce24ab0614&type=3#bg_default");
+    -unity-background-image-tint-color: rgb(15, 25, 35);
+    flex-direction: column;
+    margin: 1px;
+}
+
+#Needs > StatBar > .id-button {
+    margin: 4px 4px 0 4px;
+    width: 32px;
+    height: 32px;
+    background-color: rgba(0, 0, 0, 0);
+}
+
+#Needs > StatBar > .id-button > #Frame {
+    display: none;
+}
+
+#Needs > StatBar > #Bar {
+    margin: 0;
+    padding: 1px;
+    height: 6px;
+    background-color: rgba(0, 0, 0, 0);
+}
+
 StatBar > #Bar > #Progress {
     background-color: rgb(150, 180, 125);
     flex-grow: 1;
 }
 
-StatBar#Lungs > #Bar > #Progress {
-    background-color: rgb(104, 136, 180);
+#Needs > StatBar > #Bar > #Progress {
+    background-color: rgb(255, 255, 255);
 }
 
-StatBar#Stomach > #Bar > #Progress {
-    background-color: rgb(10, 166, 104);
+#Needs StatBar.low {
+    -unity-background-image-tint-color: rgb(68, 32, 0);
 }
 
-StatBar.low > #Bar > #Progress {
-    background-color: rgb(180, 50, 35);
+#Needs StatBar.critical {
+    -unity-background-image-tint-color: rgb(82, 0, 0);
 }
 
-StatBar.critical > #Bar > #Progress {
+#Needs StatBar.low > #Bar > #Progress {
+    background-color: rgb(200, 150, 44);
+}
+
+#Needs StatBar.low > .id-button > #Icon {
+    -unity-background-image-tint-color: rgb(200, 150, 44);
+}
+
+#Needs StatBar.critical > #Bar > #Progress {
     background-color: rgb(255, 35, 35);
+}
+
+#Needs StatBar.critical > .id-button > #Icon {
+    -unity-background-image-tint-color: rgb(255, 35, 35);
+}
+
+StatsUI > #Skills {
+    flex-direction: row;
+    justify-content: space-around;
 }
 
 StatsUI > #Stats {
@@ -650,4 +698,78 @@ MassVolumeUI > #MolesContainer > IdentifiableButton > Label {
     position: absolute;
     padding: 2px;
     bottom: -24px;
+}
+
+SkillButton {
+    width: 56px;
+    height: 80px;
+    padding-top: 8px;
+    align-items: center;
+    align-content: center;
+}
+
+SkillButton > PercentProgressBar {
+    background-image: url("project://database/Assets/UI/RankExpMask.svg?fileID=7388822144124034973&guid=d6693b716b0a8624caba28e969e65678&type=3#RankExpMask");
+    height: 21px;
+    width: 42px;
+    margin-bottom: 8px;
+    overflow: hidden;
+}
+
+SkillButton > PercentProgressBar > #Progress {
+    background-color: rgb(25, 200, 60);
+    height: 100%;
+}
+
+SkillButton > .id-button {
+    width: 42px;
+    height: 42px;
+    background-color: rgba(0, 0, 0, 0);
+}
+
+SkillButton > .id-button > #Frame {
+    border-width: 0;
+    overflow: hidden;
+}
+
+SkillButton.rank0 {
+    background-image: url("project://database/Assets/UI/Rank0.svg?fileID=7388822144124034973&guid=be707f2eafa0cb14ead4efc8eb9e725b&type=3#Rank0");
+}
+
+SkillButton.rank1 {
+    background-image: url("project://database/Assets/UI/Rank1.svg?fileID=7388822144124034973&guid=f8b4721f01956da449ad5ae0fc02966d&type=3#Rank1");
+}
+
+SkillButton.rank2 {
+    background-image: url("project://database/Assets/UI/Rank3.svg?fileID=7388822144124034973&guid=e4afa36223fe7ff49b68dad0279e0312&type=3#Rank3");
+}
+
+SkillButton.rank3 {
+    background-image: url("project://database/Assets/UI/Rank3.svg?fileID=7388822144124034973&guid=e4afa36223fe7ff49b68dad0279e0312&type=3#Rank3");
+}
+
+CreateTaskButton { 
+    flex-direction: row;
+}
+CreateTaskButton > SkillButton {
+    width: 36px;
+    height: 48px;
+    padding-top: 2px;
+}
+
+CreateTaskButton .id-button {
+    width: 32px;
+    height: 32px;
+}
+
+CreateTaskButton > SkillButton > PercentProgressBar {
+    display: none;
+}
+
+CreateTaskButton > Button {
+    flex-grow: 1;
+}
+
+MassBeingUI {
+    flex-direction: row;
 }

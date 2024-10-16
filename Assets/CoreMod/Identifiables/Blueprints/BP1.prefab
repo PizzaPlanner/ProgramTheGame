@@ -58,7 +58,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 50b95956a9b94ea29cf798bee75c6913, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  DefinitionYaml: {fileID: 4900000, guid: 3a9a6d6dab35f404d826d61b6decb5da, type: 3}
+  DefinitionYaml: {fileID: 4900000, guid: 5155bb403e2a26f4395474ec877d80a9, type: 3}
 --- !u!114 &3174735954207645279
 MonoBehaviour:
   m_ObjectHideFlags: 0

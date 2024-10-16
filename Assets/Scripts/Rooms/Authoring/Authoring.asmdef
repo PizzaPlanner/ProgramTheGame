@@ -20,7 +20,8 @@
         "Tasks",
         "Elements",
         "Elements.Authoring",
-        "Construction.Systems"
+        "Construction.Systems",
+        "Units.Authoring"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

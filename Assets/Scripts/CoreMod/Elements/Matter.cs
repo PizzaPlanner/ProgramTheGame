@@ -6,7 +6,7 @@ using Unity.Transforms;
 
 public interface IMatterComposition
 {
-    public Temperature Temperature { get; }
+    public Temperature Temperature { get; set; }
     public Mass Mass { get; }
     public ulong Energy { get; set; }
     
@@ -20,6 +20,8 @@ public interface IMatterComposition
         var tempDiff = a.Temperature - b.Temperature;
         if (math.abs(tempDiff) < 0.01f)
             return; 
+        if(a.HeatCapacity == 0 || b.HeatCapacity == 0)
+            return;
         var aTC = a.ThermalConductivity;
         var bTC = b.ThermalConductivity;
         if(aTC == 0 || bTC == 0)

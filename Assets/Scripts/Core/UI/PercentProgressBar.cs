@@ -1,10 +1,18 @@
 ﻿using UnityEngine.UIElements;
 
-public class PercentProgressBar : ProgressBar
+public class PercentProgressBar : VisualElement
 {
+    float _value;
+    public float value
+    {
+        set
+        {
+            _value = value;
+            this.Q("Progress").style.width = new StyleLength(new Length(value * 100, LengthUnit.Percent));
+        }
+    }
     public PercentProgressBar() : base()
     {
-        this.lowValue = 0;
-        this.highValue = 1;
+        Add(new VisualElement(){ name = "Progress"});
     }
 }

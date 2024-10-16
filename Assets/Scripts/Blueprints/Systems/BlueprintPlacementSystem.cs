@@ -17,7 +17,6 @@ partial struct BlueprintPlacementSystem : ISystem
                            .CreateCommandBuffer(state.WorldUnmanaged);
         foreach (var (bp, content, e) in SystemAPI.Query<Blueprint, DynamicBuffer<BlueprintContents>>().WithEntityAccess())
         {
-            Debug.Log($"SPAWNING BP {e} with {content.Length} contents");
             foreach (var part in content)
             {
                 var prefab = part.Prefab.SpawnablePrefab;

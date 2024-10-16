@@ -70,7 +70,7 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
@@ -88,7 +88,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 10c91c86e70c42069cdb1758580e9d3c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Layer: 3
+  Layer: 5
   PlacementType: 3
   Duration: 3
   Size:
@@ -100,6 +100,7 @@ MonoBehaviour:
   - {fileID: 2337124727977563792, guid: 0943a7d7aaf1139489e477a2deb0426a, type: 3}
   - {fileID: -2056211199530363027, guid: 9fbc316f8e8545941811bda52bae3fe0, type: 3}
   OtherMaterials: []
+  DismantleTask: {fileID: 5923588122422854532, guid: e6fbab2b9276e9642a2e14a08ec0aa19, type: 3}
 --- !u!114 &460068120002007332
 MonoBehaviour:
   m_ObjectHideFlags: 0

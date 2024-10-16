@@ -1,4 +1,7 @@
-﻿using Unity.Entities;
+﻿using Identifiables;
+using Identifiables.UI;
+using Unity.Collections;
+using Unity.Entities;
 using UnityEngine.UIElements;
 
 namespace Units
@@ -6,11 +9,6 @@ namespace Units
     [UpdateInGroup(typeof(UISystemGroup))]
     partial class SkillUISystem : SystemBase
     {
-        protected override void OnCreate()
-        {
-            
-        }
-
         protected override void OnUpdate()
         {
             if(!UISystemGroup.TryGet<SelectedUnitElement>(out var ui))
@@ -19,14 +17,69 @@ namespace Units
             var stats = ui.Q<StatsUI>();
             foreach (var (skills, e) in SystemAPI.Query<DynamicBuffer<Skills>>().WithAll<Selected>().WithEntityAccess())
             {
-                foreach(var skill in skills)
-                    stats.AddOrUpdateSkill(skill.Task.DefaultName.Value, skill.Level);
+                for (var i = 0; i < skills.Length; i++)
+                {
+                    stats.AddOrUpdateSkill(i, skills);
+                }
             }
             
             foreach (var (statuses, e) in SystemAPI.Query<DynamicBuffer<Statuses>>().WithAll<Selected>().WithEntityAccess())
             {
                 stats.SetStats(statuses);
             }
+        }
+    }
+
+    public class SkillButton : VisualElement
+    {
+        public NativeArray<Skills> AlreadyLearned;
+        public Identifiable SkillToLearn;
+        IdentifiableButton _skill;
+        PercentProgressBar _progress;
+
+        public Identifiable Skill
+        {
+            set => _skill.Target = value;
+            get => _skill.Target;
+        }
+        
+        public int Rank
+        {
+            set
+            {
+                ClearClassList();
+                AddToClassList($"rank{value}");
+            }
+        }
+
+        public float Progress
+        {
+            set => _progress.value = value;
+        }
+
+        public SkillButton()
+        {
+            Add(_skill = new IdentifiableButton());
+            Add(_progress = new PercentProgressBar());
+            Rank = 0;
+            Progress = 0.6f;
+            RegisterCallback<MouseDownEvent>(OnClicked);
+        }
+
+        void OnClicked<MouseDownEvent>(MouseDownEvent evt)
+        {
+            if(_skill.Target != default)
+                return;
+            SignalSelectionWindow.Show(this, 
+                x => SkillToLearn = x.Target, 
+                new[] { Tag.FromName("TagSkill") },
+                x =>
+                {
+                    foreach(var learned in AlreadyLearned)
+                        if(learned.Task == x.Target)
+                            return false;
+                    return true;
+                });
         }
     }
 }

@@ -1,0 +1,7 @@
+# Blueprint Version 4
+Name: TestPlayfield
+Tags: [TagWorld]
+WorldGen:
+  Blueprint/BiomeAsteroidSmall:
+  - Min: 3
+  - Frequency: 7

@@ -4,14 +4,6 @@ using Unity.Entities;
 
 public struct UnderConstruction : IComponentData { }
 
-public enum BuildingLayer
-{
-    Default,
-    Floor,
-    Door,
-    Wall,
-}
-
 public enum PlacementType
 {
     Single,
@@ -22,6 +14,7 @@ public enum PlacementType
 
 public struct Building : IComponentData
 {
+    public Identifiable DismantleTaskPrefab;
     public BuildingLayer Layer;
     public PlacementType DraggableDimension;
     public float Duration;

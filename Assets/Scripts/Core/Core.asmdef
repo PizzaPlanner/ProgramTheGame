@@ -5,6 +5,7 @@
         "Unity.Entities",
         "Unity.Mathematics",
         "Unity.Transforms",
+        "Unity.Physics",
         "Unity.Burst",
         "Unity.Collections",
         "Unity.Entities.Graphics",

@@ -4,5 +4,3 @@ public struct Unit : IComponentData
 {
     public Entity SpawnedBy;
 }
-
-public struct Infestable : IComponentData { }

@@ -9,7 +9,6 @@ public class DoorAuthoring : MonoBehaviour
         {
             var e = GetEntity(TransformUsageFlags.Renderable);
             AddComponent(e, new Door());
-            AddComponent<Wall>(e);
             AddComponent<DoorStateChange>(e);
             SetComponentEnabled<DoorStateChange>(e, true);
         }

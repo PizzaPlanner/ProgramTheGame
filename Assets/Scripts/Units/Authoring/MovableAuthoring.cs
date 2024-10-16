@@ -12,7 +12,6 @@ public class MovableAuthoring : MonoBehaviour
         {
             var e= GetEntity(TransformUsageFlags.Dynamic);
             AddComponent(e, new Movable{MovementSpeed = authoring.MovementSpeed});
-            AddComponent(e, new CanInteract{RangeSq = authoring.InteractionRange * authoring.InteractionRange});
         }
     }
 }

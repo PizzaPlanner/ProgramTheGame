@@ -12,7 +12,6 @@ GameObject:
   - component: {fileID: 5304243422145376601}
   - component: {fileID: 697860641069326925}
   - component: {fileID: 4408420499178121299}
-  - component: {fileID: -6454724967094217425}
   m_Layer: 0
   m_Name: Stomach
   m_TagString: Untagged
@@ -75,28 +74,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Capacity: 10000
   ConsumptionPerTick: 4
---- !u!114 &-6454724967094217425
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6595311514760627798}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ef0fe2a6e10549e7869df065c04ce3ef, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Values:
-  - Status: {fileID: 5376948982971505563, guid: 187185f79ea85144e9298a1af5fa9741, type: 3}
-    MinValue: 1000
-    MaxValue: 3000
-  - Status: {fileID: 5376948982971505563, guid: 172bcdb91290380469da8f114ae4eed3, type: 3}
-    MinValue: 1000
-    MaxValue: 0
-  - Status: {fileID: 5376948982971505563, guid: 3e857320bc2793649b7d5b6c6ce96da3, type: 3}
-    MinValue: 0
-    MaxValue: 0
 --- !u!114 &-410248543343351266
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -109,7 +86,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6d96781d50c744d5b90125a6e0a230bb, type: 3}
   m_Name: Stomach
   m_EditorClassIdentifier: 
-  Icon: {fileID: 2800000, guid: 57707b3371afc9a49912fc3374b14c8c, type: 3}
+  Icon: {fileID: 2800000, guid: 385d25998e4b24843a191f8461590dbc, type: 3}
   Tags:
   - {fileID: 11400000, guid: a73054e5f649c6c4fbfc5ab867572827, type: 2}
   Reference: {fileID: 5304243422145376601}

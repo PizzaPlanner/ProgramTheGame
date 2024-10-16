@@ -38,9 +38,14 @@ namespace Units
             RequireForUpdate<SelectTool>();
             RequireForUpdate<LocalPlayer>();
         }
-        
-        // InventoryButton _dragFrom;
-        
+
+        protected override void OnStopRunning()
+        {
+            EntityManager.RemoveComponent<HoverIndicator>(GetEntityQuery(typeof(HoverIndicator)));
+            EntityManager.RemoveComponent<Selected>(GetEntityQuery(typeof(Selected)));
+            Tooltip.Hide();
+        }
+
         protected override void OnUpdate()
         {
             if(SystemAPI.HasSingleton<PointerOverUI>())
@@ -77,7 +82,7 @@ namespace Units
                 Hovered = hit.Entity;
                 Tooltip.Show(this, new float2(Input.mousePosition.x, Screen.height - Input.mousePosition.y));
             }
-            if (SelectTool.Select.WasPressedThisFrame() && !IsDragging && Hovered != selected)
+            if (SelectTool.Select.WasPressedThisFrame() && Hovered != selected)
             {
                 if (SystemAPI.HasComponent<Selected>(selected))
                 {
@@ -89,29 +94,14 @@ namespace Units
                     EntityManager.AddComponent<Selected>(selected);
                 }
             }
-            // else if (Hovered != Entity.Null && SelectTool.Select.WasReleasedThisFrame() && _dragFrom != null && SystemAPI.HasBuffer<Inventory>(Hovered))
-            // {
-            //     
-            //     SystemAPI.GetSingleton<TransactionStore>().CreateBuilder
-            //              .Transfer(_dragFrom.Container, _dragFrom.SlotId, Hovered, -1);
-            //     Debug.Log($"Scheduled Transaction from {_dragFrom.Container} to {Hovered}");
-            //     
-            // }
-            else if (Input.GetMouseButtonDown(1) 
+            else if (SelectTool.Deselect.WasPressedThisFrame() 
                      && Hovered != Entity.Null 
                      && selected != Entity.Null)
             {
                 MoveCommandIndicator.Play(hit.Position);
                 SelectionWheel.ShowWheel(Hovered, selected, ref CheckedStateRef);
             }
-                
-            // _dragFrom = null;
         }
-
-        // void OnDragDrop(InventoryButton from, InventoryButton to)
-        // {
-        //     _dragFrom = from;
-        // }
 
         public IEnumerable<VisualElement> TooltipContent
         {

@@ -186,6 +186,7 @@ partial class ShipUISystem : UISystem
             foreach (var (crew, ui) in SystemAPI.Query<DynamicBuffer<Crew>, ShipUI>())
             {
                 ui.SetCrew(crew, EntityManager);
+                Debug.Log($"Update Crew UI");
             }
         
         var cgrid = SystemAPI.GetSingletonRW<CurrentGrid>();

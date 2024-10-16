@@ -2,6 +2,7 @@
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEngine;
 
 namespace Core.Grid
 {
@@ -21,6 +22,11 @@ namespace Core.Grid
             foreach (var (gridMember, ltw, e) in SystemAPI.Query<OnGrid, LocalToWorld>()
                                                              .WithChangeFilter<OnGrid>().WithAll<CrewMember>().WithEntityAccess())
             {
+                if (SystemAPI.HasComponent<Parent>(e) && SystemAPI.GetComponent<Parent>(e).Value == gridMember.Grid)
+                {
+                    Debug.LogWarning($"Skipping CF ongrid reasssign");
+                    continue;
+                }
                 ecb.AddComponent(e, new Parent{Value = gridMember.Grid});
                 if (gridMember.Grid != Entity.Null)
                 {
@@ -38,7 +44,7 @@ namespace Core.Grid
                 }
                 
                 if(gridMember.Grid == Entity.Null)
-                    return;
+                    continue;
                 var crew = SystemAPI.GetBuffer<Crew>(gridMember.Grid);
                 crew.Add(new Crew{Member = e});
             }

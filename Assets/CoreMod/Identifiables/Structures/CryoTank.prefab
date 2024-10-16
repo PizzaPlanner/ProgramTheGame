@@ -13,11 +13,10 @@ GameObject:
   - component: {fileID: 2765234121854664757}
   - component: {fileID: -3324961410386666242}
   - component: {fileID: 460068120002007332}
-  - component: {fileID: 8051497187979809639}
-  - component: {fileID: 391204783856717328}
   - component: {fileID: 5400088794976185110}
   - component: {fileID: -3586789379621802683}
   - component: {fileID: 404759063531143838}
+  - component: {fileID: 2345365422685461337}
   m_Layer: 0
   m_Name: CryoTank
   m_TagString: Untagged
@@ -69,7 +68,7 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
@@ -87,7 +86,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 10c91c86e70c42069cdb1758580e9d3c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Layer: 0
+  Layer: 9
   PlacementType: 0
   Duration: 5
   Size:
@@ -95,6 +94,7 @@ MonoBehaviour:
     y: 3
   Variants: []
   OtherMaterials: []
+  DismantleTask: {fileID: 5923588122422854532, guid: e6fbab2b9276e9642a2e14a08ec0aa19, type: 3}
 --- !u!114 &460068120002007332
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -105,39 +105,6 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 68a92fc250ef4511b43df6da7fdcee09, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &8051497187979809639
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3605263813790912188}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 92cc974c227048d0bd792d4a264da34b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Slots:
-  - Item: {fileID: 0}
-    Amount: 0
-    Filter: {fileID: 11400000, guid: 5ed3341e415bbb9438eb586c02aceb3e, type: 2}
-    TransferDirection: 3
-  - Item: {fileID: 0}
-    Amount: 0
-    Filter: {fileID: 0}
-    TransferDirection: 2
---- !u!114 &391204783856717328
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3605263813790912188}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1cc657df93b545efbc9716b6ea082c21, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!114 &5400088794976185110
@@ -164,8 +131,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 254b6251f92e4b669d65b58bbf777796, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Skills:
-  - {fileID: 0}
+  Skills: []
 --- !u!114 &404759063531143838
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -181,6 +147,19 @@ MonoBehaviour:
   Element: {fileID: 8326911734933721908, guid: 7c1cb09404340334e81d4ef17cdeab0b, type: 3}
   Mass: 5000
   Temperature: 22
+--- !u!114 &2345365422685461337
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3605263813790912188}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3ec06aff623c43e9aa775d273b47d5ba, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  UnitType: {fileID: -5942648328531916514, guid: fe71f9291d76e91448981a843cbca2ca, type: 3}
 --- !u!1001 &5036409010753363716
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -259,7 +238,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6d96781d50c744d5b90125a6e0a230bb, type: 3}
   m_Name: CryoTank
   m_EditorClassIdentifier: 
-  Icon: {fileID: 2800000, guid: 8219a59b70658324eb8eb357c176f57a, type: 3}
+  Icon: {fileID: 2800000, guid: 27ca32c1f6077cc42bbae4a7a36f20fb, type: 3}
   Tags:
   - {fileID: 11400000, guid: 104929695e765034f914bd930682c889, type: 2}
   Reference: {fileID: -5380242976130347905}

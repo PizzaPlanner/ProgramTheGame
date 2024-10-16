@@ -35,25 +35,26 @@ partial struct BuildSystem : ISystem
             roomModel.Initialize();
             ecbNow.AddComponent(e, roomModel);
         }
+
+        // Fix links to deferred entities
+        foreach (var (baked, e) in SystemAPI.Query<BakedIntoRoomMap>().WithAll<PendingResolveRoomMap>()
+                                            .WithEntityAccess())
+        {
+            var roomModel = SystemAPI.GetComponentRW<RoomModel>(baked.Grid);
+            roomModel.ValueRW.AddOccupiedArea(baked.Area, baked.Layer, e);
+        }
         
         // Clean up occupations
         foreach (var (baked, e) in SystemAPI.Query<BakedIntoRoomMap>().WithNone<LocalToWorld>().WithEntityAccess())
         {
             var roomModel = SystemAPI.GetComponentRW<RoomModel>(baked.Grid);
             var massModel = SystemAPI.GetComponentRW<MassModel>(baked.Grid);
-            roomModel.ValueRW.FreeOccupation(baked.Area);
+            roomModel.ValueRW.FreeOccupation(baked.Area, baked.Layer);
             ecb.RemoveComponent<BakedIntoRoomMap>(e);
-            if (SystemAPI.HasComponent<Wall>(e))
-            {
-                roomModel.ValueRW.RemoveWall(baked.Area);
+            if (baked.Layer.IsWall())
                 massModel.ValueRW.RemoveWall(baked.Area);
-            }
-            else if (SystemAPI.HasComponent<Floor>(e))
-            {
+            else if (baked.Layer.IsFloor())
                 massModel.ValueRW.RemoveFloor(baked.Area);
-            }
-            else
-                roomModel.ValueRW.FreeOccupation(baked.Area);
         }
         ecbNow.Playback(state.EntityManager);
         
@@ -64,6 +65,7 @@ partial struct BuildSystem : ISystem
         }.Run();
         
         state.EntityManager.RemoveComponent<PendingGridUpdate>(state.GetEntityQuery(ComponentType.ReadOnly<PendingGridUpdate>()));
+        state.EntityManager.RemoveComponent<PendingResolveRoomMap>(state.GetEntityQuery(ComponentType.ReadOnly<PendingResolveRoomMap>()));
         
         // Spawn buildings and ghosts based on planned constructions
         new BuildJob()

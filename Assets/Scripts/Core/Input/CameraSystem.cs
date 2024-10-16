@@ -16,6 +16,8 @@ public struct Navigation : IInputActionState
     public static InputAction Zoom => InputActions.For<Navigation>()["Zoom"];
 }
 
+[UpdateInGroup(typeof(PresentationSystemGroup))]
+[UpdateAfter(typeof(InputActionsSystem))]
 partial struct CameraSystem : ISystem
 {
     public struct CameraAnchor : IComponentData

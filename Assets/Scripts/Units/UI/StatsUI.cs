@@ -1,5 +1,6 @@
 ﻿using Identifiables;
 using Identifiables.UI;
+using Units;
 using Unity.Entities;
 using UnityEngine.UIElements;
 
@@ -8,24 +9,35 @@ public class StatsUI : VisualElement
     VisualElement Skills, Needs, Stats;
     public StatsUI()
     {
-        Add(Skills = new VisualElement());
-        Add(Needs = new VisualElement());
+        Add(Skills = new VisualElement(){name = "Skills" });
+        Add(Needs = new VisualElement(){name = "Needs"});
         Add(Stats = new VisualElement(){name = "Stats"});
     }
     
-    public void AddOrUpdateSkill(string stat, float value)
+    public void AddOrUpdateSkill(int i, DynamicBuffer<Skills> skills)
     {
-        var bar = this.Q<StatBar>(stat);
-        if(bar == null)
-            Skills.Add(bar = new StatBar(stat));
-        bar.value = value;
+        ref var skill = ref skills.ElementAt(i);
+        while(i >= Skills.childCount)
+            Skills.Add(new SkillButton());
+        var btn = (Skills[i] as SkillButton)!;
+        if (btn.SkillToLearn != default)
+        {
+            if(skill.Task == default)
+                skill.Task = btn.SkillToLearn;
+            skill.Level++;
+            btn.SkillToLearn = default;
+        }
+        btn.Rank = skill.Level;
+        btn.Skill = skill.Task;
+        btn.AlreadyLearned = skills.AsNativeArray();
     }
     
     public void AddOrUpdateNeed(string stat, float value, float maxValue, bool isLow, bool isCritical)
     {
         var bar = this.Q<StatBar>(stat);
-        if(bar == null)
+        if (bar == null)
             Needs.Add(bar = new StatBar(stat));
+        
         bar.maxValue = maxValue;
         bar.value = value;
         if (isCritical)

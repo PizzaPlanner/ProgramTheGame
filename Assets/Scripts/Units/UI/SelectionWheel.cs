@@ -40,8 +40,6 @@ namespace Units
             wheel._origin = origin;
             wheel._target = target;
             var skills = state.EntityManager.GetBuffer<Skills>(origin, true).AsNativeArray();
-            if (state.EntityManager.HasComponent<Infestable>(target))
-                wheel.Add(new SelectionWheelButton("InfestTask", skills, state.EntityManager, wheel.OnClick));
             if (state.EntityManager.HasComponent<Mineable>(target))
                 wheel.Add(new SelectionWheelButton("MineTask", skills, state.EntityManager, wheel.OnClick));
             if (state.EntityManager.HasComponent<UnderConstruction>(target))

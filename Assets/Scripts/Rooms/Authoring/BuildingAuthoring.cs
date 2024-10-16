@@ -21,6 +21,7 @@ public class BuildingAuthoring : MonoBehaviour
     public int2 Size;
     public ElementAuthoring[] Variants;
     public CraftingRecipeAuthoring.ItemWithAmount[] OtherMaterials;
+    public TaskAuthoring DismantleTask;
     
     class BuildingBaker : Baker<BuildingAuthoring>
     {
@@ -29,6 +30,7 @@ public class BuildingAuthoring : MonoBehaviour
             var self = GetEntity(TransformUsageFlags.Dynamic);
             AddComponent(self, new Building
             {
+                DismantleTaskPrefab = authoring.DismantleTask == null ? default : authoring.DismantleTask.GetComponent<IdentifieableAuthoring>().Id,
                 Layer = authoring.Layer,
                 DraggableDimension = authoring.PlacementType,
                 Duration = authoring.Duration
@@ -38,9 +40,9 @@ public class BuildingAuthoring : MonoBehaviour
                 Min = int2.zero,
                 Max = authoring.Size
             });
-            if(authoring.Layer == BuildingLayer.Floor)
+            if(authoring.Layer.HasFlag(BuildingLayer.FloorLevel))
                 AddComponent<Floor>(self);
-            if(authoring.Layer == BuildingLayer.Wall)
+            if(authoring.Layer.HasFlag(BuildingLayer.Wall))
                 AddComponent<Wall>(self);
             var variants = AddBuffer<BuildingVariant>(self);
             foreach (var variant in authoring.Variants)
