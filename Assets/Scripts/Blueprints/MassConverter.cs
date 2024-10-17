@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using YamlDotNet.Core;
 using YamlDotNet.Core.Events;
 using YamlDotNet.Serialization;
@@ -11,12 +12,12 @@ public sealed class MassConverter : IYamlTypeConverter
     {
         var value = parser.Consume<Scalar>().Value;
         if(value.ToLower().EndsWith("kg"))
-            return (Mass)(uint.Parse(value[..^2]) * 1000);
+            return (Mass)(uint)(float.Parse(value[..^2], NumberStyles.Any, CultureInfo.InvariantCulture) * 1000u);
         if(value.ToLower().EndsWith("t"))
-            return (Mass)(uint.Parse(value[..^1]) * 1000 * 1000);
+            return (Mass)(uint)(float.Parse(value[..^1], NumberStyles.Any, CultureInfo.InvariantCulture) * 1000u * 1000u);
         if(value.ToLower().EndsWith("g"))
-            return (Mass)(uint.Parse(value[..^1]));
-        return (Mass)(uint.Parse(value));
+            return (Mass)(uint)(float.Parse(value[..^1], NumberStyles.Any, CultureInfo.InvariantCulture));
+        return (Mass)(uint)float.Parse(value);
     }
     
     public void WriteYaml(IEmitter emitter, object value, Type type)

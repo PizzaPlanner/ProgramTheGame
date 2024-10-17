@@ -1,8 +1,11 @@
-﻿using Unity.Collections;
+﻿using Core;
+using Unity.Collections;
 using Unity.Entities;
+using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
+[UpdateAfter(typeof(TransformSystemGroup))]
 partial struct BlueprintPlacementSystem : ISystem
 {
     public void OnCreate(ref SystemState state)
@@ -10,16 +13,35 @@ partial struct BlueprintPlacementSystem : ISystem
         state.RequireForUpdate<IdentifiablesMappingGroup.Loaded>();
         state.RequireForUpdate<Blueprint>();
     }
-
+    
     public void OnUpdate(ref SystemState state)
     {
         var ecb = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>()
                            .CreateCommandBuffer(state.WorldUnmanaged);
+        
+        // Only run immediately after a tick, so added gases will not spread due to constructions happening a frame late
+        if(!state.World.GetExistingSystemManaged<TickBasedSystemGroup>().TickedThisFrame)
+            return;
+        
         foreach (var (bp, content, e) in SystemAPI.Query<Blueprint, DynamicBuffer<BlueprintContents>>().WithEntityAccess())
         {
+            if(!SystemAPI.HasComponent<MassModel>(bp.BuildOn) || !SystemAPI.HasComponent<RoomModel>(bp.BuildOn))
+                continue;
+            ecb.DestroyEntity(e);
             foreach (var part in content)
             {
                 var prefab = part.Prefab.SpawnablePrefab;
+                if (SystemAPI.HasComponent<Element>(prefab))
+                {
+                    ref var massModel = ref SystemAPI.GetComponentRW<MassModel>(bp.BuildOn).ValueRW;
+                    var cell = part.Location + bp.Offset;
+                    if(!massModel.IsInBounds(cell))
+                        massModel.Resize(math.min(massModel.Min, cell), math.max(massModel.Max, cell));
+                    ref var cellRW = ref massModel.AbsoluteCellRW(cell);
+                    var massData = MassData.From(part.Prefab, part.Matter.Mass, part.Matter.Temperature);
+                    cellRW.Add(massData);
+                    continue;
+                }
                 if (!SystemAPI.HasComponent<MassData>(prefab))
                 {
                     Debug.LogWarning($"Blueprint {e}: Skipped {part.Prefab}: Unspawnable");
@@ -63,7 +85,6 @@ partial struct BlueprintPlacementSystem : ISystem
                     Debug.LogWarning($"Blueprint {e}: Skipped {part.Prefab}: Cannot be spawned via Blueprint");
                 }
             }
-            ecb.DestroyEntity(e);
         }
     }
 }

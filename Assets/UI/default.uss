@@ -683,6 +683,13 @@ SelectionMarker Label {
     text-shadow: 1px 1px 3px rgb(0, 0, 0);
 }
 
+ActiveOrderMarker > .id-button {
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    top: -12px;
+}
+
 MassVolumeUI > #MolesContainer {
     flex-direction: row;
 }

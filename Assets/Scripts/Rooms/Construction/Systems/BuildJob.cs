@@ -53,7 +53,7 @@ public partial struct BuildJob : IJobEntity
             return;
         }
         
-        if (Rooms.IsOccupied(area, building.Layer) && planned.Mode != ConstructionMode.PlacementPreview)
+        if (Rooms.IsOccupiedForPlacement(area, building.Layer) && planned.Mode != ConstructionMode.PlacementPreview)
         {
             Debug.LogWarning($"Discarded pending part in invalid or occupied area {bounds.Min}/{bounds.Max}");
             return;
@@ -71,7 +71,7 @@ public partial struct BuildJob : IJobEntity
         if (isPlacing)
         {
             ecb.AddComponent<CurrentGhost>(entity);
-            ecb.AddComponent(entity, new Ghost { GhostBuildable = !Rooms.IsOccupied(area, building.Layer) });
+            ecb.AddComponent(entity, new Ghost { GhostBuildable = !Rooms.IsOccupiedForPlacement(area, building.Layer) });
             ecb.SetComponent(entity, planned.Materials);
             ecb.RemoveComponent<MassData>(entity);
         }
@@ -103,21 +103,10 @@ public partial struct BuildJob : IJobEntity
             
             ecb.AddComponent(entity, new BakedIntoRoomMap { Grid = planned.Parent, Area = area, Layer = building.Layer });
             Rooms.ReserveOccupiedArea(area, building.Layer, entity, ecb);
-            switch (building.Layer)
-            {
-                case BuildingLayer.Wall:
-                {
-                    massModel.AddWall(area);
-                    break;
-                }
-                case BuildingLayer.FloorLevel:
-                {
-                    massModel.AddFloor(area);
-                    break;
-                }
-                default:
-                    break;
-            }
+            if (building.Layer.IsWall())
+                massModel.AddWall(area);
+            if(building.Layer.IsFloor())
+                massModel.AddFloor(area);
         }
     }
 

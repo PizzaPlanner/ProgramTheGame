@@ -6,7 +6,6 @@ using UnityEngine;
 
 public struct CurrentGrid : IComponentData
 {
-    public float CameraOffset;
     public Entity Grid;
     public Entity LastGrid;
 }

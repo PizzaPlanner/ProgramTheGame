@@ -19,7 +19,8 @@
         "Core",
         "Construction.Systems",
         "Units",
-        "Blueprints"
+        "Blueprints",
+        "Rooms"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

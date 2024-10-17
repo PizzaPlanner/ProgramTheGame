@@ -186,7 +186,6 @@ partial class ShipUISystem : UISystem
             foreach (var (crew, ui) in SystemAPI.Query<DynamicBuffer<Crew>, ShipUI>())
             {
                 ui.SetCrew(crew, EntityManager);
-                Debug.Log($"Update Crew UI");
             }
         
         var cgrid = SystemAPI.GetSingletonRW<CurrentGrid>();
@@ -197,10 +196,7 @@ partial class ShipUISystem : UISystem
         {
             ui.UpdateCrewTasks(crew, taskLookup, todosLookup, idLookup);
             if (ui.wantCurrent)
-            {
                 cgrid.ValueRW.Grid = e;
-                Camera.main.transform.position = SystemAPI.GetComponent<LocalToWorld>(e).Position - (float3)(Camera.main.transform.forward * 10);
-            }
             ui.wantCurrent = false;
 
             var canSwitch = SystemAPI.TryGetSingletonEntity<Selected>(out var selected);

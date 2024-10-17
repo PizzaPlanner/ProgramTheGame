@@ -9,7 +9,7 @@ using UnityEngine;
 public class BuildingVariantAuthoring
 {
     public ElementAuthoring Element;
-    public uint Mass;
+    public Material OverrideMaterial;
 }
 
 [RequireComponent(typeof(DefaultMassAuthoring))]
@@ -19,7 +19,7 @@ public class BuildingAuthoring : MonoBehaviour
     public PlacementType PlacementType; 
     public float Duration;
     public int2 Size;
-    public ElementAuthoring[] Variants;
+    public BuildingVariantAuthoring[] Variants;
     public CraftingRecipeAuthoring.ItemWithAmount[] OtherMaterials;
     public TaskAuthoring DismantleTask;
     
@@ -49,7 +49,7 @@ public class BuildingAuthoring : MonoBehaviour
             {
                 variants.Add(new BuildingVariant()
                 {
-                    Element = variant.GetComponent<IdentifieableAuthoring>().Id,
+                    Element = variant.Element.GetComponent<IdentifieableAuthoring>().Id,
                     RequiredMass = authoring.GetComponent<DefaultMassAuthoring>().Mass
                 });
             }

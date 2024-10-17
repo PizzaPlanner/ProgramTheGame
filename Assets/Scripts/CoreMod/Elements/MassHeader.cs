@@ -77,16 +77,12 @@ public struct MassData : IComponentData, IMatterComposition
 
 public unsafe struct MassHeader : IDisposable, IMatterComposition
 {
+    [Flags]
     public enum VolumeType : byte
     {
-        Unknown = 0,
-        Tile,
-        TileExposedToSpace,
-        TileBlocked,
-        Entity,
-        Wall,
-        InStorage,
-        InPipe
+        ExposedToSpace = 0,
+        Contained = 1,
+        Blocked = 2
     }
     internal byte ElementCount;
     byte Capacity;
@@ -114,7 +110,7 @@ public unsafe struct MassHeader : IDisposable, IMatterComposition
         _data = null;
         Capacity = 0;
         ElementCount = 0;
-        HeaderType = VolumeType.Unknown;
+        HeaderType = VolumeType.ExposedToSpace;
         _residualEnergy = 0;
         if (allocator == Allocator.Persistent)
         {

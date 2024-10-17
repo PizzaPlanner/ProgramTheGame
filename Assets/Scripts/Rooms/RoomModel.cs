@@ -62,8 +62,13 @@ public struct RoomModel : IDisposable, ICleanupComponentData
     {
         return OccupiedCells.TryGetValue(new Location{ Cell = location, Layer = layer }, out e) && e.Index >= 0;
     }
-    
-    public bool IsOccupied(GridBounds bounds, BuildingLayer layer)
+
+    public bool IsOccupied(int2 location, BuildingLayer layer)
+    {
+        return OccupiedCells.ContainsKey(new Location{ Cell = location, Layer = layer });
+    }
+
+    public bool IsOccupiedForPlacement(GridBounds bounds, BuildingLayer layer)
     {
         for (int x = bounds.Min.x; x <= bounds.Max.x; x++)
         for (int y = bounds.Min.y; y <= bounds.Max.y; y++)
@@ -77,6 +82,17 @@ public struct RoomModel : IDisposable, ICleanupComponentData
                OccupiedCells.ContainsKey(new Location{ Cell = new int2(x, y), Layer = (layer & ~BuildingLayer.Building) | BuildingLayer.Wall }))
                 return true;
             
+        }
+        return false;
+    }
+    
+    public bool IsOccupied(GridBounds bounds, BuildingLayer layer)
+    {
+        for (int x = bounds.Min.x; x <= bounds.Max.x; x++)
+        for (int y = bounds.Min.y; y <= bounds.Max.y; y++)
+        {
+            if(IsOccupied(new int2(x, y), layer))
+                return true;
         }
         return false;
     }

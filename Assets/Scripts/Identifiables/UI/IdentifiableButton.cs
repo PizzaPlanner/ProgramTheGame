@@ -31,6 +31,7 @@ namespace Identifiables.UI
         {
             set
             {
+                if(value == _id) return;
                 this.Q("Icon").style.backgroundImage = value.Icon;
                 _id = value;
             } 

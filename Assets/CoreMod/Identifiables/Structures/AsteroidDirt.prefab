@@ -20,7 +20,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &3724361011114579357
 Transform:
@@ -70,8 +70,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 0.02, z: 1}
-  m_Center: {x: 0.5, y: 0, z: 0.5}
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0.5, y: -0.5, z: 0.5}
 --- !u!114 &5847055320590538475
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -90,9 +90,9 @@ MonoBehaviour:
   Size:
     x: 0
     y: 0
-  Variants:
-  - {fileID: 6240678538308625820, guid: c42440416ef81f64693865cd7d1325d9, type: 3}
+  Variants: []
   OtherMaterials: []
+  DismantleTask: {fileID: 0}
 --- !u!114 &6240614005169757687
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -143,12 +143,13 @@ GameObject:
   - component: {fileID: 7977948188482622666}
   - component: {fileID: 2693840097381638447}
   - component: {fileID: 1345775796922449262}
+  - component: {fileID: 5611071338511790571}
   m_Layer: 0
   m_Name: GameObject
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &7977948188482622666
 Transform:
@@ -218,6 +219,25 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &5611071338511790571
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4209637067704815615}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56da88057f954997a6fc9648a57976e0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Variants:
+  - Element: {fileID: 6240678538308625820, guid: c42440416ef81f64693865cd7d1325d9, type: 3}
+    OverrideMaterial: {fileID: 2100000, guid: f058a4f48735b844e8b83ba02a688d17, type: 2}
+  - Element: {fileID: -7047243780222175833, guid: 2d08fe34d7e1b34488389132c02bd97d, type: 3}
+    OverrideMaterial: {fileID: 2100000, guid: cb947f40fcbb08a4e9da4016b921f8bd, type: 2}
+  - Element: {fileID: -4396463729144112910, guid: c86f9a9dd4cefcd4eac232e99d6b93be, type: 3}
+    OverrideMaterial: {fileID: 2100000, guid: e1be44706c69eaf4da4a2591c65727d8, type: 2}
 --- !u!114 &7823240410255373372
 MonoBehaviour:
   m_ObjectHideFlags: 0

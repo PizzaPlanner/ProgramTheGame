@@ -98,7 +98,6 @@ public partial struct MassUpdateSystem : ISystem
         
         foreach (var (grid, e) in SystemAPI.Query<GridStructure>().WithNone<MassModel>().WithEntityAccess())
         {
-            Debug.Log($"{e} has no MassModel, adding...");
             var model = new MassModel(new NativeElementMap(Allocator.Persistent, grid.BoundsMin, grid.BoundsMax));
             ecb.AddComponent(e, model);
         }

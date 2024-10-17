@@ -47,9 +47,9 @@ partial class SelectionVisualsSystem : SystemBase
             foreach (var link in linkedEntities)
             {
                 var e = link.Value;
-                if (!EntityManager.HasComponent<WorldRenderBounds>(e)) 
+                if (!SystemAPI.HasComponent<WorldRenderBounds>(e) || SystemAPI.HasComponent<Disabled>(e))
                     continue;
-                aabb.Encapsulate(EntityManager.GetComponentData<WorldRenderBounds>(e).Value);
+                aabb.Encapsulate(SystemAPI.GetComponent<WorldRenderBounds>(e).Value);
             }
         }
         _marker.Update(aabb);

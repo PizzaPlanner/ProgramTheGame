@@ -6,6 +6,7 @@ namespace Core
     public partial class TickBasedSystemGroup : ComponentSystemGroup
     {
         public uint LastTick;
+        public bool TickedThisFrame;
         protected override void OnCreate()
         {
             base.OnCreate();
@@ -15,7 +16,11 @@ namespace Core
         protected override void OnUpdate()
         {
             if (!RateManager.ShouldGroupUpdate(this))
+            {
+                TickedThisFrame = false;
                 return;
+            }
+            TickedThisFrame = true;
             var rm = RateManager;
             RateManager = null;
             base.OnUpdate();

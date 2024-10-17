@@ -16,9 +16,9 @@ public enum BuildingLayer : byte
 public static class BuildingLayerExtensions
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool IsWall(this BuildingLayer layer) => (layer & BuildingLayer.Wall) != 0;
+    public static bool IsWall(this BuildingLayer layer) => (layer & BuildingLayer.Wall) > BuildingLayer.FloorLevel;
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool IsBuilding(this BuildingLayer layer) => (layer & BuildingLayer.Building) != 0;
+    public static bool IsBuilding(this BuildingLayer layer) => (layer & BuildingLayer.Building) > BuildingLayer.FloorLevel;
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool IsFloor(this BuildingLayer layer) => (layer & BuildingLayer.FloorLevel) != 0;
 }

@@ -86,7 +86,7 @@ public unsafe struct NativeElementMap : IDisposable
             }
             else
             {
-                header = new MassHeader(Allocator.Persistent) { HeaderType = MassHeader.VolumeType.TileExposedToSpace };
+                header = new MassHeader(Allocator.Persistent) { HeaderType = MassHeader.VolumeType.ExposedToSpace };
             }
             UnsafeUtility.WriteArrayElement(newTiles, indexInNew, header);
         }
@@ -116,7 +116,7 @@ public unsafe struct NativeElementMap : IDisposable
     public void VentToSpace(int2 location)
     {
         ref var cell = ref CellRW(location);
-        if(cell.HeaderType != MassHeader.VolumeType.TileExposedToSpace)
+        if(cell.HeaderType != MassHeader.VolumeType.ExposedToSpace)
             return;
 
         cell.Reduce(0.7f);
@@ -127,8 +127,7 @@ public unsafe struct NativeElementMap : IDisposable
         ref var a = ref CellRW(cellA);
         ref var b = ref CellRW(cellB);
 
-        if (a.HeaderType == MassHeader.VolumeType.TileBlocked ||
-            b.HeaderType == MassHeader.VolumeType.TileBlocked) 
+        if (((a.HeaderType | b.HeaderType) & MassHeader.VolumeType.Blocked) != 0) 
             return;
         
         IMatterComposition.ExchangeGas(ref a, ref b);

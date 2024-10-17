@@ -110,13 +110,13 @@ public struct MassModel : ICleanupComponentData
     public void AddFloor(int2 cell)
     {
         ref var header = ref _map.CellRW(cell);
-        header.HeaderType = MassHeader.VolumeType.Tile;
+        header.HeaderType |= MassHeader.VolumeType.Contained;
     }
     
     public void RemoveFloor(int2 cell)
     {
         ref var header = ref _map.CellRW(cell);
-        header.HeaderType = MassHeader.VolumeType.TileExposedToSpace;
+        header.HeaderType &= ~MassHeader.VolumeType.Contained;
     }
     
     public void AddWall(int2 cell)
@@ -127,14 +127,14 @@ public struct MassModel : ICleanupComponentData
             // TODO: Move somewhere else?
         }
         header.Dispose();
-        header.HeaderType = MassHeader.VolumeType.TileBlocked;
+        header.HeaderType |= MassHeader.VolumeType.Blocked;
     }
 
     public void RemoveWall(int2 cell)
     {
         ref var header = ref _map.CellRW(cell);
         header.Dispose();
-        header.HeaderType = MassHeader.VolumeType.TileExposedToSpace;
+        header.HeaderType &= ~MassHeader.VolumeType.Blocked;
     }
     
     public void AddWall(GridBounds area)

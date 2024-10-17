@@ -32,7 +32,10 @@ partial struct CameraSystem : ISystem
     public void OnCreate(ref SystemState state)
     {
         state.RequireForUpdate<CurrentGrid>();
-        state.EntityManager.CreateSingleton<CameraAnchor>();
+        state.EntityManager.CreateSingleton(new CameraAnchor
+        {
+            CameraDistance = 20
+        });
     }
 
     public void OnUpdate(ref SystemState state)
