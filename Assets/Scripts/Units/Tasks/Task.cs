@@ -14,6 +14,11 @@ namespace Units
         public Entity CrewProvider;
     }
 
+    public struct TaskUniquenessGroup : IComponentData
+    {
+        public Identifiable Group;
+    }
+
     public struct TaskProgress : IComponentData
     {
         public float Value;

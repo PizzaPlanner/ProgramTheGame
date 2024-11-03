@@ -14,9 +14,17 @@ namespace Units
             if(!UISystemGroup.TryGet<SelectedUnitElement>(out var ui))
                 return;
             
-            var stats = ui.Q<StatsUI>();
             foreach (var (skills, e) in SystemAPI.Query<DynamicBuffer<Skills>>().WithAll<Selected>().WithEntityAccess())
             {
+                if(skills.Length == 0)
+                    continue;
+                
+                var stats = ui.Q<SkillsUI>();
+                if (stats == null)
+                {
+                    stats = new SkillsUI();
+                    ui.Add("Skills", stats);
+                }
                 for (var i = 0; i < skills.Length; i++)
                 {
                     stats.AddOrUpdateSkill(i, skills);
@@ -25,6 +33,12 @@ namespace Units
             
             foreach (var (statuses, e) in SystemAPI.Query<DynamicBuffer<Statuses>>().WithAll<Selected>().WithEntityAccess())
             {
+                var stats = ui.Q<StatsUI>();
+                if (stats == null)
+                {
+                    stats = new StatsUI();
+                    ui.Add("Stats", stats);
+                }
                 stats.SetStats(statuses);
             }
         }

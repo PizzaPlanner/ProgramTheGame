@@ -3,7 +3,6 @@ using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using UnityEngine;
 
-[UpdateAfter(typeof(ItemTransactionSystem))]
 partial struct LogisticsNetworkSystem : ISystem
 {
     public void OnDestroy(ref SystemState state)

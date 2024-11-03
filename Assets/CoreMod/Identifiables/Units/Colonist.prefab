@@ -14,13 +14,14 @@ GameObject:
   - component: {fileID: -5051792277644950993}
   - component: {fileID: 308810711421503718}
   - component: {fileID: -5942648328531916514}
-  - component: {fileID: -7689310197241819319}
   - component: {fileID: -3090611205173747411}
   - component: {fileID: 8613357524837469950}
   - component: {fileID: -2951002237845520496}
   - component: {fileID: 6380801680489609840}
+  - component: {fileID: 5937198235935566398}
+  - component: {fileID: -7911197205485802768}
   m_Layer: 0
-  m_Name: SomeSignaller
+  m_Name: Colonist
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -72,7 +73,7 @@ MonoBehaviour:
     Amount: 20
     Filter: {fileID: 0}
     TransferDirection: 3
-  - Item: {fileID: 697860641069326925, guid: aa15cc5d2b71c944a99d1c63081ef804, type: 3}
+  - Item: {fileID: 0}
     Amount: 1
     Filter: {fileID: 0}
     TransferDirection: 3
@@ -80,11 +81,11 @@ MonoBehaviour:
     Amount: 0
     Filter: {fileID: 0}
     TransferDirection: 3
-  - Item: {fileID: 697860641069326925, guid: 4f6ba04be66bbe74d97951674e60e6f1, type: 3}
+  - Item: {fileID: 0}
     Amount: 1
     Filter: {fileID: 0}
     TransferDirection: 3
-  - Item: {fileID: 697860641069326925, guid: 504aeee71de98494ab364a6584647f1f, type: 3}
+  - Item: {fileID: 0}
     Amount: 1
     Filter: {fileID: 0}
     TransferDirection: 3
@@ -142,18 +143,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MaxStackSize: 1
---- !u!114 &-7689310197241819319
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6595311514760627798}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 23a64bd7ff35410c9752960049af6e35, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &-3090611205173747411
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -182,6 +171,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 95998217de5b60447bd429bfa0df00c5, type: 2}
   - {fileID: 11400000, guid: ee1aa82b79177af42a355d0c62c3393b, type: 2}
   - {fileID: 11400000, guid: e8f376a95809ff8408a58b8dc4e95b5b, type: 2}
+  - {fileID: 0}
 --- !u!114 &-2951002237845520496
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -209,6 +199,37 @@ MonoBehaviour:
   Element: {fileID: 8326911734933721908, guid: 7c1cb09404340334e81d4ef17cdeab0b, type: 3}
   Mass: 100
   Temperature: 25
+--- !u!114 &5937198235935566398
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6595311514760627798}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc2f2258cce24d95b74495ca541496ad, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Capacity: 500
+  ConsumptionPerTick: 8
+  ProductionPerTick: 2
+  Inhales: {fileID: -7111768246366295914, guid: ee7ceab8787fcfc40b1b387446cf825e, type: 3}
+  Exhales: {fileID: -7111768246366295914, guid: 681d5423487fa9440bf32b0b5d28a013, type: 3}
+--- !u!114 &-7911197205485802768
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6595311514760627798}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fc6ac18379764fd68180130445ad1229, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Capacity: 2000
+  ConsumptionPerTick: 2
 --- !u!1001 &3072592592385049462
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -340,7 +361,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6d96781d50c744d5b90125a6e0a230bb, type: 3}
-  m_Name: SomeSignaller
+  m_Name: Colonist
   m_EditorClassIdentifier: 
   Icon: {fileID: 2800000, guid: a63b34d18b030cd42b209382699f433b, type: 3}
   Tags:

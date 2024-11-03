@@ -10,9 +10,11 @@ namespace Core.Equipment
         public int Fullness;
         public int Capacity;
         public int ConsumptionPerTick;
+        public int ProductionPerTick;
+        public Identifiable Inhales, Exhales;
         
-        public bool IsLowOxygen => Fullness < 4000;
-        public bool IsSuffocating => Fullness < 2000;
+        public bool IsLowOxygen => Fullness < Capacity * 0.75f;
+        public bool IsSuffocating => Fullness < Capacity * 0.3f;
     }
     
     [UpdateInGroup(typeof(TickBasedSystemGroup))]
@@ -27,8 +29,7 @@ namespace Core.Equipment
 
         public void OnUpdate(ref SystemState state)
         {
-            var oxygen = Identifiable.FromName("Oxygen");
-            foreach (var (lungs, stats, onGrid, transform) in SystemAPI.Query<RefRW<Lungs>, DynamicBuffer<Statuses>, OnGrid, LocalTransform>())
+            foreach (var (lungs, stats, onGrid, body, transform) in SystemAPI.Query<RefRW<Lungs>, DynamicBuffer<Statuses>, OnGrid, MassData, LocalTransform>())
             {
                 if(onGrid.Grid == default) // TODO: Should not happen
                     continue;
@@ -36,16 +37,18 @@ namespace Core.Equipment
                 var wasSuffocating = lungs.ValueRW.IsSuffocating;
                 var gridMasses = SystemAPI.GetComponentRW<MassModel>(onGrid.Grid);
                 var cellInGrid = GridStructure.LocalToCell(transform.Position);
-                if (lungs.ValueRW.Fullness < lungs.ValueRW.Capacity - lungs.ValueRW.ConsumptionPerTick 
-                    && !gridMasses.ValueRW.IsEmpty(cellInGrid) 
-                    && gridMasses.ValueRW.AbsoluteCell(cellInGrid).GetMass(oxygen) > lungs.ValueRW.ConsumptionPerTick * 2)
+                if (gridMasses.ValueRW.IsEmpty(cellInGrid)
+                    || gridMasses.ValueRW.AbsoluteCell(cellInGrid).GetMass(lungs.ValueRW.Inhales) <
+                    lungs.ValueRW.ConsumptionPerTick * 2)
                 {
-                    lungs.ValueRW.Fullness += lungs.ValueRW.ConsumptionPerTick;
-                    gridMasses.ValueRW.AbsoluteCellRW(cellInGrid).Remove(oxygen, (uint)lungs.ValueRW.ConsumptionPerTick, out _); // TODO: Heat up by output energy
+                    lungs.ValueRW.Fullness = math.max(0, lungs.ValueRW.Fullness - lungs.ValueRW.ConsumptionPerTick);
                 }
                 else
                 {
-                    lungs.ValueRW.Fullness = math.max(0, lungs.ValueRW.Fullness - lungs.ValueRW.ConsumptionPerTick);
+                    lungs.ValueRW.Fullness = math.min(lungs.ValueRW.Capacity, lungs.ValueRW.Fullness + lungs.ValueRW.ConsumptionPerTick);
+                    ref var cellRW = ref gridMasses.ValueRW.AbsoluteCellRW(cellInGrid);
+                    cellRW.Remove(lungs.ValueRW.Inhales, (uint)lungs.ValueRW.ConsumptionPerTick, out _);
+                    cellRW.Add(MassData.From(lungs.ValueRW.Exhales, (uint)lungs.ValueRW.ProductionPerTick, body.Temperature));
                 }
 
                 if (wasSuffocating && !lungs.ValueRW.IsSuffocating)

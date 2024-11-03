@@ -4,22 +4,14 @@ using Units;
 using Unity.Entities;
 using UnityEngine.UIElements;
 
-public class StatsUI : VisualElement
+public class SkillsUI : VisualElement
 {
-    VisualElement Skills, Needs, Stats;
-    public StatsUI()
-    {
-        Add(Skills = new VisualElement(){name = "Skills" });
-        Add(Needs = new VisualElement(){name = "Needs"});
-        Add(Stats = new VisualElement(){name = "Stats"});
-    }
-    
     public void AddOrUpdateSkill(int i, DynamicBuffer<Skills> skills)
     {
         ref var skill = ref skills.ElementAt(i);
-        while(i >= Skills.childCount)
-            Skills.Add(new SkillButton());
-        var btn = (Skills[i] as SkillButton)!;
+        while(i >= childCount)
+            Add(new SkillButton());
+        var btn = (this[i] as SkillButton)!;
         if (btn.SkillToLearn != default)
         {
             if(skill.Task == default)
@@ -31,6 +23,18 @@ public class StatsUI : VisualElement
         btn.Skill = skill.Task;
         btn.AlreadyLearned = skills.AsNativeArray();
     }
+}
+
+public class StatsUI : VisualElement
+{
+    VisualElement Needs, Stats;
+    public StatsUI()
+    {
+        Add(Needs = new VisualElement(){name = "Needs"});
+        Add(Stats = new VisualElement(){name = "Stats"});
+    }
+    
+    
     
     public void AddOrUpdateNeed(string stat, float value, float maxValue, bool isLow, bool isCritical)
     {

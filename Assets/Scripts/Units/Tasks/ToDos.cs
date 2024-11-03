@@ -16,15 +16,25 @@ namespace Units
     public struct ToDos : IBufferElementData
     {
         public Entity Task;
-        public TaskOutcome Status;
+        public ToDoStatus Status;
         public int PerceivedPriority;
+        
+        public bool IsIgnored => PerceivedPriority == int.MinValue;
 
-        public ToDos Prioritize(ComponentLookup<Task> rtl, ComponentLookup<TaskRequirement> requirementsLookup, DynamicBuffer<Skills> skills)
+        public ToDos Prioritize(Entity executor, ComponentLookup<Task> rtl, ComponentLookup<TaskRequirement> requirementsLookup, DynamicBuffer<Skills> skills)
         {
             PerceivedPriority = int.MinValue;
+            if(Status == ToDoStatus.Unreachable)
+                return this;
             if (!rtl.TryGetComponent(Task, out var task) || task.Target == Entity.Null)
             {
-                Status = TaskOutcome.MissingRequirement;
+                Status = ToDoStatus.MissingRequirement;
+                return this;
+            }
+
+            if (task.Executor != executor && task.Executor != Entity.Null)
+            {
+                Status = ToDoStatus.DoneBySomeoneElse;
                 return this;
             }
             if(!requirementsLookup.TryGetComponent(Task, out var requirement))
@@ -37,15 +47,15 @@ namespace Units
 
                 if (PerceivedPriority != 0)
                 {
-                    Status = TaskOutcome.LackingSkill;
+                    Status = ToDoStatus.LackingSkill;
                     return this;
                 }
             }
             
             PerceivedPriority = Status switch
             {
-                TaskOutcome.Approaching => 10,
-                TaskOutcome.Working => 25,
+                ToDoStatus.Approaching => 10,
+                ToDoStatus.Working => 25,
                 _ => 0
             };
 
@@ -54,10 +64,11 @@ namespace Units
         }
     }
 
-    public enum TaskOutcome
+    public enum ToDoStatus
     {
         Requested,
         UnderConsideration,
+        DoneBySomeoneElse,
         Approaching,
         Working,
         LackingSkill,

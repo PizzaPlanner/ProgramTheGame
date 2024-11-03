@@ -384,6 +384,10 @@ UnitTaskList > UnitTaskButton.id-button.first {
     width: 32px;
 }
 
+UnitTaskList > UnitTaskButton.ignored {
+    opacity: 0.5;
+}
+
 UnitTaskButton.cancelable > #Frame {
     border-color: rgb(230, 255, 27);
 }
@@ -610,7 +614,7 @@ StatBar > #Bar > #Progress {
     -unity-background-image-tint-color: rgb(255, 35, 35);
 }
 
-StatsUI > #Skills {
+SkillsUI {
     flex-direction: row;
     justify-content: space-around;
 }
@@ -779,4 +783,26 @@ CreateTaskButton > Button {
 
 MassBeingUI {
     flex-direction: row;
+}
+
+.unity-base-field:focus Label {
+    color: rgb(255, 255, 255);
+}
+
+IntegerField > Label {
+    min-width: 20px;
+}
+
+IntegerInput {
+    background-color: rgb(20, 30, 40);
+    border-color: rgb(40, 60, 100);
+}
+
+Button {
+    background-color: rgb(20, 30, 40);
+    border-color: rgb(40, 60, 100);
+}
+
+Button:hover {
+    background-color: rgb(25, 40, 55);
 }

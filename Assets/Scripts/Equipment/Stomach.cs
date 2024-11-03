@@ -10,8 +10,8 @@ namespace Core.Equipment
         public int Fullness;
         public int Capacity;
         public int ConsumptionPerTick;
-        public bool IsHungry => Fullness < 1000;
-        public bool IsStarving => Fullness < 500;
+        public bool IsHungry => Fullness < Capacity * 0.5f;
+        public bool IsStarving => Fullness < Capacity * 0.2f;
     }
     
     [UpdateInGroup(typeof(TickBasedSystemGroup))]

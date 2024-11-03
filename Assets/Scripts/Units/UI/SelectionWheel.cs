@@ -66,7 +66,7 @@ namespace Units
             _entityManager.GetBuffer<TaskProvider>(_origin).Add(new TaskProvider{Task = todo});
             _entityManager.GetBuffer<ToDos>(_origin).Insert(0, new ToDos()
             {
-                Status = TaskOutcome.Requested,
+                Status = ToDoStatus.Requested,
                 Task = todo
             });
             UISystemGroup.Hide(this);

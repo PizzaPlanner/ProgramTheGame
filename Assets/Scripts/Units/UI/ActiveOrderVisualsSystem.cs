@@ -13,6 +13,12 @@ using UnityEngine.UIElements;
 [UpdateInGroup(typeof(UISystemGroup))]
 partial class ActiveOrderVisualsSystem : SystemBase
 {
+    protected override void OnStopRunning()
+    {
+        base.OnStopRunning();
+        EntityManager.RemoveComponent<AOMComp>(GetEntityQuery(typeof(AOMComp)));
+    }
+
     protected override void OnUpdate()
     {
         var ecb = new EntityCommandBuffer(Allocator.Temp);
@@ -25,7 +31,7 @@ partial class ActiveOrderVisualsSystem : SystemBase
                 continue;
             }
             
-            var aabb = new MinMaxAABB { Min = float.MaxValue, Max = float.MinValue};
+            var aabb = new MinMaxAABB { Min = float.MaxValue, Max = float.MinValue };
             foreach (var link in linkedEntities)
             {
                 var e = link.Value;
@@ -49,16 +55,17 @@ partial class ActiveOrderVisualsSystem : SystemBase
         }
         ecb.Playback(EntityManager);
     }
+    
+    class AOMComp : IComponentData, IDisposable
+    {
+        public ActiveOrderMarker Marker;
+        public void Dispose()
+        {
+            Marker.RemoveFromHierarchy();
+        }
+    } 
 }
 
-public class AOMComp : IComponentData, IDisposable
-{
-    public ActiveOrderMarker Marker;
-    public void Dispose()
-    {
-        Marker.RemoveFromHierarchy();
-    }
-} 
 
 public class ActiveOrderMarker : VisualElement
 {

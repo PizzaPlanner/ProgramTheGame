@@ -89,7 +89,7 @@ partial struct CrafterSystem : ISystem
         ecb.AppendToBuffer(crafter, new ToDos
         {
             Task = craftTask,
-            Status = TaskOutcome.Requested
+            Status = ToDoStatus.Requested
         });
         ecb.SetComponent(craftTask, new TaskProgress
         {

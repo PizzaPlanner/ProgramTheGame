@@ -14,13 +14,14 @@ namespace Units
         [ReadOnly] public BufferLookup<Crew> crewLookup;
         void Execute(Entity t, [ChunkIndexInQuery] int sortKey, ref Task task, ref DynamicBuffer<TaskProvider> dependencies, ref DynamicBuffer<BroadcastStatus> radio)
         {
+            // Remove Tasks of destroyed Origin
             if (!storageLookup.Exists(task.Origin))
             {
-                Debug.Log($"Remove dangling task {t} of destroyed {task.Origin}");
                 ecb.DestroyEntity(sortKey, t);
                 return;
             }
 
+            // All dependencies must be completed before requesting
             for (var i = 0; i < dependencies.Length; i++)
             {
                 var dependency = dependencies[i];
@@ -29,6 +30,7 @@ namespace Units
                 dependencies.RemoveAt(i--);
             }
 
+            // Try assign new Executor
             if (task.Executor == Entity.Null)
             {
                 if(!crewLookup.TryGetBuffer(task.CrewProvider, out var crew))
@@ -36,65 +38,44 @@ namespace Units
                 
                 foreach (var member in crew)
                 {
-                    var todos = todoLookup[member.Member];
+                    if(!todoLookup.TryGetBuffer(member.Member, out var todos))
+                        continue;
                     if (IsTaskTopToDo(todos, t))
                     {
                         task.Executor = member.Member;
-                        break;
+                        return;
                     }
 
-                    if (Request(t, todos))
-                    {
-                        todos.Add(new ToDos
-                        {
-                            Task = t,
-                            Status = TaskOutcome.Requested
-                        });
-                        radio.Add(new BroadcastStatus{BroadcastedTo = member.Member});
-                    }
-                }
-            }
-
-            if (task.IsPersonalized)
-               return; 
-
-            if (VerifyExecutor(t, task))
-            {
-                foreach (var entity in radio)
-                {
-                    if(entity.BroadcastedTo == task.Executor)
+                    if (IsRequested(t, todos)) 
                         continue;
                     
-                    var todos = todoLookup[entity.BroadcastedTo];
-                    for (int i = 0; i < todos.Length; i++)
-                        if (todos[i].Task == t)
-                        {
-                            todos.RemoveAt(i--);
-                        }
+                    // Accessing other's buffers from parallel job; do not add to buffer directly! 
+                    ecb.AppendToBuffer(sortKey, member.Member, new ToDos
+                    {
+                        Task = t,
+                        Status = ToDoStatus.Requested
+                    });
+                    radio.Add(new BroadcastStatus{BroadcastedTo = member.Member});
                 }
             }
-            else 
+            // Executor got distracted, reassign task next frame
+            else if (!task.IsPersonalized && !IsTaskTopToDoForExecutor(t, task))
                 task.Executor = Entity.Null;
+            
         }
 
-        bool VerifyExecutor(Entity t, Task task)
-        {
-            if(!todoLookup.TryGetBuffer(task.Executor, out var todos))
-                return false;
-            return IsTaskTopToDo(todos, t);
-        }
-
+        bool IsTaskTopToDoForExecutor(Entity t, Task task) => todoLookup.TryGetBuffer(task.Executor, out var todos) && IsTaskTopToDo(todos, t);
         bool IsTaskTopToDo(DynamicBuffer<ToDos> todos, Entity task) => todos.Length > 0 
                                                                        && todos[0].Task == task 
-                                                                       && todos[0].Status is TaskOutcome.Approaching or TaskOutcome.Working;
+                                                                       && todos[0].Status is ToDoStatus.Approaching or ToDoStatus.Working;
 
-        bool Request(Entity t, DynamicBuffer<ToDos> todos)
+        bool IsRequested(Entity t, DynamicBuffer<ToDos> todos)
         {
             var tdna = todos.AsNativeArray();
             foreach(var entry in tdna)
                 if(entry.Task == t)
-                    return false;
-            return true;
+                    return true;
+            return false;
         }
     }
 }

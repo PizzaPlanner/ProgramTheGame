@@ -99,7 +99,10 @@ partial class DeconstructToolUISystem : MapOverlaySystem<DeconstructTool>
                    ecb.DestroyEntity(entity);
                 else
                 {
-                    var task = ecb.Instantiate(SystemAPI.GetComponent<Building>(entity).DismantleTaskPrefab.SpawnablePrefab);
+                    var dismantleTask = SystemAPI.GetComponent<Building>(entity).DismantleTaskPrefab;
+                    if(dismantleTask.SpawnablePrefab == default)
+                        continue;
+                    var task = ecb.Instantiate(dismantleTask.SpawnablePrefab);
                     ecb.SetComponent(task, new Task
                     {
                         Target = entity,

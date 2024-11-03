@@ -1,20 +1,35 @@
 ﻿using Core;
 using Core.Grid;
 using Identifiables;
+using Unity.Collections;
 using Unity.Entities;
+using UnityEngine;
 
 namespace Units
 {
-    partial struct ClearDanglingDependenciesJob : IJobEntity
+    partial struct TaskProviderConsistencyJob : IJobEntity
     {
-        public EntityStorageInfoLookup storageLookup;
+        [ReadOnly] public ComponentLookup<TaskUniquenessGroup> uniquenessLookup;
+        [NativeDisableParallelForRestriction]
+        public ComponentLookup<Task> taskLookup;
         void Execute(ref DynamicBuffer<TaskProvider> providedTasks)
         {
+            var presentUids = new NativeHashSet<Identifiable>(4, Allocator.Temp);
             for (var i = 0; i < providedTasks.Length; i++)
             {
-                var task = providedTasks[i];
-                if (!storageLookup.Exists(task.Task))
+                if (!taskLookup.TryGetComponent(providedTasks[i].Task, out var task))
+                {
                     providedTasks.RemoveAt(i--);
+                    continue;
+                }
+
+                if (uniquenessLookup.TryGetComponent(providedTasks[i].Task, out var uid) && !presentUids.Add(uid.Group))
+                {
+                    task.Origin = Entity.Null;
+                    taskLookup[providedTasks[i].Task] = task;
+                    providedTasks.RemoveAt(i--);
+                    continue;
+                }
             }
         }
     }
@@ -24,22 +39,21 @@ namespace Units
     {
         public void OnUpdate(ref SystemState state)
         {
-            var taskLookup = SystemAPI.GetComponentLookup<Task>(true);
+            var taskLookup = SystemAPI.GetComponentLookup<Task>(false);
             var requirementLookup = SystemAPI.GetComponentLookup<TaskRequirement>(true);
             var crewLookup = SystemAPI.GetBufferLookup<Crew>(true);
             var ecb = SystemAPI.GetSingleton<BeginInitializationEntityCommandBufferSystem.Singleton>()
                                .CreateCommandBuffer(state.WorldUnmanaged).AsParallelWriter();
-            var idleTask = Identifiable.FromName("IdleTask").SpawnablePrefab;
-            state.Dependency = new ClearDanglingDependenciesJob
+            state.Dependency = new TaskProviderConsistencyJob
             {
-                storageLookup = SystemAPI.GetEntityStorageInfoLookup()
+                taskLookup = taskLookup,
+                uniquenessLookup = SystemAPI.GetComponentLookup<TaskUniquenessGroup>(true),
             }.ScheduleParallel(state.Dependency);
             state.Dependency = new TodoPriorityJob
             {
                 requirementLookup = requirementLookup,
                 taskLookup = taskLookup,
-                workedOnLookup = SystemAPI.GetComponentLookup<WorkedOn>(),
-                IdleTaskPrefab = idleTask
+                workedOnLookup = SystemAPI.GetComponentLookup<WorkedOn>()
             }.Schedule(state.Dependency);
             state.Dependency = new TaskRequestJob
             {

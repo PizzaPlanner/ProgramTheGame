@@ -60,6 +60,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   RequiredSkill: {fileID: 11400000, guid: 6dae1c92723d5f7429104963823790e0, type: 2}
   MinSkillLevel: 1
+  UniquenessGroupIdentifier: {fileID: 5923588122422854532}
 --- !u!114 &5657100428946741286
 MonoBehaviour:
   m_ObjectHideFlags: 0

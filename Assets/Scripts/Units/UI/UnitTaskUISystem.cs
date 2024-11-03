@@ -65,6 +65,12 @@ namespace Units
                 {
                     var btn = new UnitTaskButton();
                     Add(btn);
+                    if(i == 0)
+                        btn.AddToClassList("first");
+                    if(todos[i].IsIgnored)
+                        btn.AddToClassList("ignored");
+                    else
+                        btn.RemoveFromClassList("ignored");
                 }
                 
                 var taskBtn = this[q] as UnitTaskButton;
@@ -154,7 +160,7 @@ namespace Units
                         {
                             var todo = todoLookup[target.BroadcastedTo][i];
                             if (todo.Task == taskEntity)
-                                text += $"{idLookup[target.BroadcastedTo].DefaultName}: {todo.Status} (#{i})\n";
+                                text += $"{idLookup[target.BroadcastedTo].DefaultName}: {todo.Status}{(todo.IsIgnored ? "" : $"(#{i})")}\n";
                         }
 
                     if(text == "")

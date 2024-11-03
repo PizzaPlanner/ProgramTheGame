@@ -22,8 +22,8 @@ public readonly struct Mass
         if(_value < 2000)
             return $"{_value}g";
         if(_value < 2000000)
-            return $"{(_value / 1000f).ToString(CultureInfo.InvariantCulture)}kg";
-        return $"{(_value / 1000000f).ToString(CultureInfo.InvariantCulture)}T";
+            return $"{(_value / 1000f).ToString("F1", CultureInfo.InvariantCulture)}kg";
+        return $"{(_value / 1000000f).ToString("F1", CultureInfo.InvariantCulture)}T";
     }
 }
 

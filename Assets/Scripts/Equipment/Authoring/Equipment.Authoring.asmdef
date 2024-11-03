@@ -19,7 +19,8 @@
         "Core",
         "Identifiables.Authoring",
         "Units.Authoring",
-        "Tasks"
+        "Tasks",
+        "Elements.Authoring"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

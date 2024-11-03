@@ -2,7 +2,6 @@
 using Unity.Entities;
 using Unity.Transforms;
 
-[UpdateAfter(typeof(ItemTransactionSystem))]
 [UpdateBefore(typeof(TransformSystemGroup))]
 partial struct UnitUnpackingSystem : ISystem
 {

@@ -48,7 +48,6 @@ namespace Units
             style.display = DisplayStyle.Flex;
             Icon.Target = em.GetComponentData<Identifiable>(selected);
             Name.text = Icon.Target.DefaultName.Value;
-            Add("Stats", new StatsUI());
         }
 
         [UpdateInGroup(typeof(UISystemGroup))]
