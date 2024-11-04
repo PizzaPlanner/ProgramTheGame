@@ -103,32 +103,30 @@ partial struct ItemOrderTaskJob : IJobEntity
     
     void Execute(Entity e, ref Task task, ref ItemOrderTask order, ref TaskProgress progress, EnabledRefRW<WorkedOn> workedOn, DynamicBuffer<BroadcastStatus> broadcastedTo)
     {
-        // Find best executor
-        if (task.Executor == Entity.Null)
+        // Find best target
+        if (task.Target == Entity.Null)
         {
-            if (!ltwLookup.TryGetComponent(order.Requester, out var requesterLtw))
+            if (!networkLookup.TryGetComponent(order.ParentGrid, out var network))
             {
-                Debug.LogError($"Item Order towards {order.Requester} has no LTW");
+                Debug.LogError("Logistics member must have Grid!");
                 return;
             }
-            var bestExec = Entity.Null;
-            var bestDistance = float.PositiveInfinity;
-            foreach(var target in broadcastedTo)
-                if (todoLookup[target.BroadcastedTo].Length > 0 && todoLookup[target.BroadcastedTo][0].Task == e && ltwLookup.TryGetComponent(target.BroadcastedTo, out var targetLtw))
-                {
-                    var distSq = math.distancesq(targetLtw.Position, requesterLtw.Position);
-                    if(distSq >= bestDistance)
-                        continue;
-                    bestExec = target.BroadcastedTo;
-                    bestDistance = distSq;
-                }
-            if(bestExec == Entity.Null)
+            ItemPickupTaskJob.AssignTarget(ref task, order.Requester, ltwLookup, network, order.Item, order.Amount);
+            if(task.Target != Entity.Null)
+                order.State = OrderState.Assigned;
+            else
                 return;
-            task.Executor = bestExec;
-            order.State = OrderState.Requested;
         }
+        
+        if (task.Executor == Entity.Null)
+            return;
 
-        var inventory = inventoryLookup[task.Executor];
+        if (!inventoryLookup.TryGetBuffer(task.Executor, out var inventory))
+        {
+            Debug.LogError($"ItemOrder executor {task.Executor} has no inventory");
+            return;
+        }
+            
         if (inventory.Contains(order.Item, order.Amount))
         {
             task.Target = order.Requester;
@@ -143,18 +141,11 @@ partial struct ItemOrderTaskJob : IJobEntity
             transactionStore.CreateBuilder.Transfer(task.Executor, order.Requester, order.Item, order.Amount);
             ecb.DestroyEntity(e);
         }
-        else if(order.State != OrderState.Assigned)
+        else if (order.State is OrderState.Assigned && !inventoryLookup[task.Target].Contains(order.Item, order.Amount))
         {
-            if (!networkLookup.TryGetComponent(order.ParentGrid, out var network))
-            {
-                Debug.LogError("Logistics member must have Grid!");
-                return;
-            }
-            ItemPickupTaskJob.AssignTarget(ref task, task.Executor, ltwLookup, network, order.Item, order.Amount);
-            if(task.Target != Entity.Null)
-                order.State = OrderState.Assigned;
-            else
-                Debug.Log($"Could not fill order for {order.Amount}x{order.Item}");
+            order.State = OrderState.Requested;
+            task.Target = default;
+            return;
         }
         else if (workedOn.ValueRO)
         {

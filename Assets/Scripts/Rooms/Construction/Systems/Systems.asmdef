@@ -23,7 +23,8 @@
         "Construction",
         "Units.UI",
         "Units",
-        "Elements"
+        "Elements",
+        "Items.UI"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

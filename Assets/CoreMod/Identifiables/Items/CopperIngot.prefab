@@ -78,8 +78,8 @@ MonoBehaviour:
   ColdStateChange:
     Temperature: 0
     ToElement: {fileID: 0}
-  ThermalConductivity: 0
-  SpecificHeatCapacity: 0
+  ThermalConductivity: 22
+  SpecificHeatCapacity: 1.2
   Color: {r: 0, g: 0, b: 0, a: 0}
 --- !u!114 &-2831835008503104095
 MonoBehaviour:

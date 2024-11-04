@@ -42,22 +42,32 @@ public class BuildingAuthoring : MonoBehaviour
             });
             if(authoring.Layer.HasFlag(BuildingLayer.FloorLevel))
                 AddComponent<Floor>(self);
-            if(authoring.Layer.HasFlag(BuildingLayer.Wall))
+            if (authoring.Layer.HasFlag(BuildingLayer.Wall))
+            {
                 AddComponent<Wall>(self);
+                AddBuffer<WallNeighbours>(self);
+            }
             var variants = AddBuffer<BuildingVariant>(self);
+            var defaultMass = authoring.GetComponent<DefaultMassAuthoring>();
             foreach (var variant in authoring.Variants)
             {
                 variants.Add(new BuildingVariant()
                 {
                     Element = variant.Element.GetComponent<IdentifieableAuthoring>().Id,
-                    RequiredMass = authoring.GetComponent<DefaultMassAuthoring>().Mass
+                    RequiredMass = defaultMass.Mass
                 });
             }
             var currentVariant = new ConstructionVariant
             {
-                BuildMaterials = new FixedList64Bytes<ConstructionVariant.Material>()
+                BuildMaterials = new FixedList64Bytes<ConstructionVariant.Material>(),
             };
-            currentVariant.BuildMaterials.Add(new ConstructionVariant.Material{ Amount = authoring.GetComponent<DefaultMassAuthoring>().Mass, IsVariant = true });
+            if(variants.Length > 0)
+                currentVariant.BuildMaterials.Add(new ConstructionVariant.Material
+                {
+                    Item = variants[0].Element,
+                    Amount = variants[0].RequiredMass, 
+                    IsVariant = true
+                });
             foreach(var mat in authoring.OtherMaterials)
                 currentVariant.BuildMaterials.Add(new ConstructionVariant.Material
                 {

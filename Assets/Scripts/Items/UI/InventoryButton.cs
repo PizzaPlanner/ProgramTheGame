@@ -109,6 +109,7 @@ public partial class InventoryButton : ItemButton
 
     const string RESERVED_PLUS_COLOR = "#44ff00";
     const string RESERVED_MINUS_COLOR = "#ff4400";
+    
     public void ApplyReservations(DynamicBuffer<ReservedSpace> reservations)
     {
         var reservedType = Slot.Type;

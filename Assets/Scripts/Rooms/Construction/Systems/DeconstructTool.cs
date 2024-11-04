@@ -73,10 +73,11 @@ partial class DeconstructToolUISystem : MapOverlaySystem<DeconstructTool>
         base.OnStartRunning();
         // Dont accidentally flag leftovers for deconstruction
         EntityManager.RemoveComponent<HoverIndicator>(GetEntityQuery(typeof(HoverIndicator)));
+        wantDrag = false;
     }
 
     bool IsInstantRemove => _window.Q<Toggle>("InstantRemove").value;
-    
+    bool wantDrag;
     protected override void OnUpdate()
     {
         base.OnUpdate();
@@ -90,7 +91,7 @@ partial class DeconstructToolUISystem : MapOverlaySystem<DeconstructTool>
             if(elm.value)
                 layersToCheck.Add(elm.Layer);
         }
-        if (DeconstructTool.Select.WasReleasedThisFrame())
+        if (DeconstructTool.Select.WasCompletedThisFrame() && wantDrag)
         {
             if(pointerOverUI && math.all(DragArea.Max == DragArea.Min))
                 return;
@@ -114,9 +115,12 @@ partial class DeconstructToolUISystem : MapOverlaySystem<DeconstructTool>
                 }
             DragArea.Max = CellAtCursor + 1;
         }
+
+        if (!DeconstructTool.Select.IsInProgress())
+            wantDrag = false;
         
-        if (!DeconstructTool.Select.inProgress)
-            DragArea.Min = CellAtCursor;
+        if(DeconstructTool.Select.WasPressedThisFrame())
+            wantDrag = true;
         
         if (math.any(CellAtCursor != DragArea.Max))
         {
@@ -124,6 +128,8 @@ partial class DeconstructToolUISystem : MapOverlaySystem<DeconstructTool>
             EntityManager.RemoveComponent<HoverIndicator>(GetEntityQuery(typeof(HoverIndicator)));
             var roomModel = SystemAPI.GetComponentRW<RoomModel>(GridEntity);
             DragArea.Max = CellAtCursor;
+            if(!wantDrag)
+                DragArea.Min = CellAtCursor;
             var min = math.min(DragArea.Min, DragArea.Max);
             var max = math.max(DragArea.Min, DragArea.Max);
             for (int x = min.x; x <= max.x; x++)

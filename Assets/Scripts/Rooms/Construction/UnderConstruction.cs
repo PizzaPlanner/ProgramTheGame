@@ -23,3 +23,8 @@ public struct Building : IComponentData
 public struct Floor : IComponentData { }
 
 public struct Wall : IComponentData { }
+
+public struct WallNeighbours : IBufferElementData
+{
+    public Entity OtherWall;
+}

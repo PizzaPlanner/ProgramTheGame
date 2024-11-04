@@ -95,11 +95,9 @@ namespace Units
                 }
             }
             else if (SelectTool.Deselect.WasPressedThisFrame() 
-                     && Hovered != Entity.Null 
                      && selected != Entity.Null)
             {
-                MoveCommandIndicator.Play(hit.Position);
-                SelectionWheel.ShowWheel(Hovered, selected, ref CheckedStateRef);
+                EntityManager.RemoveComponent<Selected>(selected);
             }
         }
 

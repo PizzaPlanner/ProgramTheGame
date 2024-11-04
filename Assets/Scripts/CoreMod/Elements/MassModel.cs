@@ -122,6 +122,8 @@ public struct MassModel : ICleanupComponentData
     public void AddWall(int2 cell)
     {
         ref var header = ref _map.CellRW(cell);
+        if((header.HeaderType & MassHeader.VolumeType.Blocked) != 0)
+            return;
         for (int i = 0; i < header.ElementCount; i++)
         {
             // TODO: Move somewhere else?
@@ -133,6 +135,8 @@ public struct MassModel : ICleanupComponentData
     public void RemoveWall(int2 cell)
     {
         ref var header = ref _map.CellRW(cell);
+        if((header.HeaderType & MassHeader.VolumeType.Blocked) == 0)
+            return;
         header.Dispose();
         header.HeaderType &= ~MassHeader.VolumeType.Blocked;
     }

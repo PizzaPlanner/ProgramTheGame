@@ -129,6 +129,8 @@ public partial struct BuildJob : IJobEntity
         ecb.AddComponent(entity, new UnderConstruction { });
         foreach (var requirement in planned.Materials.BuildMaterials)
         {
+            if(requirement.Item == default)
+                continue;
             var order = ecb.Instantiate(orderTaskPrefab);
             ecb.SetComponent(order, new Task
             {

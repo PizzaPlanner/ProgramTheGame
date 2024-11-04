@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 6513637787785079020}
   - component: {fileID: 5304243422145376601}
   - component: {fileID: 697860641069326925}
-  - component: {fileID: 528339310187562580}
   m_Layer: 0
   m_Name: Motherboard
   m_TagString: Untagged
@@ -60,27 +59,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MaxStackSize: 9999
---- !u!114 &528339310187562580
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6595311514760627798}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 947d04393a95425eb52f96ab38e0ea85, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  HotStateChange:
-    Temperature: 0
-    ToElement: {fileID: 0}
-  ColdStateChange:
-    Temperature: 0
-    ToElement: {fileID: 0}
-  ThermalConductivity: 0
-  SpecificHeatCapacity: 0
-  Color: {r: 0, g: 0, b: 0, a: 0}
 --- !u!114 &176794475722399848
 MonoBehaviour:
   m_ObjectHideFlags: 0

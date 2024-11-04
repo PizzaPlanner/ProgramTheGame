@@ -28,17 +28,18 @@ public interface IMatterComposition
             return;
         var conductivity = 2 * aTC * bTC / (aTC + bTC);
         
+        // T = e / HC
         if (tempDiff > 0)
         {
-            var tempTransferRate = tempDiff / a.Temperature * conductivity * Element.MAX_CONDUCTIVITY_INVERSE * (a.HeatCapacity / b.HeatCapacity);
-            var energyTransfer = (uint)(tempTransferRate * a.Temperature);
+            var tempTransferRate = tempDiff * conductivity * Element.MAX_CONDUCTIVITY_INVERSE;
+            var energyTransfer = (uint)(tempTransferRate * a.HeatCapacity);
             a.Energy -= energyTransfer;
             b.Energy += energyTransfer;
         }
         else
         {
-            var tempTransferRate = -tempDiff / b.Temperature * conductivity * Element.MAX_CONDUCTIVITY_INVERSE * (b.HeatCapacity / a.HeatCapacity);
-            var energyTransfer = (uint)(tempTransferRate * b.Energy);
+            var tempTransferRate = -tempDiff * conductivity * Element.MAX_CONDUCTIVITY_INVERSE;
+            var energyTransfer = (uint)(tempTransferRate * b.HeatCapacity);
             b.Energy -= energyTransfer;
             a.Energy += energyTransfer;
         }

@@ -197,7 +197,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: b1db611d37df5004595836c40e8150e0, type: 2}
+  - {fileID: 2100000, guid: d7a14fdd33ecb1e4a932c17c599120fb, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -233,11 +233,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Variants:
   - Element: {fileID: 6240678538308625820, guid: c42440416ef81f64693865cd7d1325d9, type: 3}
-    OverrideMaterial: {fileID: 2100000, guid: f058a4f48735b844e8b83ba02a688d17, type: 2}
+    OverrideMaterial: {fileID: 2100000, guid: d7a14fdd33ecb1e4a932c17c599120fb, type: 2}
   - Element: {fileID: -7047243780222175833, guid: 2d08fe34d7e1b34488389132c02bd97d, type: 3}
-    OverrideMaterial: {fileID: 2100000, guid: cb947f40fcbb08a4e9da4016b921f8bd, type: 2}
+    OverrideMaterial: {fileID: 2100000, guid: 1e16b642109be7040a7f589235223c46, type: 2}
   - Element: {fileID: -4396463729144112910, guid: c86f9a9dd4cefcd4eac232e99d6b93be, type: 3}
-    OverrideMaterial: {fileID: 2100000, guid: e1be44706c69eaf4da4a2591c65727d8, type: 2}
+    OverrideMaterial: {fileID: 2100000, guid: 0bcbf714cf65ced47a90830663d15160, type: 2}
 --- !u!114 &7823240410255373372
 MonoBehaviour:
   m_ObjectHideFlags: 0

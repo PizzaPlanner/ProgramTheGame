@@ -18,22 +18,36 @@ using UnityEngine;
 //     public MassModel model;
 // }
 
+[WithNone(typeof(UnderConstruction))]
+[WithAll(typeof(MassData))]
 partial struct MassesUpdateJob : IJobEntity
 {
     [ReadOnly] public ComponentLookup<GridBounds> boundsLookup;
     [ReadOnly] public ComponentLookup<Wall> wallLookup;
+    [ReadOnly] public BufferLookup<WallNeighbours> neighbourLookup;
     public ComponentLookup<MassModel> massModelLookup;
+    public ComponentLookup<MassData> massDataLookup;
     public EntityCommandBuffer ecb;
-    void Execute(Entity e, in OnGrid onGrid, in LocalTransform transform, ref MassData massData)
+    void Execute(Entity e, in OnGrid onGrid, in LocalTransform transform)
     {
         if(!massModelLookup.TryGetComponent(onGrid.Grid, out var massModel))
             return;
         var localToCell = GridStructure.LocalToCell(transform.Position);
         ref var mainCell = ref massModel.AbsoluteCellRW(localToCell);
+        ref var massData = ref massDataLookup.GetRefRW(e).ValueRW;
         
         // Exchange Temperature
         if (boundsLookup.TryGetComponent(e, out var bounds))
         {
+            // Walls, exchange with adjacent Walls
+            if (neighbourLookup.TryGetBuffer(e, out var neighbours))
+                foreach (var nb in neighbours)
+                {
+                    ref var other = ref massDataLookup.GetRefRW(nb.OtherWall).ValueRW;
+                    IMatterComposition.ExchangeTemperature(ref massData, ref other);
+                }
+            
+            // Walls, exchange with adjacent atmosphere
             if (wallLookup.HasComponent(e))
             {
                 for (int x = bounds.Min.x; x <= bounds.Max.x; x++)
@@ -51,6 +65,7 @@ partial struct MassesUpdateJob : IJobEntity
                     IMatterComposition.ExchangeTemperature(ref right, ref massData);
                 }
             }
+            // Regular Entities, exchange with surrounding atmosphere
             else
                 for (int x = bounds.Min.x; x <= bounds.Max.x; x++)
                 for (int y = bounds.Min.y; y <= bounds.Max.y; y++)
@@ -126,7 +141,9 @@ public partial struct MassUpdateSystem : ISystem
             ecb = ecb,
             boundsLookup = SystemAPI.GetComponentLookup<GridBounds>(true),
             wallLookup = SystemAPI.GetComponentLookup<Wall>(true),
-            massModelLookup = SystemAPI.GetComponentLookup<MassModel>(false)
+            massModelLookup = SystemAPI.GetComponentLookup<MassModel>(false),
+            neighbourLookup = SystemAPI.GetBufferLookup<WallNeighbours>(true),
+            massDataLookup = SystemAPI.GetComponentLookup<MassData>(false)
         }.Schedule(state.Dependency);
     }
 }

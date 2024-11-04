@@ -1,4 +1,5 @@
 ﻿using Core;
+using Core.Input;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -9,12 +10,15 @@ using UnityEngine.InputSystem;
 using UnityEngine.Rendering;
 using UnityEngine.UIElements;
 
-public struct PressureOverlayHotkey : IMapOverlay
+public struct GasPressureOverlay : IMapOverlay
 {
     public InputAction ToggledByHotkey(InputActions actions) => actions.Overlays.GasPressure;
+    public InputActionMap StateFor(InputActions asset) => asset.GasPressureOverlay;
+
+    public static InputAction Select => InputActions.For<GasPressureOverlay>()["Select"];
 }
 
-partial class PressureOverlaySystem : MapOverlaySystem<PressureOverlayHotkey>
+partial class PressureOverlaySystem : MapOverlaySystem<GasPressureOverlay>
 {
     protected override VisualElement MakeWindow()
     {
@@ -35,10 +39,12 @@ partial class PressureOverlaySystem : MapOverlaySystem<PressureOverlayHotkey>
         var massModel = SystemAPI.GetComponent<MassModel>(GridEntity);
         _window.Q<MassVolumeUI>().Volume = massModel.AbsoluteCell(CellAtCursor);
         _window.Q<MassVolumeUI>().Q<Label>().text = $"@{CellAtCursor}";
-        if(math.all(CellAtCursor == _lastCenter) && !Input.GetMouseButtonDown(0))
+        if(SystemAPI.HasSingleton<PointerOverUI>())
+            return;
+        if(math.all(CellAtCursor == _lastCenter) && !GasPressureOverlay.Select.WasPressedThisFrame())
             return;
         _lastCenter = CellAtCursor;
-        if(!Input.GetMouseButton(0))
+        if(!GasPressureOverlay.Select.IsInProgress())
             return;
         var painter = _window.Q<MassPainterUI>();
         if(painter.Element.Target == default || painter.Mass.value <= 0)
@@ -60,12 +66,14 @@ partial class PressureOverlaySystem : MapOverlaySystem<PressureOverlayHotkey>
 }
 
 
-public struct TemperatureOverlayHotkey : IMapOverlay
+public struct TemperatureOverlay : IMapOverlay
 {
     public InputAction ToggledByHotkey(InputActions actions) => actions.Overlays.GasTemperature;
+    public InputActionMap StateFor(InputActions asset) => asset.GasTemperatureOverlay;
+    public static InputAction Select => InputActions.For<TemperatureOverlay>()["Select"];
 }
 
-partial class TemperatureOverlaySystem : MapOverlaySystem<TemperatureOverlayHotkey>
+partial class TemperatureOverlaySystem : MapOverlaySystem<TemperatureOverlay>
 {
     protected override VisualElement MakeWindow()
     {
@@ -106,10 +114,12 @@ partial class TemperatureOverlaySystem : MapOverlaySystem<TemperatureOverlayHotk
         var massModel = SystemAPI.GetComponent<MassModel>(GridEntity);
         _window.Q<MassVolumeUI>().Volume = massModel.AbsoluteCell(CellAtCursor);
         _window.Q<MassVolumeUI>().Q<Label>().text = $"@{CellAtCursor}";
-        if(math.all(CellAtCursor == _lastCenter) && !Input.GetMouseButtonDown(0))
+        if(SystemAPI.HasSingleton<PointerOverUI>())
+            return;
+        if(math.all(CellAtCursor == _lastCenter) && !TemperatureOverlay.Select.WasPressedThisFrame())
             return;
         _lastCenter = CellAtCursor;
-        if(!Input.GetMouseButton(0))
+        if(!TemperatureOverlay.Select.IsInProgress())
             return;
         var painter = _window.Q<MassPainterUI>();
         if(painter.Element.Target == default || painter.Mass.value <= 0 || !massModel.IsInBounds(CellAtCursor))

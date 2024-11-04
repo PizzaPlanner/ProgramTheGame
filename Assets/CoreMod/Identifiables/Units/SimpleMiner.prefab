@@ -167,6 +167,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Capacity: 5000
   ConsumptionPerTick: 25
+  ProductionPerTick: 0
+  Inhales: {fileID: -7111768246366295914, guid: ee7ceab8787fcfc40b1b387446cf825e, type: 3}
+  Exhales: {fileID: -7111768246366295914, guid: ee7ceab8787fcfc40b1b387446cf825e, type: 3}
 --- !u!114 &-3930633258532720254
 MonoBehaviour:
   m_ObjectHideFlags: 0

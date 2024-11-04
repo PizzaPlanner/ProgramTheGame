@@ -1040,6 +1040,62 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
                     ""isPartOfComposite"": false
                 }
             ]
+        },
+        {
+            ""name"": ""GasPressureOverlay"",
+            ""id"": ""e40ea47d-bdac-4721-8e6a-fb2546c17b68"",
+            ""actions"": [
+                {
+                    ""name"": ""Select"",
+                    ""type"": ""Button"",
+                    ""id"": ""47700ca1-0635-4c8b-bf06-31f2c8261649"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                }
+            ],
+            ""bindings"": [
+                {
+                    ""name"": """",
+                    ""id"": ""a2a1066d-cc08-48e5-a657-332e63676964"",
+                    ""path"": ""<Mouse>/leftButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""Select"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                }
+            ]
+        },
+        {
+            ""name"": ""GasTemperatureOverlay"",
+            ""id"": ""0f26ddaa-d988-4c8e-b360-cf2d021ec121"",
+            ""actions"": [
+                {
+                    ""name"": ""Select"",
+                    ""type"": ""Button"",
+                    ""id"": ""f144460f-75a7-42a5-91d8-a4479d8d6c7d"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                }
+            ],
+            ""bindings"": [
+                {
+                    ""name"": """",
+                    ""id"": ""176a7adf-585e-45c4-b337-5a9892dfcba5"",
+                    ""path"": ""<Mouse>/leftButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""Select"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                }
+            ]
         }
     ],
     ""controlSchemes"": [
@@ -1144,6 +1200,12 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         m_Overlays_GasPressure = m_Overlays.FindAction("GasPressure", throwIfNotFound: true);
         m_Overlays_GasTemperature = m_Overlays.FindAction("GasTemperature", throwIfNotFound: true);
         m_Overlays_Rooms = m_Overlays.FindAction("Rooms", throwIfNotFound: true);
+        // GasPressureOverlay
+        m_GasPressureOverlay = asset.FindActionMap("GasPressureOverlay", throwIfNotFound: true);
+        m_GasPressureOverlay_Select = m_GasPressureOverlay.FindAction("Select", throwIfNotFound: true);
+        // GasTemperatureOverlay
+        m_GasTemperatureOverlay = asset.FindActionMap("GasTemperatureOverlay", throwIfNotFound: true);
+        m_GasTemperatureOverlay_Select = m_GasTemperatureOverlay.FindAction("Select", throwIfNotFound: true);
     }
 
     ~@InputActions()
@@ -1155,6 +1217,8 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         UnityEngine.Debug.Assert(!m_BuildTool.enabled, "This will cause a leak and performance issues, InputActions.BuildTool.Disable() has not been called.");
         UnityEngine.Debug.Assert(!m_DeconstructTool.enabled, "This will cause a leak and performance issues, InputActions.DeconstructTool.Disable() has not been called.");
         UnityEngine.Debug.Assert(!m_Overlays.enabled, "This will cause a leak and performance issues, InputActions.Overlays.Disable() has not been called.");
+        UnityEngine.Debug.Assert(!m_GasPressureOverlay.enabled, "This will cause a leak and performance issues, InputActions.GasPressureOverlay.Disable() has not been called.");
+        UnityEngine.Debug.Assert(!m_GasTemperatureOverlay.enabled, "This will cause a leak and performance issues, InputActions.GasTemperatureOverlay.Disable() has not been called.");
     }
 
     public void Dispose()
@@ -1678,6 +1742,98 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         }
     }
     public OverlaysActions @Overlays => new OverlaysActions(this);
+
+    // GasPressureOverlay
+    private readonly InputActionMap m_GasPressureOverlay;
+    private List<IGasPressureOverlayActions> m_GasPressureOverlayActionsCallbackInterfaces = new List<IGasPressureOverlayActions>();
+    private readonly InputAction m_GasPressureOverlay_Select;
+    public struct GasPressureOverlayActions
+    {
+        private @InputActions m_Wrapper;
+        public GasPressureOverlayActions(@InputActions wrapper) { m_Wrapper = wrapper; }
+        public InputAction @Select => m_Wrapper.m_GasPressureOverlay_Select;
+        public InputActionMap Get() { return m_Wrapper.m_GasPressureOverlay; }
+        public void Enable() { Get().Enable(); }
+        public void Disable() { Get().Disable(); }
+        public bool enabled => Get().enabled;
+        public static implicit operator InputActionMap(GasPressureOverlayActions set) { return set.Get(); }
+        public void AddCallbacks(IGasPressureOverlayActions instance)
+        {
+            if (instance == null || m_Wrapper.m_GasPressureOverlayActionsCallbackInterfaces.Contains(instance)) return;
+            m_Wrapper.m_GasPressureOverlayActionsCallbackInterfaces.Add(instance);
+            @Select.started += instance.OnSelect;
+            @Select.performed += instance.OnSelect;
+            @Select.canceled += instance.OnSelect;
+        }
+
+        private void UnregisterCallbacks(IGasPressureOverlayActions instance)
+        {
+            @Select.started -= instance.OnSelect;
+            @Select.performed -= instance.OnSelect;
+            @Select.canceled -= instance.OnSelect;
+        }
+
+        public void RemoveCallbacks(IGasPressureOverlayActions instance)
+        {
+            if (m_Wrapper.m_GasPressureOverlayActionsCallbackInterfaces.Remove(instance))
+                UnregisterCallbacks(instance);
+        }
+
+        public void SetCallbacks(IGasPressureOverlayActions instance)
+        {
+            foreach (var item in m_Wrapper.m_GasPressureOverlayActionsCallbackInterfaces)
+                UnregisterCallbacks(item);
+            m_Wrapper.m_GasPressureOverlayActionsCallbackInterfaces.Clear();
+            AddCallbacks(instance);
+        }
+    }
+    public GasPressureOverlayActions @GasPressureOverlay => new GasPressureOverlayActions(this);
+
+    // GasTemperatureOverlay
+    private readonly InputActionMap m_GasTemperatureOverlay;
+    private List<IGasTemperatureOverlayActions> m_GasTemperatureOverlayActionsCallbackInterfaces = new List<IGasTemperatureOverlayActions>();
+    private readonly InputAction m_GasTemperatureOverlay_Select;
+    public struct GasTemperatureOverlayActions
+    {
+        private @InputActions m_Wrapper;
+        public GasTemperatureOverlayActions(@InputActions wrapper) { m_Wrapper = wrapper; }
+        public InputAction @Select => m_Wrapper.m_GasTemperatureOverlay_Select;
+        public InputActionMap Get() { return m_Wrapper.m_GasTemperatureOverlay; }
+        public void Enable() { Get().Enable(); }
+        public void Disable() { Get().Disable(); }
+        public bool enabled => Get().enabled;
+        public static implicit operator InputActionMap(GasTemperatureOverlayActions set) { return set.Get(); }
+        public void AddCallbacks(IGasTemperatureOverlayActions instance)
+        {
+            if (instance == null || m_Wrapper.m_GasTemperatureOverlayActionsCallbackInterfaces.Contains(instance)) return;
+            m_Wrapper.m_GasTemperatureOverlayActionsCallbackInterfaces.Add(instance);
+            @Select.started += instance.OnSelect;
+            @Select.performed += instance.OnSelect;
+            @Select.canceled += instance.OnSelect;
+        }
+
+        private void UnregisterCallbacks(IGasTemperatureOverlayActions instance)
+        {
+            @Select.started -= instance.OnSelect;
+            @Select.performed -= instance.OnSelect;
+            @Select.canceled -= instance.OnSelect;
+        }
+
+        public void RemoveCallbacks(IGasTemperatureOverlayActions instance)
+        {
+            if (m_Wrapper.m_GasTemperatureOverlayActionsCallbackInterfaces.Remove(instance))
+                UnregisterCallbacks(instance);
+        }
+
+        public void SetCallbacks(IGasTemperatureOverlayActions instance)
+        {
+            foreach (var item in m_Wrapper.m_GasTemperatureOverlayActionsCallbackInterfaces)
+                UnregisterCallbacks(item);
+            m_Wrapper.m_GasTemperatureOverlayActionsCallbackInterfaces.Clear();
+            AddCallbacks(instance);
+        }
+    }
+    public GasTemperatureOverlayActions @GasTemperatureOverlay => new GasTemperatureOverlayActions(this);
     private int m_KeyboardMouseSchemeIndex = -1;
     public InputControlScheme KeyboardMouseScheme
     {
@@ -1768,5 +1924,13 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         void OnGasPressure(InputAction.CallbackContext context);
         void OnGasTemperature(InputAction.CallbackContext context);
         void OnRooms(InputAction.CallbackContext context);
+    }
+    public interface IGasPressureOverlayActions
+    {
+        void OnSelect(InputAction.CallbackContext context);
+    }
+    public interface IGasTemperatureOverlayActions
+    {
+        void OnSelect(InputAction.CallbackContext context);
     }
 }

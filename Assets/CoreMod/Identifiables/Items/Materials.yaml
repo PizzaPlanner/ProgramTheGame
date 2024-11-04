@@ -1,13 +1,15 @@
-Mod.API:
+API:
+- !Mod
   Tag:       [!Tag { }]
   Mod:       [!Tag { }]
 
-Mod.Core:
+Core:
+- !Mod
   Spawnable: [!Tag { }]
   Item:      [!Tag { Implies: [Spawnable] }]
-  Solid:     [!Tag { Implies: [Item] }]
-  Liquid:    [!Tag { Implies: [Item] }]
-  Gas:       [!Tag { Implies: [Item] }]
+  Solid:     [!Tag { Implies: [Item], Conflicts: [Liquid, Gas] }]
+  Liquid:    [!Tag { Implies: [Item], Conflicts: [Solid, Gas] }]
+  Gas:       [!Tag { Implies: [Item], Conflicts: [Solid, Liquid] }]
 
   CoalOre:
   - !Solid

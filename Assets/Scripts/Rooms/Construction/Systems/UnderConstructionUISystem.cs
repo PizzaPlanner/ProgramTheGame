@@ -9,7 +9,7 @@ partial class UnderConstructionUISystem : SystemBase
     {
         var ecb = SystemAPI.GetSingleton<BeginInitializationEntityCommandBufferSystem.Singleton>()
                            .CreateCommandBuffer(World.Unmanaged);
-        foreach (var (miner, e) in SystemAPI.Query<UnderConstruction>().WithAll<Selected>().WithEntityAccess())
+        foreach (var (_, variant, e) in SystemAPI.Query<UnderConstruction, ConstructionVariant>().WithAll<Selected>().WithEntityAccess())
         {
             if(!UISystemGroup.TryGet<SelectedUnitElement>(out var ui))
                 return;
@@ -17,7 +17,7 @@ partial class UnderConstructionUISystem : SystemBase
             var window = ui.Q<UnderConstructionUI>();
             if (window == null)
             {
-                window = new UnderConstructionUI();
+                window = new UnderConstructionUI(variant);
                 ui.Add("UnderConstruction", window);
             }
 
@@ -31,10 +31,24 @@ partial class UnderConstructionUISystem : SystemBase
 
     class UnderConstructionUI : VisualElement
     {
+        public VisualElement inventory;
         public bool wantCancel;
-        public UnderConstructionUI()
+        public UnderConstructionUI(ConstructionVariant variant)
         {
+            Add(inventory = new VisualElement());
             Add(new Button(() => wantCancel = true) { text = "Cancel" });
+            foreach(var mat in variant.BuildMaterials)
+                inventory.Add(new InventoryButton { Slot = new Inventory
+                {
+                    Transfer = Inventory.TransferDirection.In, 
+                    Type = ItemId.From(mat.Item),
+                    IsTypeLocked = true,
+                }});
+        }
+
+        public void Update(DynamicBuffer<TaskProvider> tasks)
+        {
+            
         }
     }
 }

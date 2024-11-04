@@ -8,7 +8,7 @@ public class DefaultMassAuthoring : MonoBehaviour
     public uint Mass;
     [Range(-273f, 9999f)]
     public float Temperature;
-
+    
     class MBaker : Baker<DefaultMassAuthoring>
     {
         public override void Bake(DefaultMassAuthoring authoring)

@@ -25,7 +25,7 @@ partial class ActiveOrderVisualsSystem : SystemBase
         foreach (var (linkedEntities, tasks, root)
                  in SystemAPI.Query<DynamicBuffer<LinkedEntityGroup>, DynamicBuffer<TaskProvider>>().WithAll<AOMComp>().WithEntityAccess())
         {
-            if (tasks.Length == 0)
+            if (tasks.Length == 0 || !SystemAPI.HasComponent<Identifiable>(tasks[0].Task))
             {
                 ecb.RemoveComponent<AOMComp>(root);
                 continue;

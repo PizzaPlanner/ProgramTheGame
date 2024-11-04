@@ -1018,6 +1018,62 @@
                     "isPartOfComposite": false
                 }
             ]
+        },
+        {
+            "name": "GasPressureOverlay",
+            "id": "e40ea47d-bdac-4721-8e6a-fb2546c17b68",
+            "actions": [
+                {
+                    "name": "Select",
+                    "type": "Button",
+                    "id": "47700ca1-0635-4c8b-bf06-31f2c8261649",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "a2a1066d-cc08-48e5-a657-332e63676964",
+                    "path": "<Mouse>/leftButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard&Mouse",
+                    "action": "Select",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        },
+        {
+            "name": "GasTemperatureOverlay",
+            "id": "0f26ddaa-d988-4c8e-b360-cf2d021ec121",
+            "actions": [
+                {
+                    "name": "Select",
+                    "type": "Button",
+                    "id": "f144460f-75a7-42a5-91d8-a4479d8d6c7d",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "176a7adf-585e-45c4-b337-5a9892dfcba5",
+                    "path": "<Mouse>/leftButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard&Mouse",
+                    "action": "Select",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
         }
     ],
     "controlSchemes": [

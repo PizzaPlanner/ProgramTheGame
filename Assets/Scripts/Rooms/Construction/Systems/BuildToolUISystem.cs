@@ -179,8 +179,17 @@ partial class BuildToolUISystem : MapOverlaySystem<BuildTool>
         var currentParent = SystemAPI.GetSingleton<CurrentGrid>().Grid;
         var plan = ecb.CreateEntity();
         var mats = SystemAPI.GetComponent<ConstructionVariant>(GhostPrefab.SpawnablePrefab);
-        mats.PrimaryMass = MassData.From(GhostMaterial, mats.BuildMaterials[0].Amount, 0);
-        mats.BuildMaterials[0] = new ConstructionVariant.Material{ Item = GhostMaterial, IsVariant = true, Amount = mats.BuildMaterials[0].Amount };
+        if (mats.BuildMaterials.Length > 0 && mats.BuildMaterials[0].IsVariant)
+        {
+            mats.PrimaryMass = MassData.From(GhostMaterial, mats.BuildMaterials[0].Amount, 0);
+            mats.BuildMaterials[0] = new ConstructionVariant.Material
+            {
+                Item = GhostMaterial, 
+                IsVariant = true, 
+                Amount = mats.BuildMaterials[0].Amount
+            };
+            
+        }
         ecb.AddComponent(plan, new PlannedConstruction
         {
             Location = cell, 
