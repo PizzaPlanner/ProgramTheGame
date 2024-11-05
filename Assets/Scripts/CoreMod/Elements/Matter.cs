@@ -45,13 +45,15 @@ public interface IMatterComposition
         }
     }
 
-    public static void ExchangeGas(ref MassHeader a, ref MassHeader b)
+    public const float DEFAULT_GAS_EXCHANGE_RATE = 0.5f;
+    public static void ExchangeGas(ref MassHeader a, ref MassHeader b, float baseTransferFactor = DEFAULT_GAS_EXCHANGE_RATE)
     {
-        var pressureDiff = (long)a.Mass - b.Mass; // TODO: Use Pressure?
+        var pressureDiff = a.Pressure - b.Pressure;
+        // No Gas exchange at similar pressure
         if(math.abs(pressureDiff) < 10)
             return;
-        var totalPressure = a.Mass + b.Mass;
-        var transferFactor = 0.5f * math.abs(pressureDiff) / totalPressure;
+        var totalPressure = a.Pressure + b.Pressure;
+        var transferFactor = baseTransferFactor * math.abs(pressureDiff) / totalPressure;
 
         if (pressureDiff > 0)
         {

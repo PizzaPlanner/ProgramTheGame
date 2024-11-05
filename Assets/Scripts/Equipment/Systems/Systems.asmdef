@@ -25,7 +25,9 @@
         "Equipment.UI",
         "Identifiables.UI",
         "Tasks",
-        "Construction"
+        "Construction",
+        "Elements",
+        "Elements.Systems"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

@@ -20,7 +20,8 @@
         "Identifiables.Authoring",
         "Units.Authoring",
         "Tasks",
-        "Elements.Authoring"
+        "Elements.Authoring",
+        "Elements"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

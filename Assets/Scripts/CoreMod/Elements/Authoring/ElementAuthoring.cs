@@ -26,6 +26,14 @@ public class ElementAuthoring : MonoBehaviour
     public float SpecificHeatCapacity;
 
     public Color Color;
+    
+    public MassData ToMassData(Mass mass, Temperature temperature) => new MassData
+    {
+        ElementType = GetComponent<IdentifieableAuthoring>().Id,
+        ElementData = Element.AsCompact,
+        Mass = mass,
+        Temperature = temperature
+    };
 
     public Element Element
     {

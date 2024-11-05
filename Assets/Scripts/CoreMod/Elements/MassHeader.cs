@@ -176,11 +176,11 @@ public unsafe struct MassHeader : IDisposable, IMatterComposition
 
     // Ideal Gas Law: PV=nRT ==> P = nRT/V
     // Should we care about V and T?
-    public readonly float Pressure
+    public readonly long Pressure
     {
         get
         {
-            var result = 0f;
+            var result = 0u;
             for (int i = 0; i < ElementCount; i++)
                 result += GetMass(i).Mass * GetMass(i).ElementData.PressureFromPhase;
             return result;

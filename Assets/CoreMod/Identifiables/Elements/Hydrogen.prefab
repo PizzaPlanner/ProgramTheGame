@@ -64,7 +64,6 @@ MonoBehaviour:
   ColdStateChange:
     Temperature: 0
     ToElement: {fileID: 0}
-  DefaultTemperature: 0
   ThermalConductivity: 4
   SpecificHeatCapacity: 0.01
   Color: {r: 1, g: 0.18396229, b: 0.886737, a: 1}

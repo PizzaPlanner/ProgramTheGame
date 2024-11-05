@@ -40,17 +40,27 @@ public class MassVolumeUI : VisualElement
             Pressure.text = $"Pressure: {(value.ElementCount == 0 ? "-" : value.Pressure / 1000):0.00}kPa";
             Temperature.text = $"Temperature: {value.Temperature}\nEnergy: {value.Energy:N0}J\nHeat Capacity:{value.HeatCapacity:N0}";
             var container = this.Q("MolesContainer");
-            container.Clear();
+            var i = 0;
             foreach (var gas in value.Masses)
             {
-                var btn = new IdentifiableButton
+                if (container.childCount <= i)
                 {
-                    name = gas.ElementType.ToString(),
-                    Target = gas.ElementType
-                };
-                container.Add(btn);
-                btn.Add(new Label($"{gas.Mass:N0}"));
+                    var btn = new IdentifiableButton
+                    {
+                        Target = gas.ElementType
+                    };
+                    container.Add(btn);
+                    btn.Add(new Label($"{gas.Mass:N0}"));
+                }
+                else
+                {
+                    (container[i] as IdentifiableButton)!.Target = gas.ElementType;
+                    container[i].Q<Label>().text = $"{gas.Mass:N0}";
+                }
+                i++;
             }
+            for(; i < container.childCount; i++)
+                container.RemoveAt(i--);
         }
     }
 
