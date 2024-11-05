@@ -189,7 +189,7 @@ namespace Units
         {
             set
             {
-                if(value.RequiredValue <= 0)
+                if(value.Value <= 0)
                     RemoveFromClassList("has-progress");
                 else
                 {

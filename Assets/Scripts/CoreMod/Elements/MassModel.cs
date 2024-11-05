@@ -1,13 +1,15 @@
 ﻿using System.Runtime.CompilerServices;
 using Unity.Entities;
+using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Properties;
+using UnityEngine;
 
 public struct MassModel : ICleanupComponentData
 {
     NativeElementMap _map;
     
-    public MassModel(NativeElementMap map) { _map = map; _lastMixWasEven = false; }
+    public MassModel(NativeElementMap map) { _map = map; }
     
     public bool IsInBounds(int2 cell) => _map.IsInBounds(cell);
     public bool IsEmpty(int2 cell) => !_map.IsInBounds(cell) || _map[cell].ElementCount == 0;
@@ -20,8 +22,6 @@ public struct MassModel : ICleanupComponentData
     public int2 Min => _map.Min;
     [CreateProperty]
     public int2 Max => _map.Max;
-
-    bool _lastMixWasEven;
 
     [CreateProperty]
     public int TotalResidualEnergy
@@ -86,18 +86,44 @@ public struct MassModel : ICleanupComponentData
             _map.Mix(new int2(x, y), new int2(x, y - 1));
             _map.PerformPhaseChanges(new int2(x, y));
         }
-        _lastMixWasEven = !_lastMixWasEven;
     }
 
     public void MixOne(int index)
     {
         var cell = _map.AsCell(index);
         _map.VentToSpace(cell);
-        _map.Mix(cell, cell + new int2(1, 0));
-        _map.Mix(cell, cell + new int2(0, 1));
         _map.Mix(cell, cell + new int2(-1, 0));
+        _map.Mix(cell, cell + new int2(0, 1));
+        _map.Mix(cell, cell + new int2(1, 0));
         _map.Mix(cell, cell + new int2(0, -1));
         _map.PerformPhaseChanges(cell);
+    }
+
+    partial struct MixJob : IJobParallelFor
+    {
+        public MassModel model;
+        public int2 quadrant;
+        public void Execute(int index)
+        {
+            var thisCellRel = model._map.AsCell(index) - model.Min;
+            if(math.any(thisCellRel % 3 != quadrant % 3))
+                return;
+            model.MixOne(index);
+        }
+    }
+    
+    public JobHandle RunMixJob(JobHandle dependsOn)
+    {
+        for (int tick = 0; tick < 9; tick++)
+        {
+            var quadrant = new int2((int)(tick % 3), (int)(tick % 9 / 3));
+            dependsOn = new MixJob
+            {
+                model = this, 
+                quadrant = quadrant
+            }.Schedule(_map.Size.x * _map.Size.y, 16, dependsOn);
+        }
+        return dependsOn;
     }
     
     public void Resize(int2 min, int2 max) => _map = _map.Resize(min, max);

@@ -12,6 +12,13 @@ public struct CurrentGrid : IComponentData
 
 partial struct CurrentGridSystem : ISystem
 {
+    EntityQuery _gridQuery;
+
+    public void OnCreate(ref SystemState state)
+    {
+        _gridQuery = SystemAPI.QueryBuilder().WithAll<GridStructure>().Build();
+    }
+
     public void OnUpdate(ref SystemState state)
     {
         if (SystemAPI.TryGetSingleton<CurrentGrid>(out var grid) && state.EntityManager.Exists(grid.Grid))
@@ -39,7 +46,7 @@ partial struct CurrentGridSystem : ISystem
         }
         else
         {
-            var grids = state.GetEntityQuery(typeof(GridStructure)).ToEntityArray(Allocator.Temp);
+            var grids = _gridQuery.ToEntityArray(Allocator.Temp);
             if(grids.Length == 0)
                 return;
             if (!SystemAPI.TryGetSingletonRW<CurrentGrid>(out var grid2))

@@ -122,7 +122,7 @@ public unsafe struct MassHeader : IDisposable, IMatterComposition
     void ResizeToCapacity()
     {
         var newData = UnsafeUtility.MallocTracked(Capacity * sizeof(MassData), UnsafeUtility.AlignOf<MassData>(), _allocator, 1);
-        if (_data != null && ElementCount > 1)
+        if (_data != null)
         {
             UnsafeUtility.MemCpy(newData, _data, (ElementCount - 1) * sizeof(MassData));
             UnsafeUtility.FreeTracked(_data, _allocator);

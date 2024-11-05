@@ -68,8 +68,8 @@ partial struct BuildSystem : ISystem
             roomLookup = SystemAPI.GetComponentLookup<RoomModel>(false)
         }.Run();
         
-        state.EntityManager.RemoveComponent<PendingGridUpdate>(state.GetEntityQuery(ComponentType.ReadOnly<PendingGridUpdate>()));
-        state.EntityManager.RemoveComponent<PendingResolveRoomMap>(state.GetEntityQuery(ComponentType.ReadOnly<PendingResolveRoomMap>()));
+        state.EntityManager.RemoveComponent<PendingGridUpdate>(SystemAPI.QueryBuilder().WithAll<PendingGridUpdate>().Build());
+        state.EntityManager.RemoveComponent<PendingResolveRoomMap>(SystemAPI.QueryBuilder().WithAll<PendingResolveRoomMap>().Build());
         
         // Spawn buildings and ghosts based on planned constructions
         new BuildJob()

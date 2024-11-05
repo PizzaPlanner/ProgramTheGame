@@ -16,7 +16,7 @@ partial struct CrafterSystem : ISystem
         // Queue up a new craft task
         foreach (var (crafter, recipes, taskProviders, onGrid, e) in 
                  SystemAPI.Query<RefRW<CrafterLogic>, DynamicBuffer<Craftables>, DynamicBuffer<TaskProvider>, OnGrid>()
-                          .WithNone<UnderConstruction>().WithEntityAccess())
+                          .WithNone<Ghost>().WithEntityAccess())
         {
             if (crafter.ValueRW.Recipe == default)
             {

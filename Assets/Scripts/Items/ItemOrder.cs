@@ -20,6 +20,7 @@ public enum OrderState
 
 public struct ItemOrderTask : IComponentData
 {
+    public int TransactionId;
     public ItemId Item;
     public ushort Amount;
     public OrderState State;
@@ -95,13 +96,12 @@ partial struct ItemOrderTaskJob : IJobEntity
 {
     [ReadOnly] public BufferLookup<Inventory> inventoryLookup;
     [ReadOnly] public ComponentLookup<LocalToWorld> ltwLookup;
-    [ReadOnly] public BufferLookup<ToDos> todoLookup;
     [ReadOnly] public ComponentLookup<LogisticsNetwork> networkLookup;
     public float deltaTime;
     public EntityCommandBuffer ecb;
     public TransactionStore transactionStore;
     
-    void Execute(Entity e, ref Task task, ref ItemOrderTask order, ref TaskProgress progress, EnabledRefRW<WorkedOn> workedOn, DynamicBuffer<BroadcastStatus> broadcastedTo)
+    void Execute(Entity e, ref Task task, ref ItemOrderTask order, ref TaskProgress progress, EnabledRefRW<WorkedOn> workedOn)
     {
         // Find best target
         if (task.Target == Entity.Null)
@@ -112,53 +112,77 @@ partial struct ItemOrderTaskJob : IJobEntity
                 return;
             }
             ItemPickupTaskJob.AssignTarget(ref task, order.Requester, ltwLookup, network, order.Item, order.Amount);
-            if(task.Target != Entity.Null)
+            if (task.Target != Entity.Null)
                 order.State = OrderState.Assigned;
             else
                 return;
         }
-        
-        if (task.Executor == Entity.Null)
-            return;
 
-        if (!inventoryLookup.TryGetBuffer(task.Executor, out var inventory))
+        if (task.Executor == Entity.Null)
+        {
+            // Lost executor, cancel transaction
+            if (order.TransactionId != 0)
+            {
+                transactionStore.Review(order.TransactionId, false);
+                order.TransactionId = 0;
+            }
+            order.State = OrderState.Assigned;
+            return;
+        }
+
+        if (!inventoryLookup.TryGetBuffer(task.Executor, out var executorInventory))
         {
             Debug.LogError($"ItemOrder executor {task.Executor} has no inventory");
             return;
         }
-            
-        if (inventory.Contains(order.Item, order.Amount))
+        
+        if (!transactionStore.Has(order.TransactionId))
         {
-            task.Target = order.Requester;
-            order.State = OrderState.Transporting;
-            if (!workedOn.ValueRO) 
+            // Order can no longer be filled, re-evaluate
+            if (order.TransactionId != 0 && order.State == OrderState.Assigned)
+            {
+                task.Target = Entity.Null;
+                task.Executor = Entity.Null;
+                order.TransactionId = 0;
                 return;
+            }
             
-            progress.Value += deltaTime;
-            if (progress.Value < progress.RequiredValue)
-                return;
-            
-            transactionStore.CreateBuilder.Transfer(task.Executor, order.Requester, order.Item, order.Amount);
-            ecb.DestroyEntity(e);
-        }
-        else if (order.State is OrderState.Assigned && !inventoryLookup[task.Target].Contains(order.Item, order.Amount))
-        {
-            order.State = OrderState.Requested;
-            task.Target = default;
+            if (executorInventory.Contains(order.Item, order.Amount))
+            {
+                // Order item delivery
+                order.TransactionId = transactionStore.CreateBuilder.Transfer(task.Executor, order.Requester, order.Item, order.Amount).WithManualReview();
+                order.State = OrderState.Transporting;
+            }
+            else
+            {
+                // Order item pickup
+                order.TransactionId = transactionStore.CreateBuilder.Transfer(task.Target, task.Executor, order.Item, order.Amount).WithManualReview();
+                order.State = OrderState.Assigned;
+            }
             return;
         }
-        else if (workedOn.ValueRO)
-        {
-            progress.Value += deltaTime;
-            if (progress.Value < progress.RequiredValue)
-                return;
             
-            transactionStore.CreateBuilder.Transfer(task.Target, task.Executor, order.Item, order.Amount);
-            order.State = OrderState.Requested;
+        if (!workedOn.ValueRO)
+            return;
+        
+        progress.Value += deltaTime;
+        if (progress.Value < progress.RequiredValue)
+            return;
+        
+        transactionStore.Review(order.TransactionId, true);
+        if (order.State == OrderState.Assigned)
+        {
+            order.State = OrderState.Transporting;
             task.Target = order.Requester;
-            workedOn.ValueRW = false;
-            progress.Value = 0;
         }
+        else
+        {
+            order.State = OrderState.Finished;
+            ecb.DestroyEntity(e);
+        }
+        order.TransactionId = 0;
+        workedOn.ValueRW = false;
+        progress.Value = 0;
     }
 }
 
@@ -172,7 +196,6 @@ partial struct ItemOrderTaskSystem : ISystem
         var inventoryLookup = SystemAPI.GetBufferLookup<Inventory>(true);
         var ltwLookup = SystemAPI.GetComponentLookup<LocalToWorld>(true);
         var networkLookup = SystemAPI.GetComponentLookup<LogisticsNetwork>(true);
-        var todoLookup = SystemAPI.GetBufferLookup<ToDos>(true);
         state.Dependency = new ItemPickupTaskJob
         {
             transactionStore = transactionStore,
@@ -188,7 +211,6 @@ partial struct ItemOrderTaskSystem : ISystem
             inventoryLookup = inventoryLookup,
             ltwLookup = ltwLookup,
             networkLookup = networkLookup,
-            todoLookup = todoLookup,
         }.Schedule(state.Dependency);
     }
 }

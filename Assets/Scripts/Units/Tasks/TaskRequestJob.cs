@@ -20,6 +20,10 @@ namespace Units
                 ecb.DestroyEntity(sortKey, t);
                 return;
             }
+            
+            // Do not broadcast incomplete Task
+            if(task.Target == Entity.Null)
+                return;
 
             // All dependencies must be completed before requesting
             for (var i = 0; i < dependencies.Length; i++)

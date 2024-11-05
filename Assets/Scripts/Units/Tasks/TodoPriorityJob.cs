@@ -28,10 +28,7 @@ namespace Units
             todos.AsNativeArray().Sort(new PrioritySorter());
             var best = todos[0];
             if (best.Status is ToDoStatus.Approaching or ToDoStatus.Working)
-            {
-                workedOnLookup.SetComponentEnabled(best.Task, best.Status == ToDoStatus.Working);
                 return;
-            }
             
             // Switched active ToDo
             if (best.PerceivedPriority > (int)TaskPriority.Idle)

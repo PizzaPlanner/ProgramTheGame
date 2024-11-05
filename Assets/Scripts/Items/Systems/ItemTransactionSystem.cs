@@ -362,13 +362,8 @@ internal partial struct PrepareTransactionsJob : IJob
 [UpdateInGroup(typeof(InitializationSystemGroup))]
 public partial struct ItemTransactionSystem : ISystem
 {
-    EntityQuery _changedLocation, _changedEquipment, _gotItems;
     public void OnCreate(ref SystemState state)
     {
-        _changedLocation = SystemAPI.QueryBuilder().WithAll<JustChangedLocation>().Build();
-        _changedEquipment = SystemAPI.QueryBuilder().WithAll<JustChangedEquipments>().Build();
-        _gotItems = SystemAPI.QueryBuilder().WithAll<InventoryContentsChanged>().Build();
-        
         var store = new TransactionStore
         {
             Transactions = new UnsafeParallelHashMap<int, ItemTransaction.TransactionHeader>(64, Allocator.Persistent)
@@ -395,9 +390,11 @@ public partial struct ItemTransactionSystem : ISystem
                 store.CreateBuilder.AddTo(e, startItem.Type, startItem.Amount, startItem.Slot);
         }
         ecb.Playback(state.EntityManager);
-        state.EntityManager.RemoveComponent<JustChangedLocation>(_changedLocation);
-        state.EntityManager.RemoveComponent<JustChangedEquipments>(_changedEquipment);
-        state.EntityManager.RemoveComponent<InventoryContentsChanged>(_gotItems);
+        state.EntityManager.RemoveComponent<JustChangedLocation>(SystemAPI.QueryBuilder().WithAll<JustChangedLocation>().Build());
+        state.EntityManager.RemoveComponent<JustChangedEquipments>(SystemAPI.QueryBuilder().WithAll<JustChangedEquipments>().Build());
+        state.EntityManager.RemoveComponent<InventoryContentsChanged>(SystemAPI.QueryBuilder().WithAll<InventoryContentsChanged>().Build());
+        foreach(var e in SystemAPI.QueryBuilder().WithAll<Inventory>().WithNone<ReservedSpace>().Build().ToEntityArray(Allocator.Temp))
+            state.EntityManager.AddBuffer<ReservedSpace>(e);
         
         var inventoryLookup = SystemAPI.GetBufferLookup<Inventory>();
         var reservationLookup = SystemAPI.GetBufferLookup<ReservedSpace>();

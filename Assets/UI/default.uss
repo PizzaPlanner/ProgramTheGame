@@ -414,24 +414,25 @@ UnitOrderButton > PercentProgressBar {
     display: none;
     position: absolute;
     left: 36px;
-    bottom: 0;
-    right: 0;
-    height: 8px;
+    top: 1px;
+    right: 5px;
+    height: 6px;
     margin: 0;
+    border-color: rgb(200,200,200);
+    border-width: 1px;
 }
 
 UnitOrderButton.has-progress > PercentProgressBar {
     display: flex;
+    background-color: rgb(55, 55, 55);
 }
 
-PercentProgressBar > #unity-progress-bar {
+PercentProgressBar > #Progress {
     height: 100%;
     min-height: 0;
     max-height: none;
-}
-
-UnitOrderButton.has-progress * {
-    margin: 0;
+    background-color: rgb(200, 200, 200);
+    margin: 1px;
 }
 
 SelectionWheel {

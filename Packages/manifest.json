@@ -2,12 +2,9 @@
   "dependencies": {
     "com.unity.addressables": "2.2.2",
     "com.unity.ai.navigation": "2.0.4",
-    "com.unity.collab-proxy": "2.5.1",
     "com.unity.entities.graphics": "1.2.4",
     "com.unity.ide.rider": "3.0.31",
     "com.unity.inputsystem": "1.11.0",
-    "com.unity.multiplayer.center": "1.0.0",
-    "com.unity.package-validation-suite": "0.22.0-preview",
     "com.unity.physics": "1.2.4",
     "com.unity.render-pipelines.universal": "17.0.3",
     "com.unity.test-framework": "1.4.5",

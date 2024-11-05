@@ -43,6 +43,9 @@ partial struct MassesUpdateJob : IJobEntity
             if (neighbourLookup.TryGetBuffer(e, out var neighbours))
                 foreach (var nb in neighbours)
                 {
+                    if(!massDataLookup.HasComponent(nb.OtherWall))
+                        continue;
+                    
                     ref var other = ref massDataLookup.GetRefRW(nb.OtherWall).ValueRW;
                     IMatterComposition.ExchangeTemperature(ref massData, ref other);
                 }
@@ -122,11 +125,6 @@ public partial struct MassUpdateSystem : ISystem
             model.Dispose();
             ecb.RemoveComponent<MassModel>(e);
         }
-
-        foreach (var model in SystemAPI.Query<RefRW<MassModel>>())
-        {
-            model.ValueRW.MixAll();
-        }
         
         // foreach (var model in SystemAPI.Query<MassModel>())
         // {
@@ -135,6 +133,11 @@ public partial struct MassUpdateSystem : ISystem
         //         model = model
         //     }.Schedule((int)((model.Size.x - 2) * (model.Size.y - 2)), 64, state.Dependency);
         // }
+        
+        foreach (var model in SystemAPI.Query<RefRW<MassModel>>())
+        {
+            state.Dependency = JobHandle.CombineDependencies(state.Dependency, model.ValueRW.RunMixJob(state.Dependency));
+        }
         
         state.Dependency = new MassesUpdateJob()
         {

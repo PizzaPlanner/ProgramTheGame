@@ -83,6 +83,18 @@ public partial struct BuildJob : IJobEntity
             ecb.SetComponent(entity, planned.Materials);
             ecb.RemoveComponent<MassData>(entity);
             ecb.AddComponent(entity, new BakedIntoRoomMap { Grid = planned.Parent, Area = area, Layer = building.Layer });
+            ecb.AddBuffer<Inventory>(entity);
+            for (var i = 0; i < planned.Materials.BuildMaterials.Length; i++)
+            {
+                var mat = planned.Materials.BuildMaterials[i];
+                ecb.AppendToBuffer(entity, new Inventory
+                {
+                    Type = ItemId.From(mat.Item),
+                    Transfer = Inventory.TransferDirection.In,
+                    IsTypeLocked = true
+                });
+            }
+
             Rooms.ReserveOccupiedArea(area, building.Layer, entity, ecb); 
         }
         else
@@ -93,13 +105,11 @@ public partial struct BuildJob : IJobEntity
                 ecb.SetComponent(entity, planned.Materials.PrimaryMass);
             ecb.SetComponent(entity, new OnGrid { Grid = planned.Parent });
             
-            var gridBbox = structureLookup[planned.Parent];
+            ref var gridBbox = ref structureLookup.GetRefRW(planned.Parent).ValueRW;
             gridBbox.BoundsMin = math.min(gridBbox.BoundsMin, area.Min - 4);
             gridBbox.BoundsMax = math.max(gridBbox.BoundsMax, area.Max + 4);
-            structureLookup[planned.Parent] = gridBbox;
-            var massModel = massLookup[planned.Parent];
+            ref var massModel = ref massLookup.GetRefRW(planned.Parent).ValueRW;
             massModel.Resize(gridBbox.BoundsMin, gridBbox.BoundsMax);
-            massLookup[planned.Parent] = massModel;
             
             ecb.AddComponent(entity, new BakedIntoRoomMap { Grid = planned.Parent, Area = area, Layer = building.Layer });
             Rooms.ReserveOccupiedArea(area, building.Layer, entity, ecb);

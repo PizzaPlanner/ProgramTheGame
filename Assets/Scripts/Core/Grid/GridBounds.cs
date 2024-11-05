@@ -8,6 +8,7 @@ public struct GridBounds : IComponentData
     public int Size => Scale.x * Scale.y;
     public int2 Scale => Max- Min + 1;
     public readonly float3 Center => math.lerp(Min, Max + 1, 0.5f).xxy * new float3(1, 0, 1);
+    public static GridBounds Empty => new GridBounds { Min = int.MaxValue, Max = int.MinValue };
 
     public bool Contains(int2 cell) => math.all(cell >= Min) && math.all(cell <= Max);
 
@@ -25,6 +26,12 @@ public struct GridBounds : IComponentData
         Min -= ltrb.xw;
         Max += ltrb.yz;
         return this;
+    }
+
+    public void Encapsulate(int2 cell)
+    {
+        Min = math.min(Min, cell);
+        Max = math.min(Max, cell);
     }
 }
 

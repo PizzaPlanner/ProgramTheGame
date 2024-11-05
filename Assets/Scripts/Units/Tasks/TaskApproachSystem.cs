@@ -39,12 +39,10 @@ namespace Units
                 if (!ShouldApproachTopToDo(todos, taskLookup, depenencyLookup, out var task)) 
                     continue;
 
-                var todosRW = todos;
-                var td = todos[0];
+                ref var td = ref todos.ElementAt(0);
                 if (!ltwLookup.TryGetComponent(task.Target, out var toLtw))
                 {
                     td.Status = ToDoStatus.Unreachable;
-                    todosRW[0] = td;
                     continue;
                 }
                 
@@ -58,16 +56,16 @@ namespace Units
                 }
                 
                 td.Status = isInTaskRange ? ToDoStatus.Working : ToDoStatus.Approaching;
-                todosRW[0] = td;
+                SystemAPI.SetComponentEnabled<WorkedOn>(td.Task, td.Status == ToDoStatus.Working);
             }
 
             foreach (var (todos, ltw, e) in SystemAPI.Query<DynamicBuffer<ToDos>, LocalToWorld>().WithNone<Movable>().WithEntityAccess())
             {
                 if (!ShouldApproachTopToDo(todos, taskLookup, depenencyLookup, out var task)) 
                     continue;
-                var td = todos[0];
+                ref var td = ref todos.ElementAt(0);
                 td.Status = task.Target == e ?  ToDoStatus.Working : ToDoStatus.Unreachable;
-                todos.ElementAt(0) = td;
+                SystemAPI.SetComponentEnabled<WorkedOn>(td.Task, td.Status == ToDoStatus.Working);
             }
         }
 

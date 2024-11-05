@@ -24,7 +24,7 @@ partial struct DoorSystem : ISystem
         foreach (var (door, onGrid, bounds, anim, doorState, e) 
                  in SystemAPI.Query<Door, OnGrid, GridBounds, DynamicBuffer<DoorAnimationFaker>, EnabledRefRW<DoorStateChange>>()
                                                 .WithAll<DoorStateChange>()
-                                                .WithNone<UnderConstruction>()
+                                                .WithNone<Ghost>()
                                                 .WithEntityAccess())
         {
             doorState.ValueRW = false;

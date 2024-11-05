@@ -38,7 +38,7 @@ public unsafe struct NativeElementMap : IDisposable
     public ref MassHeader CellRW(int2 cell)
     {
         if (!IsInBounds(cell))
-            throw new IndexOutOfRangeException();
+            throw new IndexOutOfRangeException($"Cell not in bounds: {cell}");
         
         return ref UnsafeUtility.ArrayElementAsRef<MassHeader>(_massMap, AsIndex(cell));
     }
@@ -124,6 +124,8 @@ public unsafe struct NativeElementMap : IDisposable
 
     internal void Mix(int2 cellA, int2 cellB)
     {
+        if(!IsInBounds(cellB))
+            return;
         ref var a = ref CellRW(cellA);
         ref var b = ref CellRW(cellB);
 
@@ -136,8 +138,8 @@ public unsafe struct NativeElementMap : IDisposable
     
     public void Dispose()
     {
-        for (var x = chunkMin.x; x < chunkMax.x; x++)
-        for (var y = chunkMin.y; y < chunkMax.y; y++)
+        for (var x = chunkMin.x; x <= chunkMax.x; x++)
+        for (var y = chunkMin.y; y <= chunkMax.y; y++)
             this[x, y].Dispose();
         UnsafeUtility.FreeTracked(_massMap, m_AllocatorLabel);
         _massMap = null;

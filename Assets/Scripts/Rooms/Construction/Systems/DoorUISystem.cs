@@ -25,7 +25,7 @@ namespace Construction.Systems
         {
             foreach (var (door, doorState, e) in SystemAPI.Query<RefRW<Door>, EnabledRefRW<DoorStateChange>>()
                                                                   .WithAll<Selected>()
-                                                                  .WithNone<UnderConstruction>()
+                                                                  .WithNone<Ghost>()
                                                                   .WithOptions(EntityQueryOptions.IgnoreComponentEnabledState)
                                                                   .WithEntityAccess())
             {

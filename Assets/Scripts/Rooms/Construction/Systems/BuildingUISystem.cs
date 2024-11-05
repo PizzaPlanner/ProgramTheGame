@@ -13,7 +13,7 @@ namespace Construction.Systems
             var ecb = SystemAPI.GetSingleton<BeginInitializationEntityCommandBufferSystem.Singleton>().CreateCommandBuffer(World.Unmanaged);
             foreach (var (building, tasks, onGrid, e) in SystemAPI.Query<Building, DynamicBuffer<TaskProvider>, OnGrid>()
                                                            .WithAll<Selected>()
-                                                           .WithNone<UnderConstruction>()
+                                                           .WithNone<Ghost>()
                                                            .WithEntityAccess())
             {
                 if(!UISystemGroup.TryGet<SelectedUnitElement>(out var ui))

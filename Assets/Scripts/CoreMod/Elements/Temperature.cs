@@ -28,6 +28,6 @@ public struct Temperature
 
     public override string ToString()
     {
-        return $"{Celsius.ToString("#.#", CultureInfo.InvariantCulture)}C";
+        return $"{Celsius.ToString("F1", CultureInfo.InvariantCulture)}C";
     }
 }
