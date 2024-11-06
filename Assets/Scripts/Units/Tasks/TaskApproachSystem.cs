@@ -1,4 +1,5 @@
-﻿using Unity.Collections;
+﻿using Navigation;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
@@ -7,6 +8,10 @@ using UnityEngine.Experimental.AI;
 
 namespace Units
 {
+    public struct UnitPathing : IBufferElementData
+    {
+        public int2 Cell;
+    }
     public struct Movable : IComponentData
     {
         public float MovementSpeed;
@@ -26,31 +31,56 @@ namespace Units
             navQuery.Dispose();
         }
 
+        bool CalculatePath(DynamicBuffer<UnitPathing> pathfinding, int2 toCell, int2 currentCell, NavTree navigation)
+        {
+            if (pathfinding.Length < 2 || math.any(pathfinding[^1].Cell != toCell))
+            {
+                var list = new NativeList<int2>(Allocator.Temp);
+                pathfinding.Clear();
+                if (!navigation.Navigate(currentCell, toCell, ref list))
+                    return false;
+                
+                pathfinding.Reinterpret<int2>().AddRange(list.AsArray());
+            }
+
+            if (math.all(currentCell == pathfinding[0].Cell))
+                pathfinding.RemoveAt(0);
+            
+            return true;
+        }
+
         protected override void OnUpdate()
         {
             var deltaTime = SystemAPI.Time.DeltaTime;
             
             var taskLookup = SystemAPI.GetComponentLookup<Task>(true);
             var depenencyLookup = SystemAPI.GetBufferLookup<TaskProvider>(true);
-            var ltwLookup = SystemAPI.GetComponentLookup<LocalToWorld>(true);
-            foreach (var (todos, transform, ltw, movable, e) in 
-                     SystemAPI.Query<DynamicBuffer<ToDos>, RefRW<LocalTransform>, LocalToWorld, Movable>().WithEntityAccess())
+            var transformLookup = SystemAPI.GetComponentLookup<LocalTransform>(true);
+            foreach (var (todos, transform, movable, onGrid, pathing, e) in 
+                     SystemAPI.Query<DynamicBuffer<ToDos>, RefRW<LocalTransform>, Movable, OnGrid, DynamicBuffer<UnitPathing>>().WithEntityAccess())
             {
                 if (!ShouldApproachTopToDo(todos, taskLookup, depenencyLookup, out var task)) 
                     continue;
 
                 ref var td = ref todos.ElementAt(0);
-                if (!ltwLookup.TryGetComponent(task.Target, out var toLtw))
+                if (!transformLookup.TryGetComponent(task.Target, out var toTransform))
                 {
                     td.Status = ToDoStatus.Unreachable;
                     continue;
                 }
                 
-                var delta = toLtw.Position - ltw.Position;
-                var isInTaskRange = math.lengthsq(delta) < 0.3f;
+                var myCell = GridStructure.LocalToCell(transform.ValueRO.Position);
+                var targetCell = GridStructure.LocalToCell(toTransform.Position);
+                
+                var isInTaskRange = math.csum(math.abs(myCell - targetCell)) <= 1;
                 if (!isInTaskRange)
                 {
-                    var direction = math.normalize(delta);
+                    if (!CalculatePath(pathing, targetCell, myCell, SystemAPI.GetComponent<NavTree>(onGrid.Grid)))
+                    {
+                        td.Status = ToDoStatus.Unreachable;
+                        continue;
+                    }
+                    var direction = math.normalize(GridStructure.CellCenterToLocal(pathing[0].Cell) - transform.ValueRO.Position);
                     transform.ValueRW.Rotation = quaternion.LookRotationSafe(direction, math.up());
                     transform.ValueRW.Position += direction * deltaTime * movable.MovementSpeed;
                 }
@@ -59,7 +89,7 @@ namespace Units
                 SystemAPI.SetComponentEnabled<WorkedOn>(td.Task, td.Status == ToDoStatus.Working);
             }
 
-            foreach (var (todos, ltw, e) in SystemAPI.Query<DynamicBuffer<ToDos>, LocalToWorld>().WithNone<Movable>().WithEntityAccess())
+            foreach (var (todos, e) in SystemAPI.Query<DynamicBuffer<ToDos>>().WithNone<Movable>().WithEntityAccess())
             {
                 if (!ShouldApproachTopToDo(todos, taskLookup, depenencyLookup, out var task)) 
                     continue;

@@ -8,6 +8,7 @@
         "Unity.Collections",
         "Unity.Transforms",
         "Identifiables",
+        "Navigation",
         "Core"
     ],
     "includePlatforms": [],
