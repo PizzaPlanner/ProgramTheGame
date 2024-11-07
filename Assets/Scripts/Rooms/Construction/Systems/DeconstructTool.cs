@@ -1,6 +1,7 @@
 ﻿using Core;
 using Core.Input;
 using Identifiables;
+using Navigation;
 using System;
 using Units;
 using Unity.Collections;
@@ -126,7 +127,7 @@ partial class DeconstructToolUISystem : MapOverlaySystem<DeconstructTool>
         {
             selectionChanged =  true;
             EntityManager.RemoveComponent<HoverIndicator>(GetEntityQuery(typeof(HoverIndicator)));
-            var roomModel = SystemAPI.GetComponentRW<RoomModel>(GridEntity);
+            var navigation = SystemAPI.GetComponent<NavLayers>(GridEntity);
             DragArea.Max = CellAtCursor;
             if(!wantDrag)
                 DragArea.Min = CellAtCursor;
@@ -136,7 +137,7 @@ partial class DeconstructToolUISystem : MapOverlaySystem<DeconstructTool>
             for (int y = min.y; y <= max.y; y++)
                 foreach (var layer in layersToCheck)
                 {
-                    if (!roomModel.ValueRW.IsOccupiedAndResolved(new int2(x, y), layer, out var e))
+                    if (!navigation.IsOccupied(new int2(x, y), layer, out var e))
                         continue;
                     if(!SystemAPI.HasComponent<Building>(e))
                         continue;

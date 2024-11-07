@@ -1,12 +1,9 @@
 ﻿using Core;
 using System.Collections.Generic;
 using System.Linq;
-using Unity.Collections;
-using Unity.Collections.NotBurstCompatible;
 using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
 
 namespace Navigation

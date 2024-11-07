@@ -34,24 +34,10 @@ namespace Navigation
         public GridBounds Bounds;
         public int MaxLevel => (int)math.log2(math.ceilpow2(math.max(Bounds.Scale.x, Bounds.Scale.y)));
         public bool IsDirty => ChangeAreas.Length > 0 || Cells.IsEmpty;
+        public uint LastUpdate;
 
         public const int LEVEL_LIMIT = 10;
         public int LevelOf(int area) => area % LEVEL_LIMIT;
-
-        /// <summary>
-        /// Returns the children, clockwise, starting at bottom left
-        /// </summary>
-        /// <param name="cell"></param>
-        /// <returns></returns>
-        public int3x4 ChildrenOf(int3 cell)
-        {
-            var offset = 1 << (cell.z - 1);
-            return new int3x4(
-                new int3(cell.x, cell.y, cell.z - 1), 
-                new int3(cell.x, cell.y + offset, cell.z - 1), 
-                new int3(cell.x + offset, cell.y + offset, cell.z - 1),
-                new int3(cell.x + offset, cell.y, cell.z - 1));  
-        } 
 
         public int3 ParentOf(int3 cell)
         {

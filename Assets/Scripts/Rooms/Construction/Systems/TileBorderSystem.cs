@@ -1,4 +1,5 @@
-﻿using Unity.Collections;
+﻿using Navigation;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
@@ -14,7 +15,7 @@ partial struct TileBorderSystem : ISystem
 {
     public void OnCreate(ref SystemState state)
     {
-        state.RequireForUpdate<PendingGridUpdate>();
+        state.RequireForUpdate<BuildingsChangedEvent>();
     }
 
     public void OnUpdate(ref SystemState state)
@@ -27,24 +28,24 @@ partial struct TileBorderSystem : ISystem
             // TODO: This causes each pair of neighbours to exchange twice in MassesUpdateJob!
             neighbours.Clear();
             var newNeighbours = new NativeHashSet<Entity>(4, Allocator.Temp);
-            var roomMap = SystemAPI.GetComponent<RoomModel>(baked.Grid);
+            var roomMap = SystemAPI.GetComponent<NavLayers>(baked.Grid);
             var bounds = baked.Area;
             for (int x = bounds.Min.x; x <= bounds.Max.x; x++)
             {
                 var top = new int2(x, bounds.Max.y + 1);
                 var bottom = new int2(x, bounds.Min.y - 1);
-                if(roomMap.IsOccupiedAndResolved(top, baked.Layer, out var nb))
+                if(roomMap.IsOccupied(top, baked.Layer, out var nb))
                     newNeighbours.Add(nb);
-                if(roomMap.IsOccupiedAndResolved(bottom, baked.Layer, out var nb2))
+                if(roomMap.IsOccupied(bottom, baked.Layer, out var nb2))
                     newNeighbours.Add(nb2);
             }
             for (int y = bounds.Min.y; y <= bounds.Max.y; y++)
             {
                 var left = new int2(bounds.Min.x - 1, y);
                 var right = new int2(bounds.Max.x + 1, y);
-                if(roomMap.IsOccupiedAndResolved(left, baked.Layer, out var nb))
+                if(roomMap.IsOccupied(left, baked.Layer, out var nb))
                     newNeighbours.Add(nb);
-                if(roomMap.IsOccupiedAndResolved(right, baked.Layer, out var nb2))
+                if(roomMap.IsOccupied(right, baked.Layer, out var nb2))
                     newNeighbours.Add(nb2);
             }
             foreach(var nb in newNeighbours)
@@ -56,7 +57,7 @@ partial struct TileBorderSystem : ISystem
             if(!SystemAPI.HasComponent<BakedIntoRoomMap>(parent.Value))
                 continue;
             var tile = SystemAPI.GetComponent<BakedIntoRoomMap>(parent.Value);
-            var roomMap = SystemAPI.GetComponent<RoomModel>(tile.Grid);
+            var roomMap = SystemAPI.GetComponent<NavLayers>(tile.Grid);
             var cell = tile.Area.Min;
             if(roomMap.IsOccupied(cell + border.Direction, tile.Layer))
                 ecb.AddComponent<Disabled>(e);
@@ -69,7 +70,7 @@ partial struct TileBorderSystem : ISystem
             if(!SystemAPI.HasComponent<BakedIntoRoomMap>(parent.Value))
                 continue;
             var tile = SystemAPI.GetComponent<BakedIntoRoomMap>(parent.Value);
-            var roomMap = SystemAPI.GetComponent<RoomModel>(tile.Grid);
+            var roomMap = SystemAPI.GetComponent<NavLayers>(tile.Grid);
             var cell = tile.Area.Min;
             if(!roomMap.IsOccupied(cell + border.Direction, tile.Layer))
                 ecb.RemoveComponent<Disabled>(e);

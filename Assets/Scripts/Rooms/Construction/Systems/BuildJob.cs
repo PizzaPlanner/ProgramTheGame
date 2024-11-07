@@ -13,7 +13,7 @@ public partial struct BuildJob : IJobEntity
     public Entity constructTaskPrefab, orderTaskPrefab;
     [NativeDisableContainerSafetyRestriction] public ComponentLookup<RoomModel> roomLookup;
     [NativeDisableContainerSafetyRestriction] public ComponentLookup<MassModel> massLookup;
-    [NativeDisableContainerSafetyRestriction] public ComponentLookup<NavTree> navTreeLookup;
+    [NativeDisableContainerSafetyRestriction] public ComponentLookup<NavLayers> navLayerLookup;
     [ReadOnly] public ComponentLookup<GridBounds> boundsLookup;
     [ReadOnly] public ComponentLookup<Building> buildingLookup;
     [ReadOnly] public ComponentLookup<Ghost> ghostLookup;
@@ -36,7 +36,7 @@ public partial struct BuildJob : IJobEntity
             }
         }
 
-        if (!roomLookup.TryGetComponent(planned.Parent, out var Rooms))
+        if (!navLayerLookup.TryGetComponent(planned.Parent, out var navigation))
         {
             Debug.LogError($"Can not build on {planned.Parent}");
             return;
@@ -54,7 +54,7 @@ public partial struct BuildJob : IJobEntity
             return;
         }
         
-        if (Rooms.IsOccupiedForPlacement(area, building.Layer) && planned.Mode != ConstructionMode.PlacementPreview)
+        if (navigation.IsOccupiedForPlacement(area, building.Layer) && planned.Mode != ConstructionMode.PlacementPreview)
         {
             Debug.LogWarning($"Discarded pending part in invalid or occupied area {bounds.Min}/{bounds.Max}");
             return;
@@ -72,7 +72,7 @@ public partial struct BuildJob : IJobEntity
         if (isPlacing)
         {
             ecb.AddComponent<CurrentGhost>(entity);
-            ecb.AddComponent(entity, new Ghost { GhostBuildable = !Rooms.IsOccupiedForPlacement(area, building.Layer) });
+            ecb.AddComponent(entity, new Ghost { GhostBuildable = !navigation.IsOccupiedForPlacement(area, building.Layer) });
             ecb.SetComponent(entity, planned.Materials);
             ecb.RemoveComponent<MassData>(entity);
         }
@@ -83,7 +83,7 @@ public partial struct BuildJob : IJobEntity
             ecb.SetComponent(entity, new OnGrid { Grid = planned.Parent });
             ecb.SetComponent(entity, planned.Materials);
             ecb.RemoveComponent<MassData>(entity);
-            ecb.AddComponent(entity, new BakedIntoRoomMap { Grid = planned.Parent, Area = area, Layer = building.Layer });
+            ecb.AddComponent(entity, new ToBeBakedIntoRoomMap { Grid = planned.Parent, Area = area, Layer = building.Layer });
             ecb.AddBuffer<Inventory>(entity);
             for (var i = 0; i < planned.Materials.BuildMaterials.Length; i++)
             {
@@ -95,13 +95,10 @@ public partial struct BuildJob : IJobEntity
                     IsTypeLocked = true
                 });
             }
-
-            Rooms.ReserveOccupiedArea(area, building.Layer, entity, ecb); 
         }
         else
         {
             ecb.RemoveComponent<ConstructionVariant>(entity);
-            ecb.AddComponent<PendingGridUpdate>(planned.Parent);
             if(planned.Materials.PrimaryMass.ElementType != default)
                 ecb.SetComponent(entity, planned.Materials.PrimaryMass);
             ecb.SetComponent(entity, new OnGrid { Grid = planned.Parent });
@@ -112,20 +109,7 @@ public partial struct BuildJob : IJobEntity
             ref var massModel = ref massLookup.GetRefRW(planned.Parent).ValueRW;
             massModel.Resize(gridBbox.BoundsMin, gridBbox.BoundsMax);
             
-            ref var navTree = ref navTreeLookup.GetRefRW(planned.Parent).ValueRW;
-            ecb.AddComponent(entity, new BakedIntoRoomMap { Grid = planned.Parent, Area = area, Layer = building.Layer });
-            Rooms.ReserveOccupiedArea(area, building.Layer, entity, ecb);
-            if (building.Layer.IsWall())
-            {
-                massModel.AddWall(area);
-                navTree.SetAreaDirty(area);
-            }
-
-            if (building.Layer.IsFloor())
-            {
-                massModel.AddFloor(area);
-                navTree.SetAreaDirty(area);
-            }
+            ecb.AddComponent(entity, new ToBeBakedIntoRoomMap { Grid = planned.Parent, Area = area, Layer = building.Layer });
         }
     }
 

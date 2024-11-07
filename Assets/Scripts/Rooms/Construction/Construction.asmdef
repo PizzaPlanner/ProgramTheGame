@@ -12,7 +12,8 @@
         "Identifiables",
         "Items",
         "Core",
-        "Elements"
+        "Elements",
+        "Navigation"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

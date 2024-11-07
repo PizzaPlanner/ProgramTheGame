@@ -30,16 +30,16 @@ partial struct DoorSystem : ISystem
             ref var navTree = ref SystemAPI.GetComponentRW<NavTree>(birm.Grid).ValueRW;
             navTree.SetAreaDirty(birm.Area);
             
-            ref var roomModel = ref SystemAPI.GetComponentRW<RoomModel>(birm.Grid).ValueRW;
+            ref var navLayer = ref SystemAPI.GetComponentRW<NavLayers>(birm.Grid).ValueRW;
             if (door.ValueRW.CurrentState == Door.DoorState.Locked)
             {
                 ecb.AddComponent<Wall>(e);
-                roomModel.AddOccupiedArea(birm.Area, BuildingLayer.Wall, e);
+                navLayer.AddOccupiedArea(birm.Area, birm.Layer, e);
             }
             else
             {
                 ecb.RemoveComponent<Wall>(e);
-                roomModel.FreeOccupation(birm.Area, BuildingLayer.Wall);
+                navLayer.FreeOccupation(birm.Area, birm.Layer);
             }
             
             if(door.ValueRW.CurrentState == Door.DoorState.Open)

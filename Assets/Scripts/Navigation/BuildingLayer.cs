@@ -12,10 +12,18 @@ public enum BuildingLayer : byte
     Pipe = 16,
     Wire = 32,
     Door = BaseLevel | 64,
+    Ghost = 128
 }
 
 public static class BuildingLayerExtensions
 {
+    // Must be >= log2(max(BuildingLayer))
+    public const int MAX_LAYER = 10;
+    public const BuildingLayer ANY_LEVEL = BuildingLayer.BaseLevel | BuildingLayer.FloorLevel;
+    
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static BuildingLayer AsGhostLayer(this BuildingLayer layer) => (layer & ANY_LEVEL) | BuildingLayer.Ghost;
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool IsWall(this BuildingLayer layer) => (layer & BuildingLayer.Wall) > BuildingLayer.FloorLevel;
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

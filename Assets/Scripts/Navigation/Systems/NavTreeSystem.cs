@@ -1,4 +1,6 @@
-﻿using Unity.Collections;
+﻿using Core;
+using Unity.Collections;
+using Unity.Core;
 using Unity.Entities;
 
 namespace Navigation
@@ -19,26 +21,24 @@ namespace Navigation
                                                       .WithEntityAccess())
             {
                 ecb.AddComponent<NavTree>(e);
+                ecb.AddComponent(e, new NavLayers(Allocator.Persistent));
             }
             
-            foreach (var (tree, e) in SystemAPI.Query<NavTree>()
+            foreach (var (tree, layers, e) in SystemAPI.Query<NavTree, NavLayers>()
                                                       .WithNone<GridStructure>()
                                                       .WithEntityAccess())
             {
+                layers.Dispose();
                 tree.Dispose();
                 ecb.RemoveComponent<NavTree>(e);
+                ecb.RemoveComponent<NavLayers>(e);
             }
             ecb.Playback(state.EntityManager);
             
-            // foreach (var (grid, navTree, rooms) in SystemAPI.Query<GridStructure, RefRW<NavTree>, RoomModel>()
-            //                                          .WithAll<PendingGridUpdate>())
-            // {
-            //     navTree.ValueRW.BuildTree(grid, rooms);
-            // }
             new NavTreeRecalculationJob
             {
                 treeLookup = SystemAPI.GetComponentLookup<NavTree>(false),
-                roomLookup = SystemAPI.GetComponentLookup<RoomModel>(true)
+                currentTick = SystemAPI.GetSingleton<SimulationState>().LastSimulationTick
             }.Run();
         }
     }

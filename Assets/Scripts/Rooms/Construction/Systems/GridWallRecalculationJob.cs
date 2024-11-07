@@ -3,7 +3,7 @@ using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using Unity.Mathematics;
 
-[WithAll(typeof(PendingGridUpdate), typeof(RoomModel))]
+[WithAll(typeof(RoomModel))]
 public partial struct GridRoomRecalculationJob : IJobEntity
 {
     [NativeDisableContainerSafetyRestriction] 

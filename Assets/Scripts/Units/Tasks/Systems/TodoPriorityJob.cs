@@ -1,4 +1,5 @@
 ﻿using Identifiables;
+using Navigation;
 using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Entities;
@@ -10,20 +11,27 @@ namespace Units
     {
         [ReadOnly] public ComponentLookup<Task> taskLookup;
         [ReadOnly] public ComponentLookup<TaskRequirement> requirementLookup;
+        [ReadOnly] public ComponentLookup<NavTree> navTreeLookup;
         public ComponentLookup<WorkedOn> workedOnLookup;
+        public uint currentTick;
         struct PrioritySorter : IComparer<ToDos>
         {
             public int Compare(ToDos x, ToDos y) => y.PerceivedPriority.CompareTo(x.PerceivedPriority);
         }
-        
-        void Execute(Entity e, ref DynamicBuffer<ToDos> todos, in DynamicBuffer<Skills> skills)
+
+
+        void Execute(Entity e, ref DynamicBuffer<ToDos> todos, in DynamicBuffer<Skills> skills, in OnGrid onGrid)
         {
             if (todos.Length == 0)
                 return;
 
+            var shouldResetUnreachableState = navTreeLookup[onGrid.Grid].LastUpdate >= currentTick;
             for (int i = 0; i < todos.Length; i++)
             {
-                todos[i] = todos[i].Prioritize(e, taskLookup, requirementLookup, skills);
+                ref var todo = ref todos.ElementAt(i);
+                if(shouldResetUnreachableState && todo.Status == ToDoStatus.Unreachable)
+                    todo.Status = ToDoStatus.Requested;
+                todo.Prioritize(e, taskLookup, requirementLookup, skills);
             }
             todos.AsNativeArray().Sort(new PrioritySorter());
             var best = todos[0];

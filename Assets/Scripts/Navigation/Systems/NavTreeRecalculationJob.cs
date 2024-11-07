@@ -12,25 +12,24 @@ namespace Navigation
     {
         [NativeDisableContainerSafetyRestriction] 
         public ComponentLookup<NavTree> treeLookup;
-        [NativeDisableContainerSafetyRestriction, ReadOnly] 
-        public ComponentLookup<RoomModel> roomLookup;
-        void Execute(Entity e, in GridStructure grid)
+        public uint currentTick;
+        void Execute(Entity e, in GridStructure grid, in NavLayers layers)
         {
             var tree = treeLookup[e];
             if(!tree.IsDirty)
                 return;
-            var rooms = roomLookup[e];
             var sameRoomMap = new NativeHashSet<(int, int)>(32, Allocator.Temp);
             var roomRemapMap = new NativeHashMap<int, int>(32, Allocator.Temp);
             
             var bbox = grid.LocalAABB;
             tree.Init(bbox);
+            tree.LastUpdate = currentTick;
             var maxArea = 0;
             for (int x = bbox.Min.x; x <= bbox.Max.x; x++)
             for (int y = bbox.Min.y; y <= bbox.Max.y; y++)
             {
                 var selfCell = new int2(x, y);
-                if(!rooms.IsPathable(selfCell))
+                if(!layers.IsPathable(selfCell))
                     continue;
                 var areas = new FixedList64Bytes<int>
                 {

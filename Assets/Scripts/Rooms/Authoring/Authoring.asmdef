@@ -21,7 +21,8 @@
         "Elements",
         "Elements.Authoring",
         "Construction.Systems",
-        "Units.Authoring"
+        "Units.Authoring",
+        "Navigation"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

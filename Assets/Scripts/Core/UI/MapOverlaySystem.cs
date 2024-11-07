@@ -26,7 +26,7 @@ namespace Core
         protected virtual bool ShouldUpdateTexture()
         {
             // Update texture 1 tick after TickBasedSystemGroup ran to spread load on big maps
-            var tickGroupVersion = World.GetExistingSystemManaged<TickBasedSystemGroup>().LastTick;
+            var tickGroupVersion = SystemAPI.GetSingleton<SimulationState>().LastSimulationTick;
             if (tickGroupVersion != _tickGroupRunMarker)
             {
                 _tickGroupRunMarker = tickGroupVersion;

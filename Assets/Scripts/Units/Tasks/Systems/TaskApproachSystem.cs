@@ -51,25 +51,26 @@ namespace Units
                 
                 var myCell = LocalToCell(transform.ValueRO.Position);
                 var targetCell = LocalToCell(toTransform.Position);
-                var roomModel = SystemAPI.GetComponent<RoomModel>(onGrid.Grid);
+                var navTree = SystemAPI.GetComponent<NavTree>(onGrid.Grid);
+                var navLayers = SystemAPI.GetComponent<NavLayers>(onGrid.Grid);
 
                 // Is unit trapped? Try to teleport to nearby unoccupied cell
-                if (!roomModel.IsPathable(myCell))
+                if (!navLayers.IsPathable(myCell))
                 {
                     foreach (var neighbour in stackalloc int2[]
                                  { new int2(1, 0), new int2(-1, 0), new int2(0, 1), new int2(0, -1) })
                     {
-                        if(roomModel.IsPathable(myCell + neighbour))
+                        if(navLayers.IsPathable(myCell + neighbour))
                             transform.ValueRW.Position = CellCenterToLocal(myCell + neighbour);
                     }
                     continue;
                 }
                 
-                var isTargetCellPathable = !roomModel.IsOccupied(targetCell, BuildingLayer.Wall);
+                var isTargetCellPathable = !navLayers.IsOccupied(targetCell, BuildingLayer.Wall);
                 var isInTaskRange = math.csum(math.abs(myCell - targetCell)) <= (isTargetCellPathable ? 0 : 1);
                 if (!isInTaskRange)
                 {
-                    if (!CalculatePath(pathing, targetCell, myCell, isTargetCellPathable, SystemAPI.GetComponent<NavTree>(onGrid.Grid)))
+                    if (!CalculatePath(pathing, targetCell, myCell, isTargetCellPathable, navTree))
                     {
                         td.Status = ToDoStatus.Unreachable;
                         continue;

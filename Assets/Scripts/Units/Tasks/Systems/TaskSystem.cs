@@ -1,6 +1,7 @@
 ﻿using Core;
 using Core.Grid;
 using Identifiables;
+using Navigation;
 using Unity.Collections;
 using Unity.Entities;
 using UnityEngine;
@@ -48,12 +49,15 @@ namespace Units
             {
                 taskLookup = taskLookup,
                 uniquenessLookup = SystemAPI.GetComponentLookup<TaskUniquenessGroup>(true),
+                
             }.ScheduleParallel(state.Dependency);
             state.Dependency = new TodoPriorityJob
             {
                 requirementLookup = requirementLookup,
                 taskLookup = taskLookup,
-                workedOnLookup = SystemAPI.GetComponentLookup<WorkedOn>()
+                workedOnLookup = SystemAPI.GetComponentLookup<WorkedOn>(),
+                navTreeLookup  = SystemAPI.GetComponentLookup<NavTree>(true),
+                currentTick = SystemAPI.GetSingleton<SimulationState>().LastSimulationTick
             }.Schedule(state.Dependency);
             state.Dependency = new TaskRequestJob
             {

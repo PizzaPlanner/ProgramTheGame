@@ -21,6 +21,9 @@ partial struct BuildSystem : ISystem
                            .CreateCommandBuffer(state.WorldUnmanaged);
         
         var ecbNow = new EntityCommandBuffer(Allocator.Temp);
+        
+        state.EntityManager.RemoveComponent<BuildingsChangedEvent>(SystemAPI.QueryBuilder().WithAll<BuildingsChangedEvent>().Build());
+        
         // Remove dangling rooms
         foreach (var (model, e) in SystemAPI.Query<RoomModel>().WithNone<LocalToWorld>().WithEntityAccess())
         {
@@ -37,34 +40,71 @@ partial struct BuildSystem : ISystem
         }
 
         // Fix links to deferred entities
-        foreach (var (baked, e) in SystemAPI.Query<BakedIntoRoomMap>().WithAll<PendingResolveRoomMap>()
+        foreach (var (toBake, e) in SystemAPI.Query<ToBeBakedIntoRoomMap>().WithNone<BakedIntoRoomMap>()
                                             .WithEntityAccess())
         {
-            var roomModel = SystemAPI.GetComponentRW<RoomModel>(baked.Grid);
-            roomModel.ValueRW.AddOccupiedArea(baked.Area, baked.Layer, e);
+            ref var massModel = ref SystemAPI.GetComponentRW<MassModel>(toBake.Grid).ValueRW;
+            ref var navLayers = ref SystemAPI.GetComponentRW<NavLayers>(toBake.Grid).ValueRW;
+            ref var navTree = ref SystemAPI.GetComponentRW<NavTree>(toBake.Grid).ValueRW;
+            ecb.AddComponent<BuildingsChangedEvent>(toBake.Grid);
+            if (SystemAPI.HasComponent<Ghost>(e))
+            {
+                ecbNow.AddComponent(e, new BakedIntoRoomMap
+                {
+                    Grid = toBake.Grid,
+                    Layer = toBake.Layer.AsGhostLayer(),
+                    Area = toBake.Area,
+                });
+                ecbNow.RemoveComponent<ToBeBakedIntoRoomMap>(e);
+                navLayers.GhostBlockArea(toBake.Area, toBake.Layer, e);
+                continue;
+            }
+            
+            if (toBake.Layer.IsWall())
+            {
+                massModel.AddWall(toBake.Area);
+                navTree.SetAreaDirty(toBake.Area);
+                navLayers.AddOccupiedArea(toBake.Area, toBake.Layer, e);
+            }
+
+            if (toBake.Layer.IsFloor())
+            {
+                massModel.AddFloor(toBake.Area);
+                navTree.SetAreaDirty(toBake.Area);
+                navLayers.AddOccupiedArea(toBake.Area, toBake.Layer, e);
+            }
+            ecbNow.AddComponent(e, new BakedIntoRoomMap
+            {
+                Grid = toBake.Grid,
+                Layer = toBake.Layer,
+                Area = toBake.Area,
+            });
+            ecbNow.RemoveComponent<ToBeBakedIntoRoomMap>(e);
         }
         
         // Clean up occupations
         foreach (var (baked, e) in SystemAPI.Query<BakedIntoRoomMap>().WithNone<LocalToWorld>().WithEntityAccess())
         {
-            if(!SystemAPI.HasComponent<RoomModel>(baked.Grid))
+            if(!SystemAPI.HasComponent<NavTree>(baked.Grid))
                 continue;
             
-            var roomModel = SystemAPI.GetComponentRW<RoomModel>(baked.Grid);
-            var massModel = SystemAPI.GetComponentRW<MassModel>(baked.Grid);
-            var navTree = SystemAPI.GetComponentRW<NavTree>(baked.Grid);
-            roomModel.ValueRW.FreeOccupation(baked.Area, baked.Layer);
-            ecb.AddComponent<PendingGridUpdate>(baked.Grid);
+            ref var massModel = ref SystemAPI.GetComponentRW<MassModel>(baked.Grid).ValueRW;
+            ref var navLayers = ref SystemAPI.GetComponentRW<NavLayers>(baked.Grid).ValueRW;
+            ref var navTree = ref SystemAPI.GetComponentRW<NavTree>(baked.Grid).ValueRW;
+            navLayers.FreeOccupation(baked.Area, baked.Layer);
             ecb.RemoveComponent<BakedIntoRoomMap>(e);
+            var isGhost = (baked.Layer & BuildingLayer.Ghost) != 0;
+            if(isGhost)
+                continue;
             if (baked.Layer.IsWall())
             {
-                massModel.ValueRW.RemoveWall(baked.Area);
-                navTree.ValueRW.SetAreaDirty(baked.Area);
+                massModel.RemoveWall(baked.Area);
+                navTree.SetAreaDirty(baked.Area);
             }
             else if (baked.Layer.IsFloor())
             {
-                massModel.ValueRW.RemoveFloor(baked.Area);
-                navTree.ValueRW.SetAreaDirty(baked.Area);
+                massModel.RemoveFloor(baked.Area);
+                navTree.SetAreaDirty(baked.Area);
             }
         }
         ecbNow.Playback(state.EntityManager);
@@ -75,9 +115,6 @@ partial struct BuildSystem : ISystem
             roomLookup = SystemAPI.GetComponentLookup<RoomModel>(false)
         }.Run();
         
-        state.EntityManager.RemoveComponent<PendingGridUpdate>(SystemAPI.QueryBuilder().WithAll<PendingGridUpdate>().Build());
-        state.EntityManager.RemoveComponent<PendingResolveRoomMap>(SystemAPI.QueryBuilder().WithAll<PendingResolveRoomMap>().Build());
-        
         // Spawn buildings and ghosts based on planned constructions
         new BuildJob()
         {
@@ -87,7 +124,7 @@ partial struct BuildSystem : ISystem
             boundsLookup = SystemAPI.GetComponentLookup<GridBounds>(true),
             roomLookup = SystemAPI.GetComponentLookup<RoomModel>(false),
             massLookup = SystemAPI.GetComponentLookup<MassModel>(false),
-            navTreeLookup = SystemAPI.GetComponentLookup<NavTree>(false),
+            navLayerLookup = SystemAPI.GetComponentLookup<NavLayers>(false),
             structureLookup = SystemAPI.GetComponentLookup<GridStructure>(false),
             buildingLookup = SystemAPI.GetComponentLookup<Building>(true),
             ghostLookup = SystemAPI.GetComponentLookup<Ghost>(true)

@@ -20,7 +20,7 @@
         "Construction.Systems",
         "Units",
         "Blueprints",
-        "Rooms"
+        "Navigation"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
