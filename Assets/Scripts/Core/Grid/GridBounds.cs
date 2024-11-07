@@ -10,7 +10,7 @@ public struct GridBounds : IComponentData
     public readonly float3 Center => math.lerp(Min, Max + 1, 0.5f).xxy * new float3(1, 0, 1);
     public static GridBounds Empty => new GridBounds { Min = int.MaxValue, Max = int.MinValue };
 
-    public bool Contains(int2 cell) => math.all(cell >= Min) && math.all(cell <= Max);
+    public readonly bool Contains(int2 cell) => math.all(cell >= Min) && math.all(cell <= Max);
 
     public override string ToString() => $"Bounds[{Min},{Max}]";
 

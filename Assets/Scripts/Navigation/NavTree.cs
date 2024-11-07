@@ -26,12 +26,14 @@ namespace Navigation
     }
     public struct NavTree : ICleanupComponentData, IDisposable
     {
+        internal UnsafeList<GridBounds> ChangeAreas;
         internal UnsafeHashMap<int2, NavCell> Cells;
         internal UnsafeParallelMultiHashMap<int, int2> CellsByArea;
         internal UnsafeParallelHashMap<int, GridBounds> BoundsByArea;
         internal UnsafeParallelHashMap<int, UnsafeHashSet<int>> AreaConnections;
         public GridBounds Bounds;
         public int MaxLevel => (int)math.log2(math.ceilpow2(math.max(Bounds.Scale.x, Bounds.Scale.y)));
+        public bool IsDirty => ChangeAreas.Length > 0 || Cells.IsEmpty;
 
         public const int LEVEL_LIMIT = 10;
         public int LevelOf(int area) => area % LEVEL_LIMIT;
@@ -67,6 +69,24 @@ namespace Navigation
                 Min = min,
                 Max = max
             };
+        }
+
+        // For finding paths to walls, which are not on the navtree
+        public bool NavigateAdjacent(int2 start, int2 blockedEnd, ref NativeList<int2> path)
+        {
+            Span<int2> neighbours = stackalloc int2[] { new int2(1, 0), new int2(-1, 0), new int2(0, 1), new int2(0, -1)};
+            foreach (var nb in neighbours)
+            {
+                var cell = blockedEnd + nb;
+                if(Cells.TryGetValue(cell, out _))
+                    return Navigate(start, cell, ref path);
+            }
+            return false;
+        }
+
+        public void SetAreaDirty(GridBounds bounds)
+        {
+            ChangeAreas.Add(bounds);
         }
         
         public bool Navigate(int2 start, int2 end, ref NativeList<int2> path)
@@ -154,7 +174,6 @@ namespace Navigation
             // AStar to the best cell from targetArea directly reachable by startArea
             var targetLevelIndex = LevelOf(nextArea) - 1;
             var currentArea = Cells[start].Areas[targetLevelIndex];
-            Debug.Log($"Nav from {start} in {currentArea} to {nextArea} on index {targetLevelIndex}");
 
             var open = new NativeList<int2>(32, Allocator.Temp);
             var closed = new NativeHashSet<int2>(32, Allocator.Temp);
@@ -276,6 +295,8 @@ namespace Navigation
                 CellsByArea.Dispose();
             if(BoundsByArea.IsCreated)
                 BoundsByArea.Dispose();
+            if(ChangeAreas.IsCreated)
+                ChangeAreas.Dispose();
             if (AreaConnections.IsCreated)
             {
                 foreach(var entry in AreaConnections.GetValueArray(Allocator.Temp))
@@ -288,6 +309,7 @@ namespace Navigation
         {
             Dispose();
             Bounds = bounds;
+            ChangeAreas = new (4, Allocator.Persistent);
             CellsByArea = new (bounds.Size / 4, Allocator.Persistent);
             Cells = new (bounds.Size / 4, Allocator.Persistent);
             AreaConnections = new (bounds.Size / 16, Allocator.Persistent);

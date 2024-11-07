@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace Navigation
 {
-    [WithAll(typeof(PendingGridUpdate), typeof(NavTree), typeof(RoomModel))]
+    [WithAll(typeof(NavTree), typeof(RoomModel))]
     public partial struct NavTreeRecalculationJob : IJobEntity
     {
         [NativeDisableContainerSafetyRestriction] 
@@ -17,6 +17,8 @@ namespace Navigation
         void Execute(Entity e, in GridStructure grid)
         {
             var tree = treeLookup[e];
+            if(!tree.IsDirty)
+                return;
             var rooms = roomLookup[e];
             var sameRoomMap = new NativeHashSet<(int, int)>(32, Allocator.Temp);
             var roomRemapMap = new NativeHashMap<int, int>(32, Allocator.Temp);
@@ -28,7 +30,7 @@ namespace Navigation
             for (int y = bbox.Min.y; y <= bbox.Max.y; y++)
             {
                 var selfCell = new int2(x, y);
-                if(!rooms.IsOccupied(selfCell, BuildingLayer.FloorLevel) || rooms.IsOccupied(selfCell, BuildingLayer.Wall))
+                if(!rooms.IsPathable(selfCell))
                     continue;
                 var areas = new FixedList64Bytes<int>
                 {

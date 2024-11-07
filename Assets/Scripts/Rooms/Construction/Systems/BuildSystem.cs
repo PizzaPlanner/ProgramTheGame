@@ -4,7 +4,7 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
-using UnityEngine;
+using Navigation;
 
 partial struct BuildSystem : ISystem
 {
@@ -52,13 +52,20 @@ partial struct BuildSystem : ISystem
             
             var roomModel = SystemAPI.GetComponentRW<RoomModel>(baked.Grid);
             var massModel = SystemAPI.GetComponentRW<MassModel>(baked.Grid);
+            var navTree = SystemAPI.GetComponentRW<NavTree>(baked.Grid);
             roomModel.ValueRW.FreeOccupation(baked.Area, baked.Layer);
             ecb.AddComponent<PendingGridUpdate>(baked.Grid);
             ecb.RemoveComponent<BakedIntoRoomMap>(e);
             if (baked.Layer.IsWall())
+            {
                 massModel.ValueRW.RemoveWall(baked.Area);
+                navTree.ValueRW.SetAreaDirty(baked.Area);
+            }
             else if (baked.Layer.IsFloor())
+            {
                 massModel.ValueRW.RemoveFloor(baked.Area);
+                navTree.ValueRW.SetAreaDirty(baked.Area);
+            }
         }
         ecbNow.Playback(state.EntityManager);
         
@@ -80,6 +87,7 @@ partial struct BuildSystem : ISystem
             boundsLookup = SystemAPI.GetComponentLookup<GridBounds>(true),
             roomLookup = SystemAPI.GetComponentLookup<RoomModel>(false),
             massLookup = SystemAPI.GetComponentLookup<MassModel>(false),
+            navTreeLookup = SystemAPI.GetComponentLookup<NavTree>(false),
             structureLookup = SystemAPI.GetComponentLookup<GridStructure>(false),
             buildingLookup = SystemAPI.GetComponentLookup<Building>(true),
             ghostLookup = SystemAPI.GetComponentLookup<Ghost>(true)

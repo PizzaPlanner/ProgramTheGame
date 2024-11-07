@@ -1,4 +1,4 @@
-using Identifiables;
+using Navigation;
 using Units;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
@@ -13,6 +13,7 @@ public partial struct BuildJob : IJobEntity
     public Entity constructTaskPrefab, orderTaskPrefab;
     [NativeDisableContainerSafetyRestriction] public ComponentLookup<RoomModel> roomLookup;
     [NativeDisableContainerSafetyRestriction] public ComponentLookup<MassModel> massLookup;
+    [NativeDisableContainerSafetyRestriction] public ComponentLookup<NavTree> navTreeLookup;
     [ReadOnly] public ComponentLookup<GridBounds> boundsLookup;
     [ReadOnly] public ComponentLookup<Building> buildingLookup;
     [ReadOnly] public ComponentLookup<Ghost> ghostLookup;
@@ -111,12 +112,20 @@ public partial struct BuildJob : IJobEntity
             ref var massModel = ref massLookup.GetRefRW(planned.Parent).ValueRW;
             massModel.Resize(gridBbox.BoundsMin, gridBbox.BoundsMax);
             
+            ref var navTree = ref navTreeLookup.GetRefRW(planned.Parent).ValueRW;
             ecb.AddComponent(entity, new BakedIntoRoomMap { Grid = planned.Parent, Area = area, Layer = building.Layer });
             Rooms.ReserveOccupiedArea(area, building.Layer, entity, ecb);
             if (building.Layer.IsWall())
+            {
                 massModel.AddWall(area);
-            if(building.Layer.IsFloor())
+                navTree.SetAreaDirty(area);
+            }
+
+            if (building.Layer.IsFloor())
+            {
                 massModel.AddFloor(area);
+                navTree.SetAreaDirty(area);
+            }
         }
     }
 

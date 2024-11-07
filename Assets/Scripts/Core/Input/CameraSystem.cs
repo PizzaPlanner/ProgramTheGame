@@ -6,7 +6,7 @@ using Unity.Transforms;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public struct Navigation : IInputActionState
+struct Navigation : IInputActionState
 {
     public string[] StateSets => Array.Empty<string>();
     public InputActionMap StateFor(InputActions asset) => asset.Player;

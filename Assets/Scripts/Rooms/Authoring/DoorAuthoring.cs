@@ -15,9 +15,12 @@ public class DoorAuthoring : MonoBehaviour
                 return;
             }
             var e = GetEntity(TransformUsageFlags.Renderable);
-            AddComponent(e, new Door());
-            AddComponent<DoorStateChange>(e);
-            SetComponentEnabled<DoorStateChange>(e, true);
+            // Start with differing states to enforce immediate recalculation
+            AddComponent(e, new Door
+            {
+                TargetState = Door.DoorState.Closed, 
+                CurrentState = Door.DoorState.Open
+            });
             var anim = AddBuffer<DoorAnimationFaker>(e);
             foreach(var go in authoring.AnimatedParts)
                 anim.Add(new DoorAnimationFaker{MovablePart = GetEntity(go, TransformUsageFlags.Dynamic)});

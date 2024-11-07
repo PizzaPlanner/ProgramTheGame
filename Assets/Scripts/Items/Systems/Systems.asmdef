@@ -14,7 +14,8 @@
         "Identifiables.UI",
         "Core",
         "Construction",
-        "Tasks"
+        "Tasks",
+        "Tasks.Systems"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

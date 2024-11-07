@@ -24,7 +24,8 @@
         "Units.UI",
         "Units",
         "Elements",
-        "Items.UI"
+        "Items.UI",
+        "Navigation"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

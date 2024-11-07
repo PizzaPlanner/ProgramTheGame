@@ -3,41 +3,21 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
-using UnityEngine;
-using UnityEngine.Experimental.AI;
+using static GridStructure;
 
 namespace Units
 {
-    public struct UnitPathing : IBufferElementData
-    {
-        public int2 Cell;
-    }
-    public struct Movable : IComponentData
-    {
-        public float MovementSpeed;
-    }
-
     public partial class TaskApproachSystem : SystemBase
     {
-        NavMeshQuery navQuery;
-        protected override void OnCreate()
-        {
-            var navWorld = NavMeshWorld.GetDefaultWorld();
-            navQuery = new NavMeshQuery(navWorld, Allocator.Persistent);
-        }
-
-        protected override void OnDestroy()
-        {
-            navQuery.Dispose();
-        }
-
-        bool CalculatePath(DynamicBuffer<UnitPathing> pathfinding, int2 toCell, int2 currentCell, NavTree navigation)
+        bool CalculatePath(DynamicBuffer<UnitPathing> pathfinding, int2 toCell, int2 currentCell, bool isTargetPathable, NavTree navigation)
         {
             if (pathfinding.Length < 2 || math.any(pathfinding[^1].Cell != toCell))
             {
                 var list = new NativeList<int2>(Allocator.Temp);
                 pathfinding.Clear();
-                if (!navigation.Navigate(currentCell, toCell, ref list))
+                if (isTargetPathable && !navigation.Navigate(currentCell, toCell, ref list))
+                    return false;
+                if (!isTargetPathable && !navigation.NavigateAdjacent(currentCell, toCell, ref list))
                     return false;
                 
                 pathfinding.Reinterpret<int2>().AddRange(list.AsArray());
@@ -69,18 +49,32 @@ namespace Units
                     continue;
                 }
                 
-                var myCell = GridStructure.LocalToCell(transform.ValueRO.Position);
-                var targetCell = GridStructure.LocalToCell(toTransform.Position);
+                var myCell = LocalToCell(transform.ValueRO.Position);
+                var targetCell = LocalToCell(toTransform.Position);
+                var roomModel = SystemAPI.GetComponent<RoomModel>(onGrid.Grid);
+
+                // Is unit trapped? Try to teleport to nearby unoccupied cell
+                if (!roomModel.IsPathable(myCell))
+                {
+                    foreach (var neighbour in stackalloc int2[]
+                                 { new int2(1, 0), new int2(-1, 0), new int2(0, 1), new int2(0, -1) })
+                    {
+                        if(roomModel.IsPathable(myCell + neighbour))
+                            transform.ValueRW.Position = CellCenterToLocal(myCell + neighbour);
+                    }
+                    continue;
+                }
                 
-                var isInTaskRange = math.csum(math.abs(myCell - targetCell)) <= 1;
+                var isTargetCellPathable = !roomModel.IsOccupied(targetCell, BuildingLayer.Wall);
+                var isInTaskRange = math.csum(math.abs(myCell - targetCell)) <= (isTargetCellPathable ? 0 : 1);
                 if (!isInTaskRange)
                 {
-                    if (!CalculatePath(pathing, targetCell, myCell, SystemAPI.GetComponent<NavTree>(onGrid.Grid)))
+                    if (!CalculatePath(pathing, targetCell, myCell, isTargetCellPathable, SystemAPI.GetComponent<NavTree>(onGrid.Grid)))
                     {
                         td.Status = ToDoStatus.Unreachable;
                         continue;
                     }
-                    var direction = math.normalize(GridStructure.CellCenterToLocal(pathing[0].Cell) - transform.ValueRO.Position);
+                    var direction = math.normalize(CellCenterToLocal(pathing[0].Cell) - transform.ValueRO.Position);
                     transform.ValueRW.Rotation = quaternion.LookRotationSafe(direction, math.up());
                     transform.ValueRW.Position += direction * deltaTime * movable.MovementSpeed;
                 }

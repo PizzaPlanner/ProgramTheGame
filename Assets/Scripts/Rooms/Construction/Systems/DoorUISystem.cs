@@ -23,7 +23,7 @@ namespace Construction.Systems
         
         protected override void OnUpdate()
         {
-            foreach (var (door, doorState, e) in SystemAPI.Query<RefRW<Door>, EnabledRefRW<DoorStateChange>>()
+            foreach (var (door, e) in SystemAPI.Query<RefRW<Door>>()
                                                                   .WithAll<Selected>()
                                                                   .WithNone<Ghost>()
                                                                   .WithOptions(EntityQueryOptions.IgnoreComponentEnabledState)
@@ -42,14 +42,17 @@ namespace Construction.Systems
                 if (window.wantOpen)
                 {
                     window.wantOpen = false;
-                    doorState.ValueRW = true;
-                    door.ValueRW.IsOpen = true;
+                    door.ValueRW.TargetState = Door.DoorState.Open;
                 }
                 if (window.wantLocked)
                 {
                     window.wantLocked = false;
-                    doorState.ValueRW = true;
-                    door.ValueRW.IsOpen = false;
+                    door.ValueRW.TargetState = Door.DoorState.Locked;
+                }
+                if (window.wantAuto)
+                {
+                    window.wantAuto = false;
+                    door.ValueRW.TargetState = Door.DoorState.Closed;
                 }
                 
                 

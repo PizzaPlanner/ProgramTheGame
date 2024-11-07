@@ -62,6 +62,8 @@ public struct RoomModel : IDisposable, ICleanupComponentData
     {
         return OccupiedCells.TryGetValue(new Location{ Cell = location, Layer = layer }, out e) && e.Index >= 0;
     }
+    
+    public bool IsPathable(int2 location) => !IsOccupied(location, BuildingLayer.Wall) && IsOccupied(location, BuildingLayer.FloorLevel);
 
     public bool IsOccupied(int2 location, BuildingLayer layer)
     {

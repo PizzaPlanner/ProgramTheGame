@@ -1,11 +1,7 @@
-using System.Linq;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using Unity.Mathematics;
-using UnityEngine;
-
-public struct PendingGridUpdate : IComponentData { }
 
 [WithAll(typeof(PendingGridUpdate), typeof(RoomModel))]
 public partial struct GridRoomRecalculationJob : IJobEntity

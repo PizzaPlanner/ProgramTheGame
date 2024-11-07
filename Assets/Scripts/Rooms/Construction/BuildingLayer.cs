@@ -11,6 +11,7 @@ public enum BuildingLayer : byte
     Building = BaseLevel | 8,
     Pipe = 16,
     Wire = 32,
+    Door = BaseLevel | 64,
 }
 
 public static class BuildingLayerExtensions
