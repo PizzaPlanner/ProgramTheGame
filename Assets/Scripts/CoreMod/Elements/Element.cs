@@ -21,8 +21,13 @@ public struct Element : IComponentData
 {
     public struct StateChange
     {
+        public Identifiable With;
         public Identifiable To;
         public Temperature At;
+        public bool CheckBelow;
+        public byte SelfPerOne;
+        public byte WithPerOne;
+        public int ReactionEnergy;
     }
     
     public const float MAX_CONDUCTIVITY_INVERSE = 0.01f;
@@ -31,29 +36,43 @@ public struct Element : IComponentData
     {
         public half SpecificHeatCapacity;
         public half ThermalConductivity;
-        public half2 StablePhaseTemperatureKelvin;
+        public half2 StableTemperatureRangeKelvin;
         public byte PressureFromPhase;
-        public float FreezeTemperature => StablePhaseTemperatureKelvin.x - PHASE_CHANGE_TEMPERATURE_TOLERANCE;
-        public float MeltTemperature => StablePhaseTemperatureKelvin.y + PHASE_CHANGE_TEMPERATURE_TOLERANCE;
     }
-    
-    public Element.Compact AsCompact => new Compact
+
+    public Element.Compact AsCompact
     {
-      ThermalConductivity = new half(ThermalConductivity),
-      SpecificHeatCapacity = new half(SpecificHeatCapacity),
-      StablePhaseTemperatureKelvin = new half2((half)Freeze.At.Kelvin, (half)Melt.At.Kelvin),
-      PressureFromPhase = Phase switch
-      {
-          ElementPhase.Gas => 100,
-          ElementPhase.Liquid => 10,
-          ElementPhase.Solid => 1,
-          _ => 0
-      }
-    };
+        get
+        {
+            var tempRange = new half2(new half(0), new half(half.MaxValue));
+            for (int i = 0; i < StateChanges.Value.Reactions.Length; i++)
+            {
+                var stateChange = StateChanges.Value.Reactions[i];
+                if(stateChange.CheckBelow && stateChange.At > tempRange.x)
+                    tempRange.x = (half)stateChange.At.Kelvin;
+                if(!stateChange.CheckBelow && stateChange.At < tempRange.y)
+                    tempRange.y = (half)stateChange.At.Kelvin;
+            }
+            
+            return new Compact
+            {
+                ThermalConductivity = new half(ThermalConductivity),
+                SpecificHeatCapacity = new half(SpecificHeatCapacity),
+                StableTemperatureRangeKelvin = tempRange,
+                PressureFromPhase = Phase switch
+                {
+                    ElementPhase.Gas => 100,
+                    ElementPhase.Liquid => 10,
+                    ElementPhase.Solid => 1,
+                    _ => 0
+                }
+            };            
+        }
+    } 
     
     public float SpecificHeatCapacity;
     public float ThermalConductivity;
-    public StateChange Freeze, Melt;
+    public BlobAssetReference<StateChangeData> StateChanges;
     public ElementPhase Phase;
 
     public static Element From(Identifiable id)
@@ -63,4 +82,9 @@ public struct Element : IComponentData
     
     internal static readonly SharedStatic<NativeParallelHashMap<Identifiable, Element>> ElementById 
         = SharedStatic<NativeParallelHashMap<Identifiable, Element>>.GetOrCreate<Element>();
+}
+
+public struct StateChangeData
+{
+    public BlobArray<Element.StateChange> Reactions;
 }

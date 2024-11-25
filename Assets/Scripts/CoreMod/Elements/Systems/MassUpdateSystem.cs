@@ -33,6 +33,9 @@ partial struct MassesUpdateJob : IJobEntity
         if(!massModelLookup.TryGetComponent(onGrid.Grid, out var massModel))
             return;
         var localToCell = GridStructure.LocalToCell(transform.Position);
+        // Only happens on init, better way to wor around this?
+        if(!massModel.IsInBounds(localToCell))
+            return;
         ref var mainCell = ref massModel.AbsoluteCellRW(localToCell);
         ref var massData = ref massDataLookup.GetRefRW(e).ValueRW;
         
@@ -84,17 +87,30 @@ partial struct MassesUpdateJob : IJobEntity
         
         // Phase Change
         var temp = massData.Temperature;
-        if (temp < massData.ElementData.FreezeTemperature)
+        if(temp > massData.ElementData.StableTemperatureRangeKelvin.x 
+           && temp < massData.ElementData.StableTemperatureRangeKelvin.y)
+            return;
+
+        ref var reactions = ref Element.From(massData.ElementType).StateChanges.Value.Reactions;
+        for (int i = 0; i < reactions.Length; i++)
         {
-            var toElm = Element.From(massData.ElementType).Freeze.To;
-            ecb.DestroyEntity(e);
-            mainCell.Add(MassData.From(toElm, massData.Mass, massData.Energy));
-        }
-        else if (temp > massData.ElementData.MeltTemperature)
-        {
-            var toElm = Element.From(massData.ElementType).Melt.To;
-            ecb.DestroyEntity(e);
-            mainCell.Add(MassData.From(toElm, massData.Mass, massData.Energy));
+            if (reactions[i].CheckBelow && temp < reactions[i].At)
+            {
+                if (reactions[i].With == default)
+                {
+                    ecb.DestroyEntity(e);
+                    mainCell.Add(MassData.From(reactions[i].To, massData.Mass, massData.Energy));
+                }
+            }
+            else if (!reactions[i].CheckBelow && temp > reactions[i].At)
+            {
+                if (reactions[i].With == default)
+                {
+                    ecb.DestroyEntity(e);
+                    mainCell.Add(MassData.From(reactions[i].To, massData.Mass, massData.Energy));
+                }
+            }
+                
         }
     }
 }

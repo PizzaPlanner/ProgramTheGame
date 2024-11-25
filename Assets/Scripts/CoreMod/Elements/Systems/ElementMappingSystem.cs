@@ -1,5 +1,6 @@
 ﻿using Identifiables;
 using Identifiables.UI;
+using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Transforms;
@@ -26,12 +27,39 @@ public partial class ElementMappingSystem : IdentifiableMappingSystem, IWikiProv
                           .WithOptions(EntityQueryOptions.IncludePrefab))
         {
             Element.ElementById.Data[id] = item;
-            if (item.Freeze.To != default)
-                AddRelation(item.Freeze.To, new IdentifiableLink{Relation = "FrozenFrom", To = id});
-            if (item.Melt.To != default)
-                AddRelation(item.Melt.To, new IdentifiableLink{Relation = "MoltenFrom", To = id});
+            var stateChanges = item.StateChanges.Value.Reactions.ToArray();
+            foreach (var change in stateChanges)
+            {
+                AddReaction(change.To, new ReactionLink{
+                    Relation = "ReactedBy", 
+                    StateChange = change,
+                    Ingredient1 = id
+                });
+                if(change.With != default)
+                    AddReaction(change.With, new ReactionLink{
+                        Relation = "ReactionWith", 
+                        StateChange = change,
+                        Ingredient1 = id
+                    });
+            }
         }
     }
+    
+    protected void AddReaction(Identifiable from, ReactionLink link)
+    {
+        if(!Reactions.ContainsKey(from))
+            Reactions.Add(from, new List<ReactionLink>());
+        Reactions[from].Add(link);
+    }
+    
+    public struct ReactionLink
+    {
+        public Identifiable Ingredient1;
+        public Element.StateChange StateChange;
+        public string Relation;
+    }
+
+    public Dictionary<Identifiable, List<ReactionLink>> Reactions = new();
 
     public VisualElement ProvideWikiDetails(Identifiable id)
     {
@@ -42,17 +70,13 @@ public partial class ElementMappingSystem : IdentifiableMappingSystem, IWikiProv
         var top = new Foldout(){text = "Element", name = "Element"};
         top.Add(new Label(elementText));
         var elm = new Foldout(){text = "StateChanges"};
-        if(element.Freeze.To != default)
-            elm.Add(new StateChangeWikiElement(id, element.Freeze, false));
-        if(element.Melt.To != default)
-            elm.Add(new StateChangeWikiElement(id, element.Melt, true));
-        if(Relations.TryGetValue(id, out var relations))
+        var stateChanges = element.StateChanges.Value.Reactions.ToArray();
+        foreach (var change in stateChanges)
+            elm.Add(new StateChangeWikiElement(id, change));
+        if(Reactions.TryGetValue(id, out var relations))
             foreach (var relation in relations)
             {
-                if(relation.Relation == "MoltenFrom")
-                    elm.Add(new StateChangeWikiElement(relation.To, new Element.StateChange { To = id, At = Element.From(relation.To).Melt.At }, true));
-                if(relation.Relation == "FrozenFrom")
-                    elm.Add(new StateChangeWikiElement(relation.To, new Element.StateChange { To = id, At = Element.From(relation.To).Freeze.At }, false));
+                elm.Add(new StateChangeWikiElement(relation.Ingredient1, relation.StateChange));
             }
         if(elm.contentContainer.childCount > 0)
             top.Add(elm);
@@ -62,10 +86,12 @@ public partial class ElementMappingSystem : IdentifiableMappingSystem, IWikiProv
 
 public class StateChangeWikiElement : VisualElement
 {
-    public StateChangeWikiElement(Identifiable idFrom, Element.StateChange stateChange, bool isMelt)
+    public StateChangeWikiElement(Identifiable ingredient1, Element.StateChange stateChange)
     {
-        Add(new Label($"{stateChange.At}") { name = isMelt ? "Melt" : "Freeze" });
-        Add(new WikiSearchResultButton(idFrom));
+        Add(new Label($"{(stateChange.CheckBelow ? "Below" : "Above")} {stateChange.At}") { name = stateChange.CheckBelow ? "Freeze" : "Melt" });
+        Add(new WikiSearchResultButton(ingredient1));
+        if(stateChange.With != default)
+            Add(new WikiSearchResultButton(stateChange.With));
         Add(new Label($" > "));
         Add(new WikiSearchResultButton(stateChange.To));
     }

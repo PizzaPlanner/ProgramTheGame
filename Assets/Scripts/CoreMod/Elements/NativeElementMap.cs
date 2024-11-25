@@ -103,14 +103,56 @@ public unsafe struct NativeElementMap : IDisposable
     {
         ref var header = ref CellRW(cell);
         var temp = header.Temperature.Kelvin;
+        var didTransform = false; // Keep it safe by early out after one reaction, in case it removed at lower i, etc.
+        for (int i = 0; i < header.ElementCount && !didTransform; i++)
+        {
+            ref var mass = ref header.GetMassRW(i);
+            if (temp > mass.ElementData.StableTemperatureRangeKelvin.x 
+                && temp < mass.ElementData.StableTemperatureRangeKelvin.y)
+                continue;
+            ref var stateChanges = ref Element.From(mass.ElementType).StateChanges.Value.Reactions;
+            for (int j = 0; j < stateChanges.Length && !didTransform; j++)
+            {
+                var change = stateChanges[j];
+                if (change.CheckBelow && temp < change.At)
+                {
+                    didTransform |= React(ref header, mass, change);
+                }
+                else if (!change.CheckBelow && temp > change.At)
+                {
+                    didTransform |= React(ref header, mass, change);
+                }
+                // didTransform: mass might point to new element, but stateChanges are still from the original.
+                // no point to continue iterating
+            }
+        }
+    }
+
+    bool React(ref MassHeader header, MassData mass, Element.StateChange change)
+    {
+        if (change.With == default)
+        {
+            header.Transform(mass.ElementType, change.To);
+            return true;
+        }
         for (int i = 0; i < header.ElementCount; i++)
         {
-            var mass = header.GetMassRW(i);
-            if (temp < mass.ElementData.FreezeTemperature)
-                header.Transform(mass.ElementType, Element.From(mass.ElementType).Freeze.To);
-            else if (temp > mass.ElementData.MeltTemperature)
-                header.Transform(mass.ElementType, Element.From(mass.ElementType).Melt.To);
+            var mass2 = header.GetMass(i);
+            if(mass2.ElementType != change.With)
+                continue;
+            // 2x H + 1x O = 1x H2O
+            // 7x H + 5x O = 3x H2O + 1x H + 2x O --> -6x H, -3x O, +3x H2O
+            var commonMass = (uint)math.min(mass.Mass * 1f / change.SelfPerOne, mass2.Mass * 1f / change.WithPerOne);
+            if(commonMass < 1)
+                return false;
+            Debug.Log($"Reacting {mass.ElementType} and {mass2.ElementType} at ratio {commonMass}");
+            header.Remove(mass.ElementType, commonMass * change.SelfPerOne, out var energy);
+            header.Remove(mass2.ElementType, commonMass * change.WithPerOne, out var energy2);
+            var newEnergy = (ulong)math.max(1, (long)energy + (long)energy2 + change.ReactionEnergy * commonMass);
+            header.Add(change.To, commonMass, newEnergy);
+            return true;
         }
+        return false;
     }
     
     public void VentToSpace(int2 location)

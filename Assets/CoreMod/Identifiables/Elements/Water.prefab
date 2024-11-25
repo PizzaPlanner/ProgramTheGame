@@ -58,13 +58,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 947d04393a95425eb52f96ab38e0ea85, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  HotStateChange:
-    Temperature: 100
-    ToElement: {fileID: 3575229165814279346, guid: c0d383c59e1643949a2df9a025ae2824, type: 3}
-  ColdStateChange:
-    Temperature: 4
+  StateChanges:
+  - Temperature: 0
+    Below: 1
     ToElement: {fileID: 3575229165814279346, guid: 27ff976297851a84ba6709c9a02dbdbb, type: 3}
-  DefaultTemperature: 0
+    Catalyst: {fileID: 0}
+    SelfMolesPerResultMole: 1
+    CatalystMolesPerResultMole: 0
+    ReactionEnergy: 0
+  - Temperature: 100
+    Below: 0
+    ToElement: {fileID: 3575229165814279346, guid: c0d383c59e1643949a2df9a025ae2824, type: 3}
+    Catalyst: {fileID: 0}
+    SelfMolesPerResultMole: 1
+    CatalystMolesPerResultMole: 0
+    ReactionEnergy: 0
   ThermalConductivity: 2
   SpecificHeatCapacity: 4
   Color: {r: 0, g: 0, b: 0, a: 0}
