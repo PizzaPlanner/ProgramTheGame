@@ -3,7 +3,8 @@
   "rootNamespace": "WorldManagement",
   "references": [
     "Unity.Entities",
-    "Unity.Collections"
+    "Unity.Collections",
+    "Unity.Scenes"
   ],
   "includePlatforms": [],
   "excludePlatforms": [],

@@ -67,7 +67,6 @@ MonoBehaviour:
     Amount: 1
   CraftedIn:
   - {fileID: 391204783856717328, guid: 04a4ef4173b220343956ce5a48368642, type: 3}
-  - {fileID: 2829154048688644239, guid: 438d188bfd538394d9f90677999a87d3, type: 3}
 --- !u!114 &-281425189091935674
 MonoBehaviour:
   m_ObjectHideFlags: 0

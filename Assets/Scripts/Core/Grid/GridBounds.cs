@@ -31,7 +31,7 @@ public struct GridBounds : IComponentData
     public void Encapsulate(int2 cell)
     {
         Min = math.min(Min, cell);
-        Max = math.min(Max, cell);
+        Max = math.max(Max, cell);
     }
 }
 

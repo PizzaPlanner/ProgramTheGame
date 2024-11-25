@@ -40,7 +40,7 @@ partial class UnitDispenserUISystem : UISystem
 
         public UnitDispenserUI(UnitDispenser dispenser)
         {
-            Add(new Button(() => wantDispense = true){text = "Free the lion"});
+            Add(new Button(() => wantDispense = true){text = "Defrost Colonist"});
         }
     }
 }

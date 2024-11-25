@@ -18,7 +18,9 @@ public partial struct BuildJob : IJobEntity
     [ReadOnly] public ComponentLookup<Building> buildingLookup;
     [ReadOnly] public ComponentLookup<Ghost> ghostLookup;
     public ComponentLookup<GridStructure> structureLookup;
-
+    
+    public UnsafeHashSet<Location> plannedThisFrame;
+    
     void Execute(Entity e, in PlannedConstruction planned)
     {
         ecb.DestroyEntity(e);
@@ -78,13 +80,14 @@ public partial struct BuildJob : IJobEntity
         }
         else if (isUnderConstruction)
         {
+            navigation.AddOccupiedArea(area, building.Layer.AsGhostLayer(), Entity.Null);   
             CreateBuildTasks(planned, entity, building);
             ecb.AddComponent(entity, new Ghost { GhostBuildable = true });
             ecb.SetComponent(entity, new OnGrid { Grid = planned.Parent });
             ecb.SetComponent(entity, planned.Materials);
             ecb.RemoveComponent<MassData>(entity);
-            ecb.AddComponent(entity, new ToBeBakedIntoRoomMap { Grid = planned.Parent, Area = area, Layer = building.Layer });
             ecb.AddBuffer<Inventory>(entity);
+            ecb.AddComponent(entity,  new ToBeBakedIntoRoomMap { Grid = planned.Parent, Area = area, Layer = building.Layer.AsGhostLayer() });
             for (var i = 0; i < planned.Materials.BuildMaterials.Length; i++)
             {
                 var mat = planned.Materials.BuildMaterials[i];
@@ -98,6 +101,7 @@ public partial struct BuildJob : IJobEntity
         }
         else
         {
+            navigation.AddOccupiedArea(area, building.Layer, Entity.Null);
             ecb.RemoveComponent<ConstructionVariant>(entity);
             if(planned.Materials.PrimaryMass.ElementType != default)
                 ecb.SetComponent(entity, planned.Materials.PrimaryMass);

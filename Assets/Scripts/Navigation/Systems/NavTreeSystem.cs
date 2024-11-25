@@ -9,8 +9,11 @@ namespace Navigation
     {
         public void OnDestroy(ref SystemState state)
         {
-            foreach(var tree in SystemAPI.Query<NavTree>())
+            foreach (var (tree, layer) in SystemAPI.Query<NavTree, NavLayers>())
+            {
                 tree.Dispose();
+                layer.Dispose();
+            }
         }
 
         public void OnUpdate(ref SystemState state)

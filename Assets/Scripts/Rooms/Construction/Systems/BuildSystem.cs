@@ -5,6 +5,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 using Navigation;
+using Unity.Collections.LowLevel.Unsafe;
 
 partial struct BuildSystem : ISystem
 {
@@ -47,36 +48,27 @@ partial struct BuildSystem : ISystem
             ref var navLayers = ref SystemAPI.GetComponentRW<NavLayers>(toBake.Grid).ValueRW;
             ref var navTree = ref SystemAPI.GetComponentRW<NavTree>(toBake.Grid).ValueRW;
             ecb.AddComponent<BuildingsChangedEvent>(toBake.Grid);
+            var layer = toBake.Layer;
             if (SystemAPI.HasComponent<Ghost>(e))
             {
-                ecbNow.AddComponent(e, new BakedIntoRoomMap
-                {
-                    Grid = toBake.Grid,
-                    Layer = toBake.Layer.AsGhostLayer(),
-                    Area = toBake.Area,
-                });
-                ecbNow.RemoveComponent<ToBeBakedIntoRoomMap>(e);
-                navLayers.GhostBlockArea(toBake.Area, toBake.Layer, e);
-                continue;
+                layer = toBake.Layer.AsGhostLayer();
             }
-            
-            if (toBake.Layer.IsWall())
+            else if (toBake.Layer.IsWall())
             {
                 massModel.AddWall(toBake.Area);
                 navTree.SetAreaDirty(toBake.Area);
-                navLayers.AddOccupiedArea(toBake.Area, toBake.Layer, e);
             }
-
-            if (toBake.Layer.IsFloor())
+            else if (toBake.Layer.IsFloor())
             {
                 massModel.AddFloor(toBake.Area);
                 navTree.SetAreaDirty(toBake.Area);
-                navLayers.AddOccupiedArea(toBake.Area, toBake.Layer, e);
             }
+
+            navLayers.AddOccupiedArea(toBake.Area, layer, e);
             ecbNow.AddComponent(e, new BakedIntoRoomMap
             {
                 Grid = toBake.Grid,
-                Layer = toBake.Layer,
+                Layer = layer,
                 Area = toBake.Area,
             });
             ecbNow.RemoveComponent<ToBeBakedIntoRoomMap>(e);
@@ -127,7 +119,8 @@ partial struct BuildSystem : ISystem
             navLayerLookup = SystemAPI.GetComponentLookup<NavLayers>(false),
             structureLookup = SystemAPI.GetComponentLookup<GridStructure>(false),
             buildingLookup = SystemAPI.GetComponentLookup<Building>(true),
-            ghostLookup = SystemAPI.GetComponentLookup<Ghost>(true)
+            ghostLookup = SystemAPI.GetComponentLookup<Ghost>(true),
+            plannedThisFrame = new UnsafeHashSet<Location>(8, Allocator.Temp)
         }.Run();
     }
 }

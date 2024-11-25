@@ -3,6 +3,7 @@ using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using Unity.Mathematics;
+using UnityEngine;
 
 namespace Navigation
 {
@@ -12,7 +13,7 @@ namespace Navigation
 
         public NavLayers(Allocator allocator)
         {
-            OccupiedCells = new (0, allocator);
+            OccupiedCells = new (128, allocator);
         }
 
         public void Dispose()
@@ -48,7 +49,6 @@ namespace Navigation
                     return true;
                 if(OccupiedCells.ContainsKey(new Location{ Cell = new int2(x, y), Layer = layer.AsGhostLayer() }))
                     return true;
-                
             }
             return false;
         }
@@ -63,17 +63,14 @@ namespace Navigation
             }
             return false;
         }
-        
-        public void GhostBlockArea(GridBounds area, BuildingLayer layer, Entity e)
-        {
-            AddOccupiedArea(area, layer.AsGhostLayer(), e);
-        }
 
         public void AddOccupiedArea(GridBounds area, BuildingLayer layer, Entity e)
         {
             for (int x = area.Min.x; x <= area.Max.x; x++)
             for (int y = area.Min.y; y <= area.Max.y; y++)
+            {
                 OccupiedCells[new Location{ Cell = new int2(x, y), Layer = layer }] = e;
+            }
         }
 
         public void FreeOccupation(GridBounds area, BuildingLayer layer)

@@ -1,11 +1,16 @@
+:root {
+    --color-border-default: rgb(17, 22, 35);
+    --color-border-alt: rgb(25, 80, 110);
+    --color-background-default: rgba(24, 32, 45, 0.9);
+    --color-background-alt: rgba(33, 48, 66, 0.7);
+    --color-text-default: rgb(255, 255, 255);
+}
+
 .id-button {
     width: 48px;
     height: 48px;
     background-color: rgb(46, 44, 44);
-    margin-top: 1px;
-    margin-right: 1px;
-    margin-bottom: 1px;
-    margin-left: 1px;
+    margin: 1px;
     justify-content: center;
 }
 
@@ -23,14 +28,8 @@
     right: 0;
     left: 0;
     bottom: 0;
-    border-top-width: 1px;
-    border-right-width: 1px;
-    border-bottom-width: 1px;
-    border-left-width: 1px;
-    border-left-color: rgb(81, 174, 255);
-    border-right-color: rgb(81, 174, 255);
-    border-top-color: rgb(81, 174, 255);
-    border-bottom-color: rgb(81, 174, 255);
+    border-width: 1px;
+    border-color: var(--color-border-alt);
 }
 
 InventoryButton {
@@ -171,28 +170,6 @@ CraftingRecipeElement #Inputs > CraftingInputButton.missing {
     background-color: rgba(255, 0, 5, 0.5);
 }
 
-CraftingQueueElement {
-    height: 8px;
-    width: 100%;
-}
-
-CraftingQueueElement > .progress-background {
-    height: 100%;
-    width: 100%;
-    flex-shrink: 0;
-    background-color: rgb(33, 74, 84);
-}
-
-CraftingQueueElement > IdentifiableButton {
-    display: none;
-}
-
-CraftingQueueElement > .progress-background > .progress-foreground {
-    height: 100%;
-    width: 100%;
-    background-color: rgb(0, 205, 255);
-}
-
 InventoryElement {
     flex-direction: column;
     padding-top: 2px;
@@ -287,9 +264,9 @@ IngameMenu > #PressureOverlay {
 
 .overlayPopup {
     border-width: 2px;
-    border-color: rgb(17, 22, 35);
-    background-color: rgba(24, 32, 45, 0.9);
-    color: rgb(255, 255, 255);
+    border-color: var(--color-border-default);
+    background-color: var(--color-background-default);
+    color: var(--color-text-default);
     position: absolute;
     bottom: 36px;
     right: 5px;
@@ -480,13 +457,14 @@ ShipUI {
 }
 
 ShipUI > #Header {
-    background-color: rgba(0, 0, 0, 0.2);
-    color: rgb(255, 255, 255);
+    border-color: var(--color-border-default);
+    background-color: var(--color-background-default);
+    color: var(--color-text-default);
     flex-direction: row;
 }
 
 ShipUI.current-grid > #Header {
-    background-color: rgba(150, 100, 0, 0.4);
+    border-color: var(--color-border-alt);
 }
 
 ShipUI > #Header > SignalButton {
@@ -518,10 +496,10 @@ ShipUI SignalButton > IdentifiableButton#CurrentTask {
 }
 
 Tooltip {
-    background-color: rgb(25, 35, 45);
-    border-color: rgb(67, 88, 102);
+    border-color: var(--color-border-alt);
+    background-color: var(--color-background-alt);
+    color: var(--color-text-default);
     border-width: 1px;
-    color: rgb(255, 230, 230);
     padding: 5px;
 }
 
@@ -633,9 +611,9 @@ StatsUI > #Stats > .id-button {
 
 SelectedUnitElement {
     border-width: 1px;
-    border-color: rgb(17, 22, 35);
-    background-color: rgba(24, 32, 45, 0.9);
-    color: rgb(255, 255, 255);
+    border-color: var(--color-border-default);
+    background-color: var(--color-background-default);
+    color: var(--color-text-default);
     padding: 5px;
     position: absolute;
     width: 300px;
@@ -653,8 +631,8 @@ SelectedUnitElement > #Header {
 
 SelectedUnitElement Foldout {
     margin: 2px;
-    background-color: rgba(33, 48, 66, 0.7);
-    border-color: rgb(25, 80, 110);
+    border-color: var(--color-border-alt);
+    background-color: var(--color-background-alt);
     border-width: 1px;
 }
 

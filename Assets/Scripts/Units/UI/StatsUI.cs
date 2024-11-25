@@ -34,8 +34,6 @@ public class StatsUI : VisualElement
         Add(Stats = new VisualElement(){name = "Stats"});
     }
     
-    
-    
     public void AddOrUpdateNeed(string stat, float value, float maxValue, bool isLow, bool isCritical)
     {
         var bar = this.Q<StatBar>(stat);

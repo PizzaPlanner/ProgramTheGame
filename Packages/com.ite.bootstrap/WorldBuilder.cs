@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using Unity.Collections;
 using Unity.Entities;
+using Unity.Scenes;
 using UnityEngine;
 using static WorldManagement.TypeHierarchyTools;
 
@@ -14,6 +15,7 @@ namespace WorldManagement
         readonly List<Type> _systemsToInclude = new();
         readonly List<Type> _playerLoopRequiredSystems = new();
         readonly List<Type> _attributesToExclude = new();
+        readonly List<SceneReference> _subscenesToPreload = new();
         bool _forceIncludeBufferSystems;
         static Dictionary<Type, List<Type>> _systemGrouping;
         static WorldSystemFilterFlags _lastUsedFlags;
@@ -127,6 +129,16 @@ namespace WorldManagement
             return this;
         }
 
+        /// <summary>
+        /// Ensures that the given subscene is loaded before the world starts updating.
+        /// Requires <see cref="SceneSystemGroup"/> and children to be present in the world 
+        /// </summary>
+        public WorldBuilder WithPreloadScene(SceneReference sceneRef)
+        {
+            _subscenesToPreload.Add(sceneRef);
+            return this;    
+        }
+
         public World Build(string worldName, BuildFlags flags, bool logCreatedSystems = false)
         {
             if (flags.HasFlag(BuildFlags.AddImplicitSystems))
@@ -174,11 +186,24 @@ namespace WorldManagement
                 foreach (var childType in children)
                     AddToUpdateList(group, childType);
             }
-
+            
+            // Preload all required subscenes
+            if (_subscenesToPreload.Count > 0)
+            {
+                foreach(var scene in _subscenesToPreload)
+                    SceneSystem.LoadSceneAsync(world.Unmanaged, scene.SceneGUID, new SceneSystem.LoadParameters
+                    {
+                        AutoLoad = true, 
+                        Flags = SceneLoadFlags.BlockOnImport | SceneLoadFlags.BlockOnStreamIn
+                    });
+                var sceneGroup = world.GetExistingSystemManaged<SceneSystemGroup>();
+                sceneGroup.Update();
+            }
+            
             // Add world to player loop
             if (flags.HasFlag(BuildFlags.AddToPlayerLoop))
                 ScriptBehaviourUpdateOrder.AppendWorldToCurrentPlayerLoop(world);
-
+            
             return world;
         }
     }

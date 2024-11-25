@@ -71,6 +71,7 @@ public class ActiveOrderMarker : VisualElement
 {
     public ActiveOrderMarker()
     {
+        usageHints = UsageHints.DynamicTransform;
         style.position = Position.Absolute;
         var box = new IdentifiableButton() { pickingMode = PickingMode.Ignore };
         Add(box);

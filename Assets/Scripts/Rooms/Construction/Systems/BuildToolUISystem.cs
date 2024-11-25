@@ -88,6 +88,7 @@ partial class BuildToolUISystem : MapOverlaySystem<BuildTool>
             }
             else if(BuildTool.PlaceBuilding.WasReleasedThisFrame() && !pointerOverUI)
             {
+                Debug.Log($"Placing {ghostQuery.CalculateEntityCount()} plans");
                 foreach (var ghost in ghostQuery.ToEntityArray(Allocator.Temp))
                 {
                     var plan = ecb.CreateEntity();
@@ -133,13 +134,15 @@ partial class BuildToolUISystem : MapOverlaySystem<BuildTool>
                         for (int x = delta.Min.x; x <= delta.Max.x; x++)
                         {
                             PlacePreview(new int2(x,delta.Min.y), ecb);
-                            PlacePreview(new int2(x,delta.Max.y), ecb);
+                            if(delta.Max.y != delta.Min.y)
+                                PlacePreview(new int2(x,delta.Max.y), ecb);
                         }
 
                         for (int y = delta.Min.y + 1; y <= delta.Max.y - 1; y++)
                         {
                             PlacePreview(new int2(delta.Min.x,y), ecb);
-                            PlacePreview(new int2(delta.Max.x,y), ecb);
+                            if(delta.Max.x != delta.Min.x)
+                                PlacePreview(new int2(delta.Max.x,y), ecb);
                         }
                     }
                     else // Line

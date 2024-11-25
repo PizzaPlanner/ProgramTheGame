@@ -30,12 +30,7 @@ namespace Identifiables.UI
                 
                 var body = this.Q("Body");
                 body.Q<Label>("IdRef").text = $"Id:   <link=\"id\">{value.StableId.ToString()}</link>\nName: <link=\"name\">{value.DefaultName.Value}</link>";
-                body.Q<Label>("Description").text = @"Lorem ipsum dolor sit amet, consectetur adipiscing elit. 
-Integer id dignissim dolor. Mauris ut arcu et sem semper blandit. 
-In tellus sapien, imperdiet id magna at, suscipit finibus augue. 
-Etiam non felis ac nibh sollicitudin accumsan. 
-Sed viverra vestibulum lorem consequat hendrerit. Quisque vitae dui dolor. 
-Aliquam consequat porta turpis. ";
+                body.Q<Label>("Description").text = @"";
                 var header = this.Q("Header");
                 header.Q<Label>("Title").text = $"{value}";
                 header.Q("Icon").style.backgroundImage = value.Icon;
