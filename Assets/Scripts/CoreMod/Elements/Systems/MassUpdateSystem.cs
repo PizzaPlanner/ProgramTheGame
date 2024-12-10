@@ -24,7 +24,7 @@ partial struct MassesUpdateJob : IJobEntity
 {
     [ReadOnly] public ComponentLookup<GridBounds> boundsLookup;
     [ReadOnly] public ComponentLookup<Wall> wallLookup;
-    [ReadOnly] public BufferLookup<WallNeighbours> neighbourLookup;
+    [ReadOnly] public BufferLookup<Neighbours> neighbourLookup;
     public ComponentLookup<MassModel> massModelLookup;
     public ComponentLookup<MassData> massDataLookup;
     public EntityCommandBuffer ecb;
@@ -46,10 +46,11 @@ partial struct MassesUpdateJob : IJobEntity
             if (neighbourLookup.TryGetBuffer(e, out var neighbours))
                 foreach (var nb in neighbours)
                 {
-                    if(!massDataLookup.HasComponent(nb.OtherWall))
+                    // Only update left to right, so pairs exchange only once per update
+                    if(math.any(nb.Direction < 0) || !massDataLookup.HasComponent(nb.Other))
                         continue;
                     
-                    ref var other = ref massDataLookup.GetRefRW(nb.OtherWall).ValueRW;
+                    ref var other = ref massDataLookup.GetRefRW(nb.Other).ValueRW;
                     IMatterComposition.ExchangeTemperature(ref massData, ref other);
                 }
             
@@ -161,7 +162,7 @@ public partial struct MassUpdateSystem : ISystem
             boundsLookup = SystemAPI.GetComponentLookup<GridBounds>(true),
             wallLookup = SystemAPI.GetComponentLookup<Wall>(true),
             massModelLookup = SystemAPI.GetComponentLookup<MassModel>(false),
-            neighbourLookup = SystemAPI.GetBufferLookup<WallNeighbours>(true),
+            neighbourLookup = SystemAPI.GetBufferLookup<Neighbours>(true),
             massDataLookup = SystemAPI.GetComponentLookup<MassData>(false)
         }.Schedule(state.Dependency);
     }

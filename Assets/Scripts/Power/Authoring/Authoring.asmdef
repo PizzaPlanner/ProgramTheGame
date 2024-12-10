@@ -1,0 +1,28 @@
+{
+    "name": "Power.Authoring",
+    "rootNamespace": "",
+    "references": [
+        "Unity.Entities",
+        "Unity.Mathematics",
+        "Unity.Hybrid",
+        "Unity.Transforms",
+        "Unity.Burst",
+        "Unity.Collections",
+        "Unity.Entities.Hybrid",
+        "Unity.Entities.Graphics",
+        "Unity.Mathematics.Extensions",
+        "Power",
+        "Construction"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": true,
+    "overrideReferences": true,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "UNITY_EDITOR"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

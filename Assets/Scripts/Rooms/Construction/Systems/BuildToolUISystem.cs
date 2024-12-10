@@ -88,7 +88,6 @@ partial class BuildToolUISystem : MapOverlaySystem<BuildTool>
             }
             else if(BuildTool.PlaceBuilding.WasReleasedThisFrame() && !pointerOverUI)
             {
-                Debug.Log($"Placing {ghostQuery.CalculateEntityCount()} plans");
                 foreach (var ghost in ghostQuery.ToEntityArray(Allocator.Temp))
                 {
                     var plan = ecb.CreateEntity();

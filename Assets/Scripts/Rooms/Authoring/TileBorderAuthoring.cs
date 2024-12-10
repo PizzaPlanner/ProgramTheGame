@@ -7,6 +7,7 @@ public class TileBorderAuthoring : MonoBehaviour
 {
     public enum Direction { Up, Down, Left, Right };
     public Direction Facing;
+    public bool IsConnection;
     class DBaker : Baker<TileBorderAuthoring>
     {
         public override void Bake(TileBorderAuthoring authoring)
@@ -28,7 +29,8 @@ public class TileBorderAuthoring : MonoBehaviour
                     Direction.Down => new int2(0, -1),
                     Direction.Left => new int2(-1, 0),
                     Direction.Right => new int2(extents.x, 0),
-                }
+                },
+                RequireOccupied = authoring.IsConnection
             });
         }
     }

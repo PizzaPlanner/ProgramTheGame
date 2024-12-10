@@ -1,0 +1,24 @@
+{
+    "name": "Power",
+    "rootNamespace": "",
+    "references": [
+        "Unity.Entities",
+        "Unity.Entities.Graphics",  
+        "Unity.Mathematics",
+        "Unity.Transforms",
+        "Unity.Burst",
+        "Unity.Collections",
+        "Unity.Mathematics.Extensions",
+        "Identifiables",
+        "Core"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": true,
+    "overrideReferences": true,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

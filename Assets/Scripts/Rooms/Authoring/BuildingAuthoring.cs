@@ -45,7 +45,7 @@ public class BuildingAuthoring : MonoBehaviour
             if (authoring.Layer.HasFlag(BuildingLayer.Wall))
             {
                 AddComponent<Wall>(self);
-                AddBuffer<WallNeighbours>(self);
+                AddBuffer<Neighbours>(self);
             }
             var variants = AddBuffer<BuildingVariant>(self);
             var defaultMass = authoring.GetComponent<DefaultMassAuthoring>();
