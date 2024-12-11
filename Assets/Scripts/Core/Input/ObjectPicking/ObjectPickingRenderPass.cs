@@ -20,10 +20,10 @@ public class ObjectPickingRenderPass : ScriptableRenderPass
 
         using var builder = renderGraph.AddRasterRenderPass<PassData>("Create Object Picking Texture", out var passData);
         // Get the data needed to create the list of objects to draw
-        var resourceData = frameContext.Get<UniversalResourceData>();
         var renderingData = frameContext.Get<UniversalRenderingData>();
         var cameraData = frameContext.Get<UniversalCameraData>();
         var lightData = frameContext.Get<UniversalLightData>();
+        var resourceData = frameContext.Get<UniversalResourceData>();
         var sortFlags = cameraData.defaultOpaqueSortFlags;
         var renderQueueRange = RenderQueueRange.opaque;
         var filterSettings = new FilteringSettings(renderQueueRange, ~0);

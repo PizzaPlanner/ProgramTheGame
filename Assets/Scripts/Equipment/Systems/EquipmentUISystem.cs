@@ -7,9 +7,8 @@ using UnityEngine.UIElements;
 
 namespace Equipment
 {
-    [UpdateInGroup(typeof(PresentationSystemGroup))]
     [UpdateAfter(typeof(InventoryUISystem))]
-    partial class EquipmentUISystem : SystemBase
+    partial class EquipmentUISystem : UISystem
     {
         EntityQuery _inventoryQuery, _danglingQuery, _unselectedQuery;
         protected override void OnCreate()

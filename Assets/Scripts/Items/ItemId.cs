@@ -1,19 +1,19 @@
 ﻿using Identifiables;
 using System;
 using System.Runtime.CompilerServices;
+using Unity.Burst;
 using Unity.Collections;
 
 public struct ItemId : IEquatable<ItemId>
 {
+    internal readonly static SharedStatic<NativeParallelHashMap<Identifiable, Item>> ItemsById 
+        = SharedStatic<NativeParallelHashMap<Identifiable, Item>>.GetOrCreate<ItemId>();
+    
     public bool IsStackable => MaxStackSize > 1;
-    public uint MaxStackSize => ItemMappingSystem.ItemsById.Data.TryGetValue(BaseId, out var item) ? item.MaxStack : default;
+    public uint MaxStackSize => ItemsById.Data.TryGetValue(BaseId, out var item) ? item.MaxStack : default;
     public Identifiable BaseId;
     
-    public static ItemId From(Identifiable id) => ItemMappingSystem.ItemsById.Data.TryGetValue(id, out var item) ? new ItemId{BaseId = id} : default;
-    
-    public static NativeArray<Identifiable> All => ItemMappingSystem.ItemsById.Data.IsCreated 
-        ? ItemMappingSystem.ItemsById.Data.GetKeyArray(Allocator.Temp) 
-        : new NativeArray<Identifiable>(0, Allocator.Temp);
+    public static ItemId From(Identifiable id) => ItemsById.Data.TryGetValue(id, out var item) ? new ItemId{BaseId = id} : default;
 
     public bool Equals(ItemId other)
     {

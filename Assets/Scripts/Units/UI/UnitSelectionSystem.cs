@@ -6,7 +6,6 @@ using Identifiables.UI;
 using System.Collections.Generic;
 using Unity.Entities;
 using Unity.Mathematics;
-using Unity.Physics;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
@@ -52,18 +51,8 @@ namespace Units
                 return;
             
             var selected = SystemAPI.TryGetSingletonEntity<Selected>(out var e) ? e : Entity.Null;
-            
-            var mouseRay = Camera.main.ScreenPointToRay(Input.mousePosition);
-            var physicsWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>();
-            var collisionWorld = physicsWorld.CollisionWorld;
-            // Find target
-            var input = new RaycastInput
-            {
-                Start = mouseRay.origin,
-                End = mouseRay.origin + mouseRay.direction * 100,
-                Filter = CollisionFilter.Default
-            };
-            if (!collisionWorld.CastRay(input, out var hit) || !SystemAPI.HasComponent<Identifiable>(hit.Entity))
+            var pickedObject = SystemAPI.GetSingleton<ObjectPickingTarget>().Target;
+            if (pickedObject.Index < 0 || !SystemAPI.HasComponent<Identifiable>(pickedObject))
             {
                 if (Hovered != Entity.Null)
                 {
@@ -74,12 +63,12 @@ namespace Units
             }
             else
             {
-                if (Hovered != hit.Entity)
+                if (Hovered != pickedObject)
                 {
                     EntityManager.RemoveComponent<HoverIndicator>(GetEntityQuery(typeof(HoverIndicator)));
-                    EntityManager.AddComponent<HoverIndicator>(hit.Entity);
+                    EntityManager.AddComponent<HoverIndicator>(pickedObject);
                 }
-                Hovered = hit.Entity;
+                Hovered = pickedObject;
                 Tooltip.Show(this, new float2(Input.mousePosition.x, Screen.height - Input.mousePosition.y));
             }
             if (SelectTool.Select.WasPressedThisFrame() && Hovered != selected)

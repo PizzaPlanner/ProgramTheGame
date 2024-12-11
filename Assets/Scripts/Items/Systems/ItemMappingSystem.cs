@@ -6,17 +6,14 @@ using Unity.Transforms;
 
 public partial class ItemMappingSystem : IdentifiableMappingSystem
 {
-    internal readonly static SharedStatic<NativeParallelHashMap<Identifiable, Item>> ItemsById 
-        = SharedStatic<NativeParallelHashMap<Identifiable, Item>>.GetOrCreate<ItemMappingSystem>();
-
     protected override void OnCreate()
     {
-        ItemsById.Data = new NativeParallelHashMap<Identifiable, Item>(0, Allocator.Persistent);
+        ItemId.ItemsById.Data = new NativeParallelHashMap<Identifiable, Item>(0, Allocator.Persistent);
     }
 
     protected override void OnDestroy()
     {
-        ItemsById.Data.Dispose();
+        ItemId.ItemsById.Data.Dispose();
     }
 
     protected override void OnUpdate()
@@ -27,7 +24,7 @@ public partial class ItemMappingSystem : IdentifiableMappingSystem
                           .WithNone<Parent, IdentifiablesMappingGroup.Mapped>()
                           .WithOptions(EntityQueryOptions.IncludePrefab))
         {
-            ItemsById.Data[id] = item;
+            ItemId.ItemsById.Data[id] = item;
         }
 
         foreach (var (id, starterInventory) in 

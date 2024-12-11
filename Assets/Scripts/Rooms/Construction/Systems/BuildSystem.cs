@@ -88,6 +88,7 @@ partial struct BuildSystem : ISystem
             var isGhost = (baked.Layer & BuildingLayer.Ghost) != 0;
             if(isGhost)
                 continue;
+            ecb.AddComponent<BuildingsChangedEvent>(baked.Grid);
             if (baked.Layer.IsWall())
             {
                 massModel.RemoveWall(baked.Area);
@@ -111,16 +112,12 @@ partial struct BuildSystem : ISystem
         new BuildJob()
         {
             ecb = ecb,
-            constructTaskPrefab = Identifiable.FromName("BuildTask").SpawnablePrefab,
-            orderTaskPrefab = Identifiable.FromName("ItemOrderTask").SpawnablePrefab,
             boundsLookup = SystemAPI.GetComponentLookup<GridBounds>(true),
-            roomLookup = SystemAPI.GetComponentLookup<RoomModel>(false),
             massLookup = SystemAPI.GetComponentLookup<MassModel>(false),
             navLayerLookup = SystemAPI.GetComponentLookup<NavLayers>(false),
             structureLookup = SystemAPI.GetComponentLookup<GridStructure>(false),
             buildingLookup = SystemAPI.GetComponentLookup<Building>(true),
-            ghostLookup = SystemAPI.GetComponentLookup<Ghost>(true),
-            plannedThisFrame = new UnsafeHashSet<Location>(8, Allocator.Temp)
+            ghostLookup = SystemAPI.GetComponentLookup<Ghost>(true)
         }.Run();
     }
 }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Unity.Collections;
 using Unity.Entities;
 using UnityEngine.UIElements;
 
@@ -59,8 +60,12 @@ namespace Identifiables.UI
                             page.AddDetails(details);
                     };
 
-            this.Q<LandingPage>().Init();
-            didInit = Identifiable.All.Length > 0;
+            
+            using var allIds = new EntityQueryBuilder(Allocator.Temp)
+                .WithAll<Prefab, Identifiable, IdentifiablesMappingGroup.Mapped>()
+                .WithOptions(EntityQueryOptions.IncludePrefab).Build(world.EntityManager);
+            this.Q<LandingPage>().Init(allIds);
+            didInit = !allIds.IsEmpty;
         }
 
         static VisualElement DefaultWikiDetails(Identifiable id, Dictionary<Identifiable, List<IdentifiableMappingSystem.IdentifiableLink>> Relations)

@@ -1,3 +1,4 @@
+using Identifiables;
 using Navigation;
 using Units;
 using Unity.Collections;
@@ -9,17 +10,16 @@ using Debug = UnityEngine.Debug;
 
 public partial struct BuildJob : IJobEntity
 {
+    static readonly Entity ConstructTaskPrefab = Identifiable.FromName("BuildTask").SpawnablePrefab;
+    static readonly Entity OrderTaskPrefab = Identifiable.FromName("ItemOrderTask").SpawnablePrefab;
+    
     public EntityCommandBuffer ecb;
-    public Entity constructTaskPrefab, orderTaskPrefab;
-    [NativeDisableContainerSafetyRestriction] public ComponentLookup<RoomModel> roomLookup;
     [NativeDisableContainerSafetyRestriction] public ComponentLookup<MassModel> massLookup;
     [NativeDisableContainerSafetyRestriction] public ComponentLookup<NavLayers> navLayerLookup;
     [ReadOnly] public ComponentLookup<GridBounds> boundsLookup;
     [ReadOnly] public ComponentLookup<Building> buildingLookup;
     [ReadOnly] public ComponentLookup<Ghost> ghostLookup;
     public ComponentLookup<GridStructure> structureLookup;
-    
-    public UnsafeHashSet<Location> plannedThisFrame;
     
     void Execute(Entity e, in PlannedConstruction planned)
     {
@@ -44,11 +44,7 @@ public partial struct BuildJob : IJobEntity
             return;
         }
 
-        var area = new GridBounds
-        {
-            Min = (int2)planned.Location + bounds.Min,
-            Max = (int2)planned.Location + bounds.Max,
-        };
+        var area = bounds.WithOffset(planned.Location);
         
         if (!buildingLookup.TryGetComponent(prefab, out var building))
         {
@@ -58,7 +54,7 @@ public partial struct BuildJob : IJobEntity
         
         if (navigation.IsOccupiedForPlacement(area, building.Layer) && planned.Mode != ConstructionMode.PlacementPreview)
         {
-            Debug.LogWarning($"Discarded pending part in invalid or occupied area {bounds.Min}/{bounds.Max}");
+            Debug.LogWarning($"Discarded pending part in invalid or occupied area {area}");
             return;
         }
         
@@ -119,7 +115,7 @@ public partial struct BuildJob : IJobEntity
 
     void CreateBuildTasks(PlannedConstruction planned, Entity entity, Building building)
     {
-        var constructTask = ecb.Instantiate(constructTaskPrefab);
+        var constructTask = ecb.Instantiate(ConstructTaskPrefab);
         ecb.SetComponent(constructTask, new Task
         {
             Target = entity, 
@@ -138,7 +134,7 @@ public partial struct BuildJob : IJobEntity
         {
             if(requirement.Item == default)
                 continue;
-            var order = ecb.Instantiate(orderTaskPrefab);
+            var order = ecb.Instantiate(OrderTaskPrefab);
             ecb.SetComponent(order, new Task
             {
                 Priority = TaskPriority.MediumPriority,

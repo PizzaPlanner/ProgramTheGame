@@ -1,11 +1,14 @@
-﻿using Unity.Entities;
+﻿using Unity.Collections;
+using Unity.Entities;
 using Unity.Mathematics;
 
 namespace Power
 {
     [WithNone(typeof(Battery))]
+    [WithNone(typeof(Ghost))]
     partial struct UPSDischargeJob : IJobEntity
     {
+        [NativeDisableParallelForRestriction]
         public ComponentLookup<Battery> batteyLookup;
         
         static readonly Tag BatteryTag = Tag.FromName("BatteryTag");
@@ -25,6 +28,7 @@ namespace Power
         }
     }
 
+    [WithNone(typeof(Ghost))]
     partial struct BatteryDischargeJob : IJobEntity
     {
         void Execute(ref PowerProvider provider, ref Battery battery)

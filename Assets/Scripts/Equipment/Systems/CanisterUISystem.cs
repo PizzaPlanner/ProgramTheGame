@@ -29,12 +29,7 @@ partial class CanisterUISystem : UISystem
             if(!UISystemGroup.TryGet<SelectedUnitElement>(out var ui))
                 return;
             
-            var window = ui.Q<MatterUI>();
-            if (window == null)
-            {
-                window = new MatterUI();
-                ui.Add("Container", window);
-            }
+            var window = ui.GetOrCreate<MatterUI>("Container");
             window.Q<MassVolumeUI>().Volume = container.Contents;
         }
         
@@ -43,13 +38,12 @@ partial class CanisterUISystem : UISystem
             if(!UISystemGroup.TryGet<SelectedUnitElement>(out var ui))
                 return;
             
-            var window = ui.Q<CanisterUI>();
-            if (window == null)
+            var window = ui.GetOrCreate<CanisterUI>("Canister", () =>
             {
-                window = new CanisterUI();
-                ui.Add("Canister", window);
-                window.Q<Slider>().value = valve.ValueRO.Open;
-            }
+                var x = new CanisterUI();
+                x.Q<Slider>().value = valve.ValueRO.Open;
+                return x;
+            });
             valve.ValueRW.Open = window.Q<Slider>().value;
             window.Q<MassVolumeUI>().Volume = container.Contents;
         }

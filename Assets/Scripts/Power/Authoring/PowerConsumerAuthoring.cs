@@ -12,6 +12,8 @@ namespace Power
             {
                 var e = GetEntity(TransformUsageFlags.None);
                 AddComponent(e, new PowerConsumer { MaxRequiredWatts = authoring.MaxPowerDraw, RequiredWatts = authoring.MaxPowerDraw });
+                AddComponent<Unpowered>(e);
+                SetComponentEnabled<Unpowered>(e, true);
             }
         }
     }

@@ -13,7 +13,7 @@ public partial class IdentifiablesMappingGroup : ComponentSystemGroup
 {
     EntityQuery modQuery, idQuery;
     
-    internal static readonly SharedStatic<NativeParallelHashMap<ulong, IdentifiableData>> TagMap =
+    internal static readonly SharedStatic<NativeParallelHashMap<ulong, IdentifiableData>> IdMap =
         SharedStatic<NativeParallelHashMap<ulong, IdentifiableData>>
             .GetOrCreate<IdentifiablesMappingGroup>();
     
@@ -32,15 +32,16 @@ public partial class IdentifiablesMappingGroup : ComponentSystemGroup
                            .WithOptions(EntityQueryOptions.IncludePrefab).Build();
         RequireForUpdate(modQuery);
         LoadedMods = new();
-        TagMap.Data = new(0, Allocator.Persistent);
+        IdMap.Data = new(0, Allocator.Persistent);
     }
     
-    internal static IdentifiableData Find(ulong Value) => TagMap.Data.TryGetValue(Value, out var item) ? item : default; 
+    internal static IdentifiableData Find(ulong Value) => IdMap.Data.TryGetValue(Value, out var item) ? item : default; 
 
     protected override void OnDestroy()
     {
-        if(TagMap.Data.IsCreated)
-            TagMap.Data.Dispose();
+        LoadedMods.Clear();
+        if(IdMap.Data.IsCreated)
+            IdMap.Data.Dispose();
         // modQuery.Dispose();
         // idQuery.Dispose();
     }
@@ -66,7 +67,7 @@ public partial class IdentifiablesMappingGroup : ComponentSystemGroup
     {
         var modId = SystemAPI.GetComponent<Identifiable>(mod).StableId;
         var modDef = SystemAPI.GetComponent<ModDefinition>(mod);
-        if (LoadedMods.Contains(modId) && Application.isPlaying)
+        if (LoadedMods.Contains(modId))
         {
             Debug.Log($"Skipped loading Mod {modDef.Name}, since it is already loaded");
             EntityManager.DestroyEntity(mod);
@@ -97,11 +98,11 @@ public partial class IdentifiablesMappingGroup : ComponentSystemGroup
         var id = Identifiable.FromName(data.DefaultName);
         if(id.StableId == 0u || data.DefaultName.Value.Length < 2)
             Debug.LogError($"ID '{data.DefaultName}' is too short!");
-        else if (TagMap.Data.ContainsKey(id.StableId))
+        else if (IdMap.Data.ContainsKey(id.StableId))
             Debug.LogError($"Failed to register {e} as ID '{data.DefaultName}': ID is already taken!");
         else
         {
-            TagMap.Data[id.StableId] = data;
+            IdMap.Data[id.StableId] = data;
 #if UNITY_EDITOR
             EntityManager.SetName(e, $"{data.DefaultName.Value}");
 #endif

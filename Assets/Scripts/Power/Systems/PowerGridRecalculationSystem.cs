@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Entities;
+using Unity.Mathematics;
+using UnityEngine;
 
 namespace Power
 {
@@ -13,7 +15,8 @@ namespace Power
 
             var cableLookup = SystemAPI.GetComponentLookup<PowerCable>(false);
             var visitedCables = new NativeHashSet<Entity>(16, Allocator.Temp);
-            var cableQuery = SystemAPI.QueryBuilder().WithAll<PowerCable, Neighbours>().Build();
+            var cableQuery = SystemAPI.QueryBuilder().WithAll<PowerCable, Neighbours, BakedIntoRoomMap>().WithNone<Ghost>().Build();
+            var plugLookup = new NativeParallelHashMap<(int2 Cell, Entity Grid), Entity>(16, Allocator.Temp);
             foreach(var e in cableQuery.ToEntityArray(Allocator.Temp))
             {
                 if(visitedCables.Contains(e))
@@ -27,6 +30,8 @@ namespace Power
                 {
                     if(connectedGroup.Contains(current))
                         continue;
+                    var baked = SystemAPI.GetComponent<BakedIntoRoomMap>(current);
+                    plugLookup.Add((baked.Area.Min, baked.Grid), current);
                     visitedCables.Add(current);
                     connectedGroup.Add(current);
                     foreach(var nb in SystemAPI.GetBuffer<Neighbours>(current))
@@ -36,7 +41,8 @@ namespace Power
                         continue;
                     if(bestGrid == Entity.Null)
                         bestGrid = cable.Network;
-                    bestGrid = cable.Network.Index < bestGrid.Index ? cable.Network : bestGrid;
+                    else
+                        bestGrid = cable.Network.Index < bestGrid.Index ? cable.Network : bestGrid;
                 }
 
                 if (bestGrid == Entity.Null)
@@ -57,6 +63,28 @@ namespace Power
             foreach(var entry in powerGrids)
                 if(entry.Value <= 0)
                     ecb.DestroyEntity(entry.Key);
+
+            foreach (var (provider, bounds) in 
+                     SystemAPI.Query<RefRW<PowerProvider>, BakedIntoRoomMap>()
+                              .WithNone<Ghost>())
+            {
+                var providerCell = bounds.Area.Min;
+                if(plugLookup.TryGetValue((providerCell, bounds.Grid), out var cable))
+                    provider.ValueRW.PowerNetwork = SystemAPI.GetComponent<PowerCable>(cable).Network;
+                else
+                    provider.ValueRW.PowerNetwork = Entity.Null;
+            }
+            
+            foreach (var (consumer, bounds) in 
+                     SystemAPI.Query<RefRW<PowerConsumer>, BakedIntoRoomMap>()
+                              .WithNone<Ghost>())
+            {
+                var providerCell = bounds.Area.Min;
+                if(plugLookup.TryGetValue((providerCell, bounds.Grid), out var cable))
+                    consumer.ValueRW.PowerNetwork = SystemAPI.GetComponent<PowerCable>(cable).Network;
+                else
+                    consumer.ValueRW.PowerNetwork = Entity.Null;
+            }
         }
     }
 }

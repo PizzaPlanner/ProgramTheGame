@@ -51,7 +51,6 @@ namespace Identifiables
         public FixedString64Bytes DefaultName => IdentifiablesMappingGroup.Find(Value).DefaultName;
         [CreateProperty]
         public ulong StableId => Value;
-        public static IdentifiableData[] All => IdentifiablesMappingGroup.TagMap.Data.GetValueArray(Allocator.Temp).ToArray();
         
         public static Identifiable FromName(FixedString64Bytes defaultName)
         {

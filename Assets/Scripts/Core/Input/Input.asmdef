@@ -4,6 +4,7 @@
     "references": [
         "Unity.InputSystem",
         "Unity.Entities",
+        "Unity.Entities.Graphics",
         "Unity.Burst",
         "Unity.Collections",
         "Unity.Transforms",
@@ -16,9 +17,7 @@
     "overrideReferences": true,
     "precompiledReferences": [],
     "autoReferenced": false,
-    "defineConstraints": [
-        "UNITY_EDITOR"
-    ],
+    "defineConstraints": [],
     "versionDefines": [],
     "noEngineReferences": false
 }

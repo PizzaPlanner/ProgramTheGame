@@ -18,13 +18,7 @@ namespace Units
                 if(!UISystemGroup.TryGet<SelectedUnitElement>(out var ui))
                     return;
             
-                var window = ui.Q<UnitTaskList>();
-                if (window == null)
-                {
-                    window = new UnitTaskList();
-                    ui.Add("ToDos", window);
-                }
-                
+                var window = ui.GetOrCreate<UnitTaskList>("ToDos");
                 window.Update(e, todos, SystemAPI.GetComponentLookup<Task>(true), SystemAPI.GetComponentLookup<Identifiable>(true));
             }
             foreach (var (orders, e) in SystemAPI.Query<DynamicBuffer<TaskProvider>>().WithAll<Selected>().WithEntityAccess())
@@ -32,13 +26,7 @@ namespace Units
                 if(!UISystemGroup.TryGet<SelectedUnitElement>(out var ui))
                     return;
             
-                var window = ui.Q<UnitOrderList>();
-                if (window == null)
-                {
-                    window = new UnitOrderList();
-                    ui.Add("Orders", window);
-                }
-                
+                var window = ui.GetOrCreate<UnitOrderList>("Orders");
                 window.Update(ecb, orders, 
                     SystemAPI.GetComponentLookup<Task>(true),
                     SystemAPI.GetBufferLookup<TaskProvider>(true),

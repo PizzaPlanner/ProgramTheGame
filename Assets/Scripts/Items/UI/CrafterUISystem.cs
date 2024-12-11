@@ -3,8 +3,7 @@ using Unity.Collections;
 using Unity.Entities;
 using UnityEngine.UIElements;
 
-[UpdateInGroup(typeof(PresentationSystemGroup))]
-partial class CrafterUISystem : SystemBase
+partial class CrafterUISystem : UISystem
 {
     protected override void OnUpdate()
     {
@@ -14,13 +13,7 @@ partial class CrafterUISystem : SystemBase
             if(!UISystemGroup.TryGet<SelectedUnitElement>(out var ui))
                 return;
             
-            var window = ui.Q<CraftingWindow>();
-            if (window == null)
-            {
-                window = new CraftingWindow{ Queue = e, SelectedRecipe = crafter.ValueRO.Recipe };
-                ui.Add("Craft", window);
-            }
-            
+            var window = ui.GetOrCreate("Craft", () => new CraftingWindow{ Queue = e, SelectedRecipe = crafter.ValueRO.Recipe });
             window.UpdateQueue(crafter.ValueRO, craftables, EntityManager);
             if(window.SelectedRecipe != crafter.ValueRO.Recipe)
                 crafter.ValueRW.Recipe = window.SelectedRecipe;

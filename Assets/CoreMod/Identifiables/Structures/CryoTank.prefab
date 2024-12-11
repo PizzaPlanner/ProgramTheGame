@@ -10,13 +10,13 @@ GameObject:
   m_Component:
   - component: {fileID: 3724361011114579357}
   - component: {fileID: -5380242976130347905}
-  - component: {fileID: 2765234121854664757}
   - component: {fileID: -3324961410386666242}
   - component: {fileID: 460068120002007332}
   - component: {fileID: 5400088794976185110}
   - component: {fileID: -3586789379621802683}
   - component: {fileID: 404759063531143838}
   - component: {fileID: 2345365422685461337}
+  - component: {fileID: 6358590210682995268}
   m_Layer: 0
   m_Name: CryoTank
   m_TagString: Untagged
@@ -54,27 +54,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Asset: {fileID: 6546005226389050243}
---- !u!65 &2765234121854664757
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3605263813790912188}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 2, y: 0.83309484, z: 4}
-  m_Center: {x: 1, y: 0.41654742, z: 2}
 --- !u!114 &-3324961410386666242
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -161,6 +140,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   UnitType: {fileID: -5942648328531916514, guid: fe71f9291d76e91448981a843cbca2ca, type: 3}
+--- !u!114 &6358590210682995268
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3605263813790912188}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: acead53ec12f4428b79d12e2e726efcc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  MaxPowerDraw: 5
 --- !u!1 &4595414617045776170
 GameObject:
   m_ObjectHideFlags: 0

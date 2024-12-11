@@ -25,7 +25,8 @@
         "Rooms",
         "Identifiables.UI",
         "Equipment.UI",
-        "Blueprints"
+        "Blueprints",
+        "Core.Input.Selection"
 
     ],
     "includePlatforms": [],

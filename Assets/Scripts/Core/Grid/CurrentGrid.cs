@@ -1,6 +1,5 @@
 ﻿using Unity.Collections;
 using Unity.Entities;
-using Unity.Physics;
 using Unity.Rendering;
 using UnityEngine;
 
@@ -38,8 +37,8 @@ partial struct CurrentGridSystem : ISystem
                 {
                     if (SystemAPI.HasComponent<MaterialMeshInfo>(child.Value))
                         SystemAPI.SetComponentEnabled<MaterialMeshInfo>(child.Value, isCurrent);
-                    if (SystemAPI.HasComponent<PhysicsCollider>(child.Value))
-                        ecb.SetSharedComponent(child.Value, new PhysicsWorldIndex{ Value = isCurrent ? 0u : 999u });
+                    // if (SystemAPI.HasComponent<PhysicsCollider>(child.Value))
+                    //     ecb.SetSharedComponent(child.Value, new PhysicsWorldIndex{ Value = isCurrent ? 0u : 999u });
                 }
             }
             ecb.Playback(state.EntityManager);

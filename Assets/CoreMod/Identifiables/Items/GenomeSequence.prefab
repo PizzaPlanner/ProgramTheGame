@@ -1,0 +1,100 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &6595311514760627798
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6513637787785079020}
+  - component: {fileID: 5304243422145376601}
+  - component: {fileID: 697860641069326925}
+  - component: {fileID: -4396463729144112910}
+  m_Layer: 0
+  m_Name: GenomeSequence
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6513637787785079020
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6595311514760627798}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5304243422145376601
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6595311514760627798}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 190e307b1d2618d4db66b4ac27b0adba, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Asset: {fileID: -2660674514274597576}
+--- !u!114 &697860641069326925
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6595311514760627798}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b38d79e42db94e7999fdd448d0f7f3db, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  MaxStackSize: 1
+--- !u!114 &-4396463729144112910
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6595311514760627798}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 947d04393a95425eb52f96ab38e0ea85, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  HotStateChange:
+    Temperature: 140
+    ToElement: {fileID: 8326911734933721908, guid: 7c1cb09404340334e81d4ef17cdeab0b, type: 3}
+  ColdStateChange:
+    Temperature: 0
+    ToElement: {fileID: 0}
+  ThermalConductivity: 1
+  SpecificHeatCapacity: 0.5
+  Color: {r: 0, g: 0, b: 0, a: 0}
+--- !u!114 &-2660674514274597576
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6d96781d50c744d5b90125a6e0a230bb, type: 3}
+  m_Name: GenomeSequence
+  m_EditorClassIdentifier: 
+  Icon: {fileID: 2800000, guid: 1a847878ad0c6fe43af9500e397838db, type: 3}
+  Tags:
+  - {fileID: 11400000, guid: 80f258bf514ce4c4a9d95803e10e81d5, type: 2}
+  - {fileID: 11400000, guid: 682385aff35bfe44fb6d0733d56d5c9a, type: 2}
+  Reference: {fileID: 5304243422145376601}

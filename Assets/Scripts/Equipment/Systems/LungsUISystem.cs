@@ -3,8 +3,7 @@ using Units;
 using Unity.Entities;
 using UnityEngine.UIElements;
 
-[UpdateInGroup(typeof(UISystemGroup))]
-partial class LungsUISystem : SystemBase
+partial class LungsUISystem : UISystem
 {
     protected override void OnUpdate()
     {

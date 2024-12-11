@@ -1,5 +1,6 @@
 ﻿using Identifiables;
 using Identifiables.UI;
+using System;
 using Unity.Entities;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -24,6 +25,17 @@ namespace Units
             Add(Content = new ScrollView(ScrollViewMode.Vertical));
         }
 
+        public T GetOrCreate<T>(string tab, Func<T> createFunc = null) where T : VisualElement, new()
+        {
+            var window = this.Q<Foldout>(tab)?.Q<T>();
+            if (window == null)
+            {
+                window = createFunc?.Invoke() ?? new T();
+                Add(tab, window);
+            }
+            return window;
+        }
+        
         public void Add(string tab, VisualElement content)
         {
             var t = Content.Q<Foldout>(tab) ?? new Foldout(){name = tab, text = tab};

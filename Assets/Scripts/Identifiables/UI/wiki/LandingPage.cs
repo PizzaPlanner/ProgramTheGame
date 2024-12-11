@@ -1,3 +1,5 @@
+using Unity.Collections;
+using Unity.Entities;
 using UnityEngine.UIElements;
 
 namespace Identifiables.UI
@@ -22,13 +24,12 @@ namespace Identifiables.UI
             searches.Add(new VisualElement(){ name = "navigate" });
         }
 
-        public void Init()
+        public void Init(EntityQuery allIdsQuery)
         {
-            var all = Identifiable.All;
             var target = searches.Q("navigate");
-            foreach (var id in all)
+            foreach (var id in allIdsQuery.ToComponentDataArray<Identifiable>(Allocator.Temp))
             {
-                target.Add(new WikiSearchResultButton(Identifiable.FromName(id.DefaultName)));
+                target.Add(new WikiSearchResultButton(id));
             }
 
             foreach (var tag in Tag.All)
@@ -40,7 +41,7 @@ namespace Identifiables.UI
                 if(y != searchTab)
                     searchTab.RemoveFromHierarchy();
             };
-            this.Q<Label>("EntriesHint").text = $"{all.Length} Entries loaded";
+            this.Q<Label>("EntriesHint").text = $"{allIdsQuery.CalculateEntityCount()} Entries loaded";
             ResetSearch();
         }
 

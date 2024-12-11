@@ -3,8 +3,7 @@ using Units;
 using Unity.Entities;
 using UnityEngine.UIElements;
 
-[UpdateInGroup(typeof(PresentationSystemGroup))]
-public partial class InventoryUISystem : SystemBase
+public partial class InventoryUISystem : UISystem
 {
     protected override void OnUpdate()
     {
@@ -13,12 +12,7 @@ public partial class InventoryUISystem : SystemBase
             if(!UISystemGroup.TryGet<SelectedUnitElement>(out var ui))
                 return;
             
-            var window = ui.Q<InventoryElement>();
-            if (window == null)
-            {
-                window = new InventoryElement();
-                ui.Add("Inventory", window);
-            }
+            var window = ui.GetOrCreate<InventoryElement>("Inventory");
             window.Update(e, ref CheckedStateRef);
         }
     }

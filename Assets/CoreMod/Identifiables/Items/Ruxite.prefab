@@ -1,0 +1,102 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &6595311514760627798
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6513637787785079020}
+  - component: {fileID: 5304243422145376601}
+  - component: {fileID: 697860641069326925}
+  - component: {fileID: 4158296539024455307}
+  m_Layer: 0
+  m_Name: Ruxite
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6513637787785079020
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6595311514760627798}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5304243422145376601
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6595311514760627798}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 190e307b1d2618d4db66b4ac27b0adba, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Asset: {fileID: 3174735954207645279}
+--- !u!114 &697860641069326925
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6595311514760627798}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b38d79e42db94e7999fdd448d0f7f3db, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  MaxStackSize: 9999
+--- !u!114 &4158296539024455307
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6595311514760627798}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 947d04393a95425eb52f96ab38e0ea85, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  HotStateChange:
+    Temperature: 5
+    ToElement: {fileID: 6240678538308625820, guid: c42440416ef81f64693865cd7d1325d9, type: 3}
+  ColdStateChange:
+    Temperature: 0
+    ToElement: {fileID: 0}
+  ThermalConductivity: 4
+  SpecificHeatCapacity: 0.7
+  Color: {r: 0, g: 0, b: 0, a: 0}
+--- !u!114 &3174735954207645279
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6d96781d50c744d5b90125a6e0a230bb, type: 3}
+  m_Name: Ruxite
+  m_EditorClassIdentifier: 
+  Icon: {fileID: 2800000, guid: 87cd0e94855ae414aa3689333e9c1f0e, type: 3}
+  Tags:
+  - {fileID: 11400000, guid: 80f258bf514ce4c4a9d95803e10e81d5, type: 2}
+  - {fileID: 11400000, guid: 5ed3341e415bbb9438eb586c02aceb3e, type: 2}
+  - {fileID: 11400000, guid: 1745d9898f3c45f46b74b2fb86d0a791, type: 2}
+  - {fileID: 11400000, guid: 682385aff35bfe44fb6d0733d56d5c9a, type: 2}
+  Reference: {fileID: 5304243422145376601}

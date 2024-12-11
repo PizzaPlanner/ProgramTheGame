@@ -3,8 +3,7 @@ using Units;
 using Unity.Entities;
 using UnityEngine.UIElements;
 
-[UpdateInGroup(typeof(UISystemGroup))]
-partial class StomachUISystem : SystemBase
+partial class StomachUISystem : UISystem
 {
     protected override void OnUpdate()
     {
