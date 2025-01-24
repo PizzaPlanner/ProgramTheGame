@@ -64,6 +64,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Layer: 2
   PlacementType: 2
+  NotAllowedOnShips: 1
   Duration: 3
   Size:
     x: 0

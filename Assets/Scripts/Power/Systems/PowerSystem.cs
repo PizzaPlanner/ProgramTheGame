@@ -13,6 +13,7 @@ namespace Power
                 network.ValueRW.CanSatisfyDemand = network.ValueRW.TotalProviderCapacity >= network.ValueRW.DrawnWatts;
                 network.ValueRW.DrawnWatts = 0;
                 network.ValueRW.TotalProviderCapacity = 0;
+                network.ValueRW.TotalVariableProviderCapacity = 0;
             }
 
             var networkLookup = SystemAPI.GetComponentLookup<PowerNetwork>(false);
@@ -37,19 +38,28 @@ namespace Power
                 if (!networkLookup.TryGetComponent(provider.ValueRW.PowerNetwork, out var network))
                     continue;
                 network.TotalProviderCapacity += provider.ValueRW.AvailableCapacityThisTick;
+                network.TotalVariableProviderCapacity += provider.ValueRW.AvailableCapacityThisTick * provider.ValueRW.ContributionPriority;
                 networkLookup[provider.ValueRW.PowerNetwork] = network;
             }
-            
+
             foreach (var provider in SystemAPI.Query<RefRW<PowerProvider>>().WithNone<Ghost>())
             {
-                if (!networkLookup.TryGetComponent(provider.ValueRW.PowerNetwork, out var network) || network.TotalProviderCapacity <= 0)
-                    provider.ValueRW.CapacityToContributeThisTick = 0;
-                else
-                    provider.ValueRW.CapacityToContributeThisTick = network.DrawnWatts * provider.ValueRW.AvailableCapacityThisTick / network.TotalProviderCapacity;
+                if (!networkLookup.TryGetComponent(provider.ValueRW.PowerNetwork, out var network) ||
+                    network.TotalProviderCapacity <= 0)
+                    provider.ValueRW.ActualCapacityContributedThisTick = 0;
+                else if (provider.ValueRW.ContributionPriority == 0)
+                    provider.ValueRW.ActualCapacityContributedThisTick = provider.ValueRW.AvailableCapacityThisTick;
+                else if (network.RequiredVariableWatts > 0 && network.TotalVariableProviderCapacity > 0)
+                        provider.ValueRW.ActualCapacityContributedThisTick = network.RequiredVariableWatts *
+                                                                             provider.ValueRW.ContributionPriority *
+                                                                             provider.ValueRW
+                                                                                 .AvailableCapacityThisTick /
+                                                                             network.TotalVariableProviderCapacity;
             }
             
             new UPSDischargeJob { batteyLookup = SystemAPI.GetComponentLookup<Battery>(false)}.Schedule();
             new BatteryDischargeJob().Schedule();
+            new SolarPanelDischargeJob().Schedule();
         }
     }
 }

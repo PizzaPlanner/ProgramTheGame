@@ -72,12 +72,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 947d04393a95425eb52f96ab38e0ea85, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  HotStateChange:
-    Temperature: 0
-    ToElement: {fileID: 0}
-  ColdStateChange:
-    Temperature: 0
-    ToElement: {fileID: 0}
+  StateChanges: []
   ThermalConductivity: 9
   SpecificHeatCapacity: 1.2
   Color: {r: 0, g: 0, b: 0, a: 0}

@@ -1,20 +1,19 @@
 using Core.Grid;
 using Identifiables;
 using Identifiables.UI;
+using Space;
 using System;
 using Units;
 using Unity.Collections;
 using Unity.Entities;
-using Unity.Mathematics;
 using Unity.Transforms;
-using UnityEngine;
 using UnityEngine.UIElements;
 
 
-public partial class ShipUI : VisualElement, IComponentData, IDisposable
+public partial class PlayfieldUI : VisualElement, IComponentData, IDisposable
 {
     public bool wantCurrent, wantSwitchCrew;
-    public ShipUI()
+    public PlayfieldUI()
     {
         VisualElement header;
         SignalButton icon = new SignalButton(){name = "Icon"};
@@ -24,7 +23,6 @@ public partial class ShipUI : VisualElement, IComponentData, IDisposable
         header.Add(icon);
         header.Add(new Label("Field"));
         header.Add(new Button(OnChangeCurrent));
-        header.Add(new Button(OnAddCrew){name = "AddCrew"});
         header.Add(new Button(OnSaveBlueprint));
         
         icon.RegisterCallback<MouseDownEvent>(_ =>
@@ -39,11 +37,6 @@ public partial class ShipUI : VisualElement, IComponentData, IDisposable
     void OnSaveBlueprint()
     {
         BlueprintUtils.Save(_target, World.DefaultGameObjectInjectionWorld.EntityManager);
-    }
-
-    void OnAddCrew()
-    {
-        wantSwitchCrew = true;
     }
 
     void OnChangeCurrent()
@@ -81,14 +74,6 @@ public partial class ShipUI : VisualElement, IComponentData, IDisposable
         }
     }
 
-    public bool CanSwitchCrew
-    {
-        set
-        {
-            this.Q<Button>("AddCrew").SetEnabled(value);
-        }
-    }
-
     public void SetCrew(DynamicBuffer<Crew> crew, EntityManager em)
     {
         var c = this.Q("Crew");
@@ -111,7 +96,7 @@ public partial class ShipUI : VisualElement, IComponentData, IDisposable
         }
     }
     
-    public void DockTo(ShipUI parent, SystemView fallback)
+    public void DockTo(PlayfieldUI parent, SystemView fallback)
     {
         if(parent == null)
             fallback.Add(this);
@@ -119,7 +104,7 @@ public partial class ShipUI : VisualElement, IComponentData, IDisposable
             parent.Q("Docked").Add(this);
     }
 
-    public void UpdateCrewTasks(DynamicBuffer<Crew> crew, ComponentLookup<Task> taskLookup, BufferLookup<ToDos> todosLookup, ComponentLookup<Identifiable> idLookup)
+    public void UpdateCrewTasks(DynamicBuffer<Crew> crew, BufferLookup<ToDos> todosLookup, ComponentLookup<Identifiable> idLookup)
     {
         var idle = Identifiable.FromName("IdleTask");
         var crewBtns = this.Q("Crew");
@@ -144,12 +129,9 @@ public partial class ShipUI : VisualElement, IComponentData, IDisposable
     }
 }
 
-public class SystemView : VisualElement
-{
-    
-}
+public class SystemView : VisualElement { }
 
-partial class ShipUISystem : UISystem
+partial class PlayfieldUISystem : UISystem
 {
     SystemView _view;
     protected override void OnCreate()
@@ -163,18 +145,18 @@ partial class ShipUISystem : UISystem
 
     protected override void OnUpdate()
     {
-        var noUIQuery = SystemAPI.QueryBuilder().WithAll<GridStructure, Crew>().WithNone<ShipUI, Ghost>().Build();
+        var noUIQuery = SystemAPI.QueryBuilder().WithAny<GridStructure, ShipContoller>().WithNone<PlayfieldUI, Ghost>().Build();
         foreach (var e in noUIQuery.ToEntityArray(Allocator.Temp))
         {
-            ShipUI ui;
+            PlayfieldUI ui;
             if (SystemAPI.HasComponent<Identifiable>(e))
-                ui = new ShipUI()
+                ui = new PlayfieldUI()
                 {
                     Id = SystemAPI.GetComponent<Identifiable>(e), 
                     Target = e
                 };
             else
-                ui = new ShipUI { Target = e };
+                ui = new PlayfieldUI { Target = e };
             
             _view.Add(ui);
             EntityManager.AddComponentObject(e, ui);
@@ -183,36 +165,28 @@ partial class ShipUISystem : UISystem
         var anyCrewChanged = SystemAPI.QueryBuilder().WithAll<Crew>().WithNone<Ghost>().Build();
         anyCrewChanged.SetChangedVersionFilter(typeof(Crew));
         if(!anyCrewChanged.IsEmpty)
-            foreach (var (crew, ui) in SystemAPI.Query<DynamicBuffer<Crew>, ShipUI>())
+            foreach (var (crew, ui) in SystemAPI.Query<DynamicBuffer<Crew>, PlayfieldUI>())
             {
                 ui.SetCrew(crew, EntityManager);
             }
         
         var cgrid = SystemAPI.GetSingletonRW<CurrentGrid>();
-        var taskLookup = SystemAPI.GetComponentLookup<Task>(true); 
         var todosLookup = SystemAPI.GetBufferLookup<ToDos>(true);
         var idLookup = SystemAPI.GetComponentLookup<Identifiable>(true);
-        foreach (var (crew, ui, e) in SystemAPI.Query<DynamicBuffer<Crew>, ShipUI>().WithEntityAccess())
+        foreach (var (crew, ui, e) in SystemAPI.Query<DynamicBuffer<Crew>, PlayfieldUI>().WithEntityAccess())
         {
-            ui.UpdateCrewTasks(crew, taskLookup, todosLookup, idLookup);
+            ui.UpdateCrewTasks(crew, todosLookup, idLookup);
             if (ui.wantCurrent)
                 cgrid.ValueRW.Grid = e;
             ui.wantCurrent = false;
-
-            var canSwitch = SystemAPI.TryGetSingletonEntity<Selected>(out var selected);
-            ui.CanSwitchCrew = canSwitch;
-            if (canSwitch && ui.wantSwitchCrew)
-                    SystemAPI.GetComponentRW<OnGrid>(selected).ValueRW.Grid = e;
-            ui.wantSwitchCrew = false;
-            
             
             ui.IsCurrent = e == cgrid.ValueRW.Grid;
             if (SystemAPI.HasComponent<Parent>(e))
             {
                 var parent = SystemAPI.GetComponent<Parent>(e).Value;
-                if (SystemAPI.ManagedAPI.HasComponent<ShipUI>(parent))
+                if (SystemAPI.ManagedAPI.HasComponent<PlayfieldUI>(parent))
                 {
-                    var parentUI = SystemAPI.ManagedAPI.GetComponent<ShipUI>(parent);
+                    var parentUI = SystemAPI.ManagedAPI.GetComponent<PlayfieldUI>(parent);
                     if(ui.parent.parent != parentUI)
                         ui.DockTo(parentUI, _view);
                 }

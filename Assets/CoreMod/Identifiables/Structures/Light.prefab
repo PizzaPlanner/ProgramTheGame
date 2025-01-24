@@ -337,7 +337,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: acead53ec12f4428b79d12e2e726efcc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MaxPowerDraw: 55
+  MaxPowerDraw: 5
 --- !u!114 &-8927736695948970044
 MonoBehaviour:
   m_ObjectHideFlags: 0

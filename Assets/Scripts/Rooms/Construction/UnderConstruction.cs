@@ -20,6 +20,7 @@ public struct Building : IComponentData
     public BuildingLayer Layer;
     public PlacementType DraggableDimension;
     public float Duration;
+    public bool IsAllowedOnShips;
 }
 
 public struct Floor : IComponentData { }

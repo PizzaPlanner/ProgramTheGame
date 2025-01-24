@@ -1,4 +1,5 @@
-﻿using Identifiables;
+﻿using Core.Status;
+using Identifiables;
 using Navigation;
 using System.Collections.Generic;
 using Unity.Collections;
@@ -7,6 +8,7 @@ using UnityEngine;
 
 namespace Units
 {
+    [WithNone(typeof(Dead))]
     public partial struct TodoPriorityJob : IJobEntity
     {
         [ReadOnly] public ComponentLookup<Task> taskLookup;

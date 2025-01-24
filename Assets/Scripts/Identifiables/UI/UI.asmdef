@@ -9,7 +9,6 @@
         "Unity.Transforms",
         "Unity.Addressables",
         "Unity.ResourceManager",
-        "Lookups",
         "Identifiables",
         "Core.UI"
     ],

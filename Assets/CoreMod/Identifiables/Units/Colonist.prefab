@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 6513637787785079020}
   - component: {fileID: 5304243422145376601}
   - component: {fileID: -4989415347927071038}
-  - component: {fileID: -5051792277644950993}
   - component: {fileID: 308810711421503718}
   - component: {fileID: -5942648328531916514}
   - component: {fileID: -3090611205173747411}
@@ -93,29 +92,6 @@ MonoBehaviour:
     Amount: 1
     Filter: {fileID: 0}
     TransferDirection: 3
---- !u!136 &-5051792277644950993
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6595311514760627798}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 0.5
-  m_Height: 2
-  m_Direction: 1
-  m_Center: {x: 0, y: 0.96, z: 0}
 --- !u!114 &308810711421503718
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -211,7 +187,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bc2f2258cce24d95b74495ca541496ad, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Capacity: 500
+  Capacity: 800
+  LowThreshold: 600
+  SuffocateThreshold: 400
   ConsumptionPerTick: 8
   ProductionPerTick: 2
   Inhales: {fileID: -7111768246366295914, guid: ee7ceab8787fcfc40b1b387446cf825e, type: 3}

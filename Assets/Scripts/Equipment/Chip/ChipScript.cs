@@ -341,7 +341,7 @@ public struct ChipScriptLine
         else if (!right.Contains('.'))
         {
             var id = Identifiable.FromName(right);
-            csl.RightConstant = (long)id.StableId;
+            csl.RightConstant = (long)id.DebugId;
             csl.RightType = LogicType.Type;
             csl.RightIsConstant = true;
         }

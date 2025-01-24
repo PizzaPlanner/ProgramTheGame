@@ -1,5 +1,4 @@
 using Identifiables;
-using Lookups;
 using System.Collections.Generic;
 using Unity.Burst;
 using Unity.Collections;
@@ -12,10 +11,6 @@ using UnityEngine;
 public partial class IdentifiablesMappingGroup : ComponentSystemGroup
 {
     EntityQuery modQuery, idQuery;
-    
-    internal static readonly SharedStatic<NativeParallelHashMap<ulong, IdentifiableData>> IdMap =
-        SharedStatic<NativeParallelHashMap<ulong, IdentifiableData>>
-            .GetOrCreate<IdentifiablesMappingGroup>();
     
     public struct Mapped : IComponentData { }
     public struct Loaded : IComponentData { }
@@ -32,16 +27,14 @@ public partial class IdentifiablesMappingGroup : ComponentSystemGroup
                            .WithOptions(EntityQueryOptions.IncludePrefab).Build();
         RequireForUpdate(modQuery);
         LoadedMods = new();
-        IdMap.Data = new(0, Allocator.Persistent);
+        Identifiable.IdMap.Data = new(0, Allocator.Persistent);
     }
-    
-    internal static IdentifiableData Find(ulong Value) => IdMap.Data.TryGetValue(Value, out var item) ? item : default; 
 
     protected override void OnDestroy()
     {
         LoadedMods.Clear();
-        if(IdMap.Data.IsCreated)
-            IdMap.Data.Dispose();
+        if(Identifiable.IdMap.Data.IsCreated)
+            Identifiable.IdMap.Data.Dispose();
         // modQuery.Dispose();
         // idQuery.Dispose();
     }
@@ -65,7 +58,7 @@ public partial class IdentifiablesMappingGroup : ComponentSystemGroup
 
     void LoadMod(Entity mod)
     {
-        var modId = SystemAPI.GetComponent<Identifiable>(mod).StableId;
+        var modId = SystemAPI.GetComponent<Identifiable>(mod).DebugId;
         var modDef = SystemAPI.GetComponent<ModDefinition>(mod);
         if (LoadedMods.Contains(modId))
         {
@@ -96,15 +89,15 @@ public partial class IdentifiablesMappingGroup : ComponentSystemGroup
             return false;
 
         var id = Identifiable.FromName(data.DefaultName);
-        if(id.StableId == 0u || data.DefaultName.Value.Length < 2)
+        if(id == default || data.DefaultName.Value.Length < 2)
             Debug.LogError($"ID '{data.DefaultName}' is too short!");
-        else if (IdMap.Data.ContainsKey(id.StableId))
-            Debug.LogError($"Failed to register {e} as ID '{data.DefaultName}': ID is already taken!");
+        else if (id.DefaultName != default)
+            Debug.LogError($"Failed to register ID '{data.DefaultName}': Collision with {id.DefaultName}. Choose another name");
         else
         {
-            IdMap.Data[id.StableId] = data;
+            Identifiable.Register(data);
 #if UNITY_EDITOR
-            EntityManager.SetName(e, $"{data.DefaultName.Value}");
+            EntityManager.SetName(e, data.DefaultName);
 #endif
             return true;
         }

@@ -26,6 +26,7 @@ namespace Navigation
     }
     public struct NavTree : ICleanupComponentData, IDisposable
     {
+        // TODO: ChangeAreas data not used
         internal UnsafeList<GridBounds> ChangeAreas;
         internal UnsafeHashMap<int2, NavCell> Cells;
         internal UnsafeParallelMultiHashMap<int, int2> CellsByArea;

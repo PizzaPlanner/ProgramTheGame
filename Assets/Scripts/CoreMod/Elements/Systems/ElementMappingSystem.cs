@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Transforms;
+using UnityEngine;
 using UnityEngine.UIElements;
 
 public partial class ElementMappingSystem : IdentifiableMappingSystem, IWikiProvider
@@ -63,9 +64,8 @@ public partial class ElementMappingSystem : IdentifiableMappingSystem, IWikiProv
 
     public VisualElement ProvideWikiDetails(Identifiable id)
     {
-        if(!Tag.HasTag(id, Tag.FromName("TagElement")))
+        if (!Element.TryFrom(id, out var element)) 
             return null;
-        var element = Element.From(id);
         var elementText = $"Specific Heat Capacity: {element.SpecificHeatCapacity}\nThermal Conductivity: {element.ThermalConductivity}";
         var top = new Foldout(){text = "Element", name = "Element"};
         top.Add(new Label(elementText));

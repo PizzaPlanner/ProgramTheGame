@@ -10,8 +10,6 @@ partial struct CrafterSystem : ISystem
         var ecb = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>()
                            .CreateCommandBuffer(state.WorldUnmanaged);
         var store = SystemAPI.GetSingletonRW<TransactionStore>();
-        craftTaskPrefab = Identifiable.FromName("CraftTask").SpawnablePrefab;
-        orderTaskPrefab = Identifiable.FromName("ItemOrderTask").SpawnablePrefab;
         
         // Queue up a new craft task
         foreach (var (crafter, recipes, taskProviders, onGrid, e) in 
@@ -72,13 +70,13 @@ partial struct CrafterSystem : ISystem
         }
     }
     
-    Entity craftTaskPrefab, orderTaskPrefab;
+    Identifiable craftTaskPrefab => Identifiable.FromName("CraftTask");
+    Identifiable orderTaskPrefab => Identifiable.FromName("ItemOrderTask");
     Entity CreateCraftTask(ref SystemState state, Entity crafter, Entity crewContext, Identifiable recipe, EntityCommandBuffer ecb)
     {
         var inventory = SystemAPI.GetBuffer<Inventory>(crafter);
         var recipeInput = SystemAPI.GetBuffer<CraftingInput>(recipe.SpawnablePrefab);
-        var craftTask = ecb.Instantiate(craftTaskPrefab);
-        ecb.SetComponent(craftTask, new Task
+        var craftTask = Task.Schedule(craftTaskPrefab, ecb, new Task
         {
             Target = crafter, 
             Priority = TaskPriority.MediumPriority,
@@ -86,16 +84,10 @@ partial struct CrafterSystem : ISystem
             Executor = crafter,
             CrewProvider = crewContext
         });
-        ecb.AppendToBuffer(crafter, new ToDos
-        {
-            Task = craftTask,
-            Status = ToDoStatus.Requested
-        });
         ecb.SetComponent(craftTask, new TaskProgress
         {
             RequiredValue = SystemAPI.GetComponent<CraftingRecipe>(recipe.SpawnablePrefab).Duration
         });
-        ecb.AppendToBuffer(crafter, new TaskProvider { Task = craftTask});
         ecb.SetComponent(craftTask, new CraftRecipeTask
         {
             Recipe = recipe
@@ -105,8 +97,8 @@ partial struct CrafterSystem : ISystem
             if(inventory.Contains(requirement.ItemId, requirement.Amount))
                 continue;
             
-            var order = ecb.Instantiate(orderTaskPrefab);
-            ecb.SetComponent(order, new Task
+            var order = Task.Schedule(orderTaskPrefab, ecb, 
+            new Task
             {
                 Priority = TaskPriority.MediumPriority,
                 Origin = craftTask,
@@ -118,10 +110,6 @@ partial struct CrafterSystem : ISystem
                 Item = requirement.ItemId,
                 ParentGrid = crewContext,
                 Requester = crafter
-            });
-            ecb.AppendToBuffer(craftTask, new TaskProvider()
-            {
-                Task = order
             });
         }
         return craftTask;

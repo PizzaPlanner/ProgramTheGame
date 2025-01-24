@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Properties;
@@ -9,8 +10,6 @@ namespace Identifiables
 {
     public partial struct Identifiable : IComponentData, IEquatable<Identifiable>
     {
-        ulong Value;
-        
         public static bool operator ==(Identifiable left, Identifiable right)
         {
             return left.Value == right.Value;
@@ -45,19 +44,29 @@ namespace Identifiables
 
     public partial struct Identifiable
     {
-        public Entity SpawnablePrefab => IdentifiablesMappingGroup.Find(Value).SpawnablePrefab;
-        public Texture2D Icon => IdentifiablesMappingGroup.Find(Value).Icon;
-        [CreateProperty]
-        public FixedString64Bytes DefaultName => IdentifiablesMappingGroup.Find(Value).DefaultName;
-        [CreateProperty]
-        public ulong StableId => Value;
+        [CreateProperty(ReadOnly = true)]
+        public Entity SpawnablePrefab => Find(Value).SpawnablePrefab;
+        public Texture2D Icon => Find(Value).Icon;
+        [CreateProperty(ReadOnly = true)]
+        public FixedString64Bytes DefaultName => Find(Value).DefaultName;
         
-        public static Identifiable FromName(FixedString64Bytes defaultName)
-        {
-            var id = FromGuid(TypeHash.FNV1A64(defaultName));
-            return id;
-        }
+        public ulong DebugId => Value;
         
-        public static Identifiable FromGuid(ulong assetGuid) => new Identifiable { Value = assetGuid };
+#if USE_ID_64
+        public static Identifiable FromName(FixedString64Bytes defaultName) => new Identifiable { Value = TypeHash.FNV1A64(defaultName) };
+        ulong Value;
+            internal static readonly SharedStatic<NativeParallelHashMap<ulong, IdentifiableData>> IdMap =
+        SharedStatic<NativeParallelHashMap<ulong, IdentifiableData>>
+            .GetOrCreate<IdentifiablesMappingGroup>();
+        static IdentifiableData Find(ulong Value) => IdMap.Data.TryGetValue(Value, out var item) ? item : default;
+#else
+        public static Identifiable FromName(FixedString64Bytes defaultName) => new Identifiable { Value = Hash.FNV1A32(defaultName) };
+        uint Value;
+        internal static readonly SharedStatic<NativeParallelHashMap<uint, IdentifiableData>> IdMap =
+            SharedStatic<NativeParallelHashMap<uint, IdentifiableData>>
+                .GetOrCreate<IdentifiablesMappingGroup>();
+        static IdentifiableData Find(uint Value) => IdMap.Data.TryGetValue(Value, out var item) ? item : default;
+#endif
+        internal static void Register(IdentifiableData data) => IdMap.Data[FromName(data.DefaultName).Value] = data;
     }
 }

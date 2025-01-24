@@ -27,7 +27,7 @@ partial struct CameraSystem : ISystem
     }
     
     const float ZOOM_FACTOR = 45f;
-    const float ROTATION_FACTOR = 14f;
+    const float ROTATION_FACTOR = 22f;
     const float MOVE_FACTOR = 8f;
     public void OnCreate(ref SystemState state)
     {

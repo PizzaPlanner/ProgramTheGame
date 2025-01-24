@@ -7,28 +7,13 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
-// partial struct MassModelMixJob : IJobParallelFor
-// {
-//     
-//     public void Execute(int index)
-//     {
-//         model.MixOne(index);
-//     }
-//
-//     public MassModel model;
-// }
-
-[WithNone(typeof(UnderConstruction))]
-[WithAll(typeof(MassData))]
-partial struct MassesUpdateJob : IJobEntity
+[WithNone(typeof(Ghost))]
+[WithNone(typeof(Building))]
+partial struct MassesUpdateJobUnits : IJobEntity
 {
-    [ReadOnly] public ComponentLookup<GridBounds> boundsLookup;
-    [ReadOnly] public ComponentLookup<Wall> wallLookup;
-    [ReadOnly] public BufferLookup<Neighbours> neighbourLookup;
     public ComponentLookup<MassModel> massModelLookup;
-    public ComponentLookup<MassData> massDataLookup;
     public EntityCommandBuffer ecb;
-    void Execute(Entity e, in OnGrid onGrid, in LocalTransform transform)
+    void Execute(Entity e, in OnGrid onGrid, in LocalTransform transform, ref MassData massData)
     {
         if(!massModelLookup.TryGetComponent(onGrid.Grid, out var massModel))
             return;
@@ -37,53 +22,48 @@ partial struct MassesUpdateJob : IJobEntity
         if(!massModel.IsInBounds(localToCell))
             return;
         ref var mainCell = ref massModel.AbsoluteCellRW(localToCell);
-        ref var massData = ref massDataLookup.GetRefRW(e).ValueRW;
+        
+        // Dynamic Entities, exchange with surrounding atmosphere
+        IMatterComposition.ExchangeTemperature(ref mainCell, ref massData);
+        
+        // Phase Change
+        var temp = massData.Temperature;
+        if(temp > massData.ElementData.StableTemperatureRangeKelvin.x 
+           && temp < massData.ElementData.StableTemperatureRangeKelvin.y)
+            return;
+
+        ref var reactions = ref Element.From(massData.ElementType).StateChanges.Value.Reactions;
+        for (int i = 0; i < reactions.Length; i++)
+        {
+            if(reactions[i].With != default)
+                continue;
+            if ((reactions[i].CheckBelow && temp < reactions[i].At) || (!reactions[i].CheckBelow && temp > reactions[i].At)) 
+            {
+                ecb.DestroyEntity(e);
+                mainCell.Add(MassData.From(reactions[i].To, massData.Mass, massData.Energy));
+            }
+        }
+    }
+}
+
+[WithNone(typeof(Ghost))]
+[WithNone(typeof(Wall))]
+[WithAll(typeof(Building))]
+partial struct MassesUpdateJobBuildings : IJobEntity
+{
+    public ComponentLookup<MassModel> massModelLookup;
+    public EntityCommandBuffer ecb;
+    void Execute(Entity e, in LocalTransform transform, in BakedIntoRoomMap baked, ref MassData massData)
+    {
+        if(!massModelLookup.TryGetComponent(baked.Grid, out var massModel))
+            return;
         
         // Exchange Temperature
-        if (boundsLookup.TryGetComponent(e, out var bounds))
+        for (int x = baked.Area.Min.x; x <= baked.Area.Max.x; x++)
+        for (int y = baked.Area.Min.y; y <= baked.Area.Max.y; y++)
         {
-            // Walls, exchange with adjacent Walls
-            if (neighbourLookup.TryGetBuffer(e, out var neighbours))
-                foreach (var nb in neighbours)
-                {
-                    // Only update left to right, so pairs exchange only once per update
-                    if(math.any(nb.Direction < 0) || !massDataLookup.HasComponent(nb.Other))
-                        continue;
-                    
-                    ref var other = ref massDataLookup.GetRefRW(nb.Other).ValueRW;
-                    IMatterComposition.ExchangeTemperature(ref massData, ref other);
-                }
-            
-            // Walls, exchange with adjacent atmosphere
-            if (wallLookup.HasComponent(e))
-            {
-                for (int x = bounds.Min.x; x <= bounds.Max.x; x++)
-                {
-                    ref var top = ref massModel.AbsoluteCellRW(new int2(x, bounds.Max.y + 1));
-                    ref var bottom = ref massModel.AbsoluteCellRW(new int2(x, bounds.Min.y - 1));
-                    IMatterComposition.ExchangeTemperature(ref top, ref massData);
-                    IMatterComposition.ExchangeTemperature(ref bottom, ref massData);
-                }
-                for (int y = bounds.Min.y; y <= bounds.Max.y; y++)
-                {
-                    ref var left = ref massModel.AbsoluteCellRW(new int2(bounds.Min.x - 1, y));
-                    ref var right = ref massModel.AbsoluteCellRW(new int2(bounds.Max.x + 1, y));
-                    IMatterComposition.ExchangeTemperature(ref left, ref massData);
-                    IMatterComposition.ExchangeTemperature(ref right, ref massData);
-                }
-            }
-            // Regular Entities, exchange with surrounding atmosphere
-            else
-                for (int x = bounds.Min.x; x <= bounds.Max.x; x++)
-                for (int y = bounds.Min.y; y <= bounds.Max.y; y++)
-                {
-                    ref var inCell = ref massModel.AbsoluteCellRW(new int2(x, y));
-                    IMatterComposition.ExchangeTemperature(ref inCell, ref massData);
-                }
-        }
-        else
-        {
-            IMatterComposition.ExchangeTemperature(ref mainCell, ref massData);
+            ref var inCell = ref massModel.AbsoluteCellRW(new int2(x, y));
+            IMatterComposition.ExchangeTemperature(ref inCell, ref massData);
         }
         
         // Phase Change
@@ -95,23 +75,79 @@ partial struct MassesUpdateJob : IJobEntity
         ref var reactions = ref Element.From(massData.ElementType).StateChanges.Value.Reactions;
         for (int i = 0; i < reactions.Length; i++)
         {
-            if (reactions[i].CheckBelow && temp < reactions[i].At)
+            if(reactions[i].With != default)
+                continue;
+            if ((reactions[i].CheckBelow && temp < reactions[i].At) || (!reactions[i].CheckBelow && temp > reactions[i].At)) 
             {
-                if (reactions[i].With == default)
-                {
-                    ecb.DestroyEntity(e);
-                    mainCell.Add(MassData.From(reactions[i].To, massData.Mass, massData.Energy));
-                }
+                ecb.DestroyEntity(e);
+                var localToCell = GridStructure.LocalToCell(transform.Position);
+                ref var mainCell = ref massModel.AbsoluteCellRW(localToCell);
+                mainCell.Add(MassData.From(reactions[i].To, massData.Mass, massData.Energy));
+                break;
             }
-            else if (!reactions[i].CheckBelow && temp > reactions[i].At)
+        }
+    }
+}
+
+[WithNone(typeof(Ghost))]
+[WithAll(typeof(MassData))]
+[WithAll(typeof(Wall))]
+partial struct MassesUpdateJobWall : IJobEntity
+{
+    public ComponentLookup<MassModel> massModelLookup;
+    public ComponentLookup<MassData> massDataLookup;
+    public EntityCommandBuffer ecb;
+    void Execute(Entity e, in LocalTransform transform, DynamicBuffer<Neighbours> neighbours, in BakedIntoRoomMap baked)
+    {
+        if(!massModelLookup.TryGetComponent(baked.Grid, out var massModel))
+            return;
+        ref var massData = ref massDataLookup.GetRefRW(e).ValueRW;
+        
+        foreach (var nb in neighbours)
+        {
+            // Only update left to right, so pairs exchange only once per update
+            if(math.any(nb.Direction < 0) || !massDataLookup.HasComponent(nb.Other))
+                continue;
+                    
+            ref var other = ref massDataLookup.GetRefRW(nb.Other).ValueRW;
+            IMatterComposition.ExchangeTemperature(ref massData, ref other);
+        }
+        
+        var bounds = baked.Area;
+        for (int x = bounds.Min.x; x <= bounds.Max.x; x++)
+        {
+            ref var top = ref massModel.AbsoluteCellRW(new int2(x, bounds.Max.y + 1));
+            ref var bottom = ref massModel.AbsoluteCellRW(new int2(x, bounds.Min.y - 1));
+            IMatterComposition.ExchangeTemperature(ref top, ref massData);
+            IMatterComposition.ExchangeTemperature(ref bottom, ref massData);
+        }
+        for (int y = bounds.Min.y; y <= bounds.Max.y; y++)
+        {
+            ref var left = ref massModel.AbsoluteCellRW(new int2(bounds.Min.x - 1, y));
+            ref var right = ref massModel.AbsoluteCellRW(new int2(bounds.Max.x + 1, y));
+            IMatterComposition.ExchangeTemperature(ref left, ref massData);
+            IMatterComposition.ExchangeTemperature(ref right, ref massData);
+        }
+        
+        // Phase Change
+        var temp = massData.Temperature;
+        if(temp > massData.ElementData.StableTemperatureRangeKelvin.x 
+           && temp < massData.ElementData.StableTemperatureRangeKelvin.y)
+            return;
+
+        ref var reactions = ref Element.From(massData.ElementType).StateChanges.Value.Reactions;
+        for (int i = 0; i < reactions.Length; i++)
+        {
+            if(reactions[i].With != default)
+                continue;
+            if ((reactions[i].CheckBelow && temp < reactions[i].At) || (!reactions[i].CheckBelow && temp > reactions[i].At)) 
             {
-                if (reactions[i].With == default)
-                {
-                    ecb.DestroyEntity(e);
-                    mainCell.Add(MassData.From(reactions[i].To, massData.Mass, massData.Energy));
-                }
+                ecb.DestroyEntity(e);
+                var localToCell = GridStructure.LocalToCell(transform.Position);
+                ref var mainCell = ref massModel.AbsoluteCellRW(localToCell);
+                mainCell.Add(MassData.From(reactions[i].To, massData.Mass, massData.Energy));
+                break;
             }
-                
         }
     }
 }
@@ -143,27 +179,28 @@ public partial struct MassUpdateSystem : ISystem
             ecb.RemoveComponent<MassModel>(e);
         }
         
-        // foreach (var model in SystemAPI.Query<MassModel>())
-        // {
-        //     state.Dependency = new MassModelMixJob
-        //     {
-        //         model = model
-        //     }.Schedule((int)((model.Size.x - 2) * (model.Size.y - 2)), 64, state.Dependency);
-        // }
-        
         foreach (var model in SystemAPI.Query<RefRW<MassModel>>())
         {
             state.Dependency = JobHandle.CombineDependencies(state.Dependency, model.ValueRW.RunMixJob(state.Dependency));
         }
         
-        state.Dependency = new MassesUpdateJob()
+        state.Dependency = new MassesUpdateJobWall()
         {
             ecb = ecb,
-            boundsLookup = SystemAPI.GetComponentLookup<GridBounds>(true),
-            wallLookup = SystemAPI.GetComponentLookup<Wall>(true),
             massModelLookup = SystemAPI.GetComponentLookup<MassModel>(false),
-            neighbourLookup = SystemAPI.GetBufferLookup<Neighbours>(true),
             massDataLookup = SystemAPI.GetComponentLookup<MassData>(false)
+        }.Schedule(state.Dependency);
+        
+        state.Dependency = new MassesUpdateJobBuildings()
+        {
+            ecb = ecb,
+            massModelLookup = SystemAPI.GetComponentLookup<MassModel>(false),
+        }.Schedule(state.Dependency);
+        
+        state.Dependency = new MassesUpdateJobUnits()
+        {
+            ecb = ecb,
+            massModelLookup = SystemAPI.GetComponentLookup<MassModel>(false),
         }.Schedule(state.Dependency);
     }
 }

@@ -4,13 +4,13 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
-namespace Core.Grid
+namespace Space
 {
     public struct Crew: IBufferElementData
     {
         public Entity Member;
     }
-    
+
     public struct CrewMember : IComponentData { }
 
     partial struct CrewSystem : ISystem

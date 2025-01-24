@@ -5,20 +5,15 @@ using Unity.Entities;
 
 partial class StatusMappingSystem : IdentifiableMappingSystem
 {
-    internal readonly static SharedStatic<NativeParallelHashMap<Identifiable, TypeIndex>> StatusTypesById 
-        = SharedStatic<NativeParallelHashMap<Identifiable, TypeIndex>>.GetOrCreate<StatusMappingSystem>();
-
-    public static bool TryGetStatus(Identifiable id, out TypeIndex type) => StatusTypesById.Data.TryGetValue(id, out type);
-    
     protected override void OnCreate()
     {
-        StatusTypesById.Data = new (0, Allocator.Persistent);
+        Status.StatusTypesById.Data = new (0, Allocator.Persistent);
     }
 
     protected override void OnDestroy()
     {
-        if(StatusTypesById.Data.IsCreated)
-            StatusTypesById.Data.Dispose();
+        if(Status.StatusTypesById.Data.IsCreated)
+            Status.StatusTypesById.Data.Dispose();
     }
 
     protected override void OnUpdate()
@@ -33,7 +28,7 @@ partial class StatusMappingSystem : IdentifiableMappingSystem
                 if (typeof(IStatus).IsAssignableFrom(type.GetManagedType()) 
                     && type is { IsComponent: true, IsManagedComponent: false })
                 {
-                    StatusTypesById.Data[id] = type.TypeIndex;
+                    Status.StatusTypesById.Data[id] = type.TypeIndex;
                 }
         }
     }

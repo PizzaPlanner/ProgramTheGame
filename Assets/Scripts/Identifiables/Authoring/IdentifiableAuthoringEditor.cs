@@ -1,5 +1,6 @@
 ﻿#if UNITY_EDITOR
 using System.Linq;
+using Unity.Entities;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
@@ -12,7 +13,7 @@ public class IdentifiableAssetEditor : Editor
     public override void OnInspectorGUI()
     {
         if(targets.Length == 1)
-            GUILayout.Label($"{(target as IdentifiableAsset)!.name} ({(target as IdentifiableAsset)!.Id.StableId})");
+            GUILayout.Label($"{(target as IdentifiableAsset)!.name} ({(target as IdentifiableAsset)!.Id.DebugId})");
         serializedObject.Update();
         DrawDefaultInspector();
         serializedObject.ApplyModifiedProperties();
@@ -49,7 +50,8 @@ public class ModAssetEditor : Editor
             ids.InsertArrayElementAtIndex(i);
             ids.GetArrayElementAtIndex(i).objectReferenceValue = idasset; 
         }
-        serializedObject.ApplyModifiedProperties();
+        serializedObject.ApplyModifiedPropertiesWithoutUndo();
+        EditorUtility.SetDirty(serializedObject.targetObject);
     }
 }
 

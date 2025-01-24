@@ -92,6 +92,6 @@ namespace Units
         MediumPriority = 5,
         HighPriority = 10,
         Emergency = 20,
-        DirectCommand = 100,
+        ImmediateThreat = 100,
     }
 }

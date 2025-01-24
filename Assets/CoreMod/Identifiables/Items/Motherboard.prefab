@@ -74,5 +74,4 @@ MonoBehaviour:
   Icon: {fileID: 2800000, guid: 6eb301f6481b4384b8b69f940261f49b, type: 3}
   Tags:
   - {fileID: 11400000, guid: 80f258bf514ce4c4a9d95803e10e81d5, type: 2}
-  - {fileID: 11400000, guid: 682385aff35bfe44fb6d0733d56d5c9a, type: 2}
   Reference: {fileID: 5304243422145376601}

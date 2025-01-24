@@ -12,6 +12,16 @@ namespace Units
         public Entity Origin;
         public bool IsPersonalized => Origin == Executor;
         public Entity CrewProvider;
+
+        public static Entity Schedule(Identifiable taskPrefab, EntityCommandBuffer ecb, Task t)
+        {
+            var task = ecb.Instantiate(taskPrefab.SpawnablePrefab);
+            ecb.SetComponent(task, t);
+            ecb.AppendToBuffer(t.Origin, new TaskProvider { Task = task });
+            if(t.IsPersonalized)
+                ecb.AppendToBuffer(t.Executor, new ToDos { Task = task, Status = ToDoStatus.Requested });
+            return task;
+        }
     }
 
     public struct TaskUniquenessGroup : IComponentData

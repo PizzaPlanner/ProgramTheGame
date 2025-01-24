@@ -2,6 +2,7 @@
 using Unity.Entities;
 using Unity.Mathematics;
 using Navigation;
+using Space;
 using Unity.Transforms;
 
 partial struct DoorSystem : ISystem

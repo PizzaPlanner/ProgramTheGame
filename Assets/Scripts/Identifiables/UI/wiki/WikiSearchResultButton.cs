@@ -27,7 +27,7 @@ namespace Identifiables.UI
             var isNormalSearch = !text.Contains("=");
             text = text.Trim().Split('=', StringSplitOptions.RemoveEmptyEntries).LastOrDefault();
             var found = false;
-            found |= isIdSearch && text?.Length > 2 && _target.StableId.ToString().Contains(text);
+            found |= isIdSearch && text?.Length > 2 && _target.DebugId.ToString().Contains(text);
             found |= isNormalSearch && text?.Length > 2 && _target.DefaultName.ToString().ToLower().Contains(text);
             style.display = found
                 ? DisplayStyle.Flex 

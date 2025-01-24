@@ -145,7 +145,6 @@ public unsafe struct NativeElementMap : IDisposable
             var commonMass = (uint)math.min(mass.Mass * 1f / change.SelfPerOne, mass2.Mass * 1f / change.WithPerOne);
             if(commonMass < 1)
                 return false;
-            Debug.Log($"Reacting {mass.ElementType} and {mass2.ElementType} at ratio {commonMass}");
             header.Remove(mass.ElementType, commonMass * change.SelfPerOne, out var energy);
             header.Remove(mass2.ElementType, commonMass * change.WithPerOne, out var energy2);
             var newEnergy = (ulong)math.max(1, (long)energy + (long)energy2 + change.ReactionEnergy * commonMass);

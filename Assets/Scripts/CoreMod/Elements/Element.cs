@@ -75,6 +75,7 @@ public struct Element : IComponentData
     public BlobAssetReference<StateChangeData> StateChanges;
     public ElementPhase Phase;
 
+    public static bool TryFrom(Identifiable id, out Element element) => ElementById.Data.TryGetValue(id, out element);
     public static Element From(Identifiable id)
     {
         return ElementById.Data.TryGetValue(id, out var elm) ? elm : default;

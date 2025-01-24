@@ -16,7 +16,8 @@ public class BuildingVariantAuthoring
 public class BuildingAuthoring : MonoBehaviour
 {
     public BuildingLayer Layer;
-    public PlacementType PlacementType; 
+    public PlacementType PlacementType;
+    public bool NotAllowedOnShips;
     public float Duration;
     public int2 Size;
     public BuildingVariantAuthoring[] Variants;
@@ -27,13 +28,14 @@ public class BuildingAuthoring : MonoBehaviour
     {
         public override void Bake(BuildingAuthoring authoring)
         {
-            var self = GetEntity(TransformUsageFlags.Dynamic);
+            var self = GetEntity(TransformUsageFlags.Renderable);
             AddComponent(self, new Building
             {
                 DismantleTaskPrefab = authoring.DismantleTask == null ? default : authoring.DismantleTask.GetComponent<IdentifieableAuthoring>().Id,
                 Layer = authoring.Layer,
                 DraggableDimension = authoring.PlacementType,
-                Duration = authoring.Duration
+                Duration = authoring.Duration,
+                IsAllowedOnShips = !authoring.NotAllowedOnShips
             });
             AddComponent(self, new GridBounds
             {

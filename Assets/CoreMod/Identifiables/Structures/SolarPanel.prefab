@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 2718921238540234507}
   - component: {fileID: 404759063531143838}
   - component: {fileID: 3984486524808162520}
+  - component: {fileID: 3561199254616989595}
   m_Layer: 0
   m_Name: SolarPanel
   m_TagString: Untagged
@@ -63,7 +64,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 10c91c86e70c42069cdb1758580e9d3c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Layer: 9
+  Layer: 11
   PlacementType: 0
   Duration: 1
   Size:
@@ -125,6 +126,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 36d40eaae5ea430f9e693821d37105cb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &3561199254616989595
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3605263813790912188}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e618b9483cc94075b0006522c63c7b8c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1001 &8258880057123378899
@@ -213,7 +226,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6d96781d50c744d5b90125a6e0a230bb, type: 3}
   m_Name: SolarPanel
   m_EditorClassIdentifier: 
-  Icon: {fileID: 2800000, guid: 0176192052621cd4c9a211d20107363f, type: 3}
+  Icon: {fileID: 2800000, guid: 442bda20f4cf7ba4e912d828d26e6658, type: 3}
   Tags:
   - {fileID: 11400000, guid: 104929695e765034f914bd930682c889, type: 2}
   Reference: {fileID: -5380242976130347905}

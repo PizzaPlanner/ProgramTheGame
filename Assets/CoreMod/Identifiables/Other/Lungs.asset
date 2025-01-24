@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c3d63eb393e4a7bb9520cf541d5b1ff, type: 3}
   m_Name: Lungs
   m_EditorClassIdentifier: 
-  Icon: {fileID: 2800000, guid: 385d25998e4b24843a191f8461590dbc, type: 3}
+  Icon: {fileID: 2800000, guid: e18708b301b8de2489408e21684a4825, type: 3}
   Tags:
   - {fileID: 11400000, guid: 30370359b1b33ee4c98e71dbd3f2fd14, type: 2}

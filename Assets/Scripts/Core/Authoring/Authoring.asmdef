@@ -16,7 +16,8 @@
         "Construction",
         "Construction.Systems",
         "Elements",
-        "Core.Input"
+        "Core.Input",
+        "Space"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

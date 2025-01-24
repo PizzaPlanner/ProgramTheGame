@@ -104,15 +104,13 @@ partial class DeconstructToolUISystem : MapOverlaySystem<DeconstructTool>
                     var dismantleTask = SystemAPI.GetComponent<Building>(entity).DismantleTaskPrefab;
                     if(dismantleTask.SpawnablePrefab == default)
                         continue;
-                    var task = ecb.Instantiate(dismantleTask.SpawnablePrefab);
-                    ecb.SetComponent(task, new Task
+                    Task.Schedule(dismantleTask, ecb, new Task
                     {
                         Target = entity,
                         Origin = entity,
                         Priority = TaskPriority.MediumPriority,
                         CrewProvider = GridEntity
                     });
-                    ecb.AppendToBuffer(entity, new TaskProvider { Task = task });
                 }
             DragArea.Max = CellAtCursor + 1;
         }

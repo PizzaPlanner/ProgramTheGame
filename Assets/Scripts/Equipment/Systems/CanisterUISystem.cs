@@ -1,5 +1,4 @@
-﻿using Core.Equipment;
-using Units;
+﻿using Units;
 using Unity.Entities;
 using UnityEngine.UIElements;
 

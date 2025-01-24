@@ -21,8 +21,8 @@ namespace Power
                    || !batteyLookup.TryGetComponent(item.Entity, out var battery))
                     continue;
                 
-                if(provider.CapacityToContributeThisTick > 0)
-                    battery.CurrentCapacityWattTicks -= provider.CapacityToContributeThisTick;
+                if(provider.ActualCapacityContributedThisTick > 0)
+                    battery.CurrentCapacityWattTicks -= provider.ActualCapacityContributedThisTick;
                 provider.AvailableCapacityThisTick = math.max(0, battery.CurrentCapacityWattTicks); 
             }
         }
@@ -33,9 +33,18 @@ namespace Power
     {
         void Execute(ref PowerProvider provider, ref Battery battery)
         {
-            if(provider.CapacityToContributeThisTick > 0)
-                battery.CurrentCapacityWattTicks -= provider.CapacityToContributeThisTick;
+            if(provider.ActualCapacityContributedThisTick > 0)
+                battery.CurrentCapacityWattTicks -= provider.ActualCapacityContributedThisTick;
             provider.AvailableCapacityThisTick = math.max(0, battery.CurrentCapacityWattTicks);
+        }
+    }
+    
+    [WithNone(typeof(Ghost))]
+    partial struct SolarPanelDischargeJob : IJobEntity
+    {
+        void Execute(ref PowerProvider provider, in SolarPanel panel)
+        {
+            provider.AvailableCapacityThisTick = panel.MaxWattTicks;
         }
     }
 }

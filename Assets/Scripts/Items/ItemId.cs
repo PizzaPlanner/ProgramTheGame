@@ -46,6 +46,6 @@ public struct ItemId : IEquatable<ItemId>
 
     public override string ToString()
     {
-        return $"Item[{BaseId.StableId}]({BaseId.DefaultName})";
+        return $"Item[{BaseId.DebugId}]({BaseId.DefaultName})";
     }
 }

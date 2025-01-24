@@ -29,7 +29,7 @@ namespace Identifiables.UI
             {
                 
                 var body = this.Q("Body");
-                body.Q<Label>("IdRef").text = $"Id:   <link=\"id\">{value.StableId.ToString()}</link>\nName: <link=\"name\">{value.DefaultName.Value}</link>";
+                body.Q<Label>("IdRef").text = $"Id:   <link=\"id\">{value.DebugId.ToString()}</link>\nName: <link=\"name\">{value.DefaultName.Value}</link>";
                 body.Q<Label>("Description").text = @"";
                 var header = this.Q("Header");
                 header.Q<Label>("Title").text = $"{value}";

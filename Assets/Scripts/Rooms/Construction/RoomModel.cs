@@ -9,6 +9,8 @@ public struct Room
 {
     public GridBounds BoundingBox;
     public int RoomIdInGrid;
+    public bool IsFullyEnclosed;
+    public Entity OwningShipController;
 }
 
 public struct RoomModel : IDisposable, ICleanupComponentData
@@ -32,7 +34,7 @@ public struct RoomModel : IDisposable, ICleanupComponentData
         WallChanges.Dispose();
     }
 
-    void AddWall(GridBounds area)
+    public void AddWall(GridBounds area)
     {
         for (int x = area.Min.x; x <= area.Max.x; x++)
         for (int y = area.Min.y; y <= area.Max.y; y++)
@@ -42,7 +44,7 @@ public struct RoomModel : IDisposable, ICleanupComponentData
         }
     }
     
-    void RemoveWall(GridBounds area)
+    public void RemoveWall(GridBounds area)
     {
         foreach(var wall in Walls)
             if (area.Contains(wall))

@@ -6,6 +6,42 @@
     --color-text-default: rgb(255, 255, 255);
 }
 
+Scroller > RepeatButton {
+    display: none;
+}
+
+Scroller { 
+    align-items: center;
+    width: auto;
+    height: auto;
+}
+
+Scroller > ScrollerSlider {
+    background-color: transparent;
+    margin: 0;
+    width: 8px;
+    min-width: 8px;
+    height: 8px;
+    min-height: 8px;
+}
+.unity-base-slider .unity-base-slider__tracker {
+    background-color: var(--color-border-default);
+    border-width: 0;
+}
+.unity-base-slider .unity-base-slider__dragger {
+    background-color: var(--color-border-alt);
+    border-width: 0;
+    left: 0;
+    top: 0;
+    margin: 0;
+}
+.unity-base-slider--horizontal .unity-base-slider__dragger {
+    height: 100%;
+}
+.unity-base-slider--vertical .unity-base-slider__dragger {
+    width: 100%;
+}
+
 .id-button {
     width: 48px;
     height: 48px;
@@ -451,43 +487,43 @@ SystemView {
     padding: 3px;
 }
 
-ShipUI {
+PlayfieldUI {
     min-height: 28px;
     min-width: 50px;
 }
 
-ShipUI > #Header {
+PlayfieldUI > #Header {
     border-color: var(--color-border-default);
     background-color: var(--color-background-default);
     color: var(--color-text-default);
     flex-direction: row;
 }
 
-ShipUI.current-grid > #Header {
+PlayfieldUI.current-grid > #Header {
     border-color: var(--color-border-alt);
 }
 
-ShipUI > #Header > SignalButton {
+PlayfieldUI > #Header > SignalButton {
     width: 24px;
     height: 24px;
 }
 
-ShipUI > #Header > Button {
+PlayfieldUI > #Header > Button {
     width: 16px;
     height: 16px;
 }
 
-ShipUI > #Crew {
+PlayfieldUI > #Crew {
     margin-left: 6px;
     flex-direction: row;
 }
 
-ShipUI > #Docked {
+PlayfieldUI > #Docked {
     margin-left: 6px;
     flex-direction: column;
 }
 
-ShipUI SignalButton > IdentifiableButton#CurrentTask {
+PlayfieldUI SignalButton > IdentifiableButton#CurrentTask {
     width: 24px;
     height: 24px;
     position: absolute;

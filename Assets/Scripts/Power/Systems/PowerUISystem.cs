@@ -22,13 +22,18 @@ namespace Power
                     ui.Add("Power", window);
                 }
                 var network = Entity.Null;
+                var provider = default(PowerProvider);
                 if(SystemAPI.HasComponent<PowerCable>(e))
                     network = SystemAPI.GetComponent<PowerCable>(e).Network;
-                else if(SystemAPI.HasComponent<PowerProvider>(e))
-                    network = SystemAPI.GetComponent<PowerProvider>(e).PowerNetwork;
+                else if (SystemAPI.HasComponent<PowerProvider>(e))
+                {
+                    provider = SystemAPI.GetComponent<PowerProvider>(e);
+                    network = provider.PowerNetwork;
+                }
                 else if(SystemAPI.HasComponent<PowerConsumer>(e))
                     network = SystemAPI.GetComponent<PowerConsumer>(e).PowerNetwork;
                 window.Network = network == default ? default : SystemAPI.GetComponent<PowerNetwork>(network);
+                window.Provider = provider;
             }
         }
     }
@@ -49,6 +54,16 @@ namespace Power
                     Stats.text = $"Disconnected";
                 else
                     Stats.text = $"Network {value.Id}: \n\n  Total Capacity: {value.TotalProviderCapacity:0}\n  Total Draw: {value.DrawnWatts}";
+            }
+        }
+
+        public PowerProvider Provider
+        {
+            set
+            {
+                if(value.PowerNetwork == default)
+                    return;
+                Stats.text += $"\n\nProviding {value.ActualCapacityContributedThisTick} of {value.AvailableCapacityThisTick} WT";
             }
         }
     }

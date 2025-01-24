@@ -11,6 +11,25 @@ Core:
   Liquid:    [!Tag { Implies: [Item], Conflicts: [Solid, Gas] }]
   Gas:       [!Tag { Implies: [Item], Conflicts: [Solid, Liquid] }]
 
+  Wall:
+  - !Building
+    Layer: Wall
+    PlacementType: Border
+    GridSize: [1, 1]
+    RemovalTask: DeconstructTask
+    Construction:
+      Duration: 3
+      FixedMaterials: []
+      Variants:
+      - Silicon
+      - IronOre
+      - CopperOre
+  - !DefaultMass
+    Element: Silicon
+    Mass: 400kg
+    Temperature: 25C
+
+
   CoalOre:
   - !Solid
     TC: 3
@@ -30,6 +49,13 @@ Core:
   CopperIngot:
   - !Solid
     Melts: { To: CopperLiquid, At: 1200C }
+  - !Recipe
+    Duration: 5
+    Inputs:
+      CopperOre: 2
+    Outputs:
+      CopperIngot: 1
+    CraftedIn: [ Furnace, ElectricFurnace, Smelter ]
   
   CopperOre:
   - !Solid

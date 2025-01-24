@@ -20,6 +20,7 @@ namespace Units
             
                 var window = ui.GetOrCreate<UnitTaskList>("ToDos");
                 window.Update(e, todos, SystemAPI.GetComponentLookup<Task>(true), SystemAPI.GetComponentLookup<Identifiable>(true));
+                window.parent.style.display = todos.Length > 0 ? DisplayStyle.Flex : DisplayStyle.None;
             }
             foreach (var (orders, e) in SystemAPI.Query<DynamicBuffer<TaskProvider>>().WithAll<Selected>().WithEntityAccess())
             {
@@ -35,6 +36,7 @@ namespace Units
                     SystemAPI.GetBufferLookup<BroadcastStatus>(true),
                     SystemAPI.GetBufferLookup<ToDos>(true)
                     );
+                window.parent.style.display = orders.Length > 0 ? DisplayStyle.Flex : DisplayStyle.None;
             }
         }
     }
@@ -115,11 +117,11 @@ namespace Units
                 var orderBtn = this[q] as UnitOrderButton;
                 orderBtn.TaskButton.Target = id;
                 
-                if(task.Priority == TaskPriority.DirectCommand)
+                if(task.Priority == TaskPriority.ImmediateThreat)
                     orderBtn.TaskButton.AddToClassList("cancelable");
                 else
                     orderBtn.TaskButton.RemoveFromClassList("cancelable");
-                if (orderBtn.TaskButton.wantCancel && task.Priority == TaskPriority.DirectCommand)
+                if (orderBtn.TaskButton.wantCancel && task.Priority == TaskPriority.ImmediateThreat)
                 {
                     orderBtn.TaskButton.wantCancel = false;
                     ecb.DestroyEntity(taskEntity);

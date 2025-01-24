@@ -10,8 +10,8 @@ using Debug = UnityEngine.Debug;
 
 public partial struct BuildJob : IJobEntity
 {
-    static readonly Entity ConstructTaskPrefab = Identifiable.FromName("BuildTask").SpawnablePrefab;
-    static readonly Entity OrderTaskPrefab = Identifiable.FromName("ItemOrderTask").SpawnablePrefab;
+    static readonly Identifiable ConstructTaskPrefab = Identifiable.FromName("BuildTask");
+    static readonly Identifiable OrderTaskPrefab = Identifiable.FromName("ItemOrderTask");
     
     public EntityCommandBuffer ecb;
     [NativeDisableContainerSafetyRestriction] public ComponentLookup<MassModel> massLookup;
@@ -33,7 +33,7 @@ public partial struct BuildJob : IJobEntity
                 bounds = s.LocalAABB;
             else
             {
-                Debug.LogWarning($"Discarded invalid pending part with ID {planned.Prefab.StableId}");
+                Debug.LogWarning($"Discarded invalid pending part with ID {planned.Prefab.DebugId}");
                 return;
             }
         }
@@ -72,7 +72,6 @@ public partial struct BuildJob : IJobEntity
             ecb.AddComponent<CurrentGhost>(entity);
             ecb.AddComponent(entity, new Ghost { GhostBuildable = !navigation.IsOccupiedForPlacement(area, building.Layer) });
             ecb.SetComponent(entity, planned.Materials);
-            ecb.RemoveComponent<MassData>(entity);
         }
         else if (isUnderConstruction)
         {
@@ -81,7 +80,6 @@ public partial struct BuildJob : IJobEntity
             ecb.AddComponent(entity, new Ghost { GhostBuildable = true });
             ecb.SetComponent(entity, new OnGrid { Grid = planned.Parent });
             ecb.SetComponent(entity, planned.Materials);
-            ecb.RemoveComponent<MassData>(entity);
             ecb.AddBuffer<Inventory>(entity);
             ecb.AddComponent(entity,  new ToBeBakedIntoRoomMap { Grid = planned.Parent, Area = area, Layer = building.Layer.AsGhostLayer() });
             for (var i = 0; i < planned.Materials.BuildMaterials.Length; i++)
@@ -115,8 +113,8 @@ public partial struct BuildJob : IJobEntity
 
     void CreateBuildTasks(PlannedConstruction planned, Entity entity, Building building)
     {
-        var constructTask = ecb.Instantiate(ConstructTaskPrefab);
-        ecb.SetComponent(constructTask, new Task
+        ecb.AddBuffer<TaskProvider>(entity);
+        var constructTask = Task.Schedule(ConstructTaskPrefab, ecb, new Task
         {
             Target = entity, 
             Priority = TaskPriority.MediumPriority,
@@ -127,15 +125,12 @@ public partial struct BuildJob : IJobEntity
         {
             RequiredValue = building.Duration
         });
-        ecb.AddBuffer<TaskProvider>(entity);
-        ecb.AppendToBuffer(entity, new TaskProvider { Task = constructTask });
         ecb.AddComponent(entity, new UnderConstruction { });
         foreach (var requirement in planned.Materials.BuildMaterials)
         {
             if(requirement.Item == default)
                 continue;
-            var order = ecb.Instantiate(OrderTaskPrefab);
-            ecb.SetComponent(order, new Task
+            var order = Task.Schedule(OrderTaskPrefab, ecb, new Task
             {
                 Priority = TaskPriority.MediumPriority,
                 Origin = constructTask,
@@ -148,14 +143,6 @@ public partial struct BuildJob : IJobEntity
                 ParentGrid = planned.Parent,
                 Requester = entity,
             });
-            ecb.AppendToBuffer(constructTask, new TaskProvider()
-            {
-                Task = order
-            });
         }
-    }
-    
-    static int mod(int x, int m) {
-        return (x%m + m)%m;
     }
 }

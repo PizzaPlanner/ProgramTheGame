@@ -1,4 +1,6 @@
-﻿using Identifiables;
+﻿using Core.Status;
+using Identifiables;
+using Units;
 using Unity.Entities;
 using Unity.IntegerTime;
 using Unity.Mathematics;
@@ -13,29 +15,36 @@ namespace Core.Equipment
         public bool IsHungry => Fullness < Capacity * 0.5f;
         public bool IsStarving => Fullness < Capacity * 0.2f;
     }
-    
+
     [UpdateInGroup(typeof(TickBasedSystemGroup))]
     partial struct StomachSystem : ISystem
     {
-        Identifiable HungryStatus, StarvingStatus;
-        public void OnCreate(ref SystemState state)
-        {
-            HungryStatus = Identifiable.FromName("Hungry");
-            StarvingStatus = Identifiable.FromName("Starving");
-        }
+        static readonly Identifiable HungryStatus = Identifiable.FromName("Hungry");
+        static readonly Identifiable StarvingStatus = Identifiable.FromName("Starving");
+        static readonly Identifiable EatTask        = Identifiable.FromName("EatTask");
 
         public void OnUpdate(ref SystemState state)
         {
-            foreach (var (stomach, stats) in SystemAPI.Query<RefRW<Stomach>, DynamicBuffer<Statuses>>())
+            var ecb = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>().CreateCommandBuffer(state.WorldUnmanaged);
+            foreach (var (stomach, stats, e) in 
+                     SystemAPI.Query<RefRW<Stomach>, DynamicBuffer<Statuses>>()
+                              .WithNone<Dead>()
+                              .WithEntityAccess())
             {
                 var wasHungry = stomach.ValueRW.IsHungry;
                 var wasStarving = stomach.ValueRW.IsStarving;
                 stomach.ValueRW.Fullness = math.max(0, stomach.ValueRW.Fullness - stomach.ValueRW.ConsumptionPerTick);
 
+                if (stomach.ValueRW.Fullness <= 0)
+                {
+                    ecb.AddComponent(e, new Dead{Cause = StarvingStatus});
+                    return;
+                }
+                
                 if (wasStarving && !stomach.ValueRW.IsStarving)
                 {
                     stats.Remove(StarvingStatus);
-                    if(stomach.ValueRW.IsHungry)
+                    if (stomach.ValueRW.IsHungry)
                         stats.Add(HungryStatus);
                     return;
                 }
@@ -48,8 +57,13 @@ namespace Core.Equipment
                 
                 if(wasHungry && !stomach.ValueRW.IsHungry)
                     stats.Remove(HungryStatus);
-                else if(!wasHungry && stomach.ValueRW.IsHungry)
+                else if (!wasHungry && stomach.ValueRW.IsHungry)
+                {
+                    var task = ecb.Instantiate(EatTask.SpawnablePrefab);
+                    ecb.SetComponent(task, new Task { Priority = TaskPriority.MediumPriority, Origin = e, Executor = e });
+                    ecb.AppendToBuffer(e, new TaskProvider { Task = task });
                     stats.Add(HungryStatus);
+                }
             }
         }
     }

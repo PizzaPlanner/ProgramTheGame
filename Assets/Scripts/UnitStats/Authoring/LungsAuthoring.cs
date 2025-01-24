@@ -6,6 +6,8 @@ using UnityEngine.Serialization;
 public class LungsAuthoring : MonoBehaviour
 {
     public ushort Capacity;
+    public ushort LowThreshold;
+    public ushort SuffocateThreshold;
     public ushort ConsumptionPerTick;
     public ushort ProductionPerTick;
     public ElementAuthoring Inhales;
@@ -19,6 +21,8 @@ public class LungsAuthoring : MonoBehaviour
             {
                 Capacity = authoring.Capacity,
                 Fullness = authoring.Capacity,
+                LowThreshold = authoring.LowThreshold,
+                CriticalThreshold = authoring.SuffocateThreshold,
                 ConsumptionPerTick = authoring.ConsumptionPerTick,
                 ProductionPerTick = authoring.ProductionPerTick,
                 Inhales = authoring.Inhales.GetComponent<IdentifieableAuthoring>().Id,

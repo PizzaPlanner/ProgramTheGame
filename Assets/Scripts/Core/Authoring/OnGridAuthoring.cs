@@ -8,7 +8,7 @@ public class OnGridAuthoring : MonoBehaviour
     {
         public override void Bake(OnGridAuthoring authoring)
         {
-            var e = GetEntity(TransformUsageFlags.Dynamic);
+            var e = GetEntity(TransformUsageFlags.Renderable);
             if (authoring.transform.parent != null &&
                 authoring.transform.parent.TryGetComponent<GridStructureAuthoring>(out _))
             {

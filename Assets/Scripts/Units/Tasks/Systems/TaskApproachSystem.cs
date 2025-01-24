@@ -1,4 +1,5 @@
-﻿using Navigation;
+﻿using Core.Status;
+using Navigation;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -35,9 +36,10 @@ namespace Units
             
             var taskLookup = SystemAPI.GetComponentLookup<Task>(true);
             var depenencyLookup = SystemAPI.GetBufferLookup<TaskProvider>(true);
-            var transformLookup = SystemAPI.GetComponentLookup<LocalTransform>(true);
+            var transformLookup = SystemAPI.GetComponentLookup<LocalTransform>(true); 
             foreach (var (todos, transform, movable, onGrid, pathing, e) in 
-                     SystemAPI.Query<DynamicBuffer<ToDos>, RefRW<LocalTransform>, Movable, OnGrid, DynamicBuffer<UnitPathing>>().WithEntityAccess())
+                     SystemAPI.Query<DynamicBuffer<ToDos>, RefRW<LocalTransform>, Movable, OnGrid, DynamicBuffer<UnitPathing>>()
+                              .WithNone<Dead>().WithEntityAccess())
             {
                 if (!ShouldApproachTopToDo(todos, taskLookup, depenencyLookup, out var task)) 
                     continue;

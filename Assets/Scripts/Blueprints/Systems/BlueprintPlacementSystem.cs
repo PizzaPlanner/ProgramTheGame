@@ -76,7 +76,7 @@ partial struct BlueprintPlacementSystem : ISystem
                 else if (SystemAPI.HasComponent<OnGrid>(prefab))
                 {
                     var thingEntity = ecb.Instantiate(prefab);
-                    ecb.SetComponent(thingEntity, LocalTransform.FromPosition(GridStructure.CellToLocal(part.Location + bp.Offset)));
+                    ecb.SetComponent(thingEntity, LocalTransform.FromPosition(GridStructure.CellCenterToLocal(part.Location + bp.Offset)));
                     ecb.SetComponent(thingEntity, new OnGrid { Grid = bp.BuildOn });
                     ecb.SetComponent(thingEntity, thingMass);
                 }

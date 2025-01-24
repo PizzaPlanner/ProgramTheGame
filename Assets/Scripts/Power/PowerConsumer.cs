@@ -11,8 +11,9 @@ namespace Power
 
     public struct PowerProvider : IComponentData
     {
-        public float CapacityToContributeThisTick;
+        public float ActualCapacityContributedThisTick;
         public float AvailableCapacityThisTick;
+        public float ContributionPriority;
         public bool On;
         public Entity PowerNetwork;
     }

@@ -11,7 +11,9 @@
         "Core",
         "Construction",
         "Navigation",
-        "Tasks"
+        "Tasks",
+        "Space",
+        "UnitStats"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

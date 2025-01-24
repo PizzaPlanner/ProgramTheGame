@@ -16,13 +16,7 @@ namespace CoreMod.Elements.Systems
                 if(!UISystemGroup.TryGet<SelectedUnitElement>(out var ui))
                     return;
                 
-                var window = ui.Q<MassBeingUI>();
-                if (window == null)
-                {
-                    window = new MassBeingUI();
-                    ui.Add("Mass", window);
-                }
-                
+                var window = ui.GetOrCreate<MassBeingUI>("Mass");
                 window.Mass = massBeing;
             }
         }

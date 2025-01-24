@@ -15,6 +15,9 @@ public partial class BlueprintMappingSystem : IdentifiableMappingSystem
     {
         if (!Directory.Exists(BaseFolder))
             Directory.CreateDirectory(BaseFolder);
+    #if UNITY_EDITOR
+        if(!Application.isPlaying) return;
+    #endif
 
         foreach (var bpPath in GetBlueprintFiles(BaseFolder))
         {

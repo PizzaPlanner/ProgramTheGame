@@ -75,8 +75,8 @@ MonoBehaviour:
     Amount: 50
     Filter: {fileID: 0}
     TransferDirection: 3
-  - Item: {fileID: 697860641069326925, guid: 438d188bfd538394d9f90677999a87d3, type: 3}
-    Amount: 1
+  - Item: {fileID: 697860641069326925, guid: 66e65b7ad3e140d47abf75fc790fe525, type: 3}
+    Amount: 25
     Filter: {fileID: 0}
     TransferDirection: 3
   - Item: {fileID: 697860641069326925, guid: 4f6ba04be66bbe74d97951674e60e6f1, type: 3}

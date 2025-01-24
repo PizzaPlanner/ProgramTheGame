@@ -28,8 +28,8 @@ namespace Identifiables.Authoring
                         continue;
                     DependsOn(prefab);
                     prefab.AssignEditorValues();
-                    if (prefab is IdentifiableThingAsset tp)
-                        leg.Add(GetEntity(tp.Reference, TransformUsageFlags.None));
+                    if (prefab is IdentifiableThingAsset ita)
+                        leg.Add(GetEntity(ita.Reference, TransformUsageFlags.None));
                     else
                     {
                         var id = CreateAdditionalEntity(TransformUsageFlags.None);
@@ -53,7 +53,7 @@ namespace Identifiables.Authoring
             if (prefab is IdentifiableThingAsset)
                 preId.SpawnablePrefab = id;
             baker.AddComponent(id, preId);
-            var tagSet = new NativeHashSet<Identifiable>(0, Allocator.Temp);
+            var tagSet = new NativeHashSet<Identifiable>(4, Allocator.Temp);
             foreach(var thing in prefab.TypeImpliedTags)
                 tagSet.Add(thing);
             var tagList = prefab.Tags.ToList();

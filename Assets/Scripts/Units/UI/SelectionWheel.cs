@@ -58,7 +58,7 @@ namespace Units
             var todo = _entityManager.Instantiate(id.SpawnablePrefab);
             _entityManager.SetComponentData(todo, new Task
             {
-                Priority = TaskPriority.DirectCommand,
+                Priority = TaskPriority.ImmediateThreat,
                 Target = _target,
                 Executor = _origin,
                 Origin = _origin

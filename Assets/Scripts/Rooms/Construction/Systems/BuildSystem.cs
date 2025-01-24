@@ -47,6 +47,7 @@ partial struct BuildSystem : ISystem
             ref var massModel = ref SystemAPI.GetComponentRW<MassModel>(toBake.Grid).ValueRW;
             ref var navLayers = ref SystemAPI.GetComponentRW<NavLayers>(toBake.Grid).ValueRW;
             ref var navTree = ref SystemAPI.GetComponentRW<NavTree>(toBake.Grid).ValueRW;
+            ref var roomModel = ref SystemAPI.GetComponentRW<RoomModel>(toBake.Grid).ValueRW;
             ecb.AddComponent<BuildingsChangedEvent>(toBake.Grid);
             var layer = toBake.Layer;
             if (SystemAPI.HasComponent<Ghost>(e))
@@ -57,6 +58,7 @@ partial struct BuildSystem : ISystem
             {
                 massModel.AddWall(toBake.Area);
                 navTree.SetAreaDirty(toBake.Area);
+                roomModel.AddWall(toBake.Area);
             }
             else if (toBake.Layer.IsFloor())
             {
@@ -83,6 +85,7 @@ partial struct BuildSystem : ISystem
             ref var massModel = ref SystemAPI.GetComponentRW<MassModel>(baked.Grid).ValueRW;
             ref var navLayers = ref SystemAPI.GetComponentRW<NavLayers>(baked.Grid).ValueRW;
             ref var navTree = ref SystemAPI.GetComponentRW<NavTree>(baked.Grid).ValueRW;
+            ref var roomModel = ref SystemAPI.GetComponentRW<RoomModel>(baked.Grid).ValueRW;
             navLayers.FreeOccupation(baked.Area, baked.Layer);
             ecb.RemoveComponent<BakedIntoRoomMap>(e);
             var isGhost = (baked.Layer & BuildingLayer.Ghost) != 0;
@@ -93,6 +96,7 @@ partial struct BuildSystem : ISystem
             {
                 massModel.RemoveWall(baked.Area);
                 navTree.SetAreaDirty(baked.Area);
+                roomModel.RemoveWall(baked.Area);
             }
             else if (baked.Layer.IsFloor())
             {

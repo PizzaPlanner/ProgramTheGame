@@ -1,12 +1,8 @@
-using Grid.Blueprints;
 using Identifiables;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
-using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
 using YamlDotNet.Core;
@@ -14,7 +10,6 @@ using YamlDotNet.Core.Events;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.EventEmitters;
 using YamlDotNet.Serialization.NamingConventions;
-using YamlDotNet.Serialization.ObjectGraphVisitors;
 
 namespace Grid.Blueprints
 {
@@ -96,6 +91,7 @@ namespace Grid.Blueprints
             var mass = em.GetComponentData<MassData>(child.Value);
             var bounds = em.GetComponentData<GridBounds>(child.Value);
             var defaultMass = em.GetComponentData<MassData>(id.SpawnablePrefab);
+            
             if(!data.Spawns.ContainsKey(id))
                 data.Spawns[id] = new List<BlueprintV4DataStructure.PartData>();
             var partToAdd = new BlueprintV4DataStructure.PartData
@@ -131,7 +127,8 @@ namespace Grid.Blueprints
                             Id = part.Matter,
                             Temperature =  part.Temperature,
                             Mass =  part.Mass
-                        }
+                        },
+                        
                     });
                 }
         }

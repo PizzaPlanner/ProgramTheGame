@@ -20,7 +20,9 @@
         "Identifiables.Authoring",
         "Core",
         "Equipment",
-        "Elements.Authoring"
+        "Elements.Authoring",
+        "UnitStats",
+        "Space"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

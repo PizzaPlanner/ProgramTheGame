@@ -13,7 +13,7 @@ namespace Items.Tests
 {
     public class ItemTests
     {
-        const ulong SomeStackableGUID = 755564084;
+        const string SomeStackable = "TestItem";
         
         [UnityTest]
         public IEnumerator TestTransfer()
@@ -26,7 +26,7 @@ namespace Items.Tests
             inventory.Add(new Inventory
             {
                 Amount = 3,
-                Type = ItemId.From(Identifiable.FromGuid(SomeStackableGUID))
+                Type = ItemId.From(Identifiable.FromName(SomeStackable))
             });
             inventory.Add(default);
             // SystemAPI.GetSingleton<TransactionStore>().Build.Transfer(e, 0, e, 1);

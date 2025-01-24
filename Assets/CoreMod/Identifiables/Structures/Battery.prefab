@@ -128,7 +128,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 544116bd0c4448098dea29dfa2183e33, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MaxCapacity: 2000
+  MaxCapacity: 100000
 --- !u!114 &3984486524808162520
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -141,6 +141,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 36d40eaae5ea430f9e693821d37105cb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ContributionPriority: 1
 --- !u!1001 &5662072775261436875
 PrefabInstance:
   m_ObjectHideFlags: 0

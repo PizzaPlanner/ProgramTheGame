@@ -1,0 +1,27 @@
+{
+    "name": "Space",
+    "rootNamespace": "",
+    "references": [
+        "Unity.Entities",
+        "Unity.Mathematics",
+        "Unity.Transforms",
+        "Unity.Burst",
+        "Unity.Collections",
+        "Unity.Entities.Graphics",
+        "Unity.Mathematics.Extensions",
+        "Unity.Addressables",
+        "Unity.ResourceManager",
+        "Core",
+        "Identifiables",
+        "Identifiables.UI"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": true,
+    "overrideReferences": true,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

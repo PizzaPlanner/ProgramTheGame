@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Unity.Entities;
+using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.RenderGraphModule;
 using UnityEngine.Rendering.Universal;
@@ -15,7 +16,8 @@ public class ObjectPickingRenderPass : ScriptableRenderPass
 
     public override void RecordRenderGraph(RenderGraph renderGraph, ContextContainer frameContext)
     {
-        if(!(ObjectPickingSystem.textureHandle?.rt?.IsCreated() ?? false))
+        var ops = World.DefaultGameObjectInjectionWorld?.GetExistingSystemManaged<ObjectPickingSystem>();
+        if(!(ops?.textureHandle?.rt?.IsCreated() ?? false))
             return;
 
         using var builder = renderGraph.AddRasterRenderPass<PassData>("Create Object Picking Texture", out var passData);
@@ -25,7 +27,7 @@ public class ObjectPickingRenderPass : ScriptableRenderPass
         var lightData = frameContext.Get<UniversalLightData>();
         var resourceData = frameContext.Get<UniversalResourceData>();
         var sortFlags = cameraData.defaultOpaqueSortFlags;
-        var renderQueueRange = RenderQueueRange.opaque;
+        var renderQueueRange = RenderQueueRange.all;
         var filterSettings = new FilteringSettings(renderQueueRange, ~0);
         
         // Make sure render pass is always executed     
@@ -49,8 +51,11 @@ public class ObjectPickingRenderPass : ScriptableRenderPass
         // Set the render target as the color and depth textures of the active camera texture
         builder.UseRendererList(passData.rendererListHandle);
         
-        builder.SetRenderAttachmentDepth(resourceData.cameraDepth, AccessFlags.Read);
-        var target = renderGraph.ImportTexture(ObjectPickingSystem.textureHandle, ObjectPickingSystem.RenderTargetInfo);
+        builder.EnableAsyncCompute(true);
+        
+        if(resourceData.cameraDepth.IsValid())
+            builder.SetRenderAttachmentDepth(resourceData.cameraDepth, AccessFlags.Read);
+        var target = renderGraph.ImportTexture(ops.textureHandle, ops.RenderTargetInfo);
         builder.SetRenderAttachment(target, 0);
         builder.SetRenderFunc((PassData data, RasterGraphContext context) => ExecutePass(data, context));
     }

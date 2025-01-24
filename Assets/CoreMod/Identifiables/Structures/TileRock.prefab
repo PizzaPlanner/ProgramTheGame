@@ -68,6 +68,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Layer: 5
   PlacementType: 3
+  NotAllowedOnShips: 1
   Duration: 0
   Size:
     x: 0
@@ -354,6 +355,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Facing: 1
+  IsConnection: 0
 --- !u!4 &4203224049442050197 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4889370043198460, guid: f783106e0df273c46808529caaed5e8e, type: 3}
@@ -488,6 +490,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Facing: 0
+  IsConnection: 0
 --- !u!1001 &4929912736180484052
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -612,6 +615,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Facing: 2
+  IsConnection: 0
 --- !u!4 &4934765796417051688 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4889370043198460, guid: f783106e0df273c46808529caaed5e8e, type: 3}
@@ -750,6 +754,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Facing: 3
+  IsConnection: 0
 --- !u!114 &6546005226389050243
 MonoBehaviour:
   m_ObjectHideFlags: 0

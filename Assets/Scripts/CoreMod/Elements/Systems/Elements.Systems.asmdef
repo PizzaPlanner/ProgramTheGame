@@ -19,7 +19,8 @@
         "Equipment.UI",
         "Units.UI",
         "Units",
-        "Construction"
+        "Construction",
+        "Navigation"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
