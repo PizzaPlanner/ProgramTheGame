@@ -51,7 +51,7 @@ namespace Core.Equipment
                     if (lungs.ValueRW.Fullness <= 0)
                     {
                         ecb.AddComponent(e, new Dead{Cause = EmptyStatus});
-                        return;
+                        continue;
                     }
                 }
                 else

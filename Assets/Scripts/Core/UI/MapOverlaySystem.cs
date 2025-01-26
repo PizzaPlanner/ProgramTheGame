@@ -1,4 +1,5 @@
 ﻿using Core.Input;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
@@ -56,6 +57,8 @@ namespace Core
             {
                 filterMode = FilterMode.Point
             };
+            _texture.SetPixelData(new NativeArray<byte>(4 * bounds.Size, Allocator.Temp), 0);
+            _texture.Apply();
             _lastGridBounds = bounds;
             _overlay.GetComponent<MeshRenderer>().material.SetTexture(TextureProperty, _texture);
             _overlay.transform.localScale = new Vector3(bounds.Scale.x * 0.1f, 1, bounds.Scale.y * 0.1f);

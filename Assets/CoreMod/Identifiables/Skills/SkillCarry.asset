@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c3d63eb393e4a7bb9520cf541d5b1ff, type: 3}
   m_Name: SkillCarry
   m_EditorClassIdentifier: 
-  Icon: {fileID: 2800000, guid: 22222e576f30ee746bef308bf0e214b2, type: 3}
+  Icon: {fileID: 2800000, guid: d463382ddd6faf948b5bf7bd098c209f, type: 3}
   Tags:
   - {fileID: 11400000, guid: b6e913353c076074c97c9c3f6b6dd31d, type: 2}

@@ -158,6 +158,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Layer: 5
   PlacementType: 0
+  NotAllowedOnShips: 0
+  CanBeRotated: 1
   Duration: 3
   Size:
     x: 1
@@ -677,6 +679,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Facing: 2
+  IsConnection: 0
 --- !u!1001 &2792259467161083492
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -871,6 +874,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Facing: 3
+  IsConnection: 0
 --- !u!114 &6546005226389050243
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c3d63eb393e4a7bb9520cf541d5b1ff, type: 3}
   m_Name: SkillConstruction
   m_EditorClassIdentifier: 
-  Icon: {fileID: 2800000, guid: 2bcc7597461db3a4db038a8f75bdc3a7, type: 3}
+  Icon: {fileID: 2800000, guid: b7198fa67492a7d4ea1bb6d1c9e9d38b, type: 3}
   Tags:
   - {fileID: 11400000, guid: b6e913353c076074c97c9c3f6b6dd31d, type: 2}

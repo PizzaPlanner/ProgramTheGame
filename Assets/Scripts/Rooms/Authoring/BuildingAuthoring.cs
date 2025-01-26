@@ -18,6 +18,7 @@ public class BuildingAuthoring : MonoBehaviour
     public BuildingLayer Layer;
     public PlacementType PlacementType;
     public bool NotAllowedOnShips;
+    public bool CanBeRotated;
     public float Duration;
     public int2 Size;
     public BuildingVariantAuthoring[] Variants;
@@ -35,7 +36,8 @@ public class BuildingAuthoring : MonoBehaviour
                 Layer = authoring.Layer,
                 DraggableDimension = authoring.PlacementType,
                 Duration = authoring.Duration,
-                IsAllowedOnShips = !authoring.NotAllowedOnShips
+                IsAllowedOnShips = !authoring.NotAllowedOnShips,
+                IsRotatable = authoring.CanBeRotated
             });
             AddComponent(self, new GridBounds
             {

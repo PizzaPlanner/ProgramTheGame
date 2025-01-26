@@ -5,6 +5,7 @@ using UnityEngine;
 public class FoodAuthoring : MonoBehaviour
 {
     public uint Nutrition;
+    public uint NutritionPerTick;
     public class StomachAuthoringBaker : Baker<FoodAuthoring>
     {
         public override void Bake(FoodAuthoring authoring)
@@ -12,7 +13,8 @@ public class FoodAuthoring : MonoBehaviour
             var entity = GetEntity(TransformUsageFlags.None);
             AddComponent(entity, new Food
             {
-                Nutrition = authoring.Nutrition
+                Nutrition = authoring.Nutrition,
+                NutritionPerTick = authoring.NutritionPerTick,
             });
         }
     }

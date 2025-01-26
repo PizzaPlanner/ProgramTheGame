@@ -104,6 +104,19 @@ public static class ItemTransaction
             return this;
         }
         
+        public Builder Remove(Entity inventory, int slot, uint amount)
+        {
+            header.Transactions.Add(new PendingTransaction
+            {
+                Type = TransactionType.GenericRemove,
+                FromInventory = inventory,
+                Amount = amount,
+                FromSlot = slot,
+                ToSlot = -1,
+            });
+            return this;
+        }
+        
         public Builder Transfer(Entity fromInventory, Entity toInventory, ItemId item, uint amount)
         {
             header.Transactions.Add(new PendingTransaction
@@ -166,7 +179,7 @@ public static class ItemTransaction
             if (!isValid)
             {
                 Debug.LogError($"Discarded invalid transaction");
-                store.Remove(tId);
+                store.RemoveNoCleanup(tId);
                 return -1;
             }
             var h = header;

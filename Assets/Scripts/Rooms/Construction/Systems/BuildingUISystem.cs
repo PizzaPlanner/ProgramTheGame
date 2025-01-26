@@ -10,15 +10,14 @@ namespace Construction.Systems
     {
         protected override void OnUpdate()
         {
+            if(!UISystemGroup.TryGet<SelectedUnitElement>(out var ui))
+                return;
             var ecb = SystemAPI.GetSingleton<BeginInitializationEntityCommandBufferSystem.Singleton>().CreateCommandBuffer(World.Unmanaged);
             foreach (var (building, tasks, onGrid, e) in SystemAPI.Query<Building, DynamicBuffer<TaskProvider>, OnGrid>()
                                                            .WithAll<Selected>()
                                                            .WithNone<Ghost>()
                                                            .WithEntityAccess())
             {
-                if(!UISystemGroup.TryGet<SelectedUnitElement>(out var ui))
-                    return;
-                
                 var window = ui.Q<BuildingUI>();
                 if (window == null)
                 {
@@ -28,16 +27,19 @@ namespace Construction.Systems
                     ui.Add("Building", window);
                 }
                 
-                if(!window.wantCreateTask || tasks.Length > 0)
+                if(!window.wantCreateTask)
                     continue;
                 window.wantCreateTask = false;
+                if(tasks.Length > 0)
+                    continue;
                 var task = ecb.Instantiate(building.DismantleTaskPrefab.SpawnablePrefab);
                 ecb.SetComponent(task, new Task
                 {
                     Target = e, 
                     Priority = TaskPriority.MediumPriority,
                     Origin = e,
-                    CrewProvider = onGrid.Grid
+                    CrewProvider = onGrid.Grid,
+                    IsCancelable = true
                 });
                 ecb.AppendToBuffer(e, new TaskProvider
                 {

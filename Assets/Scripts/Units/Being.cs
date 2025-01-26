@@ -8,4 +8,5 @@ public struct Unit : IComponentData
 public struct Food : IComponentData
 {
     public uint Nutrition;
+    public uint NutritionPerTick;
 }

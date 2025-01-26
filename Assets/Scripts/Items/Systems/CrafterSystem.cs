@@ -108,7 +108,6 @@ partial struct CrafterSystem : ISystem
             {
                 Amount = requirement.Amount, 
                 Item = requirement.ItemId,
-                ParentGrid = crewContext,
                 Requester = crafter
             });
         }

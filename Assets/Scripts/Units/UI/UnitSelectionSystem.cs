@@ -6,8 +6,10 @@ using Identifiables.UI;
 using System.Collections.Generic;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Transforms;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.TerrainTools;
 using UnityEngine.UIElements;
 
 namespace Units
@@ -31,24 +33,37 @@ namespace Units
     public partial class UnitSelectionSystem : SystemBase, ITooltipProvider
     {
         public Entity Hovered;
+        EntityQuery _hoverQuery;
         bool IsDragging;
         protected override void OnCreate()
         {
             RequireForUpdate<SelectTool>();
             RequireForUpdate<LocalPlayer>();
+            _hoverQuery = GetEntityQuery(typeof(HoverIndicator));
         }
 
         protected override void OnStopRunning()
         {
-            EntityManager.RemoveComponent<HoverIndicator>(GetEntityQuery(typeof(HoverIndicator)));
             EntityManager.RemoveComponent<Selected>(GetEntityQuery(typeof(Selected)));
+            CancelHover();
+        }
+
+        void CancelHover()
+        {
             Tooltip.Hide();
+            EntityManager.RemoveComponent<HoverIndicator>(GetEntityQuery(typeof(HoverIndicator)));
+            Tooltip.Hide();
+            Hovered = default;
         }
 
         protected override void OnUpdate()
         {
-            if(SystemAPI.HasSingleton<PointerOverUI>())
+            if (SystemAPI.HasSingleton<PointerOverUI>())
+            {
+                if(Hovered != default)
+                    CancelHover();
                 return;
+            }
             
             var selected = SystemAPI.TryGetSingletonEntity<Selected>(out var e) ? e : Entity.Null;
             var pickedObject = SystemAPI.GetSingleton<ObjectPickingTarget>().Target;
@@ -56,7 +71,7 @@ namespace Units
             {
                 if (Hovered != Entity.Null)
                 {
-                    EntityManager.RemoveComponent<HoverIndicator>(GetEntityQuery(typeof(HoverIndicator)));
+                    EntityManager.RemoveComponent<HoverIndicator>(_hoverQuery);
                 }
                 Hovered = Entity.Null;
                 Tooltip.Hide();
@@ -65,7 +80,7 @@ namespace Units
             {
                 if (Hovered != pickedObject)
                 {
-                    EntityManager.RemoveComponent<HoverIndicator>(GetEntityQuery(typeof(HoverIndicator)));
+                    EntityManager.RemoveComponent<HoverIndicator>(_hoverQuery);
                     EntityManager.AddComponent<HoverIndicator>(pickedObject);
                 }
                 Hovered = pickedObject;
@@ -96,7 +111,14 @@ namespace Units
             {
                 if(Hovered == Entity.Null)
                     yield break;
-                yield return new IdentifiableButton { Target = EntityManager.GetComponentData<Identifiable>(Hovered) };
+                var tt = new VisualElement() { name = "HoveredTooltip" };
+                tt.Add(new IdentifiableButton { Target = EntityManager.GetComponentData<Identifiable>(Hovered) });
+                if (SystemAPI.HasComponent<BakedIntoRoomMap>(Hovered))
+                {
+                    var baked = SystemAPI.GetComponent<BakedIntoRoomMap>(Hovered);
+                    tt.Add(new Label($"on {baked.Area} ({baked.Layer})"));
+                }
+                yield return tt;
             }
         }
     }

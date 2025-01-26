@@ -21,6 +21,7 @@ public struct Building : IComponentData
     public PlacementType DraggableDimension;
     public float Duration;
     public bool IsAllowedOnShips;
+    public bool IsRotatable;
 }
 
 public struct Floor : IComponentData { }

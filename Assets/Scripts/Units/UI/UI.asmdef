@@ -26,7 +26,8 @@
         "Identifiables.UI",
         "Equipment.UI",
         "Blueprints",
-        "Core.Input.Selection"
+        "Core.Input.Selection",
+        "Navigation"
 
     ],
     "includePlatforms": [],

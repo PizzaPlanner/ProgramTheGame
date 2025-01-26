@@ -13,10 +13,10 @@ namespace Units
         protected override void OnUpdate()
         {
             var ecb = SystemAPI.GetSingleton<BeginInitializationEntityCommandBufferSystem.Singleton>().CreateCommandBuffer(World.Unmanaged);
+            if(!UISystemGroup.TryGet<SelectedUnitElement>(out var ui))
+                return;
             foreach (var (todos, e) in SystemAPI.Query<DynamicBuffer<ToDos>>().WithAll<Selected>().WithEntityAccess())
             {
-                if(!UISystemGroup.TryGet<SelectedUnitElement>(out var ui))
-                    return;
             
                 var window = ui.GetOrCreate<UnitTaskList>("ToDos");
                 window.Update(e, todos, SystemAPI.GetComponentLookup<Task>(true), SystemAPI.GetComponentLookup<Identifiable>(true));
@@ -24,9 +24,6 @@ namespace Units
             }
             foreach (var (orders, e) in SystemAPI.Query<DynamicBuffer<TaskProvider>>().WithAll<Selected>().WithEntityAccess())
             {
-                if(!UISystemGroup.TryGet<SelectedUnitElement>(out var ui))
-                    return;
-            
                 var window = ui.GetOrCreate<UnitOrderList>("Orders");
                 window.Update(ecb, orders, 
                     SystemAPI.GetComponentLookup<Task>(true),
@@ -117,11 +114,11 @@ namespace Units
                 var orderBtn = this[q] as UnitOrderButton;
                 orderBtn.TaskButton.Target = id;
                 
-                if(task.Priority == TaskPriority.ImmediateThreat)
+                if(task.IsCancelable)
                     orderBtn.TaskButton.AddToClassList("cancelable");
                 else
                     orderBtn.TaskButton.RemoveFromClassList("cancelable");
-                if (orderBtn.TaskButton.wantCancel && task.Priority == TaskPriority.ImmediateThreat)
+                if (orderBtn.TaskButton.wantCancel && task.IsCancelable)
                 {
                     orderBtn.TaskButton.wantCancel = false;
                     ecb.DestroyEntity(taskEntity);

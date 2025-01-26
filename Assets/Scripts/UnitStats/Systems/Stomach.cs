@@ -2,7 +2,6 @@
 using Identifiables;
 using Units;
 using Unity.Entities;
-using Unity.IntegerTime;
 using Unity.Mathematics;
 
 namespace Core.Equipment
@@ -12,8 +11,17 @@ namespace Core.Equipment
         public int Fullness;
         public int Capacity;
         public int ConsumptionPerTick;
-        public bool IsHungry => Fullness < Capacity * 0.5f;
-        public bool IsStarving => Fullness < Capacity * 0.2f;
+        public int LowThreshold;
+        public int CriticalThreshold;
+        public bool IsHungry => Fullness < LowThreshold;
+        public bool IsStarving => Fullness < CriticalThreshold;
+        public Entity CurrentFood;
+    }
+
+    public struct DietSettings : IBufferElementData
+    {
+        public Identifiable Diet;
+        public bool IsAllowed;
     }
 
     [UpdateInGroup(typeof(TickBasedSystemGroup))]
@@ -26,19 +34,29 @@ namespace Core.Equipment
         public void OnUpdate(ref SystemState state)
         {
             var ecb = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>().CreateCommandBuffer(state.WorldUnmanaged);
-            foreach (var (stomach, stats, e) in 
-                     SystemAPI.Query<RefRW<Stomach>, DynamicBuffer<Statuses>>()
+            foreach (var (stomach, stats, onGrid, e) in 
+                     SystemAPI.Query<RefRW<Stomach>, DynamicBuffer<Statuses>, OnGrid>()
                               .WithNone<Dead>()
                               .WithEntityAccess())
             {
                 var wasHungry = stomach.ValueRW.IsHungry;
                 var wasStarving = stomach.ValueRW.IsStarving;
-                stomach.ValueRW.Fullness = math.max(0, stomach.ValueRW.Fullness - stomach.ValueRW.ConsumptionPerTick);
+                if (SystemAPI.HasComponent<Food>(stomach.ValueRW.CurrentFood))
+                {
+                    ref var food = ref SystemAPI.GetComponentRW<Food>(stomach.ValueRW.CurrentFood).ValueRW;
+                    var nutrition = math.min(food.Nutrition, food.NutritionPerTick);
+                    nutrition = (uint)math.min(nutrition, stomach.ValueRW.Capacity - stomach.ValueRW.Fullness);
+                    nutrition = math.max(0, nutrition);
+                    stomach.ValueRW.Fullness += (int)nutrition;
+                    food.Nutrition -= nutrition;
+                }
+                else
+                    stomach.ValueRW.Fullness = math.max(0, stomach.ValueRW.Fullness - stomach.ValueRW.ConsumptionPerTick);
 
                 if (stomach.ValueRW.Fullness <= 0)
                 {
                     ecb.AddComponent(e, new Dead{Cause = StarvingStatus});
-                    return;
+                    continue;
                 }
                 
                 if (wasStarving && !stomach.ValueRW.IsStarving)
@@ -46,25 +64,39 @@ namespace Core.Equipment
                     stats.Remove(StarvingStatus);
                     if (stomach.ValueRW.IsHungry)
                         stats.Add(HungryStatus);
-                    return;
+                    continue;
                 }
                 if (!wasStarving && stomach.ValueRW.IsStarving)
                 {
                     stats.Remove(HungryStatus);
                     stats.Add(StarvingStatus);
-                    return;
+                    continue;
                 }
                 
                 if(wasHungry && !stomach.ValueRW.IsHungry)
                     stats.Remove(HungryStatus);
                 else if (!wasHungry && stomach.ValueRW.IsHungry)
                 {
-                    var task = ecb.Instantiate(EatTask.SpawnablePrefab);
-                    ecb.SetComponent(task, new Task { Priority = TaskPriority.MediumPriority, Origin = e, Executor = e });
-                    ecb.AppendToBuffer(e, new TaskProvider { Task = task });
+                    Task.Schedule(EatTask, ecb, new Task { Priority = TaskPriority.MediumPriority, 
+                        Origin = e, Executor = e, 
+                        CrewProvider = onGrid.Grid });
                     stats.Add(HungryStatus);
                 }
             }
+            
+            foreach(var (food, e) in SystemAPI.Query<Food>().WithEntityAccess())
+                if(food.Nutrition <= 0)
+                    ecb.DestroyEntity(e);
+            
+            new FindFoodTargetJob()
+            {
+                ecb = ecb,
+                stomachLookup = SystemAPI.GetComponentLookup<Stomach>(false),
+                foodLookup = SystemAPI.GetComponentLookup<Food>(true),
+                inventoryLookup = SystemAPI.GetBufferLookup<Inventory>(true),
+                networkLookup = SystemAPI.GetComponentLookup<LogisticsNetwork>(true),
+                dietLookup = SystemAPI.GetBufferLookup<DietSettings>(true)
+            }.Schedule();
         }
     }
 }

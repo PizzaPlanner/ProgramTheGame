@@ -1,14 +1,11 @@
 ﻿using System;
-using System.Linq;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
-using UnityEngine;
 
 public struct Room
 {
     public GridBounds BoundingBox;
-    public int RoomIdInGrid;
     public bool IsFullyEnclosed;
     public Entity OwningShipController;
 }

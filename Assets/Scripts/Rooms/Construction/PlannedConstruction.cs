@@ -1,6 +1,7 @@
 ﻿using Identifiables;
 using Unity.Collections;
 using Unity.Entities;
+using Unity.Mathematics;
 using Unity.Transforms;
 
 public struct PlannedConstruction : IComponentData
@@ -11,7 +12,6 @@ public struct PlannedConstruction : IComponentData
     public byte Rotation;
     public ConstructionMode Mode;
     public ConstructionVariant Materials;
-    public LocalTransform ToTransform => LocalTransform.FromPosition(GridStructure.CellToLocal(Location));
 }
 
 public enum ConstructionMode

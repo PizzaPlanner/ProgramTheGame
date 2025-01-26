@@ -16,7 +16,8 @@
         "Tasks",
         "Units",
         "Core",
-        "Elements"
+        "Elements",
+        "Items"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

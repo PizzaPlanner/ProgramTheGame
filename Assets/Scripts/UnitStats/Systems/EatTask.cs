@@ -12,46 +12,88 @@ namespace Core.Equipment
 {
     public struct EatTask : IComponentData
     {
-        public int2 BestTile;
+        public int SelfTargetSlot;
     }
     
+    [WithOptions(EntityQueryOptions.IgnoreComponentEnabledState)]
     partial struct FindFoodTargetJob : IJobEntity
     {
-        public ComponentLookup<LocalTransform> transformLookup;
-        [ReadOnly] public ComponentLookup<Stomach> stomachLookup;
-        [ReadOnly] public ComponentLookup<OnGrid> onGridLookup;
-        [ReadOnly] public ComponentLookup<Food> foodLookup;
-        [ReadOnly] public NativeArray<Entity> foodEntities;
-        void Execute(ref Task task, ref EatTask eater)
+        static readonly Identifiable OrderTaskPrefab = Identifiable.FromName("ItemOrderTask");
+        
+        public EntityCommandBuffer ecb;
+        public ComponentLookup<Stomach> stomachLookup;
+        [ReadOnly]public ComponentLookup<Food> foodLookup;
+        [ReadOnly] public ComponentLookup<LogisticsNetwork> networkLookup;
+        [ReadOnly] public BufferLookup<DietSettings> dietLookup;
+        [ReadOnly] public BufferLookup<Inventory> inventoryLookup;
+        void Execute(Entity e, ref Task task, ref EatTask eater, ref DynamicBuffer<TaskProvider> dependencies, EnabledRefRW<WorkedOn> workedOn)
         {
-            if(!stomachLookup.TryGetComponent(task.Executor, out var stomach))
+            if(!stomachLookup.HasComponent(task.Executor))
                 return;
-
+            
+            ref var stomach = ref stomachLookup.GetRefRW(task.Executor).ValueRW;
+            
+            workedOn.ValueRW = foodLookup.TryGetComponent(stomach.CurrentFood, out var currentFood) && stomach.Fullness + currentFood.NutritionPerTick < stomach.Capacity;
+            if(workedOn.ValueRW)
+                return;
+            
+            stomach.CurrentFood = default;
             if (!stomach.IsHungry)
             {
                 task.Origin = default;
                 return;
             }
-            
             task.Priority = stomach.IsStarving 
                 ? TaskPriority.Emergency 
                 : TaskPriority.MediumPriority;
             
-            if(task.Target != default 
-               && foodLookup.TryGetComponent(task.Target, out var food) 
-               && food.Nutrition > 0)
+            
+            if(!inventoryLookup.TryGetBuffer(task.Origin, out var inventory))
+                return;
+            if(!dietLookup.TryGetBuffer(task.Executor, out var diet))
                 return;
             
-            foreach (var foodEntity in foodEntities)
+            // Check if origin has food in inventory
+            foreach (var food in diet)
             {
-                if(!onGridLookup.TryGetComponent(foodEntity, out var onGrid) || onGrid.Grid != task.CrewProvider)
+                if (!food.IsAllowed)
                     continue;
-                if(foodEntity == task.Target) 
+                for (int i = 0; i < inventory.Length; i++)
+                {
+                    if (inventory[i].Amount > 0 && inventory[i].Type == food.Diet)
+                    {
+                        stomach.CurrentFood = inventory[i].Entity;
+                        return;
+                    }
+                }
+            }
+            
+            // If not, try get some in order of preferences
+            if(dependencies.Length > 0)
+                return;
+            if(!networkLookup.TryGetComponent(task.CrewProvider, out var network))
+                return;
+            
+            foreach (var food in diet)
+            {
+                if(!food.IsAllowed || !network.HasItems.ContainsKey(food.Diet))
                     continue;
-                task.Target = foodEntity;
+                
+                var order = Task.Schedule(OrderTaskPrefab, ecb, new Task
+                {
+                    Priority = task.Priority,
+                    Origin = e,
+                    CrewProvider = task.CrewProvider,
+                    Executor = task.Origin
+                });
+                ecb.SetComponent(order, new ItemOrderTask
+                {
+                    Amount = 1, 
+                    Item = ItemId.From(food.Diet),
+                    Requester = task.Origin,
+                });
                 return;
             }
-            task.Target = default;
         }
     }
 }

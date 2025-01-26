@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c3d63eb393e4a7bb9520cf541d5b1ff, type: 3}
   m_Name: SkillFarm
   m_EditorClassIdentifier: 
-  Icon: {fileID: 2800000, guid: 690b78545e137d64cacb60de2b95c323, type: 3}
+  Icon: {fileID: 2800000, guid: f9a52bd22e3babb45a04704051e82a64, type: 3}
   Tags:
   - {fileID: 11400000, guid: b6e913353c076074c97c9c3f6b6dd31d, type: 2}

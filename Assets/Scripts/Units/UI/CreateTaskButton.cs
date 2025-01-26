@@ -13,13 +13,14 @@ namespace Tasks.UI
         SkillButton _reqBtn; 
         public CreateTaskButton(Identifiable task, EntityManager em)
         {
+            var btn = new Button(() => OnClick()) { text = task.DefaultName.Value };
+            Add(btn);
+            btn.Add(new IdentifiableButton(){Target = task});
             if (em.HasComponent<TaskRequirement>(task.SpawnablePrefab))
             {
                 Requirement = em.GetComponentData<TaskRequirement>(task.SpawnablePrefab);
                 Add(_reqBtn = new SkillButton{Skill = Requirement.Skill, Rank = Requirement.MinLevel});
             }
-            Add(new Button(() => OnClick()) { text = task.DefaultName.Value });
-            Add(new IdentifiableButton(){Target = task});
         }
 
         public void OnClick()

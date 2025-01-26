@@ -20,6 +20,5 @@ public struct ItemOrderTask : IComponentData
     public ItemId Item;
     public ushort Amount;
     public OrderState State;
-    public Entity ParentGrid;
     public Entity Requester;
 }

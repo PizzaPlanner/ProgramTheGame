@@ -1,8 +1,11 @@
 :root {
     --color-border-default: rgb(17, 22, 35);
     --color-border-alt: rgb(25, 80, 110);
+    --color-border-widget: rgb(40, 60, 100);
     --color-background-default: rgba(24, 32, 45, 0.9);
     --color-background-alt: rgba(33, 48, 66, 0.7);
+    --color-background-widget: rgb(20, 30, 40);
+    --color-background-widget--hovered: rgb(15, 25, 45);
     --color-text-default: rgb(255, 255, 255);
 }
 
@@ -548,6 +551,11 @@ TooltipTitle {
     font-size: 16px;
 }
 
+Tooltip .id-button {
+    width: 28px;
+    height: 28px;
+}
+
 StatBar {
     flex-direction: row;
     flex-grow: 1;
@@ -734,6 +742,10 @@ SkillButton {
     align-content: center;
 }
 
+SkillButton.rank0 > PercentProgressBar {
+    display: none;
+}
+
 SkillButton > PercentProgressBar {
     background-image: url("project://database/Assets/UI/RankExpMask.svg?fileID=7388822144124034973&guid=d6693b716b0a8624caba28e969e65678&type=3#RankExpMask");
     height: 21px;
@@ -745,6 +757,7 @@ SkillButton > PercentProgressBar {
 SkillButton > PercentProgressBar > #Progress {
     background-color: rgb(25, 200, 60);
     height: 100%;
+    margin: 0;
 }
 
 SkillButton > .id-button {
@@ -774,13 +787,28 @@ SkillButton.rank3 {
     background-image: url("project://database/Assets/UI/Rank3.svg?fileID=7388822144124034973&guid=e4afa36223fe7ff49b68dad0279e0312&type=3#Rank3");
 }
 
-CreateTaskButton { 
+CreateTaskButton {
     flex-direction: row;
+    align-items: center;
 }
+CreateTaskButton > Button {
+    flex-grow: 1;
+    padding: 4px;
+    margin: 2px;
+}
+
 CreateTaskButton > SkillButton {
     width: 36px;
     height: 48px;
-    padding-top: 2px;
+    padding-top: 4px;
+    position: absolute;
+    right: 5px;
+    top: -2px;
+}
+
+CreateTaskButton > SkillButton > .id-button {
+    width: 28px;
+    height: 28px;
 }
 
 CreateTaskButton .id-button {
@@ -790,10 +818,6 @@ CreateTaskButton .id-button {
 
 CreateTaskButton > SkillButton > PercentProgressBar {
     display: none;
-}
-
-CreateTaskButton > Button {
-    flex-grow: 1;
 }
 
 MassBeingUI {
@@ -809,15 +833,19 @@ IntegerField > Label {
 }
 
 IntegerInput {
-    background-color: rgb(20, 30, 40);
-    border-color: rgb(40, 60, 100);
+    background-color: var(--color-background-widget);
+    border-color: var(--color-border-widget);
+}
+
+IntegerInput:hover {
+    background-color: var(--color-background-widget--hovered);
 }
 
 Button {
-    background-color: rgb(20, 30, 40);
-    border-color: rgb(40, 60, 100);
+    background-color: var(--color-background-widget);
+    border-color: var(--color-border-widget);
 }
 
 Button:hover {
-    background-color: rgb(25, 40, 55);
+    background-color: var(--color-background-widget--hovered);
 }

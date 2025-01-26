@@ -65,7 +65,8 @@ partial struct BlueprintPlacementSystem : ISystem
                         Location = part.Location,
                         Mode = ConstructionMode.Complete,
                         Parent = bp.BuildOn,
-                        Materials = new ConstructionVariant { PrimaryMass = thingMass }
+                        Materials = new ConstructionVariant { PrimaryMass = thingMass },
+                        Rotation = (byte)(part.Rotation / 90 % 4)
                     };
                     plan.Parent = bp.BuildOn;
                     plan.Location += bp.Offset;

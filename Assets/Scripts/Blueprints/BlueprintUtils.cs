@@ -28,6 +28,7 @@ public struct BlueprintContents : IBufferElementData
     public DefaultMatterOverride Matter;
     public int2 Location;
     public Identifiable Prefab;
+    public int Rotation;
 }
 
 public interface IBlueprintParser

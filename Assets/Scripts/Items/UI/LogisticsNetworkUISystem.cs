@@ -37,7 +37,7 @@ partial class LogisticsNetworkUISystem : SystemBase
             Clear();
             foreach (var kvp in network.HasItems)
             {
-                this.Add(new Label($"{kvp.Key.BaseId.DefaultName}: {kvp.Value}"));        
+                this.Add(new Label($"{kvp.Key.DefaultName}: {kvp.Value}"));        
             }
         }
     }

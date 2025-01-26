@@ -59,7 +59,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b38d79e42db94e7999fdd448d0f7f3db, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MaxStackSize: 9999
+  MaxStackSize: 1
 --- !u!114 &-5167055394000507283
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -73,6 +73,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Nutrition: 5000
+  NutritionPerTick: 25
 --- !u!114 &3298949536115023949
 MonoBehaviour:
   m_ObjectHideFlags: 0

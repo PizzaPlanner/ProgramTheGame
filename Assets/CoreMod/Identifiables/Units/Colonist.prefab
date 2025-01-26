@@ -104,7 +104,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 75dab4eed66e4451a479de7bef25ba75, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MovementSpeed: 1.5
+  MovementSpeed: 2.4
   InteractionRange: 0.1
 --- !u!114 &-5942648328531916514
 MonoBehaviour:
@@ -208,6 +208,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Capacity: 2000
   ConsumptionPerTick: 2
+  LowThreshold: 1900
+  CriticalThreshold: 400
+  AllowedFoods:
+  - {fileID: 5304243422145376601, guid: 66e65b7ad3e140d47abf75fc790fe525, type: 3}
 --- !u!1001 &3072592592385049462
 PrefabInstance:
   m_ObjectHideFlags: 0

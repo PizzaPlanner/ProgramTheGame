@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c3d63eb393e4a7bb9520cf541d5b1ff, type: 3}
   m_Name: SkillMine
   m_EditorClassIdentifier: 
-  Icon: {fileID: 2800000, guid: ef5ef347d23e410478b97ab4b8ed63ca, type: 3}
+  Icon: {fileID: 2800000, guid: 69fcfba021d62304aa89a5db967d6f57, type: 3}
   Tags:
   - {fileID: 11400000, guid: b6e913353c076074c97c9c3f6b6dd31d, type: 2}

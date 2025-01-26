@@ -122,7 +122,7 @@ internal partial struct ExecuteTransactionsJob : IJob
             if(itemEntity != Entity.Null)
                 ecb.DestroyEntity(itemEntity);
         }
-        store.Remove(id);
+        store.Remove(id, reservationLookup);
     }
 }
 
@@ -144,8 +144,7 @@ internal partial struct PrepareTransactionsJob : IJob
         {
             Debug.Log($"Transaction {id} cancelled");
             header.Confirmed = false;
-            RemoveAllReservations(id, ref header, reservationLookup);
-            store.Remove(id);
+            store.Remove(id, reservationLookup);
             return;    
         }
         
@@ -160,8 +159,7 @@ internal partial struct PrepareTransactionsJob : IJob
             {
                 Debug.Log($"Failed planning Transaction {transactions[tI].ItemId}x{transactions[tI].Amount} as {transactions[tI].Type} for {id}");
                 transactions[tI] = transaction;
-                RemoveAllReservations(id, ref header, reservationLookup);
-                store.Remove(id);
+                store.Remove(id, reservationLookup);
                 return;
             }
             transactions[tI] = transaction;
@@ -195,6 +193,9 @@ internal partial struct PrepareTransactionsJob : IJob
             case ItemTransaction.TransactionType.Order:
                 return TryReservationTo(id, ref transaction, out _);
             case ItemTransaction.TransactionType.GenericRemove:
+                if(transaction.FromSlot > -1 
+                   && inventoryLookup.TryGetBuffer(transaction.FromInventory, out var inventoryC))
+                    transaction.ItemId = inventoryC[transaction.FromSlot].Type;
                 return TryReservationFrom(id, ref transaction, out _);
             case ItemTransaction.TransactionType.TransferInventory:
                 if (!inventoryLookup.TryGetBuffer(transaction.FromInventory, out var inventory))
@@ -341,21 +342,6 @@ internal partial struct PrepareTransactionsJob : IJob
                     || (r.IsIncoming && slot.CanTransferInto) || (!r.IsIncoming && slot.CanTransferOut))  
                 && (slot.Type == r.ReservedType || (slot.Type == default && !slot.IsTypeLocked)) 
                 && (slot.SlotFilter.Id == default || Tag.HasTag(r.ReservedType.BaseId, slot.SlotFilter));
-    }
-
-    internal static void RemoveAllReservations(int id, ref ItemTransaction.TransactionHeader header, BufferLookup<ReservedSpace> reservationLookup)
-    {
-        foreach (var reservation in header.Transactions)
-        {
-            if (reservationLookup.TryGetBuffer(reservation.FromInventory, out var reservedA))
-                for (int i = reservedA.Length - 1; i >= 0; i--)
-                    if(reservedA[i].Transaction == id)
-                        reservedA.RemoveAt(i);
-            if (reservationLookup.TryGetBuffer(reservation.ToInventory, out var reservedB))
-                for (int i = reservedB.Length - 1; i >= 0; i--)
-                    if(reservedB[i].Transaction == id)
-                        reservedB.RemoveAt(i);
-        }
     }
 }
 

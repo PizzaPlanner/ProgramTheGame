@@ -17,6 +17,10 @@ public class ObjectPickingRendererFeature : ScriptableRendererFeature
 
     public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
     {
+        #if UNITY_EDITOR
+        if(!Application.isPlaying)
+            return;
+        #endif
         renderer.EnqueuePass(renderPass);
     }
 }

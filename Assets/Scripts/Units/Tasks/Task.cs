@@ -11,6 +11,7 @@ namespace Units
         public Entity Executor;
         public Entity Origin;
         public bool IsPersonalized => Origin == Executor;
+        public bool IsCancelable;
         public Entity CrewProvider;
 
         public static Entity Schedule(Identifiable taskPrefab, EntityCommandBuffer ecb, Task t)

@@ -44,13 +44,13 @@ public partial struct BuildJob : IJobEntity
             return;
         }
 
-        var area = bounds.WithOffset(planned.Location);
         
         if (!buildingLookup.TryGetComponent(prefab, out var building))
         {
             Debug.Log($"Discarded pending part that is not a building");
             return;
         }
+        var area = (building.IsRotatable ? bounds.Rotated(planned.Rotation * 90) : bounds).WithOffset(planned.Location) ;
         
         if (navigation.IsOccupiedForPlacement(area, building.Layer) && planned.Mode != ConstructionMode.PlacementPreview)
         {
@@ -60,12 +60,23 @@ public partial struct BuildJob : IJobEntity
         
         var isPlacing = planned.Mode == ConstructionMode.PlacementPreview || ghostLookup.HasComponent(planned.Parent);
         var isUnderConstruction = planned.Mode == ConstructionMode.UnderConstruction;
+        var offset = planned.Rotation switch
+        {
+            1 => new int2(area.Min.x, area.Max.y + 1),
+            2 => area.Max + 1,
+            3 => new int2(area.Max.x + 1, area.Min.y),
+            _ => area.Min,
+        };
+        var transform = !building.IsRotatable 
+            ? LocalTransform.FromPosition(GridStructure.CellToLocal(area.Min))
+            : LocalTransform.FromPositionRotation(GridStructure.CellToLocal(offset), 
+                quaternion.RotateY(planned.Rotation * 90 * math.TORADIANS));
 
         // Create Part
         var entity = ecb.Instantiate(prefab);
-        ecb.SetComponent(entity, planned.ToTransform);
         ecb.SetComponent(entity, area);
         ecb.AddComponent(entity, new Parent { Value = planned.Parent });
+        ecb.SetComponent(entity, transform);
         
         if (isPlacing)
         {
@@ -140,7 +151,6 @@ public partial struct BuildJob : IJobEntity
             {
                 Amount = (ushort)requirement.Amount, 
                 Item = ItemId.From(requirement.Item),
-                ParentGrid = planned.Parent,
                 Requester = entity,
             });
         }

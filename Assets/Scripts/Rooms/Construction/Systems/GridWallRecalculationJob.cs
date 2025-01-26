@@ -105,7 +105,7 @@ public partial struct GridRoomRecalculationJob : IJobEntity
                     Max = math.max(aabb.Max, existingRoom.BoundingBox.Max),
                     Min = math.min(aabb.Min, existingRoom.BoundingBox.Min)
                 };
-            finalRoomMap[roomId] = new Room { BoundingBox = aabb, RoomIdInGrid = roomId };
+            finalRoomMap[roomId] = new Room { BoundingBox = aabb };
         }
 
         // if (finalRoomMap.Count > 0)

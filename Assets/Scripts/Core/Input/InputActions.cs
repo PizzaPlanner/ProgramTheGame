@@ -898,6 +898,15 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Rotate"",
+                    ""type"": ""Button"",
+                    ""id"": ""b4baf183-052d-4e34-86a8-5249b5b37f10"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -920,6 +929,17 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": "";Keyboard&Mouse"",
                     ""action"": ""Cancel"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""8e60c6f5-ee25-4378-9666-2544aaebdc6e"",
+                    ""path"": ""<Keyboard>/r"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Rotate"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -1191,6 +1211,7 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         m_BuildTool = asset.FindActionMap("BuildTool", throwIfNotFound: true);
         m_BuildTool_PlaceBuilding = m_BuildTool.FindAction("PlaceBuilding", throwIfNotFound: true);
         m_BuildTool_Cancel = m_BuildTool.FindAction("Cancel", throwIfNotFound: true);
+        m_BuildTool_Rotate = m_BuildTool.FindAction("Rotate", throwIfNotFound: true);
         // DeconstructTool
         m_DeconstructTool = asset.FindActionMap("DeconstructTool", throwIfNotFound: true);
         m_DeconstructTool_Select = m_DeconstructTool.FindAction("Select", throwIfNotFound: true);
@@ -1578,12 +1599,14 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
     private List<IBuildToolActions> m_BuildToolActionsCallbackInterfaces = new List<IBuildToolActions>();
     private readonly InputAction m_BuildTool_PlaceBuilding;
     private readonly InputAction m_BuildTool_Cancel;
+    private readonly InputAction m_BuildTool_Rotate;
     public struct BuildToolActions
     {
         private @InputActions m_Wrapper;
         public BuildToolActions(@InputActions wrapper) { m_Wrapper = wrapper; }
         public InputAction @PlaceBuilding => m_Wrapper.m_BuildTool_PlaceBuilding;
         public InputAction @Cancel => m_Wrapper.m_BuildTool_Cancel;
+        public InputAction @Rotate => m_Wrapper.m_BuildTool_Rotate;
         public InputActionMap Get() { return m_Wrapper.m_BuildTool; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -1599,6 +1622,9 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
             @Cancel.started += instance.OnCancel;
             @Cancel.performed += instance.OnCancel;
             @Cancel.canceled += instance.OnCancel;
+            @Rotate.started += instance.OnRotate;
+            @Rotate.performed += instance.OnRotate;
+            @Rotate.canceled += instance.OnRotate;
         }
 
         private void UnregisterCallbacks(IBuildToolActions instance)
@@ -1609,6 +1635,9 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
             @Cancel.started -= instance.OnCancel;
             @Cancel.performed -= instance.OnCancel;
             @Cancel.canceled -= instance.OnCancel;
+            @Rotate.started -= instance.OnRotate;
+            @Rotate.performed -= instance.OnRotate;
+            @Rotate.canceled -= instance.OnRotate;
         }
 
         public void RemoveCallbacks(IBuildToolActions instance)
@@ -1913,6 +1942,7 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
     {
         void OnPlaceBuilding(InputAction.CallbackContext context);
         void OnCancel(InputAction.CallbackContext context);
+        void OnRotate(InputAction.CallbackContext context);
     }
     public interface IDeconstructToolActions
     {

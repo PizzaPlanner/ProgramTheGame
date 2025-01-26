@@ -2,6 +2,7 @@
 using Unity.Burst;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
+using UnityEngine;
 
 public struct TransactionStore: IComponentData, IDisposable
 {
@@ -9,7 +10,23 @@ public struct TransactionStore: IComponentData, IDisposable
     public static int NextId => ++_id.Data;
     static readonly SharedStatic<int> _id = SharedStatic<int>.GetOrCreate<TransactionStore>();
 
-    public void Remove(int transactionId)
+    public void Remove(int transactionId, BufferLookup<ReservedSpace> reservationLookup)
+    {
+        foreach (var transaction in Transactions[transactionId].Transactions)
+        {
+            if (reservationLookup.TryGetBuffer(transaction.FromInventory, out var reservedA))
+                for (int i = reservedA.Length - 1; i >= 0; i--)
+                    if (reservedA[i].Transaction == transactionId)
+                        reservedA.RemoveAt(i);
+            if (reservationLookup.TryGetBuffer(transaction.ToInventory, out var reservedB))
+                for (int i = reservedB.Length - 1; i >= 0; i--)
+                    if (reservedB[i].Transaction == transactionId)
+                        reservedB.RemoveAt(i);
+        }
+        RemoveNoCleanup(transactionId);
+    }
+
+    internal void RemoveNoCleanup(int transactionId)
     {
         Transactions[transactionId].Transactions.Dispose();
         Transactions.Remove(transactionId);

@@ -17,7 +17,7 @@ public class ObjectPickingRenderPass : ScriptableRenderPass
     public override void RecordRenderGraph(RenderGraph renderGraph, ContextContainer frameContext)
     {
         var ops = World.DefaultGameObjectInjectionWorld?.GetExistingSystemManaged<ObjectPickingSystem>();
-        if(!(ops?.textureHandle?.rt?.IsCreated() ?? false))
+        if(!ops?.IsReady ?? false)
             return;
 
         using var builder = renderGraph.AddRasterRenderPass<PassData>("Create Object Picking Texture", out var passData);

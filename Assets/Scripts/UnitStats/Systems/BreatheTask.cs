@@ -1,12 +1,9 @@
-﻿using Identifiables;
-using System;
+﻿using System;
 using Units;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
-using UnityEditor;
-using UnityEngine;
 
 namespace Core.Equipment
 {

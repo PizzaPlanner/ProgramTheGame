@@ -20,7 +20,9 @@
         "Identifiables.UI",
         "Equipment.UI",
         "Construction",
-        "Blueprints"
+        "Blueprints",
+        "Units.UI",
+        "Navigation"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

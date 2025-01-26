@@ -7,12 +7,12 @@ partial class UnderConstructionUISystem : SystemBase
 {
     protected override void OnUpdate()
     {
+        if(!UISystemGroup.TryGet<SelectedUnitElement>(out var ui))
+            return;
         var ecb = SystemAPI.GetSingleton<BeginInitializationEntityCommandBufferSystem.Singleton>()
                            .CreateCommandBuffer(World.Unmanaged);
         foreach (var (_, variant, e) in SystemAPI.Query<UnderConstruction, ConstructionVariant>().WithAll<Selected>().WithEntityAccess())
         {
-            if(!UISystemGroup.TryGet<SelectedUnitElement>(out var ui))
-                return;
             
             var window = ui.Q<UnderConstructionUI>();
             if (window == null)

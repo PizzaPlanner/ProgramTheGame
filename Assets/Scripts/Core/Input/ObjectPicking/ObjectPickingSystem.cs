@@ -7,7 +7,6 @@ using UnityEngine.Experimental.Rendering;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.RenderGraphModule;
 
-// [WorldSystemFilter(WorldSystemFilterFlags.Default | WorldSystemFilterFlags.Editor)]
 partial class ObjectPickingSystem : SystemBase
 {
     const int TEXTURE_SIZE_FACTOR = 1;
@@ -22,6 +21,8 @@ partial class ObjectPickingSystem : SystemBase
         height = textureHandle.rt.height,
         width = textureHandle.rt.width,
     };
+
+    public bool IsReady => (textureHandle?.rt?.IsCreated() ?? false) && textureHandle.rt.height == Screen.height && textureHandle.rt.width == Screen.width;
 
     protected override void OnStopRunning()
     {
@@ -51,10 +52,12 @@ partial class ObjectPickingSystem : SystemBase
 
         if (textureHandle == null || textureHandle.rt == null)
             return;
+        if (rthandles.rtHandleProperties.currentRenderTargetSize != new Vector2Int(Screen.width, Screen.height))
+            rthandles.ResetReferenceSize(Screen.width, Screen.height);
 
         var pixel = (int2)((float3)Input.mousePosition).xy;
         var position = pixel / TEXTURE_SIZE_FACTOR;
-        if (math.any(position >= new int2(textureHandle.rt.width, textureHandle.rt.height) | position < 0))
+        if (math.any(position >= new int2(Screen.width, Screen.height) | position < 0))
             return;
         
         SystemAPI.GetSingletonRW<ObjectPickingTarget>().ValueRW.Target = currentTarget;

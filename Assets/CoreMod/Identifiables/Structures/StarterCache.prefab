@@ -76,19 +76,19 @@ MonoBehaviour:
     Filter: {fileID: 0}
     TransferDirection: 3
   - Item: {fileID: 697860641069326925, guid: 66e65b7ad3e140d47abf75fc790fe525, type: 3}
-    Amount: 25
+    Amount: 1
     Filter: {fileID: 0}
     TransferDirection: 3
-  - Item: {fileID: 697860641069326925, guid: 4f6ba04be66bbe74d97951674e60e6f1, type: 3}
+  - Item: {fileID: 697860641069326925, guid: 66e65b7ad3e140d47abf75fc790fe525, type: 3}
+    Amount: 1
+    Filter: {fileID: 0}
+    TransferDirection: 3
+  - Item: {fileID: 697860641069326925, guid: 66e65b7ad3e140d47abf75fc790fe525, type: 3}
     Amount: 1
     Filter: {fileID: 0}
     TransferDirection: 3
   - Item: {fileID: 697860641069326925, guid: c42440416ef81f64693865cd7d1325d9, type: 3}
     Amount: 5000
-    Filter: {fileID: 0}
-    TransferDirection: 3
-  - Item: {fileID: 0}
-    Amount: 1
     Filter: {fileID: 0}
     TransferDirection: 3
   - Item: {fileID: 0}
@@ -140,6 +140,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Layer: 9
   PlacementType: 0
+  NotAllowedOnShips: 0
+  CanBeRotated: 1
   Duration: 0
   Size:
     x: 0

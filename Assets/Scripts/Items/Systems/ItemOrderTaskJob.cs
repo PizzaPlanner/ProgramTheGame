@@ -43,7 +43,7 @@ partial struct ItemOrderTaskJob : IJobEntity
         // Find best target
         if (task.Target == Entity.Null)
         {
-            if (!networkLookup.TryGetComponent(order.ParentGrid, out var network))
+            if (!networkLookup.TryGetComponent(task.CrewProvider, out var network))
             {
                 Debug.LogError("Logistics member must have Grid!");
                 return;
@@ -87,8 +87,16 @@ partial struct ItemOrderTaskJob : IJobEntity
             if (executorInventory.Contains(order.Item, order.Amount))
             {
                 // Order item delivery
-                order.TransactionId = transactionStore.CreateBuilder.Transfer(task.Executor, order.Requester, order.Item, order.Amount).WithManualReview();
-                order.State = OrderState.Transporting;
+                if (task.Executor != order.Requester)
+                {
+                    order.TransactionId = transactionStore.CreateBuilder.Transfer(task.Executor, order.Requester, order.Item, order.Amount).WithManualReview();
+                    order.State = OrderState.Transporting;
+                }
+                else
+                {
+                    order.State = OrderState.Finished;
+                    ecb.DestroyEntity(e);
+                }
             }
             else
             {
@@ -107,7 +115,7 @@ partial struct ItemOrderTaskJob : IJobEntity
             return;
         
         transactionStore.Review(order.TransactionId, true);
-        if (order.State == OrderState.Assigned)
+        if (order.State == OrderState.Assigned && task.Executor != order.Requester)
         {
             order.State = OrderState.Transporting;
             task.Target = order.Requester;

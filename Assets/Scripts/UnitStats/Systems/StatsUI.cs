@@ -1,7 +1,10 @@
 ﻿using Identifiables;
 using Identifiables.UI;
+using System;
+using System.Collections.Generic;
 using Units;
 using Unity.Entities;
+using UnityEngine;
 using UnityEngine.UIElements;
 
 public class SkillsUI : VisualElement
@@ -34,11 +37,11 @@ public class StatsUI : VisualElement
         Add(Stats = new VisualElement(){name = "Stats"});
     }
     
-    public void AddOrUpdateNeed(string stat, float value, float maxValue, bool isLow, bool isCritical)
+    public void AddOrUpdateNeed(string stat, float value, float maxValue, bool isLow, bool isCritical, Func<VisualElement> tooltipFunc)
     {
         var bar = this.Q<StatBar>(stat);
         if (bar == null)
-            Needs.Add(bar = new StatBar(stat));
+            Needs.Add(bar = new StatBar(stat, tooltipFunc));
         
         bar.maxValue = maxValue;
         bar.value = value;
@@ -69,23 +72,33 @@ public class StatsUI : VisualElement
         }
     }
 
-    public class StatBar : VisualElement
+    public class StatBar : VisualElement, ITooltipProvider
     {
         VisualElement Progress;
         public float maxValue;
-
+        
+        float _value;
         public float value
         {
-            set => Progress.style.width = new Length(value / maxValue * 100, LengthUnit.Percent);
+            set { _value = value; Progress.style.width = new Length(value / maxValue * 100, LengthUnit.Percent); (this as ITooltipProvider).SetDirty(); }
+            get => _value;
         }
         
-        public StatBar(string stat)
+        public StatBar(string stat, Func<VisualElement> tooltipProvider)
         {
             name = stat;
-            Add(new IdentifiableButton(){Target = Identifiable.FromName(stat)});
+            Add(new IdentifiableButton(){Target = Identifiable.FromName(stat), pickingMode = PickingMode.Ignore});
             Add(new VisualElement(){name = "Bar"});
             this.Q("Bar").Add(Progress = new VisualElement{name = "Progress"});
             maxValue = 5;
+            ITooltipProvider.RegisterCallbacks(this);
+            getTooltip = tooltipProvider;
+        }
+
+        Func<VisualElement> getTooltip;
+        public IEnumerable<VisualElement> TooltipContent
+        {
+            get { yield return getTooltip?.Invoke() ?? new Label($"{name}"); }
         }
     }
 }
