@@ -1,8 +1,19 @@
 ﻿using Identifiables;
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Entities;
 using UnityEngine;
+
+public struct DynamicIdentifiableDefinition
+{
+    public Entity Prefab;
+    public bool IsSpawnable;
+    public UnityObjectRef<Texture2D> Icon;
+    public FixedString64Bytes Name;
+    public IEnumerable<FixedString64Bytes> Tags;
+}
 
 [UpdateInGroup(typeof(IdentifiablesMappingGroup))]
 [WorldSystemFilter(WorldSystemFilterFlags.Editor | WorldSystemFilterFlags.Default)]
@@ -23,17 +34,5 @@ public abstract partial class IdentifiableMappingSystem : SystemBase
         Relations[from].Add(link);
     }
 
-    protected void TryRegisterDynamicPrefab(Entity prefab, FixedString64Bytes name, IEnumerable<Identifiable> tags)
-    {
-        var preId = new IdentifiableData
-        {
-            DefaultName = name,
-            SpawnablePrefab = prefab
-        };
-        if (World.GetExistingSystemManaged<IdentifiablesMappingGroup>().RegisterAsIdentifiable(prefab, preId)) 
-            return;
-        
-        Debug.LogError($"Failed to register {prefab} as {preId.DefaultName}");
-        EntityManager.DestroyEntity(prefab);
-    }
+    public Func<IEnumerable<DynamicIdentifiableDefinition>> RegisterAdditionalIds { get; protected set; } 
 }

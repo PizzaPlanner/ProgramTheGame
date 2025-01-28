@@ -11,7 +11,6 @@ using Random = UnityEngine.Random;
 
 namespace Units
 {
-    [UpdateInGroup(typeof(TickBasedSystemGroup))]
     public partial class TaskApproachSystem : SystemBase
     {
         bool CalculatePath(DynamicBuffer<UnitPathing> pathfinding, int2 toCell, int2 currentCell, bool isTargetPathable, NavTree navigation)
@@ -36,6 +35,9 @@ namespace Units
 
         protected override void OnUpdate()
         {
+            var timeStep = SystemAPI.GetSingleton<SimulationState>().DeltaTime;
+            if(timeStep <= 0)
+                return;
             var taskLookup = SystemAPI.GetComponentLookup<Task>(true);
             var depenencyLookup = SystemAPI.GetBufferLookup<TaskProvider>(true);
             var transformLookup = SystemAPI.GetComponentLookup<LocalTransform>(true); 
@@ -77,13 +79,13 @@ namespace Units
                 {
                     if (!CalculatePath(pathing, targetCell, myCell, isTargetCellPathable, navTree))
                     {
-                        Debug.Log($"Pathing faield");
                         td.Status = ToDoStatus.Unreachable;
                         continue;
                     }
+                    var distance = math.distance(CellCenterToLocal(pathing[0].Cell), transform.ValueRO.Position);
                     var direction = math.normalize(CellCenterToLocal(pathing[0].Cell) - transform.ValueRO.Position);
                     transform.ValueRW.Rotation = quaternion.LookRotationSafe(direction, math.up());
-                    transform.ValueRW.Position += direction * movable.MovementSpeed;
+                    transform.ValueRW.Position += direction * math.min(distance, movable.MovementSpeed * SystemAPI.Time.DeltaTime / timeStep);
                 }
                 
                 td.Status = isInTaskRange ? ToDoStatus.Working : ToDoStatus.Approaching;

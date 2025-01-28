@@ -47,7 +47,7 @@ partial struct ItemOrderTaskJob : IJobEntity
         {
             if (!networkLookup.TryGetComponent(task.CrewProvider, out var network))
             {
-                Debug.LogError("Logistics member must have Grid!");
+                Debug.LogError($"{task.CrewProvider} missing Logistics Network");
                 return;
             }
             AssignTarget(ref task, order.Requester, ltwLookup, navTreeLookup, network, order.Item, order.Amount);

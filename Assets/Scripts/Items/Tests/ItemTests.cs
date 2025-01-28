@@ -4,10 +4,8 @@ using System.Collections;
 using Unity.Collections;
 using Unity.Entities;
 using UnityEngine;
-using UnityEngine.LowLevel;
 using UnityEngine.SceneManagement;
 using UnityEngine.TestTools;
-using UnityEngine.UIElements;
 
 namespace Items.Tests
 {

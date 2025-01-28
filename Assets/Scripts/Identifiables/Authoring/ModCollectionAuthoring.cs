@@ -2,6 +2,7 @@
 using Unity.Collections;
 using Unity.Entities;
 using UnityEngine;
+using UnityEngine.Profiling;
 
 namespace Identifiables.Authoring
 {
@@ -13,6 +14,7 @@ namespace Identifiables.Authoring
         {
             public override void Bake(ModCollectionAuthoring authoring)
             {
+                Profiler.BeginSample("Bake Mod Collection", authoring);
                 var self = GetEntity(TransformUsageFlags.None);
                 MakeIdentifiable(this, self, authoring.ModContents);
                 AddComponent(self, new ModDefinition
@@ -37,6 +39,7 @@ namespace Identifiables.Authoring
                         leg.Add(id);
                     }
                 }
+                Profiler.EndSample();
             }
 
         }
@@ -50,8 +53,9 @@ namespace Identifiables.Authoring
             baker.AddComponent<Prefab>(id);
             baker.AddComponent(id, prefab.Id);
             var preId = prefab.ToPreId;
+            preId.Prefab = id;
             if (prefab is IdentifiableThingAsset)
-                preId.SpawnablePrefab = id;
+                preId.Spawnable = true;
             baker.AddComponent(id, preId);
             var tagSet = new NativeHashSet<Identifiable>(4, Allocator.Temp);
             foreach(var thing in prefab.TypeImpliedTags)

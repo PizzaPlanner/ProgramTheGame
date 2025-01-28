@@ -49,9 +49,7 @@ namespace Identifiables
         public Texture2D Icon => Find(Value).Icon;
         [CreateProperty(ReadOnly = true)]
         public FixedString64Bytes DefaultName => Find(Value).DefaultName;
-        
         public ulong DebugId => Value;
-        
 #if USE_ID_64
         public static Identifiable FromName(FixedString64Bytes defaultName) => new Identifiable { Value = TypeHash.FNV1A64(defaultName) };
         ulong Value;
@@ -65,8 +63,9 @@ namespace Identifiables
         internal static readonly SharedStatic<NativeParallelHashMap<uint, IdentifiableData>> IdMap =
             SharedStatic<NativeParallelHashMap<uint, IdentifiableData>>
                 .GetOrCreate<IdentifiablesMappingGroup>();
-        static IdentifiableData Find(uint Value) => IdMap.Data.TryGetValue(Value, out var item) ? item : default;
+        internal static IdentifiableData Find(uint Value) => IdMap.Data.TryGetValue(Value, out var item) ? item : default;
 #endif
         internal static void Register(IdentifiableData data) => IdMap.Data[FromName(data.DefaultName).Value] = data;
+        public static bool Exists(FixedString64Bytes name) => IdMap.Data.TryGetValue(FromName(name).Value, out _);
     }
 }

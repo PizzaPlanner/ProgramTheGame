@@ -1,16 +1,16 @@
 using Identifiables;
-using System.Collections.Generic;
-using Unity.Burst;
+using System;
+using System.Linq;
 using Unity.Collections;
 using Unity.Entities;
-using Unity.Transforms;
+using Unity.Scenes;
 using UnityEngine;
 
 [WorldSystemFilter(WorldSystemFilterFlags.Editor | WorldSystemFilterFlags.Default)]
 [UpdateInGroup(typeof(InitializationSystemGroup), OrderFirst = true)]
 public partial class IdentifiablesMappingGroup : ComponentSystemGroup
 {
-    EntityQuery modQuery, idQuery;
+    EntityQuery idQuery;
     
     public struct Mapped : IComponentData { }
     public struct Loaded : IComponentData { }
@@ -18,89 +18,84 @@ public partial class IdentifiablesMappingGroup : ComponentSystemGroup
     protected override void OnCreate()
     {
         base.OnCreate();
-        modQuery = SystemAPI.QueryBuilder()
-                         .WithAll<Prefab, ModDefinition>()
-                         .WithOptions(EntityQueryOptions.IncludePrefab)
-                         .WithNone<Mapped>().Build();
-        idQuery = SystemAPI.QueryBuilder().WithAll<Prefab, Tags>()
+        idQuery = SystemAPI.QueryBuilder().WithAll<Prefab, Identifiable, IdentifiableData, Tags>()
                            .WithNone<Mapped>()
                            .WithOptions(EntityQueryOptions.IncludePrefab).Build();
-        RequireForUpdate(modQuery);
-        LoadedMods = new();
+        RequireForUpdate(idQuery);
         Identifiable.IdMap.Data = new(0, Allocator.Persistent);
     }
 
     protected override void OnDestroy()
     {
-        LoadedMods.Clear();
         if(Identifiable.IdMap.Data.IsCreated)
             Identifiable.IdMap.Data.Dispose();
         // modQuery.Dispose();
         // idQuery.Dispose();
     }
-    
-    List<ulong> LoadedMods; 
 
     protected override void OnUpdate()
     {
-        var modEntities = modQuery.ToEntityArray(Allocator.Temp);
-        foreach(var mod in modEntities)
-            LoadMod(mod);
+        foreach(var (scene, e) in SystemAPI.Query<RequestSceneLoaded>().WithAll<SceneEntityReference>().WithEntityAccess())
+            if (!SceneSystem.IsSectionLoaded(World.Unmanaged, e))
+                return;
+        
+        var ecb = new EntityCommandBuffer(Allocator.Temp);
+        var mappedThisFrame = new NativeList<Entity>(Allocator.Temp);
+        foreach (var (id, e) in SystemAPI.Query<IdentifiableData>()
+                                         .WithAll<Prefab, Identifiable, Tags>().WithNone<Mapped>()
+                                         .WithOptions(EntityQueryOptions.IncludePrefab).WithEntityAccess())
+        {
+            if(!RegisterAsIdentifiable(e, id))
+                ecb.DestroyEntity(e);
+            else
+                mappedThisFrame.Add(e);
+        }
+        foreach(var system in ManagedSystems.OfType<IdentifiableMappingSystem>())
+        foreach (var id in system.RegisterAdditionalIds?.Invoke() ?? Array.Empty<DynamicIdentifiableDefinition>())
+        {
+            var data = new IdentifiableData { Prefab = id.Prefab, DefaultName = id.Name, Spawnable = id.IsSpawnable, Icon = id.Icon };
+            if (!RegisterAsIdentifiable(id.Prefab, data))
+            {
+                ecb.DestroyEntity(id.Prefab);
+                continue;
+            }
+            mappedThisFrame.Add(id.Prefab);
+            EntityManager.AddComponentData(id.Prefab, Identifiable.FromName(id.Name));
+            EntityManager.AddComponentData(id.Prefab, data);
+            var tagBuffer = EntityManager.AddBuffer<Tags>(id.Prefab);
+            foreach(var tag in id.Tags)
+                tagBuffer.Add(new Tags { Tag = Identifiable.FromName(tag) });
+        }
+        ecb.Playback(EntityManager);
         
         base.OnUpdate();
         
-        EntityManager.RemoveComponent<Tags>(idQuery);
-        EntityManager.AddComponent<Mapped>(idQuery);
-        EntityManager.AddComponent<Mapped>(modQuery);
+        EntityManager.RemoveComponent<IdentifiableData>(mappedThisFrame.AsArray());
+        EntityManager.RemoveComponent<Tags>(mappedThisFrame.AsArray());
+        EntityManager.AddComponent<Mapped>(mappedThisFrame.AsArray());
         if(!SystemAPI.HasSingleton<Loaded>())
             EntityManager.CreateSingleton<Loaded>();
+        Debug.Log($"Loaded {mappedThisFrame.Length} Identifiables");
     }
 
-    void LoadMod(Entity mod)
+    bool RegisterAsIdentifiable(Entity e, IdentifiableData data)
     {
-        var modId = SystemAPI.GetComponent<Identifiable>(mod).DebugId;
-        var modDef = SystemAPI.GetComponent<ModDefinition>(mod);
-        if (LoadedMods.Contains(modId))
-        {
-            Debug.Log($"Skipped loading Mod {modDef.Name}, since it is already loaded");
-            EntityManager.DestroyEntity(mod);
-            return;
-        }
-        var modContent = SystemAPI.GetBuffer<LinkedEntityGroup>(mod).ToNativeArray(Allocator.Temp);
-        
-        for(int i = 0; i < modContent.Length; i++)
-        {
-            var e = modContent[i].Value;
-            if (!SystemAPI.HasComponent<IdentifiableData>(e))
-            {
-                Debug.LogError($"Something went wrong with {e}!");
-                continue;
-            }
-            var preId = SystemAPI.GetComponent<IdentifiableData>(e);
-            RegisterAsIdentifiable(e, preId);
-        }
-        Debug.Log($"Loaded Mod {modDef.Name} with {modContent.Length} IDs");
-        LoadedMods.Add(modId);
-    }
-
-    internal bool RegisterAsIdentifiable(Entity e, IdentifiableData data)
-    {
-        if (SystemAPI.HasComponent<Parent>(e) && SystemAPI.GetComponent<Parent>(e).Value != Entity.Null)
-            return false;
-
         var id = Identifiable.FromName(data.DefaultName);
-        if(id == default || data.DefaultName.Value.Length < 2)
-            Debug.LogError($"ID '{data.DefaultName}' is too short!");
-        else if (id.DefaultName != default)
-            Debug.LogError($"Failed to register ID '{data.DefaultName}': Collision with {id.DefaultName}. Choose another name");
-        else
+        if (id == default || data.DefaultName.Value.Length < 2)
         {
-            Identifiable.Register(data);
-#if UNITY_EDITOR
-            EntityManager.SetName(e, data.DefaultName);
-#endif
-            return true;
+            Debug.LogError($"ID '{data.DefaultName}' is too short!");
+            return false;
         }
-        return false;
+        var previous = Identifiable.Find((uint)id.DebugId).Prefab;
+        if (EntityManager.Exists(previous))
+        {
+            Debug.LogWarning($"Tried registering existing ID {data.DefaultName.Value}");
+            return false;
+        }
+        Identifiable.Register(data);
+#if UNITY_EDITOR
+        EntityManager.SetName(e, data.DefaultName);
+#endif
+        return true;
     }
 }

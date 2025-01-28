@@ -6,7 +6,9 @@ namespace Identifiables
 {
     public struct IdentifiableData : IComponentData
     {
-        public Entity SpawnablePrefab;
+        public Entity Prefab;
+        public bool Spawnable;
+        public Entity SpawnablePrefab => Spawnable ? Prefab : default;
         public UnityObjectRef<Texture2D> Icon;
         public FixedString64Bytes DefaultName;
     }

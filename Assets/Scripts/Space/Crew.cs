@@ -27,16 +27,11 @@ namespace Space
                                                              .WithChangeFilter<OnGrid>().WithAll<CrewMember>().WithEntityAccess())
             {
                 if (SystemAPI.HasComponent<Parent>(e) && SystemAPI.GetComponent<Parent>(e).Value == gridMember.Grid)
-                {
-                    Debug.LogWarning($"Skipping CF ongrid reasssign");
                     continue;
-                }
+                
                 ecb.AddComponent(e, new Parent{Value = gridMember.Grid});
-                if (gridMember.Grid != Entity.Null)
-                {
-                    var gridLtw = SystemAPI.GetComponent<LocalToWorld>(gridMember.Grid);
+                if (SystemAPI.GetComponentLookup<LocalToWorld>().TryGetComponent(gridMember.Grid, out var gridLtw))
                     ecb.SetComponent(e, LocalTransform.FromMatrix(math.mul(math.inverse(gridLtw.Value), ltw.Value)));
-                }
                 else
                     ecb.SetComponent(e, LocalTransform.FromMatrix(ltw.Value));
                 foreach (var grid in allCrews)

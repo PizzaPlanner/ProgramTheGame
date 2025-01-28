@@ -27,14 +27,8 @@ public struct Blueprint : IComponentData
         return e;
     }
     
-    const string GRID_SCENE_GUID = "f25060e5fb8fde54fa1447f4efccf7dd";
     public static void SpawnAsNewGrid(World world, Identifiable prefab, out Entity grid)
     {
-        // var scene = SceneSystem.LoadSceneAsync(world.Unmanaged, new EntitySceneReference(new Hash128(GRID_SCENE_GUID), 0), new SceneSystem.LoadParameters
-        // {
-        //     AutoLoad = true, 
-        //     Flags = SceneLoadFlags.BlockOnImport | SceneLoadFlags.BlockOnStreamIn | SceneLoadFlags.NewInstance
-        // });
         grid = world.EntityManager.CreateEntity(typeof(GridStructure), typeof(LocalTransform), typeof(LinkedEntityGroup), typeof(LocalToWorld));
         world.EntityManager.SetComponentData(grid, LocalTransform.Identity);
         // world.EntityManager.AddSharedComponent(grid, new SceneTag { SceneEntity = scene });

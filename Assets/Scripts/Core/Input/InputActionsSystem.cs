@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Entities.Content;
@@ -37,7 +38,9 @@ namespace Core.Input
             _setDefaults = new NativeHashMap<FixedString32Bytes, Entity>(0, Allocator.Persistent);
             var setBuilders = new Dictionary<FixedString32Bytes, NativeList<ComponentType>>();
             var setDefTypes = new Dictionary<FixedString32Bytes, IInputActionState>();
-            foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
+            foreach (var asm in AppDomain.CurrentDomain.GetAssemblies()
+                                         .Where(x => x.GetReferencedAssemblies()
+                                                      .Any(a => a.FullName == typeof(IInputActionState).Assembly.GetName().FullName)))
             foreach (var type in asm.GetTypes().Where(x => x.IsValueType && typeof(IInputActionState).IsAssignableFrom(x)))
             {
                 var state = (IInputActionState)Activator.CreateInstance(type);

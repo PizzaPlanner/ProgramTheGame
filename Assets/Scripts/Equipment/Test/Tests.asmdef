@@ -16,9 +16,11 @@
         "Tasks",
         "Equipment",
         "Units",
+        "Elements",
         "Units.UI",
         "Core.UI",
-        "UnitStats.Systems"
+        "UnitStats.Systems",
+        "Construction"
     ],
     "optionalUnityReferences": [
         "TestAssemblies"

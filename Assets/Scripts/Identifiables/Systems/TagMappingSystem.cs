@@ -4,6 +4,7 @@ using Unity.Collections;
 using Unity.Entities;
 using UnityEngine.UIElements;
 
+[InternalBufferCapacity(0)]
 public struct Tags : IBufferElementData
 {
     public Tag Tag;
@@ -20,11 +21,15 @@ partial class TagMappingSystem : IdentifiableMappingSystem //, IWikiProvider
             Tag.IdsForTagMap.Data.Dispose();
     }
 
-    protected override void OnUpdate()
+    protected override void OnCreate()
     {
         OnDestroy();
         Tag.TagsOfIdMap.Data = new (0, Allocator.Persistent);
         Tag.IdsForTagMap.Data = new (32, Allocator.Persistent);
+    }
+
+    protected override void OnUpdate()
+    {
         foreach (var (tags, id) in SystemAPI.Query<DynamicBuffer<Tags>, Identifiable>()
                                       .WithAll<Prefab, Identifiable>()
                                       .WithNone<IdentifiablesMappingGroup.Mapped>()

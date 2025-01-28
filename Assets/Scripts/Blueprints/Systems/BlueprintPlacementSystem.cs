@@ -27,7 +27,6 @@ partial struct BlueprintPlacementSystem : ISystem
         {
             if(!SystemAPI.HasComponent<MassModel>(bp.BuildOn) || !SystemAPI.HasComponent<RoomModel>(bp.BuildOn))
                 continue;
-            Debug.Log($"Spawn BP on fully constructed {bp.BuildOn}");
             ecb.DestroyEntity(e);
             foreach (var part in content)
             {

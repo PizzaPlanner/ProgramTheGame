@@ -23,26 +23,20 @@ public partial struct BuildJob : IJobEntity
     
     void Execute(Entity e, in PlannedConstruction planned)
     {
+        // Parent not ready
+        if (!navLayerLookup.TryGetComponent(planned.Parent, out var navigation))
+            return;
+        
         ecb.DestroyEntity(e);
         
         // Get prefab from id
         var prefab = planned.Prefab.SpawnablePrefab;
         if (prefab == Entity.Null || !boundsLookup.TryGetComponent(prefab, out var bounds))
         {
-            if(structureLookup.TryGetComponent(prefab, out var s))
-                bounds = s.LocalAABB;
-            else
-            {
-                Debug.LogWarning($"Discarded invalid pending part with ID {planned.Prefab.DebugId}");
-                return;
-            }
-        }
-
-        if (!navLayerLookup.TryGetComponent(planned.Parent, out var navigation))
-        {
-            Debug.LogError($"Can not build on {planned.Parent}");
+            Debug.LogWarning($"Discarded invalid pending part with ID {planned.Prefab.DebugId}");
             return;
         }
+
 
         
         if (!buildingLookup.TryGetComponent(prefab, out var building))

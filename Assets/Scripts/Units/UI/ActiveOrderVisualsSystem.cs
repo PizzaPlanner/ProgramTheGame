@@ -69,12 +69,13 @@ partial class ActiveOrderVisualsSystem : SystemBase
 
 public class ActiveOrderMarker : VisualElement
 {
+    IdentifiableButton idButton;
     public ActiveOrderMarker()
     {
         usageHints = UsageHints.DynamicTransform;
         style.position = Position.Absolute;
-        var box = new IdentifiableButton() { pickingMode = PickingMode.Ignore };
-        Add(box);
+        idButton = new IdentifiableButton() { pickingMode = PickingMode.Ignore };
+        Add(idButton);
         pickingMode = PickingMode.Ignore;
     }
     
@@ -86,6 +87,6 @@ public class ActiveOrderMarker : VisualElement
         var center = (float2)RuntimePanelUtils.CameraTransformWorldToPanel(panel, aabb.Center, Camera.main);
         style.left = center.x;
         style.top  = center.y;
-        this.Q<IdentifiableButton>().Target = task;
+        idButton.Target = task;
     }
 }

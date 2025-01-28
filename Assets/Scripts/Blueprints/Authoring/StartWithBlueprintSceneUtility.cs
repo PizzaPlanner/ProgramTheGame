@@ -45,12 +45,24 @@ public class EditorStartWithBlueprintSceneUtility
         {
             var currentValue = EditorUserSettings.GetConfigValue("startupBlueprint");
             var menu = new GenericMenu();
+            if (!Application.isPlaying)
+            {
+                menu.AddItem(new GUIContent("Start in Main menu"), currentValue == null, () =>
+                {
+                    EditorUserSettings.SetConfigValue("startupBlueprint", "");
+                    SetName();
+                });
+                menu.AddSeparator("");
+            }
             foreach (var id in Tag.AllIdsForTag(Identifiable.FromName("TagBlueprint")))
             {
-                menu.AddItem(new GUIContent(id.DefaultName.Value), currentValue == id.DefaultName.Value,
+                menu.AddItem(new GUIContent(id.DefaultName.Value), !Application.isPlaying && currentValue == id.DefaultName.Value,
                     () =>
                     {
-                        EditorUserSettings.SetConfigValue("startupBlueprint", id.DefaultName.Value);
+                        if(Application.isPlaying)
+                            Blueprint.SpawnAsNewGrid(World.DefaultGameObjectInjectionWorld, id, out _);
+                        else
+                            EditorUserSettings.SetConfigValue("startupBlueprint", id.DefaultName.Value);
                         SetName();
                     });
             }
@@ -60,12 +72,7 @@ public class EditorStartWithBlueprintSceneUtility
             name = "Blueprint Selector",
             tooltip = "Select the Blueprint on going Ingame",
         };
-        EditorApplication.playModeStateChanged += change =>
-        {
-            var enteredPlaymode = change == PlayModeStateChange.EnteredPlayMode;
-            Selector.style.display = enteredPlaymode ? DisplayStyle.None : DisplayStyle.Flex;
-        };
-        Selector.style.display = Application.isPlaying ? DisplayStyle.None : DisplayStyle.Flex;
+        EditorApplication.playModeStateChanged += _ => SetName();
         SetName();
         parent.Add(Selector);
         toolbarZone.Add(parent);
@@ -73,6 +80,12 @@ public class EditorStartWithBlueprintSceneUtility
 
     static void SetName()
     {
-        Selector.text = $"Play on: {EditorUserSettings.GetConfigValue("startupBlueprint") ?? "<None>"}";  
+        if(Application.isPlaying)
+            Selector.text = $"Spawn a map";
+        else
+        {
+            var startup = EditorUserSettings.GetConfigValue("startupBlueprint");
+            Selector.text = string.IsNullOrEmpty(startup) ? $"Start in main menu" : $"Start on {startup}";
+        }
     }
 }

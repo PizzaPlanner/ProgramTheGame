@@ -1,20 +1,11 @@
-using Identifiables;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
-using Unity.Mathematics;
 using Unity.Transforms;
 using Navigation;
-using Unity.Collections.LowLevel.Unsafe;
 
 partial struct BuildSystem : ISystem
 {
-    public void OnDestroy(ref SystemState state)
-    {
-        foreach (var model in SystemAPI.Query<RoomModel>())
-            model.Dispose();
-    }
-
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
@@ -24,21 +15,6 @@ partial struct BuildSystem : ISystem
         var ecbNow = new EntityCommandBuffer(Allocator.Temp);
         
         state.EntityManager.RemoveComponent<BuildingsChangedEvent>(SystemAPI.QueryBuilder().WithAll<BuildingsChangedEvent>().Build());
-        
-        // Remove dangling rooms
-        foreach (var (model, e) in SystemAPI.Query<RoomModel>().WithNone<LocalToWorld>().WithEntityAccess())
-        {
-            model.Dispose();
-            ecbNow.RemoveComponent<RoomModel>(e);
-        }
-
-        // Initialize new rooms
-        foreach (var (_, e) in SystemAPI.Query<GridStructure>().WithNone<RoomModel>().WithEntityAccess())
-        {
-            var roomModel = new RoomModel();
-            roomModel.Initialize();
-            ecbNow.AddComponent(e, roomModel);
-        }
 
         // Fix links to deferred entities
         foreach (var (toBake, e) in SystemAPI.Query<ToBeBakedIntoRoomMap>().WithNone<BakedIntoRoomMap>()

@@ -8,7 +8,8 @@
         "Unity.Collections",
         "Unity.Transforms",
         "Unity.Addressables",
-        "Unity.ResourceManager"
+        "Unity.ResourceManager",
+        "Unity.Scenes"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
