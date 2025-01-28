@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 3724361011114579357}
   - component: {fileID: -5380242976130347905}
   - component: {fileID: 5923588122422854532}
+  - component: {fileID: 3753828856131580559}
   m_Layer: 0
   m_Name: DispenseUnitTask
   m_TagString: Untagged
@@ -58,9 +59,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: be730704e1014775828e35942fc30043, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  RequiredSkill: {fileID: 0}
-  MinSkillLevel: 0
+  RequiredSkill: {fileID: 11400000, guid: 98d16eda77cf6154abcae3f9201593e6, type: 2}
+  MinSkillLevel: 2
   UniquenessGroupIdentifier: {fileID: 5923588122422854532}
+--- !u!114 &3753828856131580559
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3605263813790912188}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bf3ef13651694e0f94f5b9d995441222, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  RequiredTicks: 25
 --- !u!114 &5657100428946741286
 MonoBehaviour:
   m_ObjectHideFlags: 0

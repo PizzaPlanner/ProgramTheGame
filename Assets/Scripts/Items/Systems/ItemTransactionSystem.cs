@@ -142,7 +142,6 @@ internal partial struct PrepareTransactionsJob : IJob
     {
         if (header.Cancelled)
         {
-            Debug.Log($"Transaction {id} cancelled");
             header.Confirmed = false;
             store.Remove(id, reservationLookup);
             return;    

@@ -1,6 +1,10 @@
 # Blueprint Version 4
 Tags: []
 Spawns:
+  DOGGO:
+  - At: [17, 4]
+  MOLE:
+  - At: [15, 9]
   AsteroidDirt:
   - At: [13, 18]
   - At: [18, 17]

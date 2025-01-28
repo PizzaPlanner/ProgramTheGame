@@ -13,6 +13,7 @@ namespace Tasks.UI
         SkillButton _reqBtn; 
         public CreateTaskButton(Identifiable task, EntityManager em)
         {
+            name = task.DefaultName.Value;
             var btn = new Button(() => OnClick()) { text = task.DefaultName.Value };
             Add(btn);
             btn.Add(new IdentifiableButton(){Target = task});

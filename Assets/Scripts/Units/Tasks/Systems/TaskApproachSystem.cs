@@ -1,13 +1,17 @@
-﻿using Core.Status;
+﻿using Core;
+using Core.Status;
 using Navigation;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEngine;
 using static GridStructure;
+using Random = UnityEngine.Random;
 
 namespace Units
 {
+    [UpdateInGroup(typeof(TickBasedSystemGroup))]
     public partial class TaskApproachSystem : SystemBase
     {
         bool CalculatePath(DynamicBuffer<UnitPathing> pathfinding, int2 toCell, int2 currentCell, bool isTargetPathable, NavTree navigation)
@@ -32,11 +36,10 @@ namespace Units
 
         protected override void OnUpdate()
         {
-            var deltaTime = SystemAPI.Time.DeltaTime;
-            
             var taskLookup = SystemAPI.GetComponentLookup<Task>(true);
             var depenencyLookup = SystemAPI.GetBufferLookup<TaskProvider>(true);
             var transformLookup = SystemAPI.GetComponentLookup<LocalTransform>(true); 
+            CompleteDependency();
             foreach (var (todos, transform, movable, onGrid, pathing, e) in 
                      SystemAPI.Query<DynamicBuffer<ToDos>, RefRW<LocalTransform>, Movable, OnGrid, DynamicBuffer<UnitPathing>>()
                               .WithNone<Dead>().WithEntityAccess())
@@ -68,18 +71,19 @@ namespace Units
                     continue;
                 }
                 
-                var isTargetCellPathable = !navLayers.IsOccupied(targetCell, BuildingLayer.Wall);
+                var isTargetCellPathable = !navLayers.IsOccupied(targetCell, BuildingLayer.Wall) && navLayers.IsOccupied(targetCell, BuildingLayer.FloorLevel);
                 var isInTaskRange = math.csum(math.abs(myCell - targetCell)) <= (isTargetCellPathable ? 0 : 1);
                 if (!isInTaskRange)
                 {
                     if (!CalculatePath(pathing, targetCell, myCell, isTargetCellPathable, navTree))
                     {
+                        Debug.Log($"Pathing faield");
                         td.Status = ToDoStatus.Unreachable;
                         continue;
                     }
                     var direction = math.normalize(CellCenterToLocal(pathing[0].Cell) - transform.ValueRO.Position);
                     transform.ValueRW.Rotation = quaternion.LookRotationSafe(direction, math.up());
-                    transform.ValueRW.Position += direction * deltaTime * movable.MovementSpeed;
+                    transform.ValueRW.Position += direction * movable.MovementSpeed;
                 }
                 
                 td.Status = isInTaskRange ? ToDoStatus.Working : ToDoStatus.Approaching;
@@ -109,7 +113,7 @@ namespace Units
             }
                 
             var td = todos[0];
-            return td.Status is ToDoStatus.Approaching or ToDoStatus.Working && providerLookup[todos[0].Task].Length == 0;
+            return td.Status is ToDoStatus.Approaching or ToDoStatus.Working && providerLookup[todos[0].Task].Length == 0 && task.Target != default;
         }
     }
 }

@@ -10,12 +10,10 @@ using UnityEngine;
 
 namespace Core.Equipment
 {
-    public struct EatTask : IComponentData
-    {
-        public int SelfTargetSlot;
-    }
+    public struct EatTask : IComponentData { }
     
     [WithOptions(EntityQueryOptions.IgnoreComponentEnabledState)]
+    [WithAll(typeof(EatTask))]
     partial struct FindFoodTargetJob : IJobEntity
     {
         static readonly Identifiable OrderTaskPrefab = Identifiable.FromName("ItemOrderTask");
@@ -26,7 +24,7 @@ namespace Core.Equipment
         [ReadOnly] public ComponentLookup<LogisticsNetwork> networkLookup;
         [ReadOnly] public BufferLookup<DietSettings> dietLookup;
         [ReadOnly] public BufferLookup<Inventory> inventoryLookup;
-        void Execute(Entity e, ref Task task, ref EatTask eater, ref DynamicBuffer<TaskProvider> dependencies, EnabledRefRW<WorkedOn> workedOn)
+        void Execute(Entity e, ref Task task, ref DynamicBuffer<TaskProvider> dependencies, EnabledRefRW<WorkedOn> workedOn)
         {
             if(!stomachLookup.HasComponent(task.Executor))
                 return;

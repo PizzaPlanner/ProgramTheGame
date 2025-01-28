@@ -5,6 +5,7 @@ using UnityEngine;
 
 public class ItemOrderTaskAuthoring : MonoBehaviour
 {
+    public uint TransferTicks;
     class Baker : Baker<ItemOrderTaskAuthoring>
     {
         public override void Bake(ItemOrderTaskAuthoring authoring)
@@ -13,7 +14,7 @@ public class ItemOrderTaskAuthoring : MonoBehaviour
             AddComponent(e, new ItemOrderTask { }); // To be filled at runtime
             AddComponent(e, new TaskProgress
             {
-                RequiredValue = 1
+                RequiredTicks = authoring.TransferTicks,
             });
         }
     }

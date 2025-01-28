@@ -68,7 +68,7 @@ MonoBehaviour:
   PlacementType: 0
   NotAllowedOnShips: 0
   CanBeRotated: 1
-  Duration: 1
+  Duration: 100
   Size:
     x: 1
     y: 1

@@ -19,6 +19,7 @@ GameObject:
   - component: {fileID: 6380801680489609840}
   - component: {fileID: 5937198235935566398}
   - component: {fileID: -7911197205485802768}
+  - component: {fileID: 5753995910479102398}
   m_Layer: 0
   m_Name: Colonist
   m_TagString: Untagged
@@ -104,8 +105,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 75dab4eed66e4451a479de7bef25ba75, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MovementSpeed: 2.4
-  InteractionRange: 0.1
+  MovementSpeed: 0.3
 --- !u!114 &-5942648328531916514
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -144,10 +144,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Skills:
-  - {fileID: 11400000, guid: 95998217de5b60447bd429bfa0df00c5, type: 2}
-  - {fileID: 11400000, guid: ee1aa82b79177af42a355d0c62c3393b, type: 2}
-  - {fileID: 11400000, guid: e8f376a95809ff8408a58b8dc4e95b5b, type: 2}
-  - {fileID: 0}
+  - Skill: {fileID: 11400000, guid: 95998217de5b60447bd429bfa0df00c5, type: 2}
+    Level: 1
+  - Skill: {fileID: 11400000, guid: ee1aa82b79177af42a355d0c62c3393b, type: 2}
+    Level: 1
+  - Skill: {fileID: 11400000, guid: e8f376a95809ff8408a58b8dc4e95b5b, type: 2}
+    Level: 1
+  - Skill: {fileID: 0}
+    Level: 0
 --- !u!114 &-2951002237845520496
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -208,10 +212,26 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Capacity: 2000
   ConsumptionPerTick: 2
-  LowThreshold: 1900
+  LowThreshold: 1200
   CriticalThreshold: 400
   AllowedFoods:
   - {fileID: 5304243422145376601, guid: 66e65b7ad3e140d47abf75fc790fe525, type: 3}
+--- !u!114 &5753995910479102398
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6595311514760627798}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 058ea8ff933b438ca0bb91ec182cf1ac, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Capacity: 1500
+  LowThreshold: 600
+  CriticalThreshold: 200
+  ConsumptionPerTick: 1
 --- !u!1001 &3072592592385049462
 PrefabInstance:
   m_ObjectHideFlags: 0

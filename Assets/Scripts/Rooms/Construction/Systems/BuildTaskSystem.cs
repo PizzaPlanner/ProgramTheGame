@@ -1,9 +1,11 @@
-﻿using Identifiables;
+﻿using Core;
+using Identifiables;
 using Unity.Entities;
 using Unity.Transforms;
 
 namespace Units
 {
+    [UpdateInGroup(typeof(TickBasedSystemGroup))]
     partial struct BuildTaskSystem : ISystem
     {
         public void OnUpdate(ref SystemState state)
@@ -18,8 +20,8 @@ namespace Units
                     continue;
                 }
                 
-                progress.ValueRW.Value += SystemAPI.Time.DeltaTime;
-                if (progress.ValueRW.Value >= progress.ValueRW.RequiredValue)
+                progress.ValueRW.PartialTicks += 1;
+                if (progress.ValueRW.IsDone)
                 {
                     ecb.DestroyEntity(e);
                     

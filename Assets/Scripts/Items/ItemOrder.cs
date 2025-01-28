@@ -5,7 +5,7 @@ using Unity.Transforms;
 
 public enum OrderState
 {
-    Requested,
+    Requested = 0,
     Unfillable,
     NoTransporter,
     Assigned,

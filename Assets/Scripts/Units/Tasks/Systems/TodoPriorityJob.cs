@@ -4,11 +4,13 @@ using Navigation;
 using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Entities;
+using Unity.Transforms;
 using UnityEngine;
 
 namespace Units
 {
     [WithNone(typeof(Dead))]
+    [WithNone(typeof(Ghost))]
     public partial struct TodoPriorityJob : IJobEntity
     {
         [ReadOnly] public ComponentLookup<Task> taskLookup;
@@ -31,9 +33,8 @@ namespace Units
             for (int i = 0; i < todos.Length; i++)
             {
                 ref var todo = ref todos.ElementAt(i);
-                if(shouldResetUnreachableState && todo.Status == ToDoStatus.Unreachable)
-                    todo.Status = ToDoStatus.Requested;
-                todo.Prioritize(e, taskLookup, requirementLookup, skills);
+                if(CalculatePreconditions(e, ref todo, shouldResetUnreachableState))
+                    todo.Prioritize(e, taskLookup, requirementLookup, skills);
             }
             todos.AsNativeArray().Sort(new PrioritySorter());
             var best = todos[0];
@@ -56,6 +57,15 @@ namespace Units
                     todos[i] = td;
                 }
             }
+        }
+
+        bool CalculatePreconditions(Entity e, ref ToDos todo, bool pathingChanged)
+        {
+            if(!taskLookup.TryGetComponent(todo.Task, out var task))
+                return false;
+            if(pathingChanged && todo.Status == ToDoStatus.Unreachable)
+                todo.Status = ToDoStatus.Requested;
+            return true;
         }
     }
 }

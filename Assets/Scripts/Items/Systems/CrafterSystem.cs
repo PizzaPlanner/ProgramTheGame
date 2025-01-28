@@ -1,8 +1,10 @@
-﻿using Identifiables;
+﻿using Core;
+using Identifiables;
 using Units;
 using Unity.Entities;
 using UnityEngine;
 
+[UpdateInGroup(typeof(TickBasedSystemGroup))]
 partial struct CrafterSystem : ISystem
 {
     public void OnUpdate(ref SystemState state)
@@ -57,8 +59,8 @@ partial struct CrafterSystem : ISystem
                 return;
             }
             
-            progress.ValueRW.Value += SystemAPI.Time.DeltaTime;
-            if (progress.ValueRW.Value < progress.ValueRW.RequiredValue)
+            progress.ValueRW.PartialTicks += 1;
+            if (!progress.ValueRW.IsDone)
                 continue;
             
             var transaction = store.ValueRW.CreateBuilder;
@@ -86,7 +88,7 @@ partial struct CrafterSystem : ISystem
         });
         ecb.SetComponent(craftTask, new TaskProgress
         {
-            RequiredValue = SystemAPI.GetComponent<CraftingRecipe>(recipe.SpawnablePrefab).Duration
+            RequiredTicks = SystemAPI.GetComponent<CraftingRecipe>(recipe.SpawnablePrefab).Duration
         });
         ecb.SetComponent(craftTask, new CraftRecipeTask
         {

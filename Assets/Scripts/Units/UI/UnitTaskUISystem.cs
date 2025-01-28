@@ -176,12 +176,12 @@ namespace Units
         {
             set
             {
-                if(value.Value <= 0)
+                if(value.Progress <= 0)
                     RemoveFromClassList("has-progress");
                 else
                 {
                     AddToClassList("has-progress");
-                    ProgressBar.value = value.Value / value.RequiredValue;
+                    ProgressBar.value = value.Progress;
                 }
             }
         }

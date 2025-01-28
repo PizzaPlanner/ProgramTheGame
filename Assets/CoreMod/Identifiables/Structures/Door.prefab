@@ -160,7 +160,7 @@ MonoBehaviour:
   PlacementType: 0
   NotAllowedOnShips: 0
   CanBeRotated: 1
-  Duration: 3
+  Duration: 30
   Size:
     x: 1
     y: 0

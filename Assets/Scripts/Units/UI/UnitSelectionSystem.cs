@@ -38,7 +38,6 @@ namespace Units
         protected override void OnCreate()
         {
             RequireForUpdate<SelectTool>();
-            RequireForUpdate<LocalPlayer>();
             _hoverQuery = GetEntityQuery(typeof(HoverIndicator));
         }
 

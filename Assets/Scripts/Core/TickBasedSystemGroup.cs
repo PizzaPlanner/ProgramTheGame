@@ -27,7 +27,7 @@ namespace Core
 
         protected override void OnUpdate()
         {
-            if (!RateManager.ShouldGroupUpdate(this))
+            if (!RateManager?.ShouldGroupUpdate(this) ?? false)
             {
                 TickedThisFrame = false;
                 return;

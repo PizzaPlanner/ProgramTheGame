@@ -65,7 +65,8 @@ MonoBehaviour:
   Layer: 2
   PlacementType: 2
   NotAllowedOnShips: 1
-  Duration: 3
+  CanBeRotated: 0
+  Duration: 0
   Size:
     x: 0
     y: 0

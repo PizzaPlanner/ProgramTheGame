@@ -19,7 +19,7 @@ public class BuildingAuthoring : MonoBehaviour
     public PlacementType PlacementType;
     public bool NotAllowedOnShips;
     public bool CanBeRotated;
-    public float Duration;
+    public uint Duration;
     public int2 Size;
     public BuildingVariantAuthoring[] Variants;
     public CraftingRecipeAuthoring.ItemWithAmount[] OtherMaterials;

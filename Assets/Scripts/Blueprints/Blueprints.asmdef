@@ -11,6 +11,7 @@
         "Unity.Mathematics.Extensions",
         "Unity.Addressables",
         "Unity.ResourceManager",
+        "Unity.Scenes",
         "Items",
         "Identifiables",
         "YamlDotNet",

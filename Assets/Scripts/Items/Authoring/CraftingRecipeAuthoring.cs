@@ -13,7 +13,7 @@ public class CraftingRecipeAuthoring : MonoBehaviour
         public ushort Amount;
     }
     
-    public float Duration;
+    public uint Duration;
     public ItemWithAmount[] Input;
     public ItemWithAmount[] Output;
     

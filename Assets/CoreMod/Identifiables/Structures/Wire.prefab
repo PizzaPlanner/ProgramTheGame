@@ -271,7 +271,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Layer: 32
   PlacementType: 1
-  Duration: 1
+  NotAllowedOnShips: 0
+  CanBeRotated: 0
+  Duration: 10
   Size:
     x: 0
     y: 0

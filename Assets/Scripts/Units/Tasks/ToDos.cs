@@ -1,7 +1,10 @@
 ﻿using Identifiables;
+using Navigation;
 using System;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
+using Unity.Transforms;
+using UnityEngine;
 
 namespace Units
 {
@@ -21,22 +24,22 @@ namespace Units
         
         public bool IsIgnored => PerceivedPriority == int.MinValue;
 
-        public ToDos Prioritize(Entity executor, ComponentLookup<Task> rtl, ComponentLookup<TaskRequirement> requirementsLookup, DynamicBuffer<Skills> skills)
+        public ToDos Prioritize(Entity executor, ComponentLookup<Task> taskLookup, ComponentLookup<TaskRequirement> requirementsLookup, in DynamicBuffer<Skills> skills)
         {
             PerceivedPriority = int.MinValue;
             if(Status == ToDoStatus.Unreachable)
                 return this;
-            if (!rtl.TryGetComponent(Task, out var task) || task.Target == Entity.Null)
+            if (!taskLookup.TryGetComponent(Task, out var task) || task.Target == Entity.Null)
             {
                 Status = ToDoStatus.MissingRequirement;
                 return this;
             }
-
             if (task.Executor != executor && task.Executor != Entity.Null)
             {
                 Status = ToDoStatus.DoneBySomeoneElse;
                 return this;
             }
+            
             if(!requirementsLookup.TryGetComponent(Task, out var requirement))
                 PerceivedPriority = 0;
             else

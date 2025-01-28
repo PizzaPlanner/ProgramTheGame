@@ -10,7 +10,8 @@
         "Unity.Collections",
         "Unity.Transforms",
         "Unity.Mathematics",
-        "Core"
+        "Core",
+        "Identifiables"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

@@ -134,7 +134,7 @@ public partial struct BuildJob : IJobEntity
         });
         ecb.SetComponent(constructTask, new TaskProgress
         {
-            RequiredValue = building.Duration
+            RequiredTicks = building.Duration
         });
         ecb.AddComponent(entity, new UnderConstruction { });
         foreach (var requirement in planned.Materials.BuildMaterials)

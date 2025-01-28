@@ -1,7 +1,9 @@
 ﻿using Core.Grid;
+using Navigation;
 using Space;
 using Unity.Collections;
 using Unity.Entities;
+using Unity.Transforms;
 using UnityEngine;
 
 namespace Units
@@ -13,6 +15,7 @@ namespace Units
         public BufferLookup<ToDos> todoLookup;
         public EntityCommandBuffer.ParallelWriter ecb;
         [ReadOnly] public BufferLookup<Crew> crewLookup;
+        
         void Execute(Entity t, [ChunkIndexInQuery] int sortKey, ref Task task, ref DynamicBuffer<TaskProvider> dependencies, ref DynamicBuffer<BroadcastStatus> radio)
         {
             // Remove Tasks of destroyed Origin

@@ -1,6 +1,7 @@
 ﻿using Identifiables;
 using Identifiables.UI;
 using System;
+using Tasks.UI;
 using Unity.Entities;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -32,6 +33,23 @@ namespace Units
             {
                 window = createFunc?.Invoke() ?? new T();
                 Add(tab, window);
+            }
+            return window;
+        }
+
+        public CreateTaskButton GetOrCreateActionButton(Identifiable taskId, EntityManager em)
+        {
+            var actionsTab = this.Q<Foldout>("Actions");
+            if (actionsTab == null)
+            {
+                actionsTab = new Foldout(){name = "Actions", text = "Actions"};
+                Content.Add(actionsTab);
+            }  
+            var window = actionsTab.Q<CreateTaskButton>(taskId.DefaultName.Value);
+            if (window == null)
+            {
+                window = new CreateTaskButton(taskId, em);
+                actionsTab.Add(window);
             }
             return window;
         }

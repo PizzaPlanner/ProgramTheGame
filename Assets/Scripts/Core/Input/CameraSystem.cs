@@ -43,6 +43,8 @@ partial struct CameraSystem : ISystem
         var ship = SystemAPI.GetSingleton<CurrentGrid>().Grid;
         if(!SystemAPI.HasComponent<LocalToWorld>(ship))
             return;
+        if(Camera.main == null)
+            return;
         
         var cam = Camera.main.transform;
         var camAnchor = SystemAPI.GetSingletonRW<CameraAnchor>();

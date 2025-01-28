@@ -25,6 +25,16 @@ public partial class BlueprintMappingSystem : IdentifiableMappingSystem
             var poiStringNoExtension = bpPath[..^BlueprintFileExtension.Length].Replace('\\', '/');
             LoadAsPrefab(content, poiStringNoExtension, SourceType.Local);
         }
+        
+#if UNITY_EDITOR
+        var setting = UnityEditor.EditorUserSettings.GetConfigValue("startupBlueprint");
+        if (setting != null
+            && UnityEngine.SceneManagement.SceneManager.GetSceneByName("Editor").isLoaded
+            && Identifiable.FromName(setting).SpawnablePrefab != default)
+        {
+            Blueprint.SpawnAsNewGrid(World, Identifiable.FromName(setting), out _);
+        }
+#endif
     }
     
     protected override void OnUpdate()

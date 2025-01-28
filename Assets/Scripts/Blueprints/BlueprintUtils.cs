@@ -7,13 +7,40 @@ using System.Linq;
 using System.Reflection;
 using Unity.Collections;
 using Unity.Entities;
+using Unity.Entities.Serialization;
 using Unity.Mathematics;
+using Unity.Scenes;
+using Unity.Transforms;
 using UnityEngine;
+using Hash128 = Unity.Entities.Hash128;
+
 
 public struct Blueprint : IComponentData
 {
     public Entity BuildOn;
     public int2 Offset;
+
+    public static Entity Spawn(EntityCommandBuffer ecb, Identifiable prefab, Entity onGrid, int2 offset = default)
+    {
+        var e = ecb.Instantiate(prefab.SpawnablePrefab);
+        ecb.SetComponent(e, new Blueprint{BuildOn = onGrid, Offset = offset});
+        return e;
+    }
+    
+    const string GRID_SCENE_GUID = "f25060e5fb8fde54fa1447f4efccf7dd";
+    public static void SpawnAsNewGrid(World world, Identifiable prefab, out Entity grid)
+    {
+        // var scene = SceneSystem.LoadSceneAsync(world.Unmanaged, new EntitySceneReference(new Hash128(GRID_SCENE_GUID), 0), new SceneSystem.LoadParameters
+        // {
+        //     AutoLoad = true, 
+        //     Flags = SceneLoadFlags.BlockOnImport | SceneLoadFlags.BlockOnStreamIn | SceneLoadFlags.NewInstance
+        // });
+        grid = world.EntityManager.CreateEntity(typeof(GridStructure), typeof(LocalTransform), typeof(LinkedEntityGroup), typeof(LocalToWorld));
+        world.EntityManager.SetComponentData(grid, LocalTransform.Identity);
+        // world.EntityManager.AddSharedComponent(grid, new SceneTag { SceneEntity = scene });
+        var blueprint = world.EntityManager.Instantiate(prefab.SpawnablePrefab);
+        world.EntityManager.SetComponentData(blueprint, new Blueprint{BuildOn = grid});
+    }
 }
 
 public struct DefaultMatterOverride

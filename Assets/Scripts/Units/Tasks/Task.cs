@@ -1,5 +1,7 @@
 ﻿using Identifiables;
+using System;
 using Unity.Entities;
+using UnityEngine;
 
 namespace Units
 {
@@ -32,8 +34,11 @@ namespace Units
 
     public struct TaskProgress : IComponentData
     {
-        public float Value;
-        public float RequiredValue;
+        public float Progress => PartialTicks / RequiredTicks;
+        public bool IsDone => PartialTicks >= RequiredTicks;
+        
+        public float PartialTicks;
+        public uint RequiredTicks;
     }
 
     public struct TaskRequirement : IComponentData

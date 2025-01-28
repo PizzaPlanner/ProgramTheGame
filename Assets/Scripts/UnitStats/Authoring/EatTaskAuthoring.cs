@@ -10,7 +10,7 @@ public class EatTaskAuthoring : MonoBehaviour
         public override void Bake(EatTaskAuthoring authoring)
         {
             var entity = GetEntity(TransformUsageFlags.None);
-            AddComponent(entity, new EatTask{SelfTargetSlot = -1});
+            AddComponent<EatTask>(entity);
         }
     }
 }

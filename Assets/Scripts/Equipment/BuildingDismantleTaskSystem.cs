@@ -30,11 +30,10 @@ partial struct BuildingDismantleTaskSystem : ISystem
                     if(skill.Task == requirement.Skill)
                         speedMod += skill.Level * 0.2f;
             }
-            progress.ValueRW.Value += Time.DeltaTime * speedMod;
-            if (progress.ValueRW.Value < progress.ValueRW.RequiredValue)
+            progress.ValueRW.PartialTicks += speedMod;
+            if (!progress.ValueRW.IsDone)
                 continue;
             
-            progress.ValueRW.Value -= progress.ValueRW.RequiredValue;
             store.CreateBuilder.AddTo(task.Executor, ItemId.From(mass.ElementType), (uint)(mass.Mass * dism.Yield));
             ecb.DestroyEntity(task.Target);
             ecb.DestroyEntity(e);

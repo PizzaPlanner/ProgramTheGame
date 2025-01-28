@@ -1,4 +1,6 @@
-﻿using Units;
+﻿using Core;
+using Navigation;
+using Units;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -6,24 +8,24 @@ using Unity.Transforms;
 using UnityEngine;
 
 
+[UpdateInGroup(typeof(TickBasedSystemGroup))]
 [UpdateAfter(typeof(TaskApproachSystem))]
 partial struct ItemOrderTaskSystem : ISystem
 {
     public void OnUpdate(ref SystemState state)
     {
         var transactionStore = SystemAPI.GetSingleton<TransactionStore>();
-        var ecb =SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>().CreateCommandBuffer(state.WorldUnmanaged);
-        var inventoryLookup = SystemAPI.GetBufferLookup<Inventory>(true);
-        var ltwLookup = SystemAPI.GetComponentLookup<LocalToWorld>(true);
-        var networkLookup = SystemAPI.GetComponentLookup<LogisticsNetwork>(true);
+        var ecb = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>().CreateCommandBuffer(state.WorldUnmanaged);
+        
         state.Dependency = new ItemOrderTaskJob
         {
-            deltaTime = SystemAPI.Time.DeltaTime,
             ecb = ecb,
             transactionStore = transactionStore,
-            inventoryLookup = inventoryLookup,
-            ltwLookup = ltwLookup,
-            networkLookup = networkLookup,
+            inventoryLookup = SystemAPI.GetBufferLookup<Inventory>(true),
+            ltwLookup = SystemAPI.GetComponentLookup<LocalToWorld>(true),
+            networkLookup = SystemAPI.GetComponentLookup<LogisticsNetwork>(true),
+            navTreeLookup = SystemAPI.GetComponentLookup<NavTree>(true),
+            
         }.Schedule(state.Dependency);
     }
 }
@@ -34,11 +36,11 @@ partial struct ItemOrderTaskJob : IJobEntity
     [ReadOnly] public BufferLookup<Inventory> inventoryLookup;
     [ReadOnly] public ComponentLookup<LocalToWorld> ltwLookup;
     [ReadOnly] public ComponentLookup<LogisticsNetwork> networkLookup;
-    public float deltaTime;
+    [ReadOnly] public ComponentLookup<NavTree> navTreeLookup;
     public EntityCommandBuffer ecb;
     public TransactionStore transactionStore;
     
-    void Execute(Entity e, ref Task task, ref ItemOrderTask order, ref TaskProgress progress, EnabledRefRW<WorkedOn> workedOn)
+    void Execute(Entity e, ref Task task, ref ItemOrderTask order, ref TaskProgress progress, EnabledRefRO<WorkedOn> workedOn)
     {
         // Find best target
         if (task.Target == Entity.Null)
@@ -48,22 +50,16 @@ partial struct ItemOrderTaskJob : IJobEntity
                 Debug.LogError("Logistics member must have Grid!");
                 return;
             }
-            AssignTarget(ref task, order.Requester, ltwLookup, network, order.Item, order.Amount);
+            AssignTarget(ref task, order.Requester, ltwLookup, navTreeLookup, network, order.Item, order.Amount);
             if (task.Target != Entity.Null)
-                order.State = OrderState.Assigned;
-            else
-                return;
+                order.State = OrderState.NoTransporter;
+            return;
         }
 
         if (task.Executor == Entity.Null)
         {
             // Lost executor, cancel transaction
-            if (order.TransactionId != 0)
-            {
-                transactionStore.Review(order.TransactionId, false);
-                order.TransactionId = 0;
-            }
-            order.State = OrderState.Assigned;
+            ResetOrder(ref task, ref order, ref progress);
             return;
         }
 
@@ -76,11 +72,9 @@ partial struct ItemOrderTaskJob : IJobEntity
         if (!transactionStore.Has(order.TransactionId))
         {
             // Order can no longer be filled, re-evaluate
-            if (order.TransactionId != 0 && order.State == OrderState.Assigned)
+            if (order is { TransactionId: > 0, State: OrderState.Assigned })
             {
-                task.Target = Entity.Null;
-                task.Executor = Entity.Null;
-                order.TransactionId = 0;
+                ResetOrder(ref task, ref order, ref progress);
                 return;
             }
             
@@ -91,6 +85,7 @@ partial struct ItemOrderTaskJob : IJobEntity
                 {
                     order.TransactionId = transactionStore.CreateBuilder.Transfer(task.Executor, order.Requester, order.Item, order.Amount).WithManualReview();
                     order.State = OrderState.Transporting;
+                    task.Target = order.Requester;
                 }
                 else
                 {
@@ -110,27 +105,39 @@ partial struct ItemOrderTaskJob : IJobEntity
         if (!workedOn.ValueRO)
             return;
         
-        progress.Value += deltaTime;
-        if (progress.Value < progress.RequiredValue)
+        progress.PartialTicks += 1;
+        if (!progress.IsDone)
             return;
         
         transactionStore.Review(order.TransactionId, true);
-        if (order.State == OrderState.Assigned && task.Executor != order.Requester)
+        if (order.State == OrderState.Assigned)
         {
             order.State = OrderState.Transporting;
             task.Target = order.Requester;
         }
-        else
+        else if(order.State == OrderState.Transporting)
         {
             order.State = OrderState.Finished;
             ecb.DestroyEntity(e);
         }
         order.TransactionId = 0;
-        workedOn.ValueRW = false;
-        progress.Value = 0;
+        progress.PartialTicks = 0;
+    }
+
+    void ResetOrder(ref Task task, ref ItemOrderTask order, ref TaskProgress progress)
+    {
+        transactionStore.Review(order.TransactionId, false);
+        order.TransactionId = 0;
+        if (order.State != OrderState.NoTransporter)
+        {
+            task.Target = Entity.Null;
+            order.State = OrderState.Requested;
+        }
+        task.Executor = Entity.Null;
+        progress.PartialTicks = 0;
     }
     
-    public static void AssignTarget(ref Task task, Entity requester, ComponentLookup<LocalToWorld> ltwLookup, LogisticsNetwork network, ItemId item, ushort amount)
+    static void AssignTarget(ref Task task, Entity requester, ComponentLookup<LocalToWorld> ltwLookup, ComponentLookup<NavTree> navTreeLookup, LogisticsNetwork network, ItemId item, ushort amount)
     {
         if (!ltwLookup.TryGetComponent(requester, out var selfLtw))
         {
@@ -147,6 +154,9 @@ partial struct ItemOrderTaskJob : IJobEntity
                 continue;
             var distSq = math.distancesq(ltw.Position, selfLtw.Position);
             if (distSq > bestDistanceSq)
+                continue;
+            if (!navTreeLookup.TryGetComponent(task.CrewProvider, out var navTree) 
+                || !navTree.IsReachable(GridStructure.LocalToCell(ltw.Position), GridStructure.LocalToCell(selfLtw.Position), true, out _))
                 continue;
             bestDistanceSq = distSq;
             bestEntity = entry.Item1;

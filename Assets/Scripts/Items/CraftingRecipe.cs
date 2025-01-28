@@ -2,7 +2,7 @@ using Unity.Entities;
 
 public struct CraftingRecipe : IComponentData
 {
-    public float Duration;
+    public uint Duration;
 }
 
 public struct CraftingInput : IBufferElementData

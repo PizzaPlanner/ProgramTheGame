@@ -5,7 +5,7 @@ using UnityEngine;
 [RequireComponent(typeof(TaskAuthoring))]
 public class DismantleTaskAuthoring : MonoBehaviour
 {
-    public float BaseDuration;
+    public uint BaseDuration;
     public float PercentYield;
     public class MinerBaker : Baker<DismantleTaskAuthoring>
     {
@@ -18,7 +18,7 @@ public class DismantleTaskAuthoring : MonoBehaviour
             });
             AddComponent(entity, new TaskProgress
             {
-                RequiredValue = authoring.BaseDuration
+                RequiredTicks = authoring.BaseDuration
             });
         }
     }

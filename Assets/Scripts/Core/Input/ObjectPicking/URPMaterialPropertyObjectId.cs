@@ -1,4 +1,5 @@
-﻿using Unity.Collections;
+﻿using Identifiables;
+using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using Unity.Entities.Graphics;
@@ -23,6 +24,7 @@ partial struct ObjectPickingEntityAssignmentSystem : ISystem
         var ecb = new EntityCommandBuffer(Allocator.Temp);
         foreach(var (linkedEntities, parent) in SystemAPI.Query<DynamicBuffer<LinkedEntityGroup>>()
                                            .WithNone<IndexedForObjectPicking>()
+                                           .WithAll<Identifiable>()
                                            .WithEntityAccess())
         {
             foreach (var link in linkedEntities)
@@ -31,9 +33,9 @@ partial struct ObjectPickingEntityAssignmentSystem : ISystem
                 if (SystemAPI.HasComponent<MaterialMeshInfo>(e))
                 {
                     ecb.AddComponent(e, new URPMaterialPropertyObjectId { Value = new int2(parent.Index, parent.Version) });
-                    var settings = state.EntityManager.GetSharedComponent<RenderFilterSettings>(e);
-                    settings.Layer = 1;
-                    ecb.SetSharedComponent(e, settings);
+                    // var settings = state.EntityManager.GetSharedComponent<RenderFilterSettings>(e);
+                    // settings.Layer = 1;
+                    // ecb.SetSharedComponent(e, settings);
                 }
             }
             ecb.AddComponent<IndexedForObjectPicking>(parent);

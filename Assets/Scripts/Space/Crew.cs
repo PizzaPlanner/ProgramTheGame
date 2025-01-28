@@ -18,6 +18,10 @@ namespace Space
         public void OnUpdate(ref SystemState state)
         {
             var ecb = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>().CreateCommandBuffer(state.WorldUnmanaged);
+            
+            foreach(var (_, e) in SystemAPI.Query<GridStructure>().WithNone<Crew>().WithEntityAccess())
+                ecb.AddBuffer<Crew>(e);
+            
             var allCrews = SystemAPI.QueryBuilder().WithAll<Crew>().Build().ToEntityArray(Allocator.Temp);
             foreach (var (gridMember, ltw, e) in SystemAPI.Query<OnGrid, LocalToWorld>()
                                                              .WithChangeFilter<OnGrid>().WithAll<CrewMember>().WithEntityAccess())

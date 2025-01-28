@@ -88,7 +88,7 @@ namespace Core.Equipment
                 if(food.Nutrition <= 0)
                     ecb.DestroyEntity(e);
             
-            new FindFoodTargetJob()
+            state.Dependency = new FindFoodTargetJob()
             {
                 ecb = ecb,
                 stomachLookup = SystemAPI.GetComponentLookup<Stomach>(false),
@@ -96,7 +96,7 @@ namespace Core.Equipment
                 inventoryLookup = SystemAPI.GetBufferLookup<Inventory>(true),
                 networkLookup = SystemAPI.GetComponentLookup<LogisticsNetwork>(true),
                 dietLookup = SystemAPI.GetBufferLookup<DietSettings>(true)
-            }.Schedule();
+            }.Schedule(state.Dependency);
         }
     }
 }

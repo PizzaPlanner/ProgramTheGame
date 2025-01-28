@@ -75,27 +75,39 @@ namespace Navigation
         {
             ChangeAreas.Add(bounds);
         }
-        
-        public bool Navigate(int2 start, int2 end, ref NativeList<int2> path)
+
+        public bool IsReachable(int2 start, int2 end, bool allowAdjacent, out int level)
         {
+            if (allowAdjacent)
+            {
+                foreach(var nb in stackalloc int2[] { new int2(1, 0), new int2(-1, 0), new int2(0, 1), new int2(0, -1)})
+                    if(IsReachable(start, end + nb, false, out level))
+                        return true;
+            }
+            level = 0;
             if(!Cells.TryGetValue(end, out var toCell))
                 return false;
             if(!Cells.TryGetValue(start, out var fromCell))
                 return false;
-            var level = 0;
             for (; level < MaxLevel; level++)
             {
                 if(toCell.Areas[level] == fromCell.Areas[level])
-                    break;
+                    return true;
             }
-            if(level == MaxLevel)
+            return false;
+        }
+        
+        public bool Navigate(int2 start, int2 end, ref NativeList<int2> path)
+        {
+            if(!IsReachable(start, end, false, out var level))
                 return false;
             if (level < 2)
             {
                 AStarDirect(start, end, ref path);
                 return true;
             }
-            // AStarToArea(start, end, level);
+            var fromCell = Cells[start];
+            var toCell = Cells[end];
             var topLevel = AStar(fromCell, toCell, level - 1);
             var nextArea = topLevel[0];
             AStarToArea(start, nextArea, ref path);

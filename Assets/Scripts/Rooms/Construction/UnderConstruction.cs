@@ -19,7 +19,7 @@ public struct Building : IComponentData
     public Identifiable DismantleTaskPrefab;
     public BuildingLayer Layer;
     public PlacementType DraggableDimension;
-    public float Duration;
+    public uint Duration;
     public bool IsAllowedOnShips;
     public bool IsRotatable;
 }

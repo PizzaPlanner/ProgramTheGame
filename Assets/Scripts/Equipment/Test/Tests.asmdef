@@ -1,0 +1,26 @@
+{
+    "name": "Equipment.Tests",
+    "references": [
+        "Unity.Entities",
+        "Unity.Mathematics",
+        "Unity.Transforms",
+        "Unity.Burst",
+        "Unity.Collections",
+        "Unity.Scenes",
+        "Items",
+        "Identifiables",
+        "Bootstrap",
+        "Modding.API",
+        "Blueprints",
+        "Core",
+        "Tasks",
+        "Equipment",
+        "Units",
+        "Units.UI",
+        "Core.UI",
+        "UnitStats.Systems"
+    ],
+    "optionalUnityReferences": [
+        "TestAssemblies"
+    ]
+}

@@ -13,7 +13,7 @@ public class StatusAuthoring : MonoBehaviour
         {
             var entity = GetEntity(TransformUsageFlags.None);
             AddComponent<Status>(entity);
-            AddComponent(entity, TypeManager.GetType(authoring.StatusType));
+            // AddComponent(entity, TypeManager.GetType(authoring.StatusType));
         }
     }
 
