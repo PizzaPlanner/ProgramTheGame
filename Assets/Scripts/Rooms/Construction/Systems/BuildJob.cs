@@ -14,12 +14,10 @@ public partial struct BuildJob : IJobEntity
     static readonly Identifiable OrderTaskPrefab = Identifiable.FromName("ItemOrderTask");
     
     public EntityCommandBuffer ecb;
-    [NativeDisableContainerSafetyRestriction] public ComponentLookup<MassModel> massLookup;
     [NativeDisableContainerSafetyRestriction] public ComponentLookup<NavLayers> navLayerLookup;
     [ReadOnly] public ComponentLookup<GridBounds> boundsLookup;
     [ReadOnly] public ComponentLookup<Building> buildingLookup;
     [ReadOnly] public ComponentLookup<Ghost> ghostLookup;
-    public ComponentLookup<GridStructure> structureLookup;
     
     void Execute(Entity e, in PlannedConstruction planned)
     {
@@ -54,17 +52,8 @@ public partial struct BuildJob : IJobEntity
         
         var isPlacing = planned.Mode == ConstructionMode.PlacementPreview || ghostLookup.HasComponent(planned.Parent);
         var isUnderConstruction = planned.Mode == ConstructionMode.UnderConstruction;
-        var offset = planned.Rotation switch
-        {
-            1 => new int2(area.Min.x, area.Max.y + 1),
-            2 => area.Max + 1,
-            3 => new int2(area.Max.x + 1, area.Min.y),
-            _ => area.Min,
-        };
-        var transform = !building.IsRotatable 
-            ? LocalTransform.FromPosition(GridStructure.CellToLocal(area.Min))
-            : LocalTransform.FromPositionRotation(GridStructure.CellToLocal(offset), 
-                quaternion.RotateY(planned.Rotation * 90 * math.TORADIANS));
+        var rotation = building.IsRotatable ? planned.Rotation : (byte)0;
+        var transform = BuildUtils.ToTransform(rotation, area);
 
         // Create Part
         var entity = ecb.Instantiate(prefab);
@@ -86,7 +75,7 @@ public partial struct BuildJob : IJobEntity
             ecb.SetComponent(entity, new OnGrid { Grid = planned.Parent });
             ecb.SetComponent(entity, planned.Materials);
             ecb.AddBuffer<Inventory>(entity);
-            ecb.AddComponent(entity,  new ToBeBakedIntoRoomMap { Grid = planned.Parent, Area = area, Layer = building.Layer.AsGhostLayer() });
+            ecb.AddComponent(entity,  new ToBeBakedIntoRoomMap { Grid = planned.Parent, Area = area, Layer = building.Layer.AsGhostLayer(), Rotation = rotation });
             for (var i = 0; i < planned.Materials.BuildMaterials.Length; i++)
             {
                 var mat = planned.Materials.BuildMaterials[i];
@@ -105,14 +94,7 @@ public partial struct BuildJob : IJobEntity
             if(planned.Materials.PrimaryMass.ElementType != default)
                 ecb.SetComponent(entity, planned.Materials.PrimaryMass);
             ecb.SetComponent(entity, new OnGrid { Grid = planned.Parent });
-            
-            ref var gridBbox = ref structureLookup.GetRefRW(planned.Parent).ValueRW;
-            gridBbox.BoundsMin = math.min(gridBbox.BoundsMin, area.Min - 4);
-            gridBbox.BoundsMax = math.max(gridBbox.BoundsMax, area.Max + 4);
-            ref var massModel = ref massLookup.GetRefRW(planned.Parent).ValueRW;
-            massModel.Resize(gridBbox.BoundsMin, gridBbox.BoundsMax);
-            
-            ecb.AddComponent(entity, new ToBeBakedIntoRoomMap { Grid = planned.Parent, Area = area, Layer = building.Layer });
+            ecb.AddComponent(entity, new ToBeBakedIntoRoomMap { Grid = planned.Parent, Area = area, Layer = building.Layer, Rotation = rotation  });
         }
     }
 

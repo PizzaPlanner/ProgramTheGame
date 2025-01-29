@@ -26,15 +26,6 @@ public struct Blueprint : IComponentData
         ecb.SetComponent(e, new Blueprint{BuildOn = onGrid, Offset = offset});
         return e;
     }
-    
-    public static void SpawnAsNewGrid(World world, Identifiable prefab, out Entity grid)
-    {
-        grid = world.EntityManager.CreateEntity(typeof(GridStructure), typeof(LocalTransform), typeof(LinkedEntityGroup), typeof(LocalToWorld));
-        world.EntityManager.SetComponentData(grid, LocalTransform.Identity);
-        // world.EntityManager.AddSharedComponent(grid, new SceneTag { SceneEntity = scene });
-        var blueprint = world.EntityManager.Instantiate(prefab.SpawnablePrefab);
-        world.EntityManager.SetComponentData(blueprint, new Blueprint{BuildOn = grid});
-    }
 }
 
 public struct DefaultMatterOverride

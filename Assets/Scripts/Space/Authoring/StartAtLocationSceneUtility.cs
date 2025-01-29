@@ -1,30 +1,29 @@
 ﻿using Identifiables;
 using System.Reflection;
-using Unity.Collections;
 using Unity.Entities;
 using UnityEditor;
+using UnityEditor.SceneManagement;
 using UnityEditor.Toolbars;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
 
-public class EditorStartWithBlueprintSceneUtility
+// See https://qiita.com/iixd_pog/items/ae7220bfeae49750f354
+[WorldSystemFilter(WorldSystemFilterFlags.Editor | WorldSystemFilterFlags.Default)]
+partial class EditorStartAtLocationSceneUtility : SystemBase
 {
-
-    [InitializeOnLoadMethod]
-    static void InitializeOnLoad()
-    {
-        EditorApplication.update -= OnUpdate;
-        EditorApplication.update += OnUpdate;
-    }
 
     static ScriptableObject currentToolbar = null;
     static readonly System.Type ToolbarType = typeof(UnityEditor.Editor).Assembly.GetType("UnityEditor.Toolbar");
 
     static EditorToolbarDropdown Selector;
-    
-    // See https://qiita.com/iixd_pog/items/ae7220bfeae49750f354
-    static void OnUpdate()
+    Identifiable shouldSpawn;
+
+    protected override void OnCreate()
     {
+        var startup = EditorUserSettings.GetConfigValue("startupBlueprint");
+        shouldSpawn = Identifiable.FromName(startup ?? "");
+        
         if (Selector != null)
             return;
         var toolbars = Resources.FindObjectsOfTypeAll(ToolbarType);
@@ -33,10 +32,22 @@ public class EditorStartWithBlueprintSceneUtility
             AddHandler(currentToolbar);
     }
 
+    protected override void OnUpdate()
+    {
+        if (shouldSpawn == default)
+            Enabled = false;
+        if(!Identifiable.Exists(shouldSpawn.DefaultName) || !SceneManager.GetSceneByName("Editor").isLoaded)
+            return;
+        EntityManager.Instantiate(shouldSpawn.SpawnablePrefab);
+        shouldSpawn = default;
+    }
+
     static void AddHandler(object toolbar)
     {
         var root = toolbar.GetType().GetField("m_Root", BindingFlags.NonPublic | BindingFlags.Instance);
         var concreteRoot = root.GetValue(toolbar) as VisualElement;
+        if(concreteRoot == null)
+            return;
         var toolbarZone = concreteRoot.Q("ToolbarZoneRightAlign");
         var parent = new VisualElement();
         parent.style.flexGrow = 1;
@@ -54,13 +65,13 @@ public class EditorStartWithBlueprintSceneUtility
                 });
                 menu.AddSeparator("");
             }
-            foreach (var id in Tag.AllIdsForTag(Identifiable.FromName("TagBlueprint")))
+            foreach (var id in Tag.AllIdsForTag(Identifiable.FromName("TagLocation")))
             {
                 menu.AddItem(new GUIContent(id.DefaultName.Value), !Application.isPlaying && currentValue == id.DefaultName.Value,
                     () =>
                     {
                         if(Application.isPlaying)
-                            Blueprint.SpawnAsNewGrid(World.DefaultGameObjectInjectionWorld, id, out _);
+                            World.DefaultGameObjectInjectionWorld.EntityManager.Instantiate(id.SpawnablePrefab);
                         else
                             EditorUserSettings.SetConfigValue("startupBlueprint", id.DefaultName.Value);
                         SetName();

@@ -176,7 +176,7 @@ namespace Units
         {
             set
             {
-                if(value.Progress <= 0)
+                if(value.PartialTicks <= 0)
                     RemoveFromClassList("has-progress");
                 else
                 {

@@ -21,9 +21,9 @@ public partial class BlueprintMappingSystem : IdentifiableMappingSystem
 
     IEnumerable<DynamicIdentifiableDefinition> LoadBlueprints()
     {
-// #if UNITY_EDITOR
-//         if(!Application.isPlaying) yield break;
-// #endif
+#if UNITY_EDITOR
+        if(!Application.isPlaying) yield break;
+#endif  
         if (!Directory.Exists(BaseFolder))
             Directory.CreateDirectory(BaseFolder);
         
@@ -37,22 +37,7 @@ public partial class BlueprintMappingSystem : IdentifiableMappingSystem
         }
     }
     
-    protected override void OnUpdate()
-    {
-#if UNITY_EDITOR
-        if(!Application.isPlaying)
-            return;
-        
-        var setting = UnityEditor.EditorUserSettings.GetConfigValue("startupBlueprint");
-        if (setting != null
-            && UnityEngine.SceneManagement.SceneManager.GetSceneByName("Editor").isLoaded
-            && Identifiable.FromName(setting).SpawnablePrefab != default
-            && SystemAPI.QueryBuilder().WithAll<GridStructure>().Build().IsEmpty)
-        {
-            Blueprint.SpawnAsNewGrid(World, Identifiable.FromName(setting), out _);
-        }
-#endif
-    }
+    protected override void OnUpdate() { }
 
     public DynamicIdentifiableDefinition LoadAsPrefab(string text, string key, SourceType type)
     {

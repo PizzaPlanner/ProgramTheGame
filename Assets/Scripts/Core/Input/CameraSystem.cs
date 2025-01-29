@@ -22,13 +22,20 @@ partial struct CameraSystem : ISystem
 {
     public struct CameraAnchor : IComponentData
     {
-        public float3 Position;
-        public float CameraDistance;
+        public float3 Offset;
+        public float CameraDistance { 
+            get => _distance; 
+            set => _distance = math.clamp(value, MinDistance, MaxDistance); 
+        }
+        float _distance;
+        
+        public float ZoomFactor => 2f * CameraDistance;
+        public float MoveFactor => 0.5f * CameraDistance + 5;
+        public float MinDistance => 5f;
+        public float MaxDistance => 500f;
+        public float RotationFactor => 22f;
     }
     
-    const float ZOOM_FACTOR = 45f;
-    const float ROTATION_FACTOR = 22f;
-    const float MOVE_FACTOR = 8f;
     public void OnCreate(ref SystemState state)
     {
         state.RequireForUpdate<CurrentGrid>();
@@ -56,10 +63,10 @@ partial struct CameraSystem : ISystem
         var zoom = Navigation.Zoom.ReadValue<float>();
         
         if(zoom != 0)
-            camAnchor.ValueRW.CameraDistance -= zoom * SystemAPI.Time.DeltaTime * ZOOM_FACTOR;
+            camAnchor.ValueRW.CameraDistance -= zoom * SystemAPI.Time.DeltaTime * camAnchor.ValueRW.ZoomFactor;
         
-        cam.RotateAround(camAnchor.ValueRW.Position, shipLtw.Up, rotate * SystemAPI.Time.DeltaTime * ROTATION_FACTOR);
-        cam.position = camAnchor.ValueRW.Position - (float3)cam.forward * camAnchor.ValueRW.CameraDistance;
+        cam.RotateAround(camAnchor.ValueRW.Offset, shipLtw.Up, rotate * SystemAPI.Time.DeltaTime * camAnchor.ValueRW.RotationFactor);
+        cam.position = shipLtw.Position + camAnchor.ValueRW.Offset - (float3)cam.forward * camAnchor.ValueRW.CameraDistance;
         new FaceCameraJob
         {
             camForward = cam.forward,
@@ -74,6 +81,6 @@ partial struct CameraSystem : ISystem
         var camYaw = quaternion.Euler(0, euler.y, 0); // Camera rotation with only yaw
         
         direction = math.mul(camYaw, direction);
-        camAnchor.ValueRW.Position += (direction * SystemAPI.Time.DeltaTime * MOVE_FACTOR);
+        camAnchor.ValueRW.Offset += (direction * SystemAPI.Time.DeltaTime * camAnchor.ValueRW.MoveFactor);
     }
 }

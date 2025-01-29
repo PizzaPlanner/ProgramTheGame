@@ -12,6 +12,7 @@
         "Unity.Addressables",
         "Unity.ResourceManager",
         "Core",
+        "Mod.Core",
         "Identifiables",
         "Space",
         "UnitStats.Systems",
@@ -19,7 +20,11 @@
         "Core.UI",
         "Units.UI",
         "Construction",
-        "Navigation"
+        "Navigation",
+        "Blueprints",
+        "Elements",
+        "Tasks",
+        "Construction.Systems"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

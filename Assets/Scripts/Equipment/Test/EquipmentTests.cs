@@ -12,21 +12,11 @@ using Unity.Entities;
 using Unity.Entities.Serialization;
 using Unity.Mathematics;
 using Unity.Scenes;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.TestTools;
 using UnityEngine.UIElements;
 using Hash128 = Unity.Entities.Hash128;
-
-public class TestScene
-{
-    public TestScene(string name, World world, out Entity grid)
-    {
-        Assert.AreEqual(name, Identifiable.FromName(name).DefaultName.Value, $"Blueprint missing: {name}");
-        Blueprint.SpawnAsNewGrid(world, Identifiable.FromName(name), out grid);
-    }
-}
 
 public class EquipmentTests
 {
@@ -134,7 +124,7 @@ public class EquipmentTests
     [UnityTest]
     public IEnumerator CryoPodCreatesUnit()
     {
-        new TestScene("LabSceneCryoPodOpener", TestWorld, out var grid);
+        var grid = EntityManager.Instantiate(Testing.ID.LabSceneCryoPodOpener.SpawnablePrefab);
         yield return WaitForEntityWith<UnitDispenser>();
         var dispenser = FindEntity<UnitDispenser>();
         yield return GUISelect(dispenser);
@@ -146,7 +136,7 @@ public class EquipmentTests
     [UnityTest]
     public IEnumerator CryoPodRequiresSkillToOpen()
     {
-        new TestScene("LabSceneCryoPodNoOpener", TestWorld, out var grid);
+        var grid = EntityManager.Instantiate(Testing.ID.LabSceneCryoPodNoOpener.SpawnablePrefab);
         yield return WaitForEntityWith<UnitDispenser>();
         var dispenser = FindEntity<UnitDispenser>();
         yield return GUISelect(dispenser);
@@ -159,7 +149,7 @@ public class EquipmentTests
     [UnityTest]
     public IEnumerator BuildOneTileFromFloorIsReachable()
     {
-        new TestScene("LabSceneForConstruction", TestWorld, out var grid);
+        var grid = EntityManager.Instantiate(Testing.ID.LabSceneForConstruction.SpawnablePrefab);
         var plan = EntityManager.CreateEntity(typeof(PlannedConstruction));
         EntityManager.SetComponentData(plan, new PlannedConstruction
         {
@@ -178,7 +168,7 @@ public class EquipmentTests
     [UnityTest]
     public IEnumerator BuildFurtherThanOneTileFromFloorIsUnreachable()
     {
-        new TestScene("LabSceneForConstruction", TestWorld, out var grid);
+        var grid = EntityManager.Instantiate(Testing.ID.LabSceneForConstruction.SpawnablePrefab);
         var plan = EntityManager.CreateEntity(typeof(PlannedConstruction));
         EntityManager.SetComponentData(plan, new PlannedConstruction
         {

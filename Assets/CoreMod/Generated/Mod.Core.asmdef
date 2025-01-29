@@ -1,0 +1,9 @@
+{
+    "name": "Mod.Core",
+    "rootNamespace": "Core",
+    "references": [
+        "Unity.Collections",
+        "Identifiables"
+    ],
+    "noEngineReferences": true
+}

@@ -1,6 +1,7 @@
 ﻿using Core.Input;
 using System;
 using Unity.Entities;
+using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -58,6 +59,19 @@ public partial class UISystemGroup : ComponentSystemGroup
         if (item != null)
             Show(item);
         return item;
+    }
+
+    public static void ShowAsPopup<T>(T item) where T : VisualElement
+    {
+        item.focusable = true;
+        item.RegisterCallback<FocusOutEvent>(_ => item.RemoveFromHierarchy());
+        
+        Root.Add(item);
+        item.style.position = Position.Absolute;
+        item.style.left = 0;
+        item.style.top = 0;
+        item.transform.position = Input.mousePosition; 
+        item.Focus();
     }
 
     public static T ShowMenu<T>() where T : VisualElement

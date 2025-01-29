@@ -7,6 +7,7 @@ using Units;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Transforms;
+using UnityEngine;
 using UnityEngine.UIElements;
 
 
@@ -145,19 +146,10 @@ partial class PlayfieldUISystem : UISystem
 
     protected override void OnUpdate()
     {
-        var noUIQuery = SystemAPI.QueryBuilder().WithAny<GridStructure, ShipContoller>().WithNone<PlayfieldUI, Ghost>().Build();
+        var noUIQuery = SystemAPI.QueryBuilder().WithAll<Location, Identifiable>().WithNone<PlayfieldUI>().Build();
         foreach (var e in noUIQuery.ToEntityArray(Allocator.Temp))
         {
-            PlayfieldUI ui;
-            if (SystemAPI.HasComponent<Identifiable>(e))
-                ui = new PlayfieldUI()
-                {
-                    Id = SystemAPI.GetComponent<Identifiable>(e), 
-                    Target = e
-                };
-            else
-                ui = new PlayfieldUI { Target = e };
-            
+            var ui = new PlayfieldUI { Target = e, Id = SystemAPI.GetComponent<Identifiable>(e) };
             _view.Add(ui);
             EntityManager.AddComponentObject(e, ui);
         }
@@ -171,28 +163,12 @@ partial class PlayfieldUISystem : UISystem
             }
         
         var cgrid = SystemAPI.GetSingletonRW<CurrentGrid>();
-        var todosLookup = SystemAPI.GetBufferLookup<ToDos>(true);
-        var idLookup = SystemAPI.GetComponentLookup<Identifiable>(true);
-        foreach (var (crew, ui, e) in SystemAPI.Query<DynamicBuffer<Crew>, PlayfieldUI>().WithEntityAccess())
+        foreach (var (ui, e) in SystemAPI.Query<PlayfieldUI>().WithEntityAccess())
         {
-            ui.UpdateCrewTasks(crew, todosLookup, idLookup);
-            if (ui.wantCurrent)
+            if(ui.wantCurrent)
                 cgrid.ValueRW.Grid = e;
             ui.wantCurrent = false;
-            
             ui.IsCurrent = e == cgrid.ValueRW.Grid;
-            if (SystemAPI.HasComponent<Parent>(e))
-            {
-                var parent = SystemAPI.GetComponent<Parent>(e).Value;
-                if (SystemAPI.ManagedAPI.HasComponent<PlayfieldUI>(parent))
-                {
-                    var parentUI = SystemAPI.ManagedAPI.GetComponent<PlayfieldUI>(parent);
-                    if(ui.parent.parent != parentUI)
-                        ui.DockTo(parentUI, _view);
-                }
-            }
-            else if(ui.parent != _view)
-                _view.Add(ui);
         }
     }
 }

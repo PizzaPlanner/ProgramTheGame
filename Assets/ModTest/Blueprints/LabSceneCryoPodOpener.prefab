@@ -10,7 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 6513637787785079020}
   - component: {fileID: 5304243422145376601}
-  - component: {fileID: -4676840679068276071}
+  - component: {fileID: -4275216140773665220}
+  - component: {fileID: 440079023512021143}
   m_Layer: 0
   m_Name: LabSceneCryoPodOpener
   m_TagString: Untagged
@@ -46,7 +47,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Asset: {fileID: 3174735954207645279}
---- !u!114 &-4676840679068276071
+--- !u!114 &-4275216140773665220
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -55,10 +56,23 @@ MonoBehaviour:
   m_GameObject: {fileID: 6595311514760627798}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 50b95956a9b94ea29cf798bee75c6913, type: 3}
+  m_Script: {fileID: 11500000, guid: 5c78d2e58f0743f79a90d3d1371b55a1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  DefinitionYaml: {fileID: 4900000, guid: 984ac1fc6fdcceb459ff2bfa92fa099d, type: 3}
+  Size: {x: 0, y: 0}
+--- !u!114 &440079023512021143
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6595311514760627798}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bb976bcc3f224d8a898d6286a1d6a2cd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  SpawnWith: {fileID: -4676840679068276071, guid: c198841d009239c42b3a9db780ce65ba, type: 3}
 --- !u!114 &3174735954207645279
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -69,9 +83,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6d96781d50c744d5b90125a6e0a230bb, type: 3}
-  m_Name: LabSceneCryoPod
+  m_Name: LabSceneCryoPodOpener
   m_EditorClassIdentifier: 
   Icon: {fileID: 2800000, guid: f9ebdf97a6c6f524cb76de63b281593c, type: 3}
   Tags:
-  - {fileID: 11400000, guid: f7caa9a23fc0b624d95d2b4f8a921182, type: 2}
+  - {fileID: 11400000, guid: 06438e7fdbd6d6647863f4db069841da, type: 2}
   Reference: {fileID: 5304243422145376601}

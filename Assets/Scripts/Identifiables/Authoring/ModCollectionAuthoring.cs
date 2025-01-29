@@ -1,8 +1,10 @@
 ﻿using System.Linq;
 using Unity.Collections;
 using Unity.Entities;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.Profiling;
+using UnityEngine.Windows;
 
 namespace Identifiables.Authoring
 {
@@ -41,7 +43,7 @@ namespace Identifiables.Authoring
                 }
                 Profiler.EndSample();
             }
-
+            
         }
         internal static void MakeIdentifiable(IBaker baker, Entity id, IdentifiableAsset prefab)
         {

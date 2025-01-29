@@ -2,9 +2,7 @@
 using System.Linq;
 using Unity.Entities;
 using UnityEditor;
-using UnityEditor.UIElements;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 [CustomEditor(typeof(IdentifiableAsset), true)]
 [CanEditMultipleObjects]
@@ -17,41 +15,6 @@ public class IdentifiableAssetEditor : Editor
         serializedObject.Update();
         DrawDefaultInspector();
         serializedObject.ApplyModifiedProperties();
-    }
-}
-
-[CustomEditor(typeof(ModCollectionAsset))]
-public class ModAssetEditor : Editor
-{
-    public override VisualElement CreateInspectorGUI()
-    {
-        var e = new VisualElement();
-        e.Add(new PropertyField(serializedObject.FindProperty("Icon")));
-        e.Add(new PropertyField(serializedObject.FindProperty("Identifiables")){enabledSelf = false});
-        e.Add(new Button(CollectIds){text = "Collect mod content"});
-        return e;
-    }
-
-    void CollectIds()
-    {
-        serializedObject.Update();
-        var selfFolder = AssetDatabase.GetAssetPath(target);
-        selfFolder = selfFolder[..selfFolder.LastIndexOf('/')];
-        
-        var ids = serializedObject.FindProperty("Identifiables");
-        ids.arraySize = 0;
-        foreach (var guid in UnityEditor.AssetDatabase.FindAssets("t=IdentifiableAsset", new[] { selfFolder }))
-        {
-            var path = UnityEditor.AssetDatabase.GUIDToAssetPath(guid);
-            var idasset = AssetDatabase.LoadAssetAtPath<IdentifiableAsset>(path);
-            if(idasset is ModCollectionAsset)
-                continue;
-            var i = ids.arraySize;
-            ids.InsertArrayElementAtIndex(i);
-            ids.GetArrayElementAtIndex(i).objectReferenceValue = idasset; 
-        }
-        serializedObject.ApplyModifiedPropertiesWithoutUndo();
-        EditorUtility.SetDirty(serializedObject.targetObject);
     }
 }
 

@@ -503,7 +503,7 @@ PlayfieldUI > #Header {
 }
 
 PlayfieldUI.current-grid > #Header {
-    border-color: var(--color-border-alt);
+    background-color: var(--color-border-alt);
 }
 
 PlayfieldUI > #Header > SignalButton {
@@ -848,4 +848,12 @@ Button {
 
 Button:hover {
     background-color: var(--color-background-widget--hovered);
+}
+
+TravelUI {
+    border-color: var(--color-border-alt);
+    background-color: var(--color-background-alt);
+    color: var(--color-text-default);
+    border-width: 1px;
+    padding: 8px;
 }

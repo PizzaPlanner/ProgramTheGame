@@ -1,5 +1,6 @@
 ﻿using System;
 using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using Unity.Mathematics;
 
@@ -12,9 +13,9 @@ public struct Room
 
 public struct RoomModel : IDisposable, ICleanupComponentData
 {
-    public NativeHashSet<int2> Walls;
-    public NativeParallelHashMap<int2, int> CellRoomMap;
-    public NativeList<int2> WallChanges;
+    public UnsafeHashSet<int2> Walls;
+    public UnsafeParallelHashMap<int2, int> CellRoomMap;
+    public UnsafeList<int2> WallChanges;
     public int MaxRoom;
 
     public void Initialize()

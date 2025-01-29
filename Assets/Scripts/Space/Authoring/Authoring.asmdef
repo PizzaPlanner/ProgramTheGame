@@ -12,7 +12,12 @@
         "Unity.Mathematics.Extensions",
         "Unity.Physics",
         "Identifiables",
-        "Space"
+        "Space",
+        "Core.Authoring",
+        "Blueprints.Authoring",
+        "Identifiables.Authoring",
+        "Units.Authoring",
+        "Tasks"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

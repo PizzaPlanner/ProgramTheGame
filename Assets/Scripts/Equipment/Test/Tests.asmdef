@@ -20,7 +20,8 @@
         "Units.UI",
         "Core.UI",
         "UnitStats.Systems",
-        "Construction"
+        "Construction",
+        "Mod.Testing"
     ],
     "optionalUnityReferences": [
         "TestAssemblies"

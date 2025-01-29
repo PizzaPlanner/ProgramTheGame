@@ -10,16 +10,20 @@ namespace Navigation
     public struct NavLayers: ICleanupComponentData, IDisposable
     {
         internal UnsafeParallelHashMap<Location, Entity> OccupiedCells;
+        internal UnsafeParallelMultiHashMap<int2, Entity> CellOccupations;
 
         public NavLayers(Allocator allocator)
         {
             OccupiedCells = new (128, allocator);
+            CellOccupations = new (128, allocator);
         }
 
         public void Dispose()
         {
             if(OccupiedCells.IsCreated)
                 OccupiedCells.Dispose();
+            if(CellOccupations.IsCreated)
+                CellOccupations.Dispose();
         }
         
         public readonly bool IsOccupied(int2 location, BuildingLayer layer, out Entity e)
@@ -70,6 +74,7 @@ namespace Navigation
             for (int y = area.Min.y; y <= area.Max.y; y++)
             {
                 OccupiedCells[new Location{ Cell = new int2(x, y), Layer = layer }] = e;
+                CellOccupations.Add(new int2(x, y), e);
             }
         }
 
@@ -77,13 +82,24 @@ namespace Navigation
         {
             for (int x = area.Min.x; x <= area.Max.x; x++)
             for (int y = area.Min.y; y <= area.Max.y; y++)
+            {
+                if(!IsOccupied(new int2(x, y), layer, out var e))
+                    continue;
                 OccupiedCells.Remove(new Location{ Cell = new int2(x, y), Layer = layer });
-            // for (int i = 0; i < BuildingLayerExtensions.MAX_LAYER; i++)
-            // {
-            //     if(((int)layer & (2 << i)) == 0)
-            //         continue;
-            //     var sublayer = (BuildingLayer)(1 << i);
-            // }
+                CellOccupations.Remove(new int2(x, y), e);
+            }
+        }
+
+        public NativeHashSet<Entity> GetAllEntitiesIn(GridBounds extend)
+        {
+           var list = new NativeHashSet<Entity>(16, Allocator.Temp);
+           for (int x = extend.Min.x; x <= extend.Max.x; x++)
+           for (int y = extend.Min.y; y <= extend.Max.y; y++)
+           {
+               foreach(var e in CellOccupations.GetValuesForKey(new int2(x, y)))
+                   list.Add(e);
+           }
+           return list;
         }
     }
 }
