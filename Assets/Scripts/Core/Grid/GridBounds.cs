@@ -36,24 +36,26 @@ public struct GridBounds : IComponentData
         };
     }
 
-    public GridBounds WithOffset(int2 offset)
+    public readonly GridBounds WithOffset(int2 offset)
     {
-        Min += offset;
-        Max += offset;
-        return this;
+        return new GridBounds{ Min = Min + offset, Max = Max + offset };
     }
 
-    public GridBounds Extend(int4 ltrb)
+    public readonly GridBounds Extend(int4 ltrb)
     {
-        Min -= ltrb.xw;
-        Max += ltrb.yz;
-        return this;
+        return new GridBounds{ Min = Min - ltrb.xw, Max = Max + ltrb.yz };
     }
 
     public void Encapsulate(int2 cell)
     {
         Min = math.min(Min, cell);
         Max = math.max(Max, cell);
+    }
+    
+    public void Encapsulate(GridBounds bounds)
+    {
+        Min = math.min(Min, bounds.Min);
+        Max = math.max(Max, bounds.Max);
     }
 }
 

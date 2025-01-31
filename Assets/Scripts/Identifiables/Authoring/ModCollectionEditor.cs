@@ -39,6 +39,7 @@ public class ModCollectionEditor : Editor
         EditorUtility.SetDirty(serializedObject.targetObject);
         GenerateBoilerplate(target, selfFolder, ids);
         AssetDatabase.SaveAssets();
+        AssetDatabase.Refresh();
     }
     
     void GenerateBoilerplate(Object mod, string selfFolder, SerializedProperty content)
@@ -64,6 +65,17 @@ namespace {mod.name}
 {GetIds()}
     }}
 }}");
+        
+        File.WriteAllText(Path.Combine(genFolder.FullName, $"Tags.gen.cs") ,$@"
+using Identifiables;
+
+namespace {mod.name}
+{{
+    public static class Tags
+    {{
+{GetTags()}
+    }}
+}}");
         return;
 
         string GetIds()
@@ -73,6 +85,18 @@ namespace {mod.name}
             {
                 var n = content.GetArrayElementAtIndex(i).objectReferenceValue.name;
                 res += $"       public static readonly Identifiable {n} = Identifiable.FromName(\"{n}\");\n";
+            }
+            return res;
+        }
+        
+        string GetTags()
+        {
+            var res = "";
+            for (int i = 0; i < content.arraySize; i++)
+            {
+                var obj = content.GetArrayElementAtIndex(i).objectReferenceValue;
+                if(obj is TagAsset tag)
+                    res += $"       public static readonly Tag {tag.name} = Tag.FromName(\"{tag.name}\");\n";
             }
             return res;
         }

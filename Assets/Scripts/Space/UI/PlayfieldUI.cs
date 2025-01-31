@@ -13,14 +13,13 @@ using UnityEngine.UIElements;
 
 public partial class PlayfieldUI : VisualElement, IComponentData, IDisposable
 {
+    VisualElement Travel, Crew;
     public bool wantCurrent, wantSwitchCrew;
     public PlayfieldUI()
     {
         VisualElement header;
         SignalButton icon = new SignalButton(){name = "Icon"};
         Add(header = new VisualElement(){name = "Header"});
-        Add(new VisualElement(){name = "Crew"});
-        Add(new VisualElement(){name = "Docked"});
         header.Add(icon);
         header.Add(new Label("Field"));
         header.Add(new Button(OnChangeCurrent));
@@ -33,6 +32,21 @@ public partial class PlayfieldUI : VisualElement, IComponentData, IDisposable
             em.RemoveComponent<Selected>(query);
             em.AddComponent<Selected>(Target);
         });
+    }
+
+    public void SetTravelState(TravelTask task, TaskProgress p, EntityManager em)
+    {
+        if (Travel == null)
+        {
+            Travel = new VisualElement() { name = "TravelState" };
+            Add(Travel);
+            Travel.Add(new PercentProgressBar());
+            Travel.Add(new SignalButton(){name = "From", Target = em.GetComponentData<Identifiable>(task.FromLocation), Entity = task.FromLocation});
+            Travel.Add(new Label());
+            Travel.Add(new SignalButton(){name = "To", Target = em.GetComponentData<Identifiable>(task.ToLocation), Entity = task.ToLocation});
+        }
+        Travel.Q<PercentProgressBar>().value = p.Progress;
+        Travel.Q<Label>().text = $">> {task.Stage} >>";
     }
 
     void OnSaveBlueprint()
@@ -77,8 +91,10 @@ public partial class PlayfieldUI : VisualElement, IComponentData, IDisposable
 
     public void SetCrew(DynamicBuffer<Crew> crew, EntityManager em)
     {
-        var c = this.Q("Crew");
-        c.Clear();
+        if(Crew == null)
+            Add(Crew = new VisualElement() { name = "Crew" });
+        Crew.Clear();
+        Crew.style.display = crew.Length == 0 ? DisplayStyle.None : DisplayStyle.Flex;
         foreach (var member in crew)
         {
             var memberUI = new SignalButton
@@ -92,35 +108,7 @@ public partial class PlayfieldUI : VisualElement, IComponentData, IDisposable
                 em.RemoveComponent<Selected>(query);
                 em.AddComponent<Selected>(member.Member);
             });
-            memberUI.Add(new IdentifiableButton(){name = "CurrentTask"});
-            c.Add(memberUI);
-        }
-    }
-    
-    public void DockTo(PlayfieldUI parent, SystemView fallback)
-    {
-        if(parent == null)
-            fallback.Add(this);
-        else
-            parent.Q("Docked").Add(this);
-    }
-
-    public void UpdateCrewTasks(DynamicBuffer<Crew> crew, BufferLookup<ToDos> todosLookup, ComponentLookup<Identifiable> idLookup)
-    {
-        var idle = Identifiable.FromName("IdleTask");
-        var crewBtns = this.Q("Crew");
-        if(crew.Length != crewBtns.childCount)
-            return;
-        
-        for (int i = 0; i < crew.Length; i++)
-        {
-            var ctb = crewBtns[i].Q<IdentifiableButton>("CurrentTask");
-            if(!todosLookup.TryGetBuffer(crew[i].Member, out var todos) 
-               || todos.IsEmpty
-               || !idLookup.TryGetComponent(todos[0].Task, out var id))
-                ctb.Target = idle; 
-            else
-                ctb.Target = id;
+            Crew.Add(memberUI);
         }
     }
 
@@ -146,10 +134,11 @@ partial class PlayfieldUISystem : UISystem
 
     protected override void OnUpdate()
     {
-        var noUIQuery = SystemAPI.QueryBuilder().WithAll<Location, Identifiable>().WithNone<PlayfieldUI>().Build();
+        var noUIQuery = SystemAPI.QueryBuilder().WithAll<Sector, Identifiable>().WithNone<PlayfieldUI>().Build();
         foreach (var e in noUIQuery.ToEntityArray(Allocator.Temp))
         {
-            var ui = new PlayfieldUI { Target = e, Id = SystemAPI.GetComponent<Identifiable>(e) };
+            var target = SystemAPI.HasComponent<TravelTask>(e) ? SystemAPI.GetComponent<Task>(e).Origin : e;
+            var ui = new PlayfieldUI { Target = target, Id = SystemAPI.GetComponent<Identifiable>(target) };
             _view.Add(ui);
             EntityManager.AddComponentObject(e, ui);
         }
@@ -169,6 +158,11 @@ partial class PlayfieldUISystem : UISystem
                 cgrid.ValueRW.Grid = e;
             ui.wantCurrent = false;
             ui.IsCurrent = e == cgrid.ValueRW.Grid;
+        }
+        
+        foreach (var (ui, travel, progress, e) in SystemAPI.Query<PlayfieldUI, TravelTask, TaskProgress>().WithEntityAccess())
+        {
+            ui.SetTravelState(travel, progress, EntityManager);
         }
     }
 }

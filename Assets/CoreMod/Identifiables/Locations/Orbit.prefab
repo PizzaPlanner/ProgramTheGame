@@ -60,6 +60,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   SpawnWith: {fileID: -4676840679068276071, guid: 4778b9972f2404046a7a070483b80e7d, type: 3}
+  PositionInSpace:
+    x: 7
+    y: 0
 --- !u!114 &5408207082563733907
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -72,7 +75,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c78d2e58f0743f79a90d3d1371b55a1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Size: {x: 64, y: 64}
+  Size: {x: 0, y: 0}
 --- !u!114 &3174735954207645279
 MonoBehaviour:
   m_ObjectHideFlags: 0

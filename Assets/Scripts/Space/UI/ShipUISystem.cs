@@ -3,6 +3,8 @@ using Identifiables.UI;
 using Units;
 using Unity.Collections;
 using Unity.Entities;
+using Unity.Mathematics;
+using Unity.Transforms;
 using UnityEngine.UIElements;
 
 namespace Space.Systems
@@ -38,7 +40,7 @@ namespace Space.Systems
         public TravelUI(EntityManager mgr, Entity currentLocation, Entity controller)
         {
             Add(new Label("Select Destination"));
-            using var query = mgr.CreateEntityQuery(typeof(Location), typeof(Identifiable));
+            using var query = mgr.CreateEntityQuery(typeof(Sector), typeof(Identifiable));
             var ids = query.ToComponentDataArray<Identifiable>(Allocator.Temp);
             var entities = query.ToEntityArray(Allocator.Temp);
             for (int i = 0; i < entities.Length; ++i)
@@ -47,6 +49,8 @@ namespace Space.Systems
                 var target = entities[i];
                 btn.RegisterCallback<MouseDownEvent>((_) =>
                 {
+                    var currentSector = mgr.GetComponentData<Sector>(currentLocation);
+                    var toSector = mgr.GetComponentData<Sector>(target);
                     var ecb = new EntityCommandBuffer(Allocator.Temp);
                     var task = Task.Schedule(Core.ID.TravelTask, ecb, new Task
                     {
@@ -54,7 +58,15 @@ namespace Space.Systems
                         Executor = controller,
                         Origin = controller
                     });
-                    ecb.SetComponent(task, new TravelTask { ToLocation = target, FromLocation = currentLocation, Distance = 10 });
+                    ecb.SetComponent(task, new TravelTask
+                    {
+                        ToLocation = target, 
+                        FromLocation = currentLocation, 
+                        From = currentSector,
+                        To = toSector,
+                        TakeoffPointInFromSector = mgr.GetComponentData<LocalTransform>(controller).Position
+                    });
+                    ecb.SetComponent(task, mgr.GetComponentData<Sector>(currentLocation));
                     ecb.Playback(mgr);
                 });
                 Add(btn);

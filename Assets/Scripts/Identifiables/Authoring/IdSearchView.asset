@@ -12,13 +12,16 @@ MonoBehaviour:
   m_Script: {fileID: 13982, guid: 0000000000000000e000000000000000, type: 0}
   m_Name: IdSearchView
   m_EditorClassIdentifier: 
-  text: 't:IdentifieableAuthoring '
+  text: t:IdentifiableAsset -t:IdentifieableAuthoring
   description: 
   viewState:
     providerIds:
     - asset
-    searchFlags: 939524360
-    searchText: 't:ItemAuthoring t:IdentifieableAuthoring '
+    - scene
+    - menu
+    - settings
+    searchFlags: -1665138424
+    searchText: t:IdentifiableAsset -t:IdentifieableAuthoring
     forceViewMode: 1
     m_SelectHandler:
       stream: 
@@ -28,7 +31,7 @@ MonoBehaviour:
       stream: 
     m_GroupChanged:
       stream: 
-    m_ActiveQueryGuid: 
+    m_ActiveQueryGuid: a1a8649af4a23b94b88f6b8064e6de79
     hideTabs: 0
     sessionId: 7b7d39ffb1114f88be47ff70d1cace8f
     sessionName: 
@@ -40,7 +43,7 @@ MonoBehaviour:
       - path: IdentifieableAuthoring/Icon
         provider: Texture2D
         selector: '#Icon'
-        width: 35
+        width: 57
         options: 1082368
         content:
           m_Text: 
@@ -62,7 +65,7 @@ MonoBehaviour:
       - path: Name
         provider: Default
         selector: Name
-        width: 145
+        width: 175
         options: 3178498
         content:
           m_Text: Name
@@ -84,7 +87,7 @@ MonoBehaviour:
       - path: IdentifieableAuthoring/ItemId
         provider: Default
         selector: '#ItemId'
-        width: 106
+        width: 97
         options: 3178496
         content:
           m_Text: ID
@@ -120,7 +123,7 @@ MonoBehaviour:
       height: 708
     flags: 301056
     group: all
-    queryBuilderEnabled: 0
+    queryBuilderEnabled: 1
     m_ContextUseExplicitProvidersAsNormalProviders: 0
   icon: {fileID: 0}
   m_IsSearchTemplate: 0

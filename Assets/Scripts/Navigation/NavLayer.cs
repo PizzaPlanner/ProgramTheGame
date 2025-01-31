@@ -74,7 +74,8 @@ namespace Navigation
             for (int y = area.Min.y; y <= area.Max.y; y++)
             {
                 OccupiedCells[new Location{ Cell = new int2(x, y), Layer = layer }] = e;
-                CellOccupations.Add(new int2(x, y), e);
+                if(e != Entity.Null)
+                    CellOccupations.Add(new int2(x, y), e);
             }
         }
 
@@ -92,14 +93,22 @@ namespace Navigation
 
         public NativeHashSet<Entity> GetAllEntitiesIn(GridBounds extend)
         {
-           var list = new NativeHashSet<Entity>(16, Allocator.Temp);
-           for (int x = extend.Min.x; x <= extend.Max.x; x++)
-           for (int y = extend.Min.y; y <= extend.Max.y; y++)
-           {
-               foreach(var e in CellOccupations.GetValuesForKey(new int2(x, y)))
-                   list.Add(e);
-           }
-           return list;
+            var list = new NativeHashSet<Entity>(16, Allocator.Temp);
+            for (int x = extend.Min.x; x <= extend.Max.x; x++)
+            for (int y = extend.Min.y; y <= extend.Max.y; y++)
+            {
+                foreach(var e in CellOccupations.GetValuesForKey(new int2(x, y)))
+                    list.Add(e);
+            }
+            return list;
+        }
+
+        public GridBounds CalculateBounds()
+        {
+            var area = GridBounds.Empty;
+            foreach(var cell in CellOccupations.GetKeyArray(Allocator.Temp))
+                area.Encapsulate(cell);
+            return area;
         }
     }
 }

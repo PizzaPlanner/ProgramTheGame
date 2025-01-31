@@ -1,4 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
+using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
@@ -193,5 +194,18 @@ public struct MassModel : ICleanupComponentData
         for (int x = area.Min.x; x <= area.Max.x; x++)
         for (int y = area.Min.y; y <= area.Max.y; y++)
             RemoveFloor(new int2(x, y));
+    }
+
+    public static unsafe void TransferCells(ref MassModel fromMass, ref MassModel toMass, GridBounds from, int2 deltaOffset)
+    {
+        for (int x = from.Min.x; x <= from.Max.x; x++)
+        for (int y = from.Min.y; y <= from.Max.y; y++)
+        {
+            ref var fromCell = ref fromMass.AbsoluteCellRW(new int2(x, y));
+            ref var toCell = ref toMass.AbsoluteCellRW(new int2(x, y) + deltaOffset);
+            toCell.Dispose();
+            UnsafeUtility.MemSwap(UnsafeUtility.AddressOf(ref toCell), UnsafeUtility.AddressOf(ref fromCell), sizeof(MassHeader));
+        }
+        
     }
 }

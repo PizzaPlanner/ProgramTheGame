@@ -1,5 +1,6 @@
 ﻿using Units;
 using Unity.Entities;
+using Unity.Transforms;
 using UnityEngine;
 
 namespace Space.Authoring
@@ -11,9 +12,11 @@ namespace Space.Authoring
         {
             public override void Bake(TravelTaskAuthoring authoring)
             {
-                var e = GetEntity(TransformUsageFlags.WorldSpace);
+                var e = GetEntity(TransformUsageFlags.Dynamic);
                 AddComponent<TravelTask>(e);
                 AddComponent<TaskProgress>(e);
+                AddComponent<LocalToWorld>(e);
+                AddComponent(e, LocalTransform.Identity);
             }
         }
     }

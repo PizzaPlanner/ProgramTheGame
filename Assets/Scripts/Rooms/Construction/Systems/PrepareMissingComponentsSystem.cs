@@ -31,7 +31,7 @@ partial struct PrepareGridComponentsSystem : ISystem
             ecb.AddComponent(e, model);
         }
 
-        foreach (var (model, e) in SystemAPI.Query<MassModel>().WithNone<LocalToWorld>().WithEntityAccess())
+        foreach (var (model, e) in SystemAPI.Query<MassModel>().WithNone<GridStructure>().WithEntityAccess())
         {
             model.Dispose();
             ecb.RemoveComponent<MassModel>(e);
@@ -56,7 +56,7 @@ partial struct PrepareGridComponentsSystem : ISystem
         }
         
         // Remove dangling rooms
-        foreach (var (model, e) in SystemAPI.Query<RoomModel>().WithNone<LocalToWorld>().WithEntityAccess())
+        foreach (var (model, e) in SystemAPI.Query<RoomModel>().WithNone<GridStructure>().WithEntityAccess())
         {
             model.Dispose();
             ecb.RemoveComponent<RoomModel>(e);

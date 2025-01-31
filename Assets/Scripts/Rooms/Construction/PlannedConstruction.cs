@@ -8,7 +8,7 @@ public struct PlannedConstruction : IComponentData
 {
     public Entity Parent;
     public Identifiable Prefab;
-    public Cell Location;
+    public int2 Location;
     public byte Rotation;
     public ConstructionMode Mode;
     public ConstructionVariant Materials;

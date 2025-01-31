@@ -2,9 +2,10 @@
 using Unity.Entities;
 using Unity.Mathematics;
 
-public struct Location : IComponentData
+public struct Sector : IComponentData
 {
-    public int2 PositionInSpace;
+    public float2 PositionInSpace;
+    public const int LENGTH = 1000;
 }
 
 public struct LocationPopulationSettings : IComponentData

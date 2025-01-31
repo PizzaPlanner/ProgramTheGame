@@ -21,15 +21,13 @@ public partial class FixGhostVisualsAndPhysicsSystem : SystemBase
         public Entity Ghost;
     }
 
-    BatchMaterialID ghostMaterialId, ghostBlockedMaterialId;
+    BatchMaterialID ghostMaterialId;
     protected override void OnCreate()
     {
         RequireForUpdate<Ghost>();
         var ghostMat = Addressables.LoadAssetAsync<Material>("GhostMaterial").WaitForCompletion();
-        // var ghostBlockedMat = Addressables.LoadAssetAsync<Material>("GhostErrorMaterial").WaitForCompletion();
         var graphicsSystem = World.GetExistingSystemManaged<EntitiesGraphicsSystem>();
         ghostMaterialId = graphicsSystem.RegisterMaterial(ghostMat);
-        // ghostBlockedMaterialId = graphicsSystem.RegisterMaterial(ghostBlockedMat);
     }
 
     protected override void OnUpdate()
@@ -41,7 +39,6 @@ public partial class FixGhostVisualsAndPhysicsSystem : SystemBase
             foreach (var link in linkedEntities)
             {
                 var e = link.Value;
-                // ecb.AddSharedComponent(e, new PhysicsWorldIndex(999));
                 if (SystemAPI.HasComponent<MaterialMeshInfo>(e))
                 {
                     ecb.AddComponent(e, new RelatedToGhost { Ghost = parent });

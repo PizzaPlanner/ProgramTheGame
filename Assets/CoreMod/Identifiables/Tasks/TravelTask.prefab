@@ -12,6 +12,8 @@ GameObject:
   - component: {fileID: -5380242976130347905}
   - component: {fileID: 5923588122422854532}
   - component: {fileID: 5154618057676697997}
+  - component: {fileID: -6352314942397944861}
+  - component: {fileID: -875904573304028441}
   m_Layer: 0
   m_Name: TravelTask
   m_TagString: Untagged
@@ -74,6 +76,32 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6d4d9fc28ce0463294151aab4cf1b683, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &-6352314942397944861
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3605263813790912188}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5c78d2e58f0743f79a90d3d1371b55a1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Size: {x: 0, y: 0}
+--- !u!114 &-875904573304028441
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3605263813790912188}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bb976bcc3f224d8a898d6286a1d6a2cd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  SpawnWith: {fileID: 0}
 --- !u!114 &5657100428946741286
 MonoBehaviour:
   m_ObjectHideFlags: 0

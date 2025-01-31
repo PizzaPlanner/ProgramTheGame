@@ -97,8 +97,8 @@ Material:
     - _DstBlend: 10
     - _DstBlendAlpha: 10
     - _EnvironmentReflections: 1
-    - _FlickerSpeed: 0.005
-    - _FlickerStrength: 3
+    - _FlickerSpeed: 0.001
+    - _FlickerStrength: 5
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
@@ -109,11 +109,11 @@ Material:
     - _QueueControl: 0
     - _QueueOffset: 0
     - _ReceiveShadows: 1
-    - _Scale: 140
+    - _Scale: 180
     - _Smoothness: 0.5
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
-    - _Speed: 0.05
+    - _Speed: 0.03
     - _SrcBlend: 1
     - _SrcBlendAlpha: 1
     - _Surface: 1

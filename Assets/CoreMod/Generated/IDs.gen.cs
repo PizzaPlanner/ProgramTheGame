@@ -41,7 +41,7 @@ namespace Core
        public static readonly Identifiable Silicon = Identifiable.FromName("Silicon");
        public static readonly Identifiable SteelIngot = Identifiable.FromName("SteelIngot");
        public static readonly Identifiable SurvivalRations = Identifiable.FromName("SurvivalRations");
-       public static readonly Identifiable Hyperspace = Identifiable.FromName("Hyperspace");
+       public static readonly Identifiable EmptyLocation = Identifiable.FromName("EmptyLocation");
        public static readonly Identifiable Orbit = Identifiable.FromName("Orbit");
        public static readonly Identifiable StartRock = Identifiable.FromName("StartRock");
        public static readonly Identifiable Lungs = Identifiable.FromName("Lungs");
@@ -108,6 +108,7 @@ namespace Core
        public static readonly Identifiable TagSolid = Identifiable.FromName("TagSolid");
        public static readonly Identifiable TagStatus = Identifiable.FromName("TagStatus");
        public static readonly Identifiable TagTask = Identifiable.FromName("TagTask");
+       public static readonly Identifiable TagTechnology = Identifiable.FromName("TagTechnology");
        public static readonly Identifiable TagTrait = Identifiable.FromName("TagTrait");
        public static readonly Identifiable TagUnit = Identifiable.FromName("TagUnit");
        public static readonly Identifiable TagWorld = Identifiable.FromName("TagWorld");
@@ -124,6 +125,7 @@ namespace Core
        public static readonly Identifiable MineTask = Identifiable.FromName("MineTask");
        public static readonly Identifiable RestTask = Identifiable.FromName("RestTask");
        public static readonly Identifiable TravelTask = Identifiable.FromName("TravelTask");
+       public static readonly Identifiable Navigation = Identifiable.FromName("Navigation");
        public static readonly Identifiable TraitCouchPotato = Identifiable.FromName("TraitCouchPotato");
        public static readonly Identifiable TraitExtrovert = Identifiable.FromName("TraitExtrovert");
        public static readonly Identifiable TraitPosh = Identifiable.FromName("TraitPosh");

@@ -5,57 +5,6 @@ using Unity.Transforms;
 using Navigation;
 using Unity.Mathematics;
 
-public class BuildUtils
-{
-    public static void Cleanup(Entity e, BakedIntoRoomMap baked, EntityCommandBuffer ecb,
-                               ComponentLookup<NavLayers> navLayersLookup,
-                               ComponentLookup<NavTree> navTreeLookup,
-                               ComponentLookup<MassModel> massLookup,
-                               ComponentLookup<RoomModel> roomLookup)
-    {
-        if(!navLayersLookup.HasComponent(baked.Grid))
-            return;
-            
-        ref var massModel = ref massLookup.GetRefRW(baked.Grid).ValueRW;
-        ref var navLayers = ref navLayersLookup.GetRefRW(baked.Grid).ValueRW;
-        ref var navTree = ref navTreeLookup.GetRefRW(baked.Grid).ValueRW;
-        ref var roomModel = ref roomLookup.GetRefRW(baked.Grid).ValueRW;
-        navLayers.FreeOccupation(baked.Area, baked.Layer);
-        ecb.RemoveComponent<BakedIntoRoomMap>(e);
-        var isGhost = (baked.Layer & BuildingLayer.Ghost) != 0;
-        if(isGhost)
-            return;
-        ecb.AddComponent<BuildingsChangedEvent>(baked.Grid);
-        if (baked.Layer.IsWall())
-        {
-            massModel.RemoveWall(baked.Area);
-            navTree.SetAreaDirty(baked.Area);
-            roomModel.RemoveWall(baked.Area);
-        }
-        else if (baked.Layer.IsFloor())
-        {
-            massModel.RemoveFloor(baked.Area);
-            navTree.SetAreaDirty(baked.Area);
-        }
-    }
-
-    public static LocalTransform ToTransform(byte rotation, GridBounds area)
-    {
-        var offset = rotation switch
-        {
-            1 => new int2(area.Min.x, area.Max.y + 1),
-            2 => area.Max + 1,
-            3 => new int2(area.Max.x + 1, area.Min.y),
-            _ => area.Min,
-        };
-        var transform = rotation == 0
-            ? LocalTransform.FromPosition(GridStructure.CellToLocal(area.Min))
-            : LocalTransform.FromPositionRotation(GridStructure.CellToLocal(offset), 
-                quaternion.RotateY(rotation * 90 * math.TORADIANS));
-        return transform;
-    }
-}
-
 partial struct BuildSystem : ISystem
 {
     [BurstCompile]
@@ -65,8 +14,6 @@ partial struct BuildSystem : ISystem
                            .CreateCommandBuffer(state.WorldUnmanaged);
         
         var ecbNow = new EntityCommandBuffer(Allocator.Temp);
-        
-        state.EntityManager.RemoveComponent<BuildingsChangedEvent>(SystemAPI.QueryBuilder().WithAll<BuildingsChangedEvent>().Build());
 
         // Fix links to deferred entities
         foreach (var (toBake, transform, e) in SystemAPI.Query<ToBeBakedIntoRoomMap, RefRW<LocalTransform>>().WithNone<BakedIntoRoomMap>()

@@ -1,11 +1,14 @@
 :root {
     --color-border-default: rgb(17, 22, 35);
+    --color-border-alt-low: rgb(25, 44, 70);
     --color-border-alt: rgb(25, 80, 110);
     --color-border-widget: rgb(40, 60, 100);
     --color-background-default: rgba(24, 32, 45, 0.9);
     --color-background-alt: rgba(33, 48, 66, 0.7);
     --color-background-widget: rgb(20, 30, 40);
     --color-background-widget--hovered: rgb(15, 25, 45);
+    --color-foreground-bright: rgb(44, 200, 144);
+    --color-foreground-fancy: rgb(22, 100, 77);
     --color-text-default: rgb(255, 255, 255);
 }
 
@@ -312,14 +315,11 @@ IngameMenu > #PressureOverlay {
 }
 
 SignalButton.shows-entity > #Frame {
-    border-left-color: rgba(0, 188, 0, 0.76);
-    border-right-color: rgba(0, 188, 0, 0.76);
-    border-top-color: rgba(0, 188, 0, 0.76);
-    border-bottom-color: rgba(0, 188, 0, 0.76);
-    border-top-width: 2px;
-    border-right-width: 2px;
-    border-bottom-width: 2px;
-    border-left-width: 2px;
+    border-color: var(--color-foreground-bright);
+    border-top-width: 1px;
+    border-right-width: 1px;
+    border-bottom-width: 1px;
+    border-left-width: 1px;
 }
 
 SignalButton > Label {
@@ -493,38 +493,75 @@ SystemView {
 PlayfieldUI {
     min-height: 28px;
     min-width: 50px;
+    background-color: var(--color-background-default);
+    color: var(--color-text-default);
+    margin-top: 2px;
+    border-color: var(--color-border-default);
+    border-width: 1px;
 }
 
 PlayfieldUI > #Header {
-    border-color: var(--color-border-default);
-    background-color: var(--color-background-default);
-    color: var(--color-text-default);
     flex-direction: row;
+    align-items: center;
+    background-color: var(--color-border-default);
+    padding: 1px;
+}
+
+PlayfieldUI > #Header > Label {
+    width: 120px;
+}
+
+PlayfieldUI.current-grid {
+    border-color: var(--color-border-alt-low);
 }
 
 PlayfieldUI.current-grid > #Header {
-    background-color: var(--color-border-alt);
+    background-color: var(--color-border-alt-low);
 }
 
 PlayfieldUI > #Header > SignalButton {
+    width: 32px;
+    height: 32px;
+}
+
+PlayfieldUI > #Header > Button {
     width: 24px;
     height: 24px;
 }
 
-PlayfieldUI > #Header > Button {
-    width: 16px;
-    height: 16px;
-}
-
 PlayfieldUI > #Crew {
-    margin-left: 6px;
     flex-direction: row;
+    padding: 2px;
 }
 
-PlayfieldUI > #Docked {
-    margin-left: 6px;
-    flex-direction: column;
+PlayfieldUI > #Crew > .id-button {
+    width: 36px;
+    height: 36px;
 }
+
+PlayfieldUI > #TravelState {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+
+PlayfieldUI > #TravelState > PercentProgressBar {
+    position: absolute;
+    top: 3px;
+    left: 26px;
+    right: 26px;
+    bottom: 2px;
+}
+
+PlayfieldUI > #TravelState > PercentProgressBar > #Progress {
+    background-color: var(--color-foreground-fancy);
+}
+
+PlayfieldUI > #TravelState > .id-button {
+    width: 24px;
+    height: 24px;
+}
+
 
 PlayfieldUI SignalButton > IdentifiableButton#CurrentTask {
     width: 24px;

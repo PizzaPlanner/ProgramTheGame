@@ -22,7 +22,8 @@ partial struct CameraSystem : ISystem
 {
     public struct CameraAnchor : IComponentData
     {
-        public float3 Offset;
+        public float2 Offset;
+        public float Rotation;
         public float CameraDistance { 
             get => _distance; 
             set => _distance = math.clamp(value, MinDistance, MaxDistance); 
@@ -33,7 +34,7 @@ partial struct CameraSystem : ISystem
         public float MoveFactor => 0.5f * CameraDistance + 5;
         public float MinDistance => 5f;
         public float MaxDistance => 500f;
-        public float RotationFactor => 22f;
+        public float RotationFactor => 3f;
     }
     
     public void OnCreate(ref SystemState state)
@@ -50,6 +51,8 @@ partial struct CameraSystem : ISystem
         var ship = SystemAPI.GetSingleton<CurrentGrid>().Grid;
         if(!SystemAPI.HasComponent<LocalToWorld>(ship))
             return;
+        if(!SystemAPI.HasComponent<GridStructure>(ship))
+            return;
         if(Camera.main == null)
             return;
         
@@ -57,6 +60,7 @@ partial struct CameraSystem : ISystem
         var camAnchor = SystemAPI.GetSingletonRW<CameraAnchor>();
         
         var shipLtw = SystemAPI.GetComponent<LocalToWorld>(ship);
+        var shipBounds = SystemAPI.GetComponent<GridStructure>(ship);
         
         var wasd = (float2)Navigation.Move.ReadValue<Vector2>();
         var rotate = Navigation.Rotate.ReadValue<Vector2>().x;
@@ -65,8 +69,15 @@ partial struct CameraSystem : ISystem
         if(zoom != 0)
             camAnchor.ValueRW.CameraDistance -= zoom * SystemAPI.Time.DeltaTime * camAnchor.ValueRW.ZoomFactor;
         
-        cam.RotateAround(camAnchor.ValueRW.Offset, shipLtw.Up, rotate * SystemAPI.Time.DeltaTime * camAnchor.ValueRW.RotationFactor);
-        cam.position = shipLtw.Position + camAnchor.ValueRW.Offset - (float3)cam.forward * camAnchor.ValueRW.CameraDistance;
+        camAnchor.ValueRW.Offset = math.clamp(camAnchor.ValueRW.Offset, shipBounds.BoundsMin, shipBounds.BoundsMax + 1);
+        camAnchor.ValueRW.Rotation += rotate * SystemAPI.Time.DeltaTime * camAnchor.ValueRW.RotationFactor;
+        var offset = camAnchor.ValueRW.Offset.xyy;
+        offset.y = 0;
+        var lookAtPoint = shipLtw.Position + offset;
+        var userRotation = quaternion.AxisAngle(math.up(), camAnchor.ValueRW.Rotation);
+        var camPitch = quaternion.AxisAngle(math.right(), math.radians(55));
+        cam.rotation = math.mul(math.mul(userRotation, shipLtw.Rotation), camPitch);
+        cam.position = lookAtPoint - (float3)cam.forward * camAnchor.ValueRW.CameraDistance;
         new FaceCameraJob
         {
             camForward = cam.forward,
@@ -74,13 +85,13 @@ partial struct CameraSystem : ISystem
         }.ScheduleParallel();
         if(math.all(wasd.xy == 0))
             return;
-        var direction = math.normalizesafe(shipLtw.Right * wasd.x + shipLtw.Forward * wasd.y);
-        var deltaRot = Quaternion.FromToRotation(shipLtw.Forward, cam.forward);
+        var direction = math.normalizesafe(math.right() * wasd.x + math.forward() * wasd.y);
+        // var deltaRot = Quaternion.FromToRotation(math.forward(), cam.forward);
         
-        var euler = math.Euler(deltaRot);
+        var euler = math.Euler(cam.rotation);
         var camYaw = quaternion.Euler(0, euler.y, 0); // Camera rotation with only yaw
         
         direction = math.mul(camYaw, direction);
-        camAnchor.ValueRW.Offset += (direction * SystemAPI.Time.DeltaTime * camAnchor.ValueRW.MoveFactor);
+        camAnchor.ValueRW.Offset += (direction * SystemAPI.Time.DeltaTime * camAnchor.ValueRW.MoveFactor).xz;
     }
 }

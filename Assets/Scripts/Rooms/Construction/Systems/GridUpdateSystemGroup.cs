@@ -1,12 +1,17 @@
 ﻿using Unity.Entities;
 
-// Runs one frame after building layout has changed (BakedIntoRoomMap added or removed)
-[UpdateBefore(typeof(BuildSystem))]
+[UpdateInGroup(typeof(InitializationSystemGroup))]
 public partial class GridUpdateSystemGroup : ComponentSystemGroup
 {
     protected override void OnCreate()
     {
         base.OnCreate();
         RequireForUpdate<BuildingsChangedEvent>();
+    }
+
+    protected override void OnUpdate()
+    {
+        base.OnUpdate();
+        EntityManager.RemoveComponent<BuildingsChangedEvent>(GetEntityQuery(typeof(BuildingsChangedEvent)));
     }
 }

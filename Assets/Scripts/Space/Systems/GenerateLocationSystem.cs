@@ -10,7 +10,7 @@ namespace Space.Systems
         {
             var ecb = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>().CreateCommandBuffer(state.WorldUnmanaged);
             foreach (var (loc, e) in SystemAPI.Query<LocationPopulationSettings>()
-                                              .WithAll<Location, GridStructure>()
+                                              .WithAll<Sector, GridStructure>()
                                               // Ensure location is fully initialized
                                               .WithAll<NavTree, MassModel, RoomModel>() 
                                               .WithEntityAccess())

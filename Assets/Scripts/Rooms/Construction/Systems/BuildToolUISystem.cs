@@ -66,7 +66,7 @@ partial class BuildToolUISystem : MapOverlaySystem<BuildTool>
         base.OnUpdate();
         var ecb = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>()
                            .CreateCommandBuffer(World.Unmanaged);
-        if (!SystemAPI.TryGetSingleton<CurrentGrid>(out var cgrid))
+        if (!SystemAPI.TryGetSingleton<CurrentGrid>(out var cgrid) || !SystemAPI.HasComponent<LocalToWorld>(cgrid.Grid))
         {
             ClearPreview(ecb);
             return;
