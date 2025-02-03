@@ -17,6 +17,7 @@
         "YamlDotNet",
         "Construction",
         "Elements",
+        "Navigation",
         "Core"
     ],
     "includePlatforms": [],

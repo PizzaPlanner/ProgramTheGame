@@ -1,9 +1,11 @@
+using Grids;
+using Identifiables;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Transforms;
 using Navigation;
-using Unity.Mathematics;
+using UnityEngine;
 
 partial struct BuildSystem : ISystem
 {
@@ -16,44 +18,41 @@ partial struct BuildSystem : ISystem
         var ecbNow = new EntityCommandBuffer(Allocator.Temp);
 
         // Fix links to deferred entities
-        foreach (var (toBake, transform, e) in SystemAPI.Query<ToBeBakedIntoRoomMap, RefRW<LocalTransform>>().WithNone<BakedIntoRoomMap>()
+        foreach (var (toBake, transform, building, e) in SystemAPI.Query<ToBeBakedIntoRoomMap, RefRW<LocalTransform>, Building>().WithNone<BakedIntoRoomMap>()
                                             .WithEntityAccess())
         {
-            ref var massModel = ref SystemAPI.GetComponentRW<MassModel>(toBake.Grid).ValueRW;
-            ref var navLayers = ref SystemAPI.GetComponentRW<NavLayers>(toBake.Grid).ValueRW;
-            ref var navTree = ref SystemAPI.GetComponentRW<NavTree>(toBake.Grid).ValueRW;
-            ref var roomModel = ref SystemAPI.GetComponentRW<RoomModel>(toBake.Grid).ValueRW;
-            ref var gridBbox = ref SystemAPI.GetComponentRW<GridStructure>(toBake.Grid).ValueRW;
-            gridBbox.BoundsMin = math.min(gridBbox.BoundsMin, toBake.Area.Min - 4);
-            gridBbox.BoundsMax = math.max(gridBbox.BoundsMax, toBake.Area.Max + 4);
-            massModel.Resize(gridBbox.BoundsMin, gridBbox.BoundsMax);
-            ecb.AddComponent<BuildingsChangedEvent>(toBake.Grid);
-            var layer = toBake.Layer;
-            if (SystemAPI.HasComponent<Ghost>(e))
+            var baked = toBake.Value;
+            ref var massModel = ref SystemAPI.GetComponentRW<MassModel>(baked.Grid).ValueRW;
+            ref var navTree = ref SystemAPI.GetComponentRW<NavTree>(baked.Grid).ValueRW;
+            ref var roomModel = ref SystemAPI.GetComponentRW<RoomModel>(baked.Grid).ValueRW;
+            ref var grid = ref SystemAPI.GetComponentRW<CGrid>(baked.Grid).ValueRW;
+            var isGhost = SystemAPI.HasComponent<Ghost>(e);
+            if (!grid.TryPlace(e, baked.Layer, baked.Area))
             {
-                layer = toBake.Layer.AsGhostLayer();
+                var id = SystemAPI.GetComponent<Identifiable>(e);
+                Debug.LogWarning($"Failed to place {id} in occupied {baked.Area}:{baked.Layer}");
+                ecbNow.DestroyEntity(e);
+                continue;
             }
-            else if (toBake.Layer.IsWall())
+            
+            massModel.Resize(grid.BoundsWithBorder.Min, grid.BoundsWithBorder.Max);
+            if (baked.Layer.IsWall() && !isGhost)
             {
-                massModel.AddWall(toBake.Area);
-                navTree.SetAreaDirty(toBake.Area);
-                roomModel.AddWall(toBake.Area);
+                massModel.AddWall(baked.Area);
+                navTree.SetAreaDirty(baked.Area);
+                roomModel.AddWall(baked.Area);
             }
-            else if (toBake.Layer.IsFloor())
+            else if (baked.Layer.IsFloor() && !isGhost)
             {
-                massModel.AddFloor(toBake.Area);
-                navTree.SetAreaDirty(toBake.Area);
+                massModel.AddFloor(baked.Area);
+                navTree.SetAreaDirty(baked.Area);
             }
-            transform.ValueRW = BuildUtils.ToTransform(toBake.Rotation, toBake.Area);
-
-            navLayers.AddOccupiedArea(toBake.Area, layer, e);
-            ecbNow.AddComponent(e, new BakedIntoRoomMap
-            {
-                Grid = toBake.Grid,
-                Layer = layer,
-                Area = toBake.Area,
-            });
+            transform.ValueRW = building.ToTransform(baked.Rotation, baked.Offset);
+            ecbNow.AddComponent(e, baked);
+            ecbNow.AddComponent(e, new Parent { Value = baked.Grid });
+            ecbNow.AddComponent(e, new OnGrid { Grid  = baked.Grid });
             ecbNow.RemoveComponent<ToBeBakedIntoRoomMap>(e);
+            ecbNow.AddComponent<BuildingsChangedEvent>(baked.Grid);
         }
         
         // Clean up occupations
@@ -63,7 +62,7 @@ partial struct BuildSystem : ISystem
                 continue;
             
             BuildUtils.Cleanup(e, baked, ecbNow, 
-                SystemAPI.GetComponentLookup<NavLayers>(),
+                SystemAPI.GetComponentLookup<CGrid>(),
                 SystemAPI.GetComponentLookup<NavTree>(), 
                 SystemAPI.GetComponentLookup<MassModel>(), 
                 SystemAPI.GetComponentLookup<RoomModel>());
@@ -73,17 +72,13 @@ partial struct BuildSystem : ISystem
         state.CompleteDependency();
         
         // Calculate rooms
-        new GridRoomRecalculationJob
-        {
-            roomLookup = SystemAPI.GetComponentLookup<RoomModel>(false)
-        }.Run();
+        new GridRoomRecalculationJob { }.Run();
         
         // Spawn buildings and ghosts based on planned constructions
         new BuildJob()
         {
             ecb = ecb,
-            boundsLookup = SystemAPI.GetComponentLookup<GridBounds>(true),
-            navLayerLookup = SystemAPI.GetComponentLookup<NavLayers>(false),
+            gridLookup = SystemAPI.GetComponentLookup<CGrid>(false),
             buildingLookup = SystemAPI.GetComponentLookup<Building>(true),
             ghostLookup = SystemAPI.GetComponentLookup<Ghost>(true)
         }.Run();

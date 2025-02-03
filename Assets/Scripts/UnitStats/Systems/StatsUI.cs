@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using Units;
 using Unity.Entities;
-using UnityEngine;
 using UnityEngine.UIElements;
 
 public class SkillsUI : VisualElement

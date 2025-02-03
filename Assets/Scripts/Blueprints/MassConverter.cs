@@ -8,7 +8,7 @@ public sealed class MassConverter : IYamlTypeConverter
 {
     public bool Accepts(Type type) => type == typeof(Mass);
 
-    public object ReadYaml(IParser parser, Type type)
+    public object ReadYaml(IParser parser, Type type, ObjectDeserializer od)
     {
         var value = parser.Consume<Scalar>().Value;
         if(value.ToLower().EndsWith("kg"))
@@ -20,7 +20,7 @@ public sealed class MassConverter : IYamlTypeConverter
         return (Mass)(uint)float.Parse(value);
     }
     
-    public void WriteYaml(IEmitter emitter, object value, Type type)
+    public void WriteYaml(IEmitter emitter, object value, Type type, ObjectSerializer od)
     {
         emitter.Emit(new Scalar(((Mass)value).ToString()));
     }

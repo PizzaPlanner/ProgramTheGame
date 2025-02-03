@@ -4,7 +4,6 @@ using UnityEngine;
 
 namespace Space.Authoring
 {
-    [RequireComponent(typeof(GridStructureAuthoring))]
     public class LocationAuthoring : MonoBehaviour
     {
         public BlueprintAuthoring SpawnWith;

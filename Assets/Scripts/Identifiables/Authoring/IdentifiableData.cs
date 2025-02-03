@@ -1,8 +1,6 @@
 ﻿#if UNITY_EDITOR
 using Identifiables;
-using System;
 using System.Collections.Generic;
-using Unity.Entities;
 using UnityEngine;
 
 [CreateAssetMenu]

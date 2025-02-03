@@ -1,10 +1,5 @@
 ﻿using Identifiables;
-using Navigation;
-using System;
-using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
-using Unity.Transforms;
-using UnityEngine;
 
 namespace Units
 {

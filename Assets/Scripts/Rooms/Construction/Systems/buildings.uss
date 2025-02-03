@@ -42,10 +42,10 @@ BuildingPlanElement.selected {
 #BuildingVariants #Recipe {
     border-width: 1px;
     border-color: rgb(43, 89, 188);
-    font-size: 12px;
+    font-size: 10px;
 }
 
 #BuildingVariants .id-button {
-    width: 42px;
-    height: 42px;
+    width: 36px;
+    height: 36px;
 }

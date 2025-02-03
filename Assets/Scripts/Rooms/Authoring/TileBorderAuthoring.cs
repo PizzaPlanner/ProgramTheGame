@@ -1,5 +1,4 @@
-﻿using System;
-using Unity.Entities;
+﻿using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
 
@@ -12,23 +11,23 @@ public class TileBorderAuthoring : MonoBehaviour
     {
         public override void Bake(TileBorderAuthoring authoring)
         {
-            var extents = new int2(1, 1);
             var parentBuilding = authoring.GetComponentInParent<BuildingAuthoring>(true);
             if (parentBuilding == null)
             {
                 Debug.LogError($"{authoring.gameObject.name} doesn't have a parent building", authoring.gameObject);
+                return;
             }
-            else
-                extents += parentBuilding.Size;
+            
+            var extents = parentBuilding.ExtentsURDL + 1;
             var e = GetEntity(TransformUsageFlags.Renderable);
             AddComponent(e, new TileBorder
             {
                 Direction = authoring.Facing switch
                 {
-                    Direction.Up => new int2(0, extents.y),
-                    Direction.Down => new int2(0, -1),
-                    Direction.Left => new int2(-1, 0),
-                    Direction.Right => new int2(extents.x, 0),
+                    Direction.Up => new int2(0, extents.x),
+                    Direction.Right => new int2(extents.y, 0),
+                    Direction.Down => new int2(0, -extents.z),
+                    Direction.Left => new int2(-extents.w, 0),
                     _ => default
                 },
                 RequireOccupied = authoring.IsConnection

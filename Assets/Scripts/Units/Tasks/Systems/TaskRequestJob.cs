@@ -1,10 +1,6 @@
-﻿using Core.Grid;
-using Navigation;
-using Space;
+﻿using Space;
 using Unity.Collections;
 using Unity.Entities;
-using Unity.Transforms;
-using UnityEngine;
 
 namespace Units
 {

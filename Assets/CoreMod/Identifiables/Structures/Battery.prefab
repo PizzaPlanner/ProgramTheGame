@@ -69,9 +69,14 @@ MonoBehaviour:
   NotAllowedOnShips: 0
   CanBeRotated: 1
   Duration: 100
-  Size:
+  ExtentsURDL:
     x: 1
     y: 1
+    z: 0
+    w: 0
+  InteractionOffset:
+    x: 0
+    y: 0
   Variants:
   - Element: {fileID: -7047243780222175833, guid: 2d08fe34d7e1b34488389132c02bd97d, type: 3}
     OverrideMaterial: {fileID: 0}

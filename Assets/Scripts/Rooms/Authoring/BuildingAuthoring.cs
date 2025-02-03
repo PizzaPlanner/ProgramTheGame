@@ -1,4 +1,4 @@
-﻿using Identifiables;
+﻿using Grids;
 using System;
 using Unity.Collections;
 using Unity.Entities;
@@ -20,7 +20,8 @@ public class BuildingAuthoring : MonoBehaviour
     public bool NotAllowedOnShips;
     public bool CanBeRotated;
     public uint Duration;
-    public int2 Size;
+    public int4 ExtentsURDL;
+    public int2 InteractionOffset;
     public BuildingVariantAuthoring[] Variants;
     public CraftingRecipeAuthoring.ItemWithAmount[] OtherMaterials;
     public TaskAuthoring DismantleTask;
@@ -37,12 +38,9 @@ public class BuildingAuthoring : MonoBehaviour
                 DraggableDimension = authoring.PlacementType,
                 Duration = authoring.Duration,
                 IsAllowedOnShips = !authoring.NotAllowedOnShips,
-                IsRotatable = authoring.CanBeRotated
-            });
-            AddComponent(self, new GridBounds
-            {
-                Min = int2.zero,
-                Max = authoring.Size
+                IsRotatable = authoring.CanBeRotated,
+                ExtentsURDL = authoring.ExtentsURDL,
+                InteractionOffset = authoring.InteractionOffset,
             });
             if(authoring.Layer.HasFlag(BuildingLayer.FloorLevel))
                 AddComponent<Floor>(self);
@@ -85,9 +83,19 @@ public class BuildingAuthoring : MonoBehaviour
 
     void OnDrawGizmosSelected()
     {
-        Gizmos.DrawLine(float3.zero, new float3(0, 0, Size.y + 1));
-        Gizmos.DrawLine(float3.zero, new float3(Size.x + 1, 0, 0));
-        Gizmos.DrawLine(new float3(Size.x + 1, 0, Size.y + 1), new float3(Size.x + 1, 0, 0));
-        Gizmos.DrawLine(new float3(Size.x + 1, 0, Size.y + 1), new float3(0, 0, Size.y + 1));
+        DrawBox(new GridBounds{ Min = -ExtentsURDL.wz, Max = ExtentsURDL.yx }, Color.white);
+        DrawBox(new GridBounds{ Min = 0, Max = 0 }, Color.green);
+        DrawBox(new GridBounds{ Min = InteractionOffset, Max = InteractionOffset }, Color.red);
+    }
+
+    void DrawBox(GridBounds bounds, Color color)
+    {
+        var min = new float3(bounds.Min.x, 0, bounds.Min.y);
+        var max = new float3(bounds.Max.x + 1, 0, bounds.Max.y + 1);
+        Gizmos.color = color;
+        Gizmos.DrawLine(min, new float3(min.x, 0, max.z));
+        Gizmos.DrawLine(new float3(min.x, 0, max.z), max);
+        Gizmos.DrawLine(min, new float3(max.x, 0, min.z));
+        Gizmos.DrawLine(new float3(max.x, 0, min.z), max);
     }
 }

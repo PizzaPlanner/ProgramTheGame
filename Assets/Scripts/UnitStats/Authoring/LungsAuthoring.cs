@@ -1,7 +1,6 @@
 ﻿using Core.Equipment;
 using Unity.Entities;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 public class LungsAuthoring : MonoBehaviour
 {

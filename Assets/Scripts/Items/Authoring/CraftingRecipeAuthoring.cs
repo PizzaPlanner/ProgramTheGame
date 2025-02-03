@@ -1,5 +1,4 @@
 #if UNITY_EDITOR
-using System;
 using Unity.Entities;
 using UnityEngine;
 

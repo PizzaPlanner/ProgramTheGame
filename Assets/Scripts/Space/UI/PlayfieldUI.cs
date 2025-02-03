@@ -1,13 +1,10 @@
-using Core.Grid;
+using Grids;
 using Identifiables;
-using Identifiables.UI;
 using Space;
 using System;
 using Units;
 using Unity.Collections;
 using Unity.Entities;
-using Unity.Transforms;
-using UnityEngine;
 using UnityEngine.UIElements;
 
 
@@ -163,6 +160,20 @@ partial class PlayfieldUISystem : UISystem
         foreach (var (ui, travel, progress, e) in SystemAPI.Query<PlayfieldUI, TravelTask, TaskProgress>().WithEntityAccess())
         {
             ui.SetTravelState(travel, progress, EntityManager);
+        }
+        
+
+        if(!UISystemGroup.TryGet<SelectedUnitElement>(out var selected))
+            return;
+        foreach (var (grid, sector, e) in SystemAPI.Query<CGrid, Sector>().WithAll<Selected>().WithEntityAccess())
+        {
+            
+            selected.GetOrCreate("Location", () => new Label()
+            {
+                text = $@"In Sector {sector.PositionInSpace:0}
+Bounds: {grid.BoundsWithBorder}
+"
+            });
         }
     }
 }

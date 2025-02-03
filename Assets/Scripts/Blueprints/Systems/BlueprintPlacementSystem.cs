@@ -1,5 +1,4 @@
 ﻿using Core;
-using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
@@ -77,7 +76,7 @@ partial struct BlueprintPlacementSystem : ISystem
                 else if (SystemAPI.HasComponent<OnGrid>(prefab))
                 {
                     var thingEntity = ecb.Instantiate(prefab);
-                    ecb.SetComponent(thingEntity, LocalTransform.FromPosition(GridStructure.CellCenterToLocal(part.Location + bp.Offset)));
+                    ecb.SetComponent(thingEntity, LocalTransform.FromPosition(Grids.CGrid.CellCenterToLocal(part.Location + bp.Offset)));
                     ecb.SetComponent(thingEntity, new OnGrid { Grid = bp.BuildOn });
                     ecb.SetComponent(thingEntity, thingMass);
                 }

@@ -1,7 +1,5 @@
 ﻿using Units;
-using Unity.Collections;
 using Unity.Entities;
-using UnityEngine.UIElements;
 
 partial class CrafterUISystem : UISystem
 {

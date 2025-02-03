@@ -149,7 +149,7 @@
                     "id": "13c56170-0b6e-41dc-8f51-31b3609c82b0",
                     "path": "OneModifier",
                     "interactions": "",
-                    "processors": "",
+                    "processors": "ScaleVector2(x=0.3,y=0.3)",
                     "groups": "",
                     "action": "Rotate",
                     "isComposite": true,

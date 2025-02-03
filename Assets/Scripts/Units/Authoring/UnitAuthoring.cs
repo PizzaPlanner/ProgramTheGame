@@ -1,6 +1,4 @@
-﻿using Core.Grid;
-using Space;
-using Units;
+﻿using Space;
 using Unity.Entities;
 using UnityEngine;
 

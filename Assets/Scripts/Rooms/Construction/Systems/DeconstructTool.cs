@@ -1,16 +1,16 @@
 ﻿using Core;
 using Core.Input;
+using Grids;
 using Identifiables;
+using Identifiables.UI;
 using Navigation;
 using System;
 using Units;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
-using Unity.Transforms;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.UI;
 using UnityEngine.UIElements;
 using Toggle = UnityEngine.UIElements.Toggle;
 
@@ -35,6 +35,15 @@ partial class DeconstructToolUISystem : MapOverlaySystem<DeconstructTool>
             text = layer.ToString();
         }
     }
+
+    class ToggleForTask : Toggle
+    {
+        public ToggleForTask(Identifiable id)
+        {
+            Add(new IdentifiableButton { Target = id });
+            name = id.DefaultName.Value;
+        }
+    }
         
     protected override VisualElement MakeWindow()
     {
@@ -52,7 +61,7 @@ partial class DeconstructToolUISystem : MapOverlaySystem<DeconstructTool>
         {
             if(!SystemAPI.HasComponent<DismantleTask>(task.SpawnablePrefab))
                 continue;
-            taskTypes.Add(new Toggle(task.DefaultName.Value) { value = true });
+            taskTypes.Add(new ToggleForTask(task) { value = true });
         }
         elm.Add(taskTypes);
         elm.Add(layers);
@@ -79,6 +88,9 @@ partial class DeconstructToolUISystem : MapOverlaySystem<DeconstructTool>
 
     bool IsInstantRemove => _window.Q<Toggle>("InstantRemove").value;
     bool wantDrag;
+    
+    bool IsTaskSelected(Identifiable task) => _window.Q<ToggleForTask>(task.DefaultName.Value)?.value ?? false;
+        
     protected override void OnUpdate()
     {
         base.OnUpdate();
@@ -126,27 +138,24 @@ partial class DeconstructToolUISystem : MapOverlaySystem<DeconstructTool>
         {
             selectionChanged =  true;
             EntityManager.RemoveComponent<HoverIndicator>(GetEntityQuery(typeof(HoverIndicator)));
-            var navigation = SystemAPI.GetComponent<NavLayers>(GridEntity);
+            var navigation = SystemAPI.GetComponent<CGrid>(GridEntity);
             DragArea.Max = CellAtCursor;
             if(!wantDrag)
                 DragArea.Min = CellAtCursor;
-            var min = math.min(DragArea.Min, DragArea.Max);
-            var max = math.max(DragArea.Min, DragArea.Max);
-            for (int x = min.x; x <= max.x; x++)
-            for (int y = min.y; y <= max.y; y++)
-                foreach (var layer in layersToCheck)
-                {
-                    if (!navigation.IsOccupied(new int2(x, y), layer, out var e))
-                        continue;
-                    if(!SystemAPI.HasComponent<Building>(e))
-                        continue;
-                    if(!IsInstantRemove && SystemAPI.GetComponent<Building>(e).DismantleTaskPrefab == default)
-                        continue;
-                    ecb.AddComponent<HoverIndicator>(e);
-                }
+            foreach (var e in navigation.GetAllEntitiesIn(DragArea))
+            {
+                if(!SystemAPI.HasComponent<Building>(e))
+                    continue;
+                var building = SystemAPI.GetComponent<Building>(e);
+                if(!IsTaskSelected(building.DismantleTaskPrefab))
+                    continue;
+                foreach(var layer in layersToCheck)
+                    if(building.Layer == layer)
+                        ecb.AddComponent<HoverIndicator>(e);
+            }
         }
     }
-    
+
     bool selectionChanged;
 
     protected override bool ShouldUpdateTexture()

@@ -1,9 +1,9 @@
-﻿using Navigation;
+﻿using Grids;
+using Navigation;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
-using UnityEngine;
 
 public struct TileBorder : IComponentData
 {
@@ -23,7 +23,7 @@ public partial struct NeighbouringSystem : ISystem
         {
             neighbours.Clear();
             var newNeighbours = new NativeHashSet<Neighbours>(4, Allocator.Temp);
-            var roomMap = SystemAPI.GetComponent<NavLayers>(baked.Grid);
+            var roomMap = SystemAPI.GetComponent<CGrid>(baked.Grid);
             var bounds = baked.Area;
             for (int x = bounds.Min.x; x <= bounds.Max.x; x++)
             {
@@ -54,7 +54,7 @@ public partial struct NeighbouringSystem : ISystem
             if(!SystemAPI.HasComponent<BakedIntoRoomMap>(parent.Value))
                 continue;
             var tile = SystemAPI.GetComponent<BakedIntoRoomMap>(parent.Value);
-            var roomMap = SystemAPI.GetComponent<NavLayers>(tile.Grid);
+            var roomMap = SystemAPI.GetComponent<CGrid>(tile.Grid);
             var cell = tile.Area.Min;
             var occupied = roomMap.IsOccupied(cell + border.Direction, tile.Layer);
             if(occupied != border.RequireOccupied)

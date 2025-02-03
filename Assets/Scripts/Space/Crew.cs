@@ -1,8 +1,8 @@
-﻿using Unity.Collections;
+﻿using Grids;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
-using UnityEngine;
 
 namespace Space
 {
@@ -19,7 +19,7 @@ namespace Space
         {
             var ecb = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>().CreateCommandBuffer(state.WorldUnmanaged);
             
-            foreach(var (_, e) in SystemAPI.Query<GridStructure>().WithNone<Crew>().WithEntityAccess())
+            foreach(var (_, e) in SystemAPI.Query<CGrid>().WithNone<Crew>().WithEntityAccess())
                 ecb.AddBuffer<Crew>(e);
             
             var allCrews = SystemAPI.QueryBuilder().WithAll<Crew>().Build().ToEntityArray(Allocator.Temp);

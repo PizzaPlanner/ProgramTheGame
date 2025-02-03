@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Grids;
+using System;
 using Units;
 using Unity.Collections;
 using Unity.Entities;
@@ -47,7 +48,7 @@ namespace Core.Equipment
             var visitedCells = new NativeHashSet<int2>(16, Allocator.Temp);
             var bestPriority = 0f;
             var bestCell = (int2)int.MinValue;
-            var startCell = GridStructure.LocalToCell(execPos.Position);
+            var startCell = CGrid.LocalToCell(execPos.Position);
             priorityQueue.Enqueue(startCell);
             Span<int2> neighbours = stackalloc int2[] { new int2(1, 0), new int2(-1, 0), new int2(0, 1), new int2(0, -1)};
             while (bestPriority <= 0 && priorityQueue.TryDequeue(out var currentCell))
@@ -75,7 +76,7 @@ namespace Core.Equipment
             
             breather.BestTile = bestCell;
             ref var transform = ref transformLookup.GetRefRW(e).ValueRW;
-            transform.Position = GridStructure.CellCenterToLocal(bestCell);
+            transform.Position = CGrid.CellCenterToLocal(bestCell);
             task.Target = e;
         }
 

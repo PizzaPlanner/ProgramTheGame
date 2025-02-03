@@ -1,7 +1,5 @@
 ﻿using Unity.Entities;
-using Unity.Rendering;
 using UnityEngine;
-using UnityEngine.Rendering;
 
 class AdaptToVariantAuthoring : MonoBehaviour
 {

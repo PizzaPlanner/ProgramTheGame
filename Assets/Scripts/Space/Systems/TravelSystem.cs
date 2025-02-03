@@ -1,4 +1,4 @@
-﻿using Core;
+﻿using Grids;
 using Navigation;
 using Units;
 using Unity.Collections;
@@ -13,11 +13,11 @@ namespace Space.Systems
     {
         public EntityCommandBuffer ecb;
         public ComponentLookup<BakedIntoRoomMap> bakedLookup;
-        public ComponentLookup<NavLayers> navLayersLookup;
-        public ComponentLookup<GridStructure> gridLookup;
+        public ComponentLookup<CGrid> gridLookup;
         public ComponentLookup<NavTree> navTreeLookup;
         public ComponentLookup<MassModel> massLookup;
         public ComponentLookup<RoomModel> roomLookup;
+        [ReadOnly] public ComponentLookup<Building> buildingLookup;
         void Execute(Entity e, ref Task task, ref TaskProgress progress, ref TravelTask travel, ref Sector sector, EnabledRefRO<WorkedOn> workedOn)
         {
             if (task.Target == default)
@@ -31,7 +31,7 @@ namespace Space.Systems
                 case TravelStage.Validation:
                 {
                     if (!massLookup.HasComponent(e) 
-                        || !navLayersLookup.HasComponent(e) 
+                        || !gridLookup.HasComponent(e) 
                         || !VerifyShipIntegrity(task))
                     {
                         task.IsCancelable = true;
@@ -40,7 +40,7 @@ namespace Space.Systems
                     var baked = bakedLookup[task.Origin];
                     var fromBounds = baked.Area.Extend(5);
                     if(!BuildUtils.Transfer(travel.FromLocation, fromBounds, e, fromBounds.Min - baked.Area.Min, ecb, 
-                        navLayersLookup, navTreeLookup, massLookup, roomLookup, bakedLookup, gridLookup))
+                        navTreeLookup, massLookup, roomLookup, bakedLookup, gridLookup, buildingLookup))
                         return;
                     
                     travel.Stage = TravelStage.Preparation;
@@ -78,6 +78,15 @@ namespace Space.Systems
                     travel.Stage = TravelStage.Arrival;
                     sector.PositionInSpace = travel.To.PositionInSpace;
                 }break;
+                case TravelStage.PreArrival:
+                {
+                    if(travel.LandingArea.Size == 0)
+                        return;
+                    progress.RequiredTicks = 100;
+                    progress.PartialTicks = 0;
+                    travel.Stage = TravelStage.PreArrival;
+                    break;
+                }
                 case TravelStage.Arrival:
                 {
                     progress.PartialTicks += 1;
@@ -89,56 +98,12 @@ namespace Space.Systems
                 }break;
                 case TravelStage.Landing:
                 {
-                    if(!BuildUtils.Transfer(e, gridLookup[e].LocalAABB, travel.ToLocation, 
-                           gridLookup[travel.ToLocation].BoundsMin - gridLookup[e].LocalAABB.Scale, ecb, 
-                           navLayersLookup, navTreeLookup, massLookup, roomLookup, bakedLookup, gridLookup))
+                    if(!BuildUtils.Transfer(e, gridLookup[e].BoundsWithBorder, travel.ToLocation, 
+                           gridLookup[travel.ToLocation].BoundsWithBorder.Min - gridLookup[e].BoundsWithBorder.Scale, ecb, 
+                           navTreeLookup, massLookup, roomLookup, bakedLookup, gridLookup, buildingLookup))
                         return;
                     ecb.DestroyEntity(e);
                 }break;
-            }
-        }
-
-        void ReconnectShip(Entity e, TravelTask travel)
-        {
-            var grid = gridLookup[e];
-            var navi = navLayersLookup[e];
-            var shipParts = navi.GetAllEntitiesIn(grid.LocalAABB);
-            Debug.Log($"Reconnecting {shipParts.Count} parts");
-            foreach (var part in shipParts)
-            {
-                if (!bakedLookup.TryGetComponent(part, out var partBaked))
-                {
-                    Debug.LogWarning($"Something off about {part}");
-                    continue;
-                }
-                ecb.AddComponent(part, new TransferToLocation
-                {
-                    DeltaOffset = -new int2(grid.BoundsMax.x, 0),
-                    TargetLocation = travel.ToLocation
-                });
-            }
-        }
-
-        void DisconnectShip(Entity e, Task task, TravelTask travel)
-        {
-            var baked = bakedLookup[task.Origin];
-            var fromGrid = gridLookup[travel.FromLocation];
-            var navi = navLayersLookup[travel.FromLocation];
-            var shipParts = navi.GetAllEntitiesIn(baked.Area.Extend(5));
-            Debug.Log($"Disconnecting {shipParts.Count} parts");
-            foreach (var part in shipParts)
-            {
-                if (!bakedLookup.TryGetComponent(part, out var partBaked))
-                {
-                    Debug.LogWarning($"Something off about {part}");
-                    continue;
-                }
-
-                ecb.AddComponent(part, new TransferToLocation
-                {
-                    DeltaOffset = -baked.Area.Min,
-                    TargetLocation = e
-                });
             }
         }
 
@@ -159,20 +124,20 @@ namespace Space.Systems
             {
                 ecb = ecb,
                 bakedLookup = SystemAPI.GetComponentLookup<BakedIntoRoomMap>(false),
-                navLayersLookup = SystemAPI.GetComponentLookup<NavLayers>(false),
-                gridLookup = SystemAPI.GetComponentLookup<GridStructure>(false),
+                gridLookup = SystemAPI.GetComponentLookup<CGrid>(false),
                 massLookup = SystemAPI.GetComponentLookup<MassModel>(false),
                 roomLookup = SystemAPI.GetComponentLookup<RoomModel>(false),
-                navTreeLookup = SystemAPI.GetComponentLookup<NavTree>(false)
+                navTreeLookup = SystemAPI.GetComponentLookup<NavTree>(false),
+                buildingLookup = SystemAPI.GetComponentLookup<Building>(true)
             }.Run();
             
             new LocationTransferJob
             {
                 ecb = ecb,
                 massLookup = SystemAPI.GetComponentLookup<MassModel>(false),
-                navLayersLookup = SystemAPI.GetComponentLookup<NavLayers>(false),
                 roomLookup = SystemAPI.GetComponentLookup<RoomModel>(false),
-                navTreeLookup = SystemAPI.GetComponentLookup<NavTree>(false)
+                navTreeLookup = SystemAPI.GetComponentLookup<NavTree>(false),
+                gridLookup = SystemAPI.GetComponentLookup<CGrid>(false)
             }.Run();
 
             foreach (var (anim, transform, e) in

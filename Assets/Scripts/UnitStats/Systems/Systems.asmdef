@@ -17,7 +17,8 @@
         "Units",
         "Core",
         "Elements",
-        "Items"
+        "Items",
+        "Navigation"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

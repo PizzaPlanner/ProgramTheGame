@@ -1,8 +1,6 @@
 ﻿using Identifiables;
-using Identifiables.UI;
 using Unity.Collections;
 using Unity.Entities;
-using UnityEngine.UIElements;
 
 [InternalBufferCapacity(0)]
 public struct Tags : IBufferElementData

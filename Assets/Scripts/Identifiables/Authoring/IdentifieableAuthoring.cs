@@ -1,7 +1,6 @@
 #if UNITY_EDITOR
 using Identifiables;
 using Identifiables.Authoring;
-using System;
 using Unity.Entities;
 using UnityEditor;
 using UnityEngine;

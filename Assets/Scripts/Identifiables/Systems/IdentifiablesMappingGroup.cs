@@ -1,6 +1,4 @@
 using Identifiables;
-using System;
-using System.Linq;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Scenes;
@@ -50,22 +48,22 @@ public partial class IdentifiablesMappingGroup : ComponentSystemGroup
             else
                 mappedThisFrame.Add(e);
         }
-        foreach(var system in ManagedSystems.OfType<IdentifiableMappingSystem>())
-        foreach (var id in system.RegisterAdditionalIds?.Invoke() ?? Array.Empty<DynamicIdentifiableDefinition>())
-        {
-            var data = new IdentifiableData { Prefab = id.Prefab, DefaultName = id.Name, Spawnable = id.IsSpawnable, Icon = id.Icon };
-            if (!RegisterAsIdentifiable(id.Prefab, data))
-            {
-                ecb.DestroyEntity(id.Prefab);
-                continue;
-            }
-            mappedThisFrame.Add(id.Prefab);
-            EntityManager.AddComponentData(id.Prefab, Identifiable.FromName(id.Name));
-            EntityManager.AddComponentData(id.Prefab, data);
-            var tagBuffer = EntityManager.AddBuffer<Tags>(id.Prefab);
-            foreach(var tag in id.Tags)
-                tagBuffer.Add(new Tags { Tag = Identifiable.FromName(tag) });
-        }
+        // foreach(var system in ManagedSystems.OfType<IdentifiableMappingSystem>())
+        // foreach (var id in system.RegisterAdditionalIds?.Invoke() ?? Array.Empty<DynamicIdentifiableDefinition>())
+        // {
+        //     var data = new IdentifiableData { Prefab = id.Prefab, DefaultName = id.Name, Spawnable = id.IsSpawnable, Icon = id.Icon };
+        //     if (!RegisterAsIdentifiable(id.Prefab, data))
+        //     {
+        //         ecb.DestroyEntity(id.Prefab);
+        //         continue;
+        //     }
+        //     mappedThisFrame.Add(id.Prefab);
+        //     EntityManager.AddComponentData(id.Prefab, Identifiable.FromName(id.Name));
+        //     EntityManager.AddComponentData(id.Prefab, data);
+        //     var tagBuffer = EntityManager.AddBuffer<Tags>(id.Prefab);
+        //     foreach(var tag in id.Tags)
+        //         tagBuffer.Add(new Tags { Tag = Identifiable.FromName(tag) });
+        // }
         ecb.Playback(EntityManager);
         
         base.OnUpdate();
@@ -93,9 +91,9 @@ public partial class IdentifiablesMappingGroup : ComponentSystemGroup
             return false;
         }
         Identifiable.Register(data);
-#if UNITY_EDITOR
-        EntityManager.SetName(e, data.DefaultName);
-#endif
+// #if UNITY_EDITOR
+//         EntityManager.SetName(e, data.DefaultName);
+// #endif
         return true;
     }
 }

@@ -68,9 +68,14 @@ MonoBehaviour:
   NotAllowedOnShips: 0
   CanBeRotated: 1
   Duration: 100
-  Size:
-    x: 1
-    y: 2
+  ExtentsURDL:
+    x: 2
+    y: 1
+    z: 0
+    w: 0
+  InteractionOffset:
+    x: 0
+    y: 1
   Variants: []
   OtherMaterials: []
   DismantleTask: {fileID: 5923588122422854532, guid: e6fbab2b9276e9642a2e14a08ec0aa19, type: 3}

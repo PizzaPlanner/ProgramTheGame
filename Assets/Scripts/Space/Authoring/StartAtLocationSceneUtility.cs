@@ -2,7 +2,6 @@
 using System.Reflection;
 using Unity.Entities;
 using UnityEditor;
-using UnityEditor.SceneManagement;
 using UnityEditor.Toolbars;
 using UnityEngine;
 using UnityEngine.SceneManagement;

@@ -1,7 +1,5 @@
-﻿using System.Collections.Generic;
-using Units;
+﻿using Units;
 using Unity.Entities;
-using UnityEngine.UIElements;
 
 public partial class InventoryUISystem : UISystem
 {

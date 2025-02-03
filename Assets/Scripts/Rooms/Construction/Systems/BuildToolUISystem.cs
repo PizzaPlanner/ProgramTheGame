@@ -1,5 +1,6 @@
 ﻿using Core;
 using Core.Input;
+using Grids;
 using Identifiables;
 using Unity.Collections;
 using Unity.Entities;
@@ -21,7 +22,10 @@ public struct BuildTool : IInputActionState
     public static InputAction Rotate => InputActions.For<BuildTool>()["Rotate"];
 }
 
-internal struct CurrentGhost : IComponentData { }
+internal struct CurrentGhost : IComponentData
+{
+    public BakedIntoRoomMap ValuesToBake;
+}
 
 partial class BuildToolUISystem : MapOverlaySystem<BuildTool>
 {
@@ -36,7 +40,7 @@ partial class BuildToolUISystem : MapOverlaySystem<BuildTool>
     protected override void OnCreate()
     {
         base.OnCreate();
-        newGhostQuery = SystemAPI.QueryBuilder().WithAll<CurrentGhost, Building, GridBounds, Parent>().Build();
+        newGhostQuery = SystemAPI.QueryBuilder().WithAll<CurrentGhost, Building>().Build();
         newGhostChangedQuery = SystemAPI.QueryBuilder().WithAll<CurrentGhost>().Build();
         newGhostChangedQuery.AddChangedVersionFilter(typeof(CurrentGhost));
     }
@@ -44,9 +48,9 @@ partial class BuildToolUISystem : MapOverlaySystem<BuildTool>
     protected override void OnStopRunning()
     {
         base.OnStopRunning();
-        var ecb = new EntityCommandBuffer(Allocator.Temp);
+        var ecb = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>()
+                           .CreateCommandBuffer(World.Unmanaged);
         ClearPreview(ecb);
-        ecb.Playback(EntityManager);
         Window.ShowBasic();
         LastRotation = 0;
     }
@@ -74,41 +78,23 @@ partial class BuildToolUISystem : MapOverlaySystem<BuildTool>
         var parent = cgrid.Grid;
         var gridLtw = SystemAPI.GetComponent<LocalToWorld>(parent);
         var pointerOverUI = SystemAPI.HasSingleton<PointerOverUI>();
-        var pointedCell = GridStructure.CursorToCell(gridLtw);
-        if (!newGhostQuery.IsEmptyIgnoreFilter)
+        var pointedCell = CGrid.CursorToCell(gridLtw);
+        if (!newGhostQuery.IsEmptyIgnoreFilter && !pointerOverUI)
         {
-            var root = Entity.Null;
-            var entities = newGhostQuery.ToEntityArray(Allocator.Temp);
-            var parents = newGhostQuery.ToComponentDataArray<Parent>(Allocator.Temp);
-            for (int i = 0; i < entities.Length; i++)
-            {
-                if (!SystemAPI.HasComponent<CurrentGhost>(parents[i].Value))
-                {
-                    root = entities[i];
-                }
-            }
-            
             if (BuildTool.PlaceBuilding.WasPressedThisFrame())
             {
-                if (!pointerOverUI)
-                {
-                    DragArea.Max = DragArea.Min = pointedCell;
-                }
-                else
-                    ClearPreview(ecb);
+                DragArea.Max = DragArea.Min = pointedCell;
             }
-            else if(BuildTool.PlaceBuilding.WasReleasedThisFrame() && !pointerOverUI)
+            else if(BuildTool.PlaceBuilding.WasReleasedThisFrame())
             {
                 foreach (var ghost in newGhostQuery.ToEntityArray(Allocator.Temp))
                 {
-                    var building = SystemAPI.GetComponent<Building>(ghost);
-                    var bounds = SystemAPI.GetComponent<GridBounds>(ghost);
                     var plan = ecb.CreateEntity();
                     ecb.AddComponent(plan, new PlannedConstruction
                     {
-                        Location = (building.IsRotatable ? bounds.Rotated(360 - 90 * LastRotation) : bounds).Min,
+                        Location = SystemAPI.GetComponent<CurrentGhost>(ghost).ValuesToBake.Offset,
                         Materials = SystemAPI.GetComponent<ConstructionVariant>(ghost),
-                        Parent = SystemAPI.GetComponent<Parent>(ghost).Value,
+                        Parent = parent,
                         Prefab = SystemAPI.GetComponent<Identifiable>(ghost),
                         Mode = Window.IsCreativeMode ? ConstructionMode.Complete : ConstructionMode.UnderConstruction,
                         Rotation = LastRotation
@@ -138,7 +124,7 @@ partial class BuildToolUISystem : MapOverlaySystem<BuildTool>
                         Max = math.max(DragArea.Min, DragArea.Max),
                     };
                     ClearPreview(ecb);
-                    var dragType = SystemAPI.GetComponent<Building>(root).DraggableDimension;
+                    var dragType = SystemAPI.GetComponent<Building>(GhostPrefab.SpawnablePrefab).DraggableDimension;
                     if(dragType == PlacementType.Single)
                         PlacePreview(DragArea.Max, ecb);
                     else if(dragType == PlacementType.Rectangle)
@@ -174,8 +160,7 @@ partial class BuildToolUISystem : MapOverlaySystem<BuildTool>
                 }
             }
         }
-        var toBuild = Window.WantBuildPlan;
-        if (toBuild == default)
+        if (Window.WantBuildPlan == default && Window.VariantMaterial == default)
             return;
         
         DragArea = new GridBounds{Min = pointedCell, Max = pointedCell};
@@ -190,11 +175,11 @@ partial class BuildToolUISystem : MapOverlaySystem<BuildTool>
     protected override void SetPixels(Entity gridEntity, Texture2D texture, GridBounds bounds)
     {
         texture.SetPixelData(new NativeArray<byte>(4 * bounds.Size, Allocator.Temp), 0);
-        var ghostBounds = newGhostQuery.ToComponentDataArray<GridBounds>(Allocator.Temp);
+        var ghostBounds = newGhostQuery.ToComponentDataArray<CurrentGhost>(Allocator.Temp);
         foreach (var b in ghostBounds)
         {
-            for (int x = b.Min.x; x <= b.Max.x; x++)
-            for (int y = b.Min.y; y <= b.Max.y; y++)
+            for (int x = b.ValuesToBake.Area.Min.x; x <= b.ValuesToBake.Area.Max.x; x++)
+            for (int y = b.ValuesToBake.Area.Min.y; y <= b.ValuesToBake.Area.Max.y; y++)
             {
                 texture.SetPixel(x - bounds.Min.x, y - bounds.Min.y, new Color(0, 0, 0, 0.5f));
             }

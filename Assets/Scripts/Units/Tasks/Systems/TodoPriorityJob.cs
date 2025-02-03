@@ -1,11 +1,8 @@
 ﻿using Core.Status;
-using Identifiables;
 using Navigation;
 using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Entities;
-using Unity.Transforms;
-using UnityEngine;
 
 namespace Units
 {

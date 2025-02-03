@@ -1,5 +1,4 @@
 using Identifiables.UI;
-using UnityEngine;
 using UnityEngine.UIElements;
 
 public class ItemButton : IdentifiableButton

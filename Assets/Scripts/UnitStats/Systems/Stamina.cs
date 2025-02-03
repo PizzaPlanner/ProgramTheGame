@@ -1,5 +1,7 @@
 ﻿using Core.Status;
+using Grids;
 using Identifiables;
+using Navigation;
 using Units;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -34,9 +36,9 @@ namespace Core.Equipment
                               .WithNone<Dead>()
                               .WithEntityAccess())
             {
-                var wasHungry = stamina.ValueRW.IsTired;
-                var wasStarving = stamina.ValueRW.IsExhausted;
-                if (stats.Has(RestingStatus))
+                if (!stats.Has(RestingStatus))
+                    stamina.ValueRW.Fullness = math.max(0, stamina.ValueRW.Fullness - stamina.ValueRW.ConsumptionPerTick);
+                else if(SystemAPI.HasComponent<Bed>(stamina.ValueRW.CurrentBed))
                 {
                     ref var bed = ref SystemAPI.GetComponentRW<Bed>(stamina.ValueRW.CurrentBed).ValueRW;
                     var rest = math.min(bed.RestValue, stamina.ValueRW.Capacity - stamina.ValueRW.Fullness);
@@ -44,31 +46,33 @@ namespace Core.Equipment
                     stamina.ValueRW.Fullness += (int)rest;
                 }
                 else
-                    stamina.ValueRW.Fullness = math.max(0, stamina.ValueRW.Fullness - stamina.ValueRW.ConsumptionPerTick);
-
+                    stamina.ValueRW.Fullness += 1;
+                
                 if (stamina.ValueRW.Fullness <= 0)
                 {
                     ecb.AddComponent(e, new Dead{Cause = ExhaustedStatus});
                     continue;
                 }
                 
-                if (wasStarving && !stamina.ValueRW.IsExhausted)
+                var wasCritical = stats.Has(ExhaustedStatus);
+                if (wasCritical && !stamina.ValueRW.IsExhausted)
                 {
                     stats.Remove(ExhaustedStatus);
                     if (stamina.ValueRW.IsTired)
                         stats.Add(TiredStatus);
                     continue;
                 }
-                if (!wasStarving && stamina.ValueRW.IsExhausted)
+                else if (!wasCritical && stamina.ValueRW.IsExhausted)
                 {
                     stats.Remove(TiredStatus);
                     stats.Add(ExhaustedStatus);
                     continue;
                 }
                 
-                if(wasHungry && !stamina.ValueRW.IsTired)
+                var wasLow = stats.Has(TiredStatus);
+                if(wasLow && !stamina.ValueRW.IsTired)
                     stats.Remove(TiredStatus);
-                else if (!wasHungry && stamina.ValueRW.IsExhausted)
+                else if (!wasLow && stamina.ValueRW.IsTired)
                 {
                     Task.Schedule(RestTask, ecb, new Task { Priority = TaskPriority.MediumPriority, 
                         Origin = e, Executor = e, 
@@ -77,15 +81,14 @@ namespace Core.Equipment
                 }
             }
             
-            // new FindFoodTargetJob()
-            // {
-            //     ecb = ecb,
-            //     staminaLookup = SystemAPI.GetComponentLookup<Stamina>(false),
-            //     foodLookup = SystemAPI.GetComponentLookup<Food>(true),
-            //     inventoryLookup = SystemAPI.GetBufferLookup<Inventory>(true),
-            //     networkLookup = SystemAPI.GetComponentLookup<LogisticsNetwork>(true),
-            //     dietLookup = SystemAPI.GetBufferLookup<DietSettings>(true)
-            // }.Schedule();
+            new FindRestTargetJob()
+            {
+                ecb = ecb,
+                staminaLookup = SystemAPI.GetComponentLookup<Stamina>(false),
+                bedLookup = SystemAPI.GetComponentLookup<Bed>(false),
+                navLookup = SystemAPI.GetComponentLookup<CGrid>(true),
+                onGridLookup = SystemAPI.GetComponentLookup<OnGrid>(true)
+            }.Schedule();
         }
     }
 }

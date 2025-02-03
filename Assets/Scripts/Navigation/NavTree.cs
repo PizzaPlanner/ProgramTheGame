@@ -1,11 +1,11 @@
-﻿using System;
+﻿using Grids;
+using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using Unity.Mathematics;
-using UnityEngine;
 
 [assembly:InternalsVisibleTo("Navigation.Systems")]
 
@@ -144,7 +144,7 @@ namespace Navigation
                     var previousGScore = gScores.TryGetValue(next, out var s) ? s : int.MaxValue; 
                     if (gScore < previousGScore)
                     {
-                        var h = (int)math.distance(GridStructure.CellCenterToLocal(end), GridStructure.CellCenterToLocal(next));
+                        var h = (int)math.distance(CGrid.CellCenterToLocal(end), CGrid.CellCenterToLocal(next));
                         bestSourceNodeMap[next] = current;
                         gScores[next] = gScore;
                         fScores[next] = gScore + h;
@@ -204,7 +204,7 @@ namespace Navigation
                     var previousGScore = gScores.TryGetValue(next, out var s) ? s : int.MaxValue; 
                     if (gScore < previousGScore)
                     {
-                        var h = (int)math.distance(BoundsByArea[nextArea].Center, GridStructure.CellCenterToLocal(next));
+                        var h = (int)math.distance(BoundsByArea[nextArea].Center, CGrid.CellCenterToLocal(next));
                         bestSourceNodeMap[next] = current;
                         gScores[next] = gScore;
                         fScores[next] = gScore + h;
@@ -309,10 +309,10 @@ namespace Navigation
             Dispose();
             Bounds = bounds;
             ChangeAreas = new (4, Allocator.Persistent);
-            CellsByArea = new (bounds.Size / 4, Allocator.Persistent);
-            Cells = new (bounds.Size / 4, Allocator.Persistent);
-            AreaConnections = new (bounds.Size / 16, Allocator.Persistent);
-            BoundsByArea = new(bounds.Size / 16, Allocator.Persistent);
+            CellsByArea = new (64, Allocator.Persistent);
+            Cells = new (64, Allocator.Persistent);
+            AreaConnections = new (16, Allocator.Persistent);
+            BoundsByArea = new(16, Allocator.Persistent);
         }
     }
 

@@ -3,7 +3,6 @@ using Identifiables.UI;
 using System;
 using Tasks.UI;
 using Unity.Entities;
-using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace Units

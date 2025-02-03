@@ -1,13 +1,12 @@
 ﻿using Core;
 using Core.Status;
+using Grids;
 using Navigation;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
-using UnityEngine;
-using static GridStructure;
-using Random = UnityEngine.Random;
+using static Grids.CGrid;
 
 namespace Units
 {
@@ -59,21 +58,21 @@ namespace Units
                 var myCell = LocalToCell(transform.ValueRO.Position);
                 var targetCell = LocalToCell(toTransform.Position);
                 var navTree = SystemAPI.GetComponent<NavTree>(onGrid.Grid);
-                var navLayers = SystemAPI.GetComponent<NavLayers>(onGrid.Grid);
+                var grid = SystemAPI.GetComponent<CGrid>(onGrid.Grid);
 
                 // Is unit trapped? Try to teleport to nearby unoccupied cell
-                if (!navLayers.IsPathable(myCell))
+                if (!grid.IsPathable(myCell))
                 {
                     foreach (var neighbour in stackalloc int2[]
                                  { new int2(1, 0), new int2(-1, 0), new int2(0, 1), new int2(0, -1) })
                     {
-                        if(navLayers.IsPathable(myCell + neighbour))
+                        if(grid.IsPathable(myCell + neighbour))
                             transform.ValueRW.Position = CellCenterToLocal(myCell + neighbour);
                     }
                     continue;
                 }
                 
-                var isTargetCellPathable = !navLayers.IsOccupied(targetCell, BuildingLayer.Wall) && navLayers.IsOccupied(targetCell, BuildingLayer.FloorLevel);
+                var isTargetCellPathable = !grid.IsOccupied(targetCell, BuildingLayer.Wall) && grid.IsOccupied(targetCell, BuildingLayer.FloorLevel);
                 var isInTaskRange = math.csum(math.abs(myCell - targetCell)) <= (isTargetCellPathable ? 0 : 1);
                 if (!isInTaskRange)
                 {

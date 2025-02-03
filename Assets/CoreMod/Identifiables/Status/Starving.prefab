@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3724361011114579357}
   - component: {fileID: -5380242976130347905}
-  - component: {fileID: 5376948982971505563}
+  - component: {fileID: -3371739082327695507}
   m_Layer: 0
   m_Name: Starving
   m_TagString: Untagged
@@ -46,7 +46,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Asset: {fileID: 5657100428946741286}
---- !u!114 &5376948982971505563
+--- !u!114 &-3371739082327695507
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -58,8 +58,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 826e5419947743808066a0664979f641, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  StatusType:
-    _hash: 15111743909702581413
 --- !u!114 &5657100428946741286
 MonoBehaviour:
   m_ObjectHideFlags: 0

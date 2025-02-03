@@ -1,3 +1,4 @@
+using Grids;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
@@ -6,16 +7,13 @@ using Unity.Mathematics;
 [WithAll(typeof(RoomModel))]
 public partial struct GridRoomRecalculationJob : IJobEntity
 {
-    [NativeDisableContainerSafetyRestriction] 
-    public ComponentLookup<RoomModel> roomLookup;
-    void Execute(Entity e, in GridStructure grid)
+    void Execute(Entity e, in CGrid grid, ref RoomModel roomModel)
     {
-        var roomModel = roomLookup[e];
         if(roomModel.WallChanges.Length == 0)
             return;
         
         var maxRoom = roomModel.MaxRoom;
-        var bbox = grid.LocalAABB;
+        var bbox = grid.BoundsWithBorder;
         var toCheck = new NativeQueue<int2>(Allocator.Temp);
         var checkedCells = new NativeHashMap<int2, int>(0, Allocator.Temp);
         var sameRoomMap = new NativeHashSet<(int, int)>(0, Allocator.Temp);
@@ -118,7 +116,6 @@ public partial struct GridRoomRecalculationJob : IJobEntity
         // }
         roomModel.WallChanges.Clear();
         roomModel.MaxRoom = maxRoom;
-        roomLookup[e] = roomModel;
     }
     
     private static readonly int2[] Neighbours =

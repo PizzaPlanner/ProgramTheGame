@@ -1,12 +1,7 @@
 ﻿using Identifiables;
-using System;
 using Units;
 using Unity.Collections;
 using Unity.Entities;
-using Unity.Mathematics;
-using Unity.Transforms;
-using UnityEditor;
-using UnityEngine;
 
 namespace Core.Equipment
 {
@@ -14,7 +9,7 @@ namespace Core.Equipment
     
     [WithOptions(EntityQueryOptions.IgnoreComponentEnabledState)]
     [WithAll(typeof(EatTask))]
-    partial struct FindFoodTargetJob : IJobEntity
+    partial struct EatTaskJob : IJobEntity
     {
         static readonly Identifiable OrderTaskPrefab = Identifiable.FromName("ItemOrderTask");
         

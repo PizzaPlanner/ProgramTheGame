@@ -1,6 +1,4 @@
 ﻿using Core;
-using Unity.Collections;
-using Unity.Core;
 using Unity.Entities;
 
 namespace Navigation

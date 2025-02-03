@@ -5,14 +5,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using Unity.Collections;
 using Unity.Entities;
-using Unity.Entities.Serialization;
 using Unity.Mathematics;
-using Unity.Scenes;
-using Unity.Transforms;
 using UnityEngine;
-using Hash128 = Unity.Entities.Hash128;
 
 
 public struct Blueprint : IComponentData

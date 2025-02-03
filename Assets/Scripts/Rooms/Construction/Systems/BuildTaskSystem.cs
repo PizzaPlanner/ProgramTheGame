@@ -1,7 +1,6 @@
 ﻿using Core;
 using Identifiables;
 using Unity.Entities;
-using Unity.Transforms;
 
 namespace Units
 {
@@ -26,16 +25,15 @@ namespace Units
                     ecb.DestroyEntity(e);
                     
                     // Recreate ghost as actual building
-                    var parent = SystemAPI.GetComponent<Parent>(task.Target);
-                    var bounds = SystemAPI.GetComponent<GridBounds>(task.Target);
+                    var baked = SystemAPI.GetComponent<BakedIntoRoomMap>(task.Target);
                     var id = SystemAPI.GetComponent<Identifiable>(task.Target);
                     var materials = SystemAPI.GetComponent<ConstructionVariant>(task.Target);
                     ecb.DestroyEntity(task.Origin);
                     var plan = ecb.CreateEntity();
                     ecb.AddComponent(plan, new PlannedConstruction
                     {
-                        Location = bounds.Min,
-                        Parent = parent.Value,
+                        Location = baked.Offset,
+                        Parent = baked.Grid,
                         Prefab = id,
                         Mode = ConstructionMode.Complete,
                         Materials = materials

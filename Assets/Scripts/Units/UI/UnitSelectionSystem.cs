@@ -1,15 +1,14 @@
 ﻿using Core;
 using Core.Input;
-using Equipment;
+using Grids;
 using Identifiables;
 using Identifiables.UI;
+using Navigation;
 using System.Collections.Generic;
 using Unity.Entities;
 using Unity.Mathematics;
-using Unity.Transforms;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.TerrainTools;
 using UnityEngine.UIElements;
 
 namespace Units
@@ -114,8 +113,11 @@ namespace Units
                 tt.Add(new IdentifiableButton { Target = EntityManager.GetComponentData<Identifiable>(Hovered) });
                 if (SystemAPI.HasComponent<BakedIntoRoomMap>(Hovered))
                 {
-                    var baked = SystemAPI.GetComponent<BakedIntoRoomMap>(Hovered);
-                    tt.Add(new Label($"on {baked.Area} ({baked.Layer})"));
+                    var baked = EntityManager.GetComponentData<BakedIntoRoomMap>(Hovered);
+                    tt.Add(new Label($"on {baked.Area} ({baked.Layer})\nAlso here:"));
+                    var layers = EntityManager.GetComponentData<CGrid>(baked.Grid);
+                    foreach(var e2 in layers.GetAllEntitiesIn(baked.Area))
+                        tt.Add(new Label($"{e2}: {EntityManager.GetComponentData<BakedIntoRoomMap>(e2).Layer}"));
                 }
                 yield return tt;
             }

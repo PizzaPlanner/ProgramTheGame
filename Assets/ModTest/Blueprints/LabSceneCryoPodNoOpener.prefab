@@ -10,7 +10,6 @@ GameObject:
   m_Component:
   - component: {fileID: 6513637787785079020}
   - component: {fileID: 5304243422145376601}
-  - component: {fileID: 6780089618766133305}
   - component: {fileID: 6686401315034826630}
   m_Layer: 0
   m_Name: LabSceneCryoPodNoOpener
@@ -47,19 +46,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Asset: {fileID: 3174735954207645279}
---- !u!114 &6780089618766133305
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6595311514760627798}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5c78d2e58f0743f79a90d3d1371b55a1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Size: {x: 0, y: 0}
 --- !u!114 &6686401315034826630
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -73,6 +59,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   SpawnWith: {fileID: -4676840679068276071, guid: efd5f012b0aad64458d26fde0f01a592, type: 3}
+  PositionInSpace:
+    x: 0
+    y: 0
 --- !u!114 &3174735954207645279
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -1,4 +1,3 @@
-using Identifiables;
 using Unity.Entities;
 using UnityEngine;
 
@@ -9,13 +8,7 @@ public class OnGridAuthoring : MonoBehaviour
         public override void Bake(OnGridAuthoring authoring)
         {
             var e = GetEntity(TransformUsageFlags.Renderable);
-            if (authoring.transform.parent != null &&
-                authoring.transform.parent.TryGetComponent<GridStructureAuthoring>(out _))
-            {
-                this.ExcludeFromBakingRecursive(authoring);
-            }
-            else
-                AddComponent<OnGrid>(e);
+            AddComponent<OnGrid>(e);
         }
     }
 

@@ -1,0 +1,3 @@
+C:\Creative\Unity\ProgramTheGame\Assets\Scripts\Equipment\Plugins\ChipTargetable.Generator.dll
+C:\Creative\Unity\ProgramTheGame\Assets\Scripts\Equipment\Plugins\ChipTargetable.Generator.pdb
+C:\Creative\Unity\ProgramTheGame\Assets\Scripts\Equipment\Plugins\ChipTargetable.Generator.deps.json

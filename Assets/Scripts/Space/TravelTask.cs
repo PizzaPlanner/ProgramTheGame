@@ -1,4 +1,5 @@
-﻿using Unity.Entities;
+﻿using Grids;
+using Unity.Entities;
 using Unity.Mathematics;
 
 namespace Space
@@ -9,6 +10,7 @@ namespace Space
         Preparation,
         Takeoff,
         InFlight,
+        PreArrival,
         Arrival,
         Landing,
     }
@@ -21,5 +23,6 @@ namespace Space
         public Entity FromLocation, ToLocation;
         public float Distance => math.distance(From.PositionInSpace, To.PositionInSpace) * 1000;
         public float Travelled;
+        public GridBounds LandingArea;
     }
 }

@@ -8,6 +8,7 @@ using UnityEngine;
 namespace Space.Systems
 {
     [UpdateBefore(typeof(TransformSystemGroup))]
+    [UpdateBefore(typeof(CurrentGridSystem))]
     partial struct DrawLocationSomewhereElseSystem : ISystem
     {
         const int TRAVEL_Y = 15;
@@ -19,15 +20,27 @@ namespace Space.Systems
         [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
-            var camLocation = SystemAPI.GetComponent<Sector>(SystemAPI.GetSingleton<CurrentGrid>().Grid).PositionInSpace;
-            foreach (var (loc, transform) in SystemAPI.Query<Sector, RefRW<LocalTransform>>()
-                                                      .WithNone<TravelTask>())
-            {
-                
-                var delta = loc.PositionInSpace - camLocation;
-                var pos = new float3(delta.x, 0, delta.y);
-                transform.ValueRW.Position = pos * Sector.LENGTH;
-            }
+            var currentGrid = SystemAPI.GetSingleton<CurrentGrid>();
+            var camChanged = currentGrid.Grid != currentGrid.LastGrid;
+            var camLocation = SystemAPI.GetComponent<Sector>(currentGrid.Grid).PositionInSpace;
+            if(camChanged)
+                foreach (var (loc, transform) in SystemAPI.Query<Sector, RefRW<LocalTransform>>()
+                                                          .WithNone<TravelTask>())
+                {
+                    Debug.Log($"Update where {loc.PositionInSpace} is in CAM");
+                    var delta = loc.PositionInSpace - camLocation;
+                    var pos = new float3(delta.x, 0, delta.y);
+                    transform.ValueRW.Position = pos * Sector.LENGTH;
+                }
+            else
+                foreach (var (loc, transform) in SystemAPI.Query<Sector, RefRW<LocalTransform>>()
+                                                          .WithChangeFilter<Sector>().WithNone<TravelTask>())
+                {
+                    Debug.Log($"Update where {loc.PositionInSpace} is in CAM");
+                    var delta = loc.PositionInSpace - camLocation;
+                    var pos = new float3(delta.x, 0, delta.y);
+                    transform.ValueRW.Position = pos * Sector.LENGTH;
+                }
             
             foreach (var (travel, task, progress, transform, e) in SystemAPI.Query<TravelTask, Task, TaskProgress, RefRW<LocalTransform>>().WithEntityAccess())
             {
@@ -57,14 +70,14 @@ namespace Space.Systems
                         transform.ValueRW.Rotation = Quaternion.Lerp(quaternion.identity, deltaRot, progress.Progress * 2 - 1);
                         break;
                     }
-                    case TravelStage.Landing when progress.Progress > 0.5f:
+                    case TravelStage.Arrival when progress.Progress > 0.5f:
                     {
                         var to2 = float3.zero;
                         var from2 = math.up() * TRAVEL_Y;
                         transform.ValueRW.Position += math.lerp(from2, to2, progress.Progress * 2 - 1);
                         break;
                     }
-                    case TravelStage.Landing:
+                    case TravelStage.Arrival:
                     {
                         var deltaRot = quaternion.LookRotationSafe(new float3(travelDelta.x, 0, travelDelta.y), math.up());
                         transform.ValueRW.Rotation = Quaternion.Lerp(deltaRot, Quaternion.identity, progress.Progress * 2);

@@ -1,4 +1,5 @@
 ﻿using Core.Input;
+using Grids;
 using System;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -51,7 +52,7 @@ partial struct CameraSystem : ISystem
         var ship = SystemAPI.GetSingleton<CurrentGrid>().Grid;
         if(!SystemAPI.HasComponent<LocalToWorld>(ship))
             return;
-        if(!SystemAPI.HasComponent<GridStructure>(ship))
+        if(!SystemAPI.HasComponent<CGrid>(ship))
             return;
         if(Camera.main == null)
             return;
@@ -60,7 +61,7 @@ partial struct CameraSystem : ISystem
         var camAnchor = SystemAPI.GetSingletonRW<CameraAnchor>();
         
         var shipLtw = SystemAPI.GetComponent<LocalToWorld>(ship);
-        var shipBounds = SystemAPI.GetComponent<GridStructure>(ship);
+        var shipBounds = SystemAPI.GetComponent<CGrid>(ship).BoundsWithBorder;
         
         var wasd = (float2)Navigation.Move.ReadValue<Vector2>();
         var rotate = Navigation.Rotate.ReadValue<Vector2>().x;
@@ -69,7 +70,7 @@ partial struct CameraSystem : ISystem
         if(zoom != 0)
             camAnchor.ValueRW.CameraDistance -= zoom * SystemAPI.Time.DeltaTime * camAnchor.ValueRW.ZoomFactor;
         
-        camAnchor.ValueRW.Offset = math.clamp(camAnchor.ValueRW.Offset, shipBounds.BoundsMin, shipBounds.BoundsMax + 1);
+        camAnchor.ValueRW.Offset = math.clamp(camAnchor.ValueRW.Offset, shipBounds.Min, shipBounds.Max + 1);
         camAnchor.ValueRW.Rotation += rotate * SystemAPI.Time.DeltaTime * camAnchor.ValueRW.RotationFactor;
         var offset = camAnchor.ValueRW.Offset.xyy;
         offset.y = 0;

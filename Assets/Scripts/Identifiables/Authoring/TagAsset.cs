@@ -2,7 +2,6 @@
 using Identifiables;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.AddressableAssets;
 
 [CreateAssetMenu]
 public class TagAsset : IdentifiableAsset

@@ -1,7 +1,6 @@
 ﻿using System.Diagnostics;
 using Unity.Entities;
 using Unity.Mathematics;
-using Debug = UnityEngine.Debug;
 
 namespace Core
 {

@@ -5,6 +5,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
+using UnityEngine.Profiling;
 using YamlDotNet.Core;
 using YamlDotNet.Core.Events;
 using YamlDotNet.Serialization;
@@ -22,13 +23,13 @@ namespace Grid.Blueprints
         [YamlMember(DefaultValuesHandling = DefaultValuesHandling.OmitDefaults, ScalarStyle = ScalarStyle.Folded)]
         public IDictionary<Identifiable, IList<PartData>> Spawns = new Dictionary<Identifiable, IList<PartData>>();
 
-        internal class PartData
+        internal struct PartData
         {
             public int2 At;
             public Mass Mass;
             public Identifiable Matter;
             public Temperature Temperature;
-            public List<InventoryData> Inventory = new List<InventoryData>();
+            // public List<InventoryData> Inventory;
         }
 
         internal class InventoryData
@@ -89,14 +90,14 @@ namespace Grid.Blueprints
                 return;
             var id = em.GetComponentData<Identifiable>(child.Value);
             var mass = em.GetComponentData<MassData>(child.Value);
-            var bounds = em.GetComponentData<GridBounds>(child.Value);
+            var bounds = em.GetComponentData<BakedIntoRoomMap>(child.Value);
             var defaultMass = em.GetComponentData<MassData>(id.SpawnablePrefab);
             
             if(!data.Spawns.ContainsKey(id))
                 data.Spawns[id] = new List<BlueprintV4DataStructure.PartData>();
             var partToAdd = new BlueprintV4DataStructure.PartData
             {
-                At = bounds.Min,
+                At = bounds.Offset,
                 Temperature = !Mathf.Approximately(mass.Temperature, defaultMass.Temperature) ? mass.Temperature : default,
                 Mass = mass.Mass != defaultMass.Mass ? mass.Mass : default,
                 Matter = mass.ElementType != defaultMass.ElementType ? mass.ElementType : default 
@@ -113,7 +114,11 @@ namespace Grid.Blueprints
                           .WithTypeConverter(new IdentifiableConverter())
                           .WithTypeConverter(new Vec2Converter());
 
+            Profiler.BeginSample($"Deserialize Blueprint");
+            // TODO: This is super costly for long files
             var blueprint = builder.Build().Deserialize<BlueprintV4DataStructure>(data);
+            Profiler.EndSample();
+            Profiler.BeginSample("Load Blueprint");
             var content = em.GetBuffer<BlueprintContents>(prefab);
             foreach (var cell in blueprint.Spawns)
                 foreach(var part in cell.Value)
@@ -131,6 +136,7 @@ namespace Grid.Blueprints
                         
                     });
                 }
+            Profiler.EndSample();
         }
 
         public string VersionIdentifier => "# Blueprint Version 4";

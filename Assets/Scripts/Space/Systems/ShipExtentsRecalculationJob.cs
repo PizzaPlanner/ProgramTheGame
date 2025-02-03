@@ -1,12 +1,11 @@
-﻿using Unity.Collections;
-using Unity.Entities;
+﻿using Unity.Entities;
 using Unity.Mathematics;
 
 namespace Space.Systems
 {
     public partial struct ShipExtentsRecalculationJob : IJobEntity
     {
-        void Execute(Entity e, in GridStructure grid, in BakedIntoRoomMap baked, in ShipContoller controller)
+        void Execute(Entity e, in Grids.CGrid grid, in BakedIntoRoomMap baked, in ShipContoller controller)
         {
             // var bbox = grid.LocalAABB;
             // var toCheck = new NativeQueue<int2>(Allocator.Temp);

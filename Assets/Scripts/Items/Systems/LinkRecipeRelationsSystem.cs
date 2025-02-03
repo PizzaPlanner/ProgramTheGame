@@ -2,7 +2,6 @@ using Identifiables;
 using Identifiables.UI;
 using System.Linq;
 using Unity.Entities;
-using UnityEngine;
 using UnityEngine.UIElements;
 
 partial class CraftingRecipesMappingSystem : IdentifiableMappingSystem, IWikiProvider

@@ -1,4 +1,5 @@
 ﻿using Core.Input;
+using Grids;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -78,13 +79,13 @@ namespace Core
         protected override void OnUpdate()
         {
             var gridEntity = SystemAPI.GetSingleton<CurrentGrid>().Grid;
-            if (!SystemAPI.HasComponent<GridStructure>(gridEntity))
+            if (!SystemAPI.HasComponent<CGrid>(gridEntity))
             {
                 _lastGrid = Entity.Null;
                 return;
             }
             
-            var bounds = SystemAPI.GetComponent<GridStructure>(gridEntity).LocalAABB;
+            var bounds = SystemAPI.GetComponent<CGrid>(gridEntity).BoundsWithBorder;
             if(math.any(bounds.Scale != _lastGridBounds.Scale) || _lastGrid != gridEntity)
                 RecreateTexture(bounds);
             _lastGrid = gridEntity;
@@ -99,10 +100,10 @@ namespace Core
             }
                 
             var ltw = SystemAPI.GetComponent<LocalToWorld>(gridEntity);
-            _overlay.transform.position = GridStructure.LocalToWorld(ltw, bounds.Center);
+            _overlay.transform.position = CGrid.LocalToWorld(ltw, bounds.Center);
             _overlay.transform.rotation = ltw.Rotation;
             
-            CellAtCursor = GridStructure.CursorToCell(ltw);
+            CellAtCursor = CGrid.CursorToCell(ltw);
             var mouseLocationRelative = CellAtCursor - bounds.Min;
             SetOverlayMarkerLocation(mouseLocationRelative);
             

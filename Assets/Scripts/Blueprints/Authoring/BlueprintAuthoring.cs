@@ -1,6 +1,5 @@
 ﻿using Unity.Collections;
 using Unity.Entities;
-using Unity.Entities.Content;
 using UnityEngine;
 
 [BakingType]

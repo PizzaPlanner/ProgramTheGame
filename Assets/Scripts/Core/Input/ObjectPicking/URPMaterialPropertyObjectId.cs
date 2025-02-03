@@ -1,11 +1,8 @@
 ﻿using Identifiables;
 using Unity.Collections;
-using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
-using Unity.Entities.Graphics;
 using Unity.Mathematics;
 using Unity.Rendering;
-using UnityEngine;
 
 [MaterialProperty("_EntityId", -1)]
 public struct URPMaterialPropertyObjectId : IComponentData, IQueryTypeParameter

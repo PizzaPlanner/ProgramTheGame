@@ -1,23 +1,25 @@
 ﻿using Core;
-using Core.Grid;
-using Identifiables;
 using Navigation;
 using Space;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
-using Unity.Transforms;
-using UnityEngine;
 
 namespace Units
 {
+    [BurstCompile]
     partial struct TaskProviderConsistencyJob : IJobEntity
     {
         [ReadOnly] public ComponentLookup<TaskUniquenessGroup> uniquenessLookup;
         [NativeDisableParallelForRestriction]
         public ComponentLookup<Task> taskLookup;
+        
+        [BurstCompile]
         void Execute(ref DynamicBuffer<TaskProvider> providedTasks)
         {
-            var presentUids = new NativeHashSet<Identifiable>(4, Allocator.Temp);
+            if(providedTasks.Length == 0)
+                return;
+            
             for (var i = 0; i < providedTasks.Length; i++)
             {
                 if (!taskLookup.TryGetComponent(providedTasks[i].Task, out var task))
@@ -26,12 +28,15 @@ namespace Units
                     continue;
                 }
 
-                if (uniquenessLookup.TryGetComponent(providedTasks[i].Task, out var uid) && !presentUids.Add(uid.Group))
+                if (uniquenessLookup.TryGetComponent(providedTasks[i].Task, out var uid))
                 {
-                    task.Origin = Entity.Null;
-                    taskLookup[providedTasks[i].Task] = task;
-                    providedTasks.RemoveAt(i--);
-                    continue;
+                    for (int j = i + 1; j < providedTasks.Length; j++)
+                        if (uniquenessLookup.TryGetComponent(providedTasks[j].Task, out var uid2) &&
+                            uid.Group == uid2.Group)
+                        {
+                            taskLookup.GetRefRW(providedTasks[j].Task).ValueRW.Origin = default;
+                            providedTasks.RemoveAt(j--);
+                        }
                 }
             }
         }

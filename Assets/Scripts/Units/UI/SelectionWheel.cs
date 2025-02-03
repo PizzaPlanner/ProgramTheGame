@@ -1,5 +1,4 @@
-﻿using Equipment;
-using Identifiables;
+﻿using Identifiables;
 using System;
 using Unity.Collections;
 using Unity.Entities;

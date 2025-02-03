@@ -1,7 +1,6 @@
-﻿using Unity.Collections;
-using Unity.Collections.LowLevel.Unsafe;
+﻿using Grids;
+using Unity.Collections;
 using Unity.Entities;
-using UnityEngine;
 
 partial struct LogisticsNetworkSystem : ISystem
 {
@@ -16,13 +15,13 @@ partial struct LogisticsNetworkSystem : ISystem
     public void OnUpdate(ref SystemState state)
     {
         var ecb = new EntityCommandBuffer(Allocator.Temp);
-        foreach (var (_, e) in SystemAPI.Query<GridStructure>().WithNone<LogisticsNetwork>().WithEntityAccess())
+        foreach (var (_, e) in SystemAPI.Query<CGrid>().WithNone<LogisticsNetwork>().WithEntityAccess())
         {
             var ln = new LogisticsNetwork();
             ln.Initialize();
             ecb.AddComponent(e, ln);
         }
-        foreach (var (ln, e) in SystemAPI.Query<LogisticsNetwork>().WithNone<GridStructure>().WithEntityAccess())
+        foreach (var (ln, e) in SystemAPI.Query<LogisticsNetwork>().WithNone<CGrid>().WithEntityAccess())
         {
             ln.Dispose();
             ecb.RemoveComponent<LogisticsNetwork>(e);

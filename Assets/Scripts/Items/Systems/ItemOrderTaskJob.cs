@@ -1,4 +1,5 @@
 ﻿using Core;
+using Grids;
 using Navigation;
 using Units;
 using Unity.Collections;
@@ -22,7 +23,7 @@ partial struct ItemOrderTaskSystem : ISystem
             ecb = ecb,
             transactionStore = transactionStore,
             inventoryLookup = SystemAPI.GetBufferLookup<Inventory>(true),
-            ltwLookup = SystemAPI.GetComponentLookup<LocalToWorld>(true),
+            ltwLookup = SystemAPI.GetComponentLookup<LocalTransform>(true),
             networkLookup = SystemAPI.GetComponentLookup<LogisticsNetwork>(true),
             navTreeLookup = SystemAPI.GetComponentLookup<NavTree>(true),
             
@@ -34,7 +35,7 @@ partial struct ItemOrderTaskSystem : ISystem
 partial struct ItemOrderTaskJob : IJobEntity
 {
     [ReadOnly] public BufferLookup<Inventory> inventoryLookup;
-    [ReadOnly] public ComponentLookup<LocalToWorld> ltwLookup;
+    [ReadOnly] public ComponentLookup<LocalTransform> ltwLookup;
     [ReadOnly] public ComponentLookup<LogisticsNetwork> networkLookup;
     [ReadOnly] public ComponentLookup<NavTree> navTreeLookup;
     public EntityCommandBuffer ecb;
@@ -137,7 +138,7 @@ partial struct ItemOrderTaskJob : IJobEntity
         progress.PartialTicks = 0;
     }
     
-    static void AssignTarget(ref Task task, Entity requester, ComponentLookup<LocalToWorld> ltwLookup, ComponentLookup<NavTree> navTreeLookup, LogisticsNetwork network, ItemId item, ushort amount)
+    static void AssignTarget(ref Task task, Entity requester, ComponentLookup<LocalTransform> ltwLookup, ComponentLookup<NavTree> navTreeLookup, LogisticsNetwork network, ItemId item, ushort amount)
     {
         if (!ltwLookup.TryGetComponent(requester, out var selfLtw))
         {
@@ -156,12 +157,11 @@ partial struct ItemOrderTaskJob : IJobEntity
             if (distSq > bestDistanceSq)
                 continue;
             if (!navTreeLookup.TryGetComponent(task.CrewProvider, out var navTree) 
-                || !navTree.IsReachable(GridStructure.LocalToCell(ltw.Position), GridStructure.LocalToCell(selfLtw.Position), true, out _))
+                || !navTree.IsReachable(CGrid.LocalToCell(ltw.Position), CGrid.LocalToCell(selfLtw.Position), true, out _))
                 continue;
             bestDistanceSq = distSq;
             bestEntity = entry.Item1;
         }
-
         task.Target = bestEntity;
     }
 }

@@ -1,5 +1,5 @@
 ﻿using Core;
-using Unity.Collections;
+using Grids;
 using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;

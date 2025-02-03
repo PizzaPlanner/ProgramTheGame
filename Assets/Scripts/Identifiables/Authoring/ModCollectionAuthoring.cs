@@ -1,10 +1,8 @@
 ﻿using System.Linq;
 using Unity.Collections;
 using Unity.Entities;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.Profiling;
-using UnityEngine.Windows;
 
 namespace Identifiables.Authoring
 {

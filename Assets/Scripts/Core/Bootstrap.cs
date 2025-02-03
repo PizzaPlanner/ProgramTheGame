@@ -1,6 +1,4 @@
-﻿using Unity.Entities;
-
-namespace Core
+﻿namespace Core
 {
     // class Bootstrap : ICustomBootstrap
     // {

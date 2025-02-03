@@ -9,7 +9,7 @@ public sealed class TemperatureConverter : IYamlTypeConverter
 {
     public bool Accepts(Type type) => type == typeof(Temperature);
 
-    public object ReadYaml(IParser parser, Type type)
+    public object ReadYaml(IParser parser, Type type, ObjectDeserializer od)
     {
         var value = parser.Consume<Scalar>().Value;
         try
@@ -32,7 +32,7 @@ public sealed class TemperatureConverter : IYamlTypeConverter
         }
     }
     
-    public void WriteYaml(IEmitter emitter, object value, Type type)
+    public void WriteYaml(IEmitter emitter, object value, Type type, ObjectSerializer os)
     {
         emitter.Emit(new Scalar(((Temperature)value).ToString()));
     }

@@ -1,0 +1,10 @@
+C:\Creative\Unity\ProgramTheGame\Assets\Scripts\Equipment\Generator~\bin\netstandard2.0\ChipTargetable.Generator.deps.json
+C:\Creative\Unity\ProgramTheGame\Assets\Scripts\Equipment\Generator~\bin\netstandard2.0\ChipTargetable.Generator.dll
+C:\Creative\Unity\ProgramTheGame\Assets\Scripts\Equipment\Generator~\bin\netstandard2.0\ChipTargetable.Generator.pdb
+C:\Creative\Unity\ProgramTheGame\Assets\Scripts\Equipment\Generator~\obj\netstandard2.0\ChipTargetable.Generator.csproj.AssemblyReference.cache
+C:\Creative\Unity\ProgramTheGame\Assets\Scripts\Equipment\Generator~\obj\netstandard2.0\ChipTargetable.Generator.GeneratedMSBuildEditorConfig.editorconfig
+C:\Creative\Unity\ProgramTheGame\Assets\Scripts\Equipment\Generator~\obj\netstandard2.0\ChipTargetable.Generator.AssemblyInfoInputs.cache
+C:\Creative\Unity\ProgramTheGame\Assets\Scripts\Equipment\Generator~\obj\netstandard2.0\ChipTargetable.Generator.AssemblyInfo.cs
+C:\Creative\Unity\ProgramTheGame\Assets\Scripts\Equipment\Generator~\obj\netstandard2.0\ChipTargetable.Generator.csproj.CoreCompileInputs.cache
+C:\Creative\Unity\ProgramTheGame\Assets\Scripts\Equipment\Generator~\obj\netstandard2.0\ChipTargetable.Generator.dll
+C:\Creative\Unity\ProgramTheGame\Assets\Scripts\Equipment\Generator~\obj\netstandard2.0\ChipTargetable.Generator.pdb

@@ -68,7 +68,7 @@ public class EquipmentTests
     {
         EntityManager.CompleteAllTrackedJobs();
         using var query = EntityManager.CreateEntityQuery(new EntityQueryBuilder(Allocator.Temp)
-            .WithAny<GridStructure, OnGrid, Identifiable>());
+            .WithAny<Grids.CGrid, OnGrid, Identifiable>());
         var systemHandle = TestWorld.GetExistingSystemManaged<BeginInitializationEntityCommandBufferSystem>().SystemHandle;
         var ecb = EntityManager.GetComponentData<BeginInitializationEntityCommandBufferSystem.Singleton>(systemHandle)
                            .CreateCommandBuffer(TestWorld.Unmanaged);

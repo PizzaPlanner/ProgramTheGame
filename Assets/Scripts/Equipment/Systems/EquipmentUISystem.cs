@@ -1,9 +1,6 @@
-﻿using Items.UI;
-using Units;
+﻿using Units;
 using Unity.Collections;
 using Unity.Entities;
-using UnityEngine;
-using UnityEngine.UIElements;
 
 namespace Equipment
 {

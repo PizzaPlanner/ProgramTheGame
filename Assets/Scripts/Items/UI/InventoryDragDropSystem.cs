@@ -1,7 +1,5 @@
 ﻿using Identifiables.UI;
 using Unity.Entities;
-using UnityEngine;
-using UnityEngine.UIElements;
 
 namespace Items.UI
 {

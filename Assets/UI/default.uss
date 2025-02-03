@@ -894,3 +894,46 @@ TravelUI {
     border-width: 1px;
     padding: 8px;
 }
+
+TimeUI {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background-color: var(--color-background-default);
+    color: var(--color-text-default);
+    font-size: 12px;
+}
+
+TimeUI > VisualElement {
+    flex-direction: row;
+}
+
+TimeUI Button {
+    width: 16px;
+    height: 16px;
+    background-color: var(--color-border-widget);
+}
+TimeUI Button.active {
+    width: 16px;
+    height: 16px;
+    background-color: var(--color-border-alt-low);
+}
+
+ToggleButtonGroup#Tasks {
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+ToggleButtonGroup#Tasks .id-button{
+    width: 24px;
+    height: 24px;
+}
+
+.unity-toggle__checkmark { 
+    width: 20px;
+    height: 20px;
+    margin: 2px;
+    background-color: var(--color-background-widget);
+    border-color: var(--color-border-widget);
+    -unity-background-image-tint-color: var(--color-foreground-bright) ;
+}

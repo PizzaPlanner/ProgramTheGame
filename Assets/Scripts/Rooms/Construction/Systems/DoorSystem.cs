@@ -1,4 +1,4 @@
-﻿using Core.Grid;
+﻿using Grids;
 using Unity.Entities;
 using Unity.Mathematics;
 using Navigation;
@@ -19,7 +19,7 @@ partial struct DoorSystem : ISystem
             var crew = SystemAPI.GetBuffer<Crew>(birm.Grid);
             var hasTravellers = false;
             foreach(var unit in crew)
-                if(birm.Area.Contains(GridStructure.LocalToCell(SystemAPI.GetComponent<LocalTransform>(unit.Member).Position)))
+                if(birm.Area.Contains(CGrid.LocalToCell(SystemAPI.GetComponent<LocalTransform>(unit.Member).Position)))
                     hasTravellers = true;
             
             if(hasTravellers == (door.ValueRW.CurrentState == Door.DoorState.Open) 
@@ -31,16 +31,16 @@ partial struct DoorSystem : ISystem
             ref var navTree = ref SystemAPI.GetComponentRW<NavTree>(birm.Grid).ValueRW;
             navTree.SetAreaDirty(birm.Area);
             
-            ref var navLayer = ref SystemAPI.GetComponentRW<NavLayers>(birm.Grid).ValueRW;
+            ref var grid = ref SystemAPI.GetComponentRW<CGrid>(birm.Grid).ValueRW;
             if (door.ValueRW.CurrentState == Door.DoorState.Locked)
             {
                 ecb.AddComponent<Wall>(e);
-                navLayer.AddOccupiedArea(birm.Area, birm.Layer, e);
+                grid.ModifyLayer(e, BuildingLayer.Wall);
             }
             else
             {
                 ecb.RemoveComponent<Wall>(e);
-                navLayer.FreeOccupation(birm.Area, birm.Layer);
+                grid.ModifyLayer(e, BuildingLayer.Door);
             }
             
             if(door.ValueRW.CurrentState == Door.DoorState.Open)

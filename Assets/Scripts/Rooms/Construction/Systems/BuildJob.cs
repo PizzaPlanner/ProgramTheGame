@@ -1,6 +1,8 @@
+using Grids;
 using Identifiables;
 using Navigation;
 using Units;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
@@ -8,43 +10,42 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using Debug = UnityEngine.Debug;
 
+[BurstCompile]
 public partial struct BuildJob : IJobEntity
 {
     static readonly Identifiable ConstructTaskPrefab = Identifiable.FromName("BuildTask");
     static readonly Identifiable OrderTaskPrefab = Identifiable.FromName("ItemOrderTask");
     
     public EntityCommandBuffer ecb;
-    [NativeDisableContainerSafetyRestriction] public ComponentLookup<NavLayers> navLayerLookup;
-    [ReadOnly] public ComponentLookup<GridBounds> boundsLookup;
+    [NativeDisableContainerSafetyRestriction] public ComponentLookup<CGrid> gridLookup;
     [ReadOnly] public ComponentLookup<Building> buildingLookup;
     [ReadOnly] public ComponentLookup<Ghost> ghostLookup;
     
+    [BurstCompile]
     void Execute(Entity e, in PlannedConstruction planned)
     {
         // Parent not ready
-        if (!navLayerLookup.TryGetComponent(planned.Parent, out var navigation))
+        if (!gridLookup.TryGetComponent(planned.Parent, out var navigation))
             return;
         
         ecb.DestroyEntity(e);
         
-        // Get prefab from id
         var prefab = planned.Prefab.SpawnablePrefab;
-        if (prefab == Entity.Null || !boundsLookup.TryGetComponent(prefab, out var bounds))
+        if (prefab == Entity.Null)
         {
             Debug.LogWarning($"Discarded invalid pending part with ID {planned.Prefab.DebugId}");
             return;
         }
-
-
         
         if (!buildingLookup.TryGetComponent(prefab, out var building))
         {
             Debug.Log($"Discarded pending part that is not a building");
             return;
         }
-        var area = (building.IsRotatable ? bounds.Rotated(planned.Rotation * 90) : bounds).WithOffset(planned.Location) ;
         
-        if (navigation.IsOccupiedForPlacement(area, building.Layer) && planned.Mode != ConstructionMode.PlacementPreview)
+        var area = building.ToArea(planned.Location, planned.Rotation);
+        var isPlacementOk = navigation.IsPlacementValid(area, building.Layer);
+        if (!isPlacementOk && planned.Mode != ConstructionMode.PlacementPreview)
         {
             Debug.LogWarning($"Discarded pending part in invalid or occupied area {area}");
             return;
@@ -53,48 +54,39 @@ public partial struct BuildJob : IJobEntity
         var isPlacing = planned.Mode == ConstructionMode.PlacementPreview || ghostLookup.HasComponent(planned.Parent);
         var isUnderConstruction = planned.Mode == ConstructionMode.UnderConstruction;
         var rotation = building.IsRotatable ? planned.Rotation : (byte)0;
-        var transform = BuildUtils.ToTransform(rotation, area);
+        var baked = new BakedIntoRoomMap
+        {
+            Rotation = rotation,
+            Area = area,
+            Layer = building.Layer,
+            Grid = planned.Parent,
+            Offset = planned.Location
+        };
 
         // Create Part
         var entity = ecb.Instantiate(prefab);
-        ecb.SetComponent(entity, area);
-        ecb.AddComponent(entity, new Parent { Value = planned.Parent });
-        ecb.SetComponent(entity, transform);
-        
+        ecb.SetComponent(entity, building.ToTransform(rotation, planned.Location));
         if (isPlacing)
         {
-            ecb.AddComponent<CurrentGhost>(entity);
-            ecb.AddComponent(entity, new Ghost { GhostBuildable = !navigation.IsOccupiedForPlacement(area, building.Layer) });
+            ecb.AddComponent(entity, new CurrentGhost { ValuesToBake = baked });
+            ecb.AddComponent(entity, new Ghost { GhostBuildable = isPlacementOk });
             ecb.SetComponent(entity, planned.Materials);
+            ecb.AddComponent(entity, new Parent { Value = planned.Parent });
+            ecb.AddComponent(entity, new OnGrid { Grid = planned.Parent });
         }
         else if (isUnderConstruction)
         {
-            navigation.AddOccupiedArea(area, building.Layer.AsGhostLayer(), Entity.Null);   
             CreateBuildTasks(planned, entity, building);
             ecb.AddComponent(entity, new Ghost { GhostBuildable = true });
-            ecb.SetComponent(entity, new OnGrid { Grid = planned.Parent });
             ecb.SetComponent(entity, planned.Materials);
-            ecb.AddBuffer<Inventory>(entity);
-            ecb.AddComponent(entity,  new ToBeBakedIntoRoomMap { Grid = planned.Parent, Area = area, Layer = building.Layer.AsGhostLayer(), Rotation = rotation });
-            for (var i = 0; i < planned.Materials.BuildMaterials.Length; i++)
-            {
-                var mat = planned.Materials.BuildMaterials[i];
-                ecb.AppendToBuffer(entity, new Inventory
-                {
-                    Type = ItemId.From(mat.Item),
-                    Transfer = Inventory.TransferDirection.In,
-                    IsTypeLocked = true
-                });
-            }
+            ecb.AddComponent(entity,  new ToBeBakedIntoRoomMap { Value = baked });
         }
         else
         {
-            navigation.AddOccupiedArea(area, building.Layer, Entity.Null);
             ecb.RemoveComponent<ConstructionVariant>(entity);
             if(planned.Materials.PrimaryMass.ElementType != default)
                 ecb.SetComponent(entity, planned.Materials.PrimaryMass);
-            ecb.SetComponent(entity, new OnGrid { Grid = planned.Parent });
-            ecb.AddComponent(entity, new ToBeBakedIntoRoomMap { Grid = planned.Parent, Area = area, Layer = building.Layer, Rotation = rotation  });
+            ecb.AddComponent(entity, new ToBeBakedIntoRoomMap { Value = baked });
         }
     }
 
@@ -108,15 +100,23 @@ public partial struct BuildJob : IJobEntity
             Origin = entity,
             CrewProvider = planned.Parent
         });
+        ecb.SetComponent(constructTask, new Parent { Value = entity });
         ecb.SetComponent(constructTask, new TaskProgress
         {
             RequiredTicks = building.Duration
         });
+        ecb.SetComponent(constructTask, building.ToTransform(0, planned.Location).Translate(new float3(0.5f, 0, 0.5f) * CGrid.CELL_SIZE));
         ecb.AddComponent(entity, new UnderConstruction { });
         foreach (var requirement in planned.Materials.BuildMaterials)
         {
             if(requirement.Item == default)
                 continue;
+            ecb.AppendToBuffer(constructTask, new Inventory() 
+            {
+                Transfer = Inventory.TransferDirection.In, 
+                IsTypeLocked = true, 
+                Type = ItemId.From(requirement.Item)
+            });
             var order = Task.Schedule(OrderTaskPrefab, ecb, new Task
             {
                 Priority = TaskPriority.MediumPriority,
@@ -127,7 +127,7 @@ public partial struct BuildJob : IJobEntity
             {
                 Amount = (ushort)requirement.Amount, 
                 Item = ItemId.From(requirement.Item),
-                Requester = entity,
+                Requester = constructTask,
             });
         }
     }

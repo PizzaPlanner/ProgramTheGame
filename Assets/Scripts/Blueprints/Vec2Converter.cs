@@ -9,7 +9,7 @@ public sealed class Vec2Converter : IYamlTypeConverter
 {
     public bool Accepts(Type type) => type == typeof(float2) || type == typeof(int2);
 
-    public object ReadYaml(IParser parser, Type type)
+    public object ReadYaml(IParser parser, Type type, ObjectDeserializer deserializer)
     {
         parser.Consume<SequenceStart>();
         object result = null;
@@ -29,7 +29,7 @@ public sealed class Vec2Converter : IYamlTypeConverter
         return result;
     }
     
-    public void WriteYaml(IEmitter emitter, object value, Type type)
+    public void WriteYaml(IEmitter emitter, object value, Type type, ObjectSerializer serializer)
     {
         emitter.Emit(new SequenceStart(null, null, false, SequenceStyle.Flow));
 

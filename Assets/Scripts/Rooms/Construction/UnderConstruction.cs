@@ -1,8 +1,9 @@
-﻿using Identifiables;
+﻿using Grids;
+using Identifiables;
 using System;
-using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Transforms;
 
 public struct UnderConstruction : IComponentData { }
 
@@ -22,6 +23,23 @@ public struct Building : IComponentData
     public uint Duration;
     public bool IsAllowedOnShips;
     public bool IsRotatable;
+    public int4 ExtentsURDL;
+    public int2 InteractionOffset;
+
+    public GridBounds ToArea(int2 offset, byte rotation)
+    {
+        if(IsRotatable)
+            return new GridBounds(){ Min = -ExtentsURDL.wz, Max = ExtentsURDL.yx }.Rotated(rotation * 90).WithOffset(offset);
+        return new GridBounds(){ Min = -ExtentsURDL.wz, Max = ExtentsURDL.yx }.WithOffset(offset);
+    }
+    
+    public LocalTransform ToTransform(byte rotation, int2 offset)
+    {
+        var transform = LocalTransform.FromPosition(CGrid.CellToLocal(offset));
+        if(IsRotatable && rotation != 0)
+            transform = transform.Rotate(quaternion.RotateY(rotation * 90 * math.TORADIANS));
+        return transform;
+    }
 }
 
 public struct Floor : IComponentData { }

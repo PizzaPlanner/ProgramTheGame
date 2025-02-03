@@ -1,5 +1,4 @@
 ﻿using Core.Equipment;
-using Identifiables;
 using Unity.Entities;
 using UnityEngine;
 

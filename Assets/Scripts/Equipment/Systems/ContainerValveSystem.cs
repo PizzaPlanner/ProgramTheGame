@@ -1,4 +1,5 @@
 ﻿using Core;
+using Grids;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
@@ -18,7 +19,7 @@ partial struct ContainerValveSystem : ISystem
             var open = math.clamp(valve.Open, 0, 1);
             
             var atmosphere = GetComponentRW<MassModel>(onGrid.Grid);
-            var localToCell = GridStructure.LocalToCell(transform.Position);
+            var localToCell = CGrid.LocalToCell(transform.Position);
             ref var mainCell = ref atmosphere.ValueRW.AbsoluteCellRW(localToCell);
             ref var contents = ref container.ValueRW.Contents;
             IMatterComposition.ExchangeGas(ref contents, ref mainCell, open * IMatterComposition.DEFAULT_GAS_EXCHANGE_RATE);

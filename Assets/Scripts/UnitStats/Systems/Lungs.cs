@@ -1,10 +1,10 @@
 ﻿using Core.Status;
+using Grids;
 using Identifiables;
 using Units;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
-using UnityEngine;
 
 namespace Core.Equipment
 {
@@ -42,7 +42,7 @@ namespace Core.Equipment
                 var wasLowOxygen = lungs.ValueRW.IsLowOxygen;
                 var wasSuffocating = lungs.ValueRW.IsSuffocating;
                 var gridMasses = SystemAPI.GetComponentRW<MassModel>(onGrid.Grid);
-                var cellInGrid = GridStructure.LocalToCell(transform.Position);
+                var cellInGrid = CGrid.LocalToCell(transform.Position);
                 if (gridMasses.ValueRW.IsEmpty(cellInGrid)
                     || gridMasses.ValueRW.AbsoluteCell(cellInGrid).GetMass(lungs.ValueRW.Inhales) <
                     lungs.ValueRW.ConsumptionPerTick * 2)

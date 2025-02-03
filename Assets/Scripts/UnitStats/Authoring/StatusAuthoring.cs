@@ -5,8 +5,8 @@ using UnityEngine;
 [RequireComponent(typeof(IdentifieableAuthoring))]
 public class StatusAuthoring : MonoBehaviour
 {
-    [RestrictTo(typeof(IStatus))]
-    public TypeWrapper StatusType;
+    // [RestrictTo(typeof(IStatus))]
+    // public TypeWrapper StatusType;
     public class Baker : Baker<StatusAuthoring>
     {
         public override void Bake(StatusAuthoring authoring)

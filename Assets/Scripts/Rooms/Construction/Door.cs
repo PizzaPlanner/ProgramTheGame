@@ -1,7 +1,4 @@
-﻿using Identifiables;
-using Unity.Collections;
-using Unity.Entities;
-using UnityEngine;
+﻿using Unity.Entities;
 
 public struct Door : IComponentData
 {

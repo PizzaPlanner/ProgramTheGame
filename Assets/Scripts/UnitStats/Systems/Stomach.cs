@@ -88,7 +88,7 @@ namespace Core.Equipment
                 if(food.Nutrition <= 0)
                     ecb.DestroyEntity(e);
             
-            state.Dependency = new FindFoodTargetJob()
+            state.Dependency = new EatTaskJob()
             {
                 ecb = ecb,
                 stomachLookup = SystemAPI.GetComponentLookup<Stomach>(false),

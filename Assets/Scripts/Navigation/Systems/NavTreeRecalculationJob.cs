@@ -1,9 +1,8 @@
-﻿using System;
+﻿using Grids;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using Unity.Mathematics;
-using UnityEngine;
 
 namespace Navigation
 {
@@ -13,7 +12,7 @@ namespace Navigation
         [NativeDisableContainerSafetyRestriction] 
         public ComponentLookup<NavTree> treeLookup;
         public uint currentTick;
-        void Execute(Entity e, in GridStructure grid, in NavLayers layers)
+        void Execute(Entity e, in CGrid grid)
         {
             var tree = treeLookup[e];
             if(!tree.IsDirty)
@@ -21,7 +20,7 @@ namespace Navigation
             var sameRoomMap = new NativeHashSet<(int, int)>(32, Allocator.Temp);
             var roomRemapMap = new NativeHashMap<int, int>(32, Allocator.Temp);
             
-            var bbox = grid.LocalAABB;
+            var bbox = grid.BoundsWithBorder;
             tree.Init(bbox);
             tree.LastUpdate = currentTick;
             var maxArea = 0;
@@ -29,7 +28,7 @@ namespace Navigation
             for (int y = bbox.Min.y; y <= bbox.Max.y; y++)
             {
                 var selfCell = new int2(x, y);
-                if(!layers.IsPathable(selfCell))
+                if(!grid.IsPathable(selfCell))
                     continue;
                 var areas = new FixedList64Bytes<int>
                 {

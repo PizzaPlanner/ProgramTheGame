@@ -1,5 +1,4 @@
-﻿using Core;
-using Core.Input;
+﻿using Core.Input;
 using UnityEngine.UIElements;
 
 public abstract partial class HotkeyToggleUISystem<TWindow, TTool> : UISystem
