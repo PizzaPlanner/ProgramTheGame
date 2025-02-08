@@ -22,6 +22,9 @@ namespace Space.Systems
         {
             var currentGrid = SystemAPI.GetSingleton<CurrentGrid>();
             var camChanged = currentGrid.Grid != currentGrid.LastGrid;
+            if(!SystemAPI.HasComponent<Sector>(currentGrid.Grid))
+                return;
+            
             var camLocation = SystemAPI.GetComponent<Sector>(currentGrid.Grid).PositionInSpace;
             if(camChanged)
                 foreach (var (loc, transform) in SystemAPI.Query<Sector, RefRW<LocalTransform>>()

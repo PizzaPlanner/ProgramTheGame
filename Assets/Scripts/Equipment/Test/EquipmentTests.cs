@@ -1,5 +1,6 @@
 ﻿using Core;
 using Core.Equipment;
+using Core.Status;
 using Equipment;
 using Identifiables;
 using NUnit.Framework;
@@ -182,5 +183,44 @@ public class EquipmentTests
         yield return TickWorld(6);
         var order = FindComponent<ItemOrderTask>();
         Assert.AreEqual(OrderState.Requested, order.State);
+    }
+    
+    [UnityTest]
+    public IEnumerator WillSleepOnFloorIfNoBed()
+    {
+        var grid = EntityManager.Instantiate(Testing.ID.LabSceneForConstruction.SpawnablePrefab);
+        var plan = EntityManager.CreateEntity(typeof(PlannedConstruction));
+        yield return WaitForEntityWith<Stamina>();
+        var e = FindEntity<Stamina>();
+        EntityManager.RemoveComponent<Lungs>(e);
+        var stamina = EntityManager.GetComponentData<Stamina>(e);
+        stamina.Fullness = stamina.CriticalThreshold;
+        EntityManager.SetComponentData(FindEntity<Stamina>(), stamina);
+        yield return new WaitForSeconds(3);
+        var newStam = EntityManager.GetComponentData<Stamina>(e);
+        Assert.IsTrue(newStam.Fullness > stamina.Fullness, "Did not rest");
+    }
+    
+    [UnityTest]
+    public IEnumerator WillSleepInBed()
+    {
+        var grid = EntityManager.Instantiate(Testing.ID.LabSceneForConstruction.SpawnablePrefab);
+        var plan = EntityManager.CreateEntity(typeof(PlannedConstruction));
+        EntityManager.SetComponentData(plan, new PlannedConstruction
+        {
+            Prefab = Identifiable.FromName("Bed"),
+            Location = new int2(0, 3),
+            Mode = ConstructionMode.Complete,
+            Parent = grid
+        });
+        yield return WaitForEntityWith<Stamina>();
+        var e = FindEntity<Stamina>();
+        EntityManager.RemoveComponent<Lungs>(e);
+        var stamina = EntityManager.GetComponentData<Stamina>(e);
+        stamina.Fullness = stamina.CriticalThreshold;
+        EntityManager.SetComponentData(FindEntity<Stamina>(), stamina);
+        yield return new WaitForSeconds(3);
+        var newStam = EntityManager.GetComponentData<Stamina>(e);
+        Assert.IsTrue(newStam.Fullness > stamina.Fullness, "Did not rest");
     }
 }

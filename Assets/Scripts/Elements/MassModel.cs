@@ -7,6 +7,7 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Properties;
 
+[BurstCompile]
 public struct MassModel : ICleanupComponentData
 {
     NativeElementMap _map;

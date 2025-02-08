@@ -148,6 +148,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   UnitType: {fileID: -5942648328531916514, guid: fe71f9291d76e91448981a843cbca2ca, type: 3}
   DispensionTask: {fileID: 5923588122422854532, guid: 38c2a5a709b7bea4d921df971a9dbd1b, type: 3}
+  StatusAddedOnDispensed: {fileID: -6454382905418527795, guid: bbac5cb9b97286948af321825dbd3852, type: 3}
 --- !u!114 &6358590210682995268
 MonoBehaviour:
   m_ObjectHideFlags: 0

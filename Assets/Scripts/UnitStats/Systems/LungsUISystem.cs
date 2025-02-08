@@ -16,7 +16,7 @@ partial class LungsUISystem : UISystem
             var window = ui.Q<StatsUI>();
             if(window == null)
                 return;
-            window.AddOrUpdateNeed("Lungs", lungs.Fullness, lungs.Capacity, lungs.IsLowOxygen, lungs.IsSuffocating, GetTooltip);
+            window.AddOrUpdateNeed("Lungs", lungs.Fullness, lungs.Capacity, lungs.Level, GetTooltip);
             _target = e;
         }
     }

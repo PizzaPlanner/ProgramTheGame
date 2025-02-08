@@ -30,16 +30,15 @@ namespace Grids
                 return obj is CertainlyNotAnEntity other && Equals(other);
             }
 
-            public override int GetHashCode()
-            {
-                return HashCode.Combine(A, B);
-            }
+            public override int GetHashCode() => A;
+            
+            public static implicit operator CertainlyNotAnEntity(Entity e) => new CertainlyNotAnEntity(e);
         }
         
-        UnsafeParallelMultiHashMap<int2, Entity> ByCell;
-        UnsafeHashMap<int2, BuildingLayer> BuildingLayers;
         // TODO: Key can't be entity, causes remap error in ECB! Report Bug
-        UnsafeHashMap<CertainlyNotAnEntity, (BuildingLayer layer, GridBounds bounds)> LayerBy; 
+        UnsafeHashMap<CertainlyNotAnEntity, (BuildingLayer layer, GridBounds bounds, bool isGhost)> LayerBy; 
+        UnsafeParallelMultiHashMap<int2, Entity> ByCell;
+        UnsafeHashMap<int3, BuildingLayer> BuildingLayers;
 
         GridBounds ActualBounds;
         [CreateProperty]
@@ -47,33 +46,43 @@ namespace Grids
 
         public CGrid(Allocator allocator)
         {
+            LayerBy = new(64, allocator);
             ByCell = new(64, allocator);
             BuildingLayers = new(64, allocator);
-            LayerBy = new(64, allocator);
             ActualBounds = new GridBounds();
         }
 
         public void Dispose()
         {
+            if (LayerBy.IsCreated)
+                LayerBy.Dispose();
             if (ByCell.IsCreated)
                 ByCell.Dispose();
             if (BuildingLayers.IsCreated)
                 BuildingLayers.Dispose();
-            if (LayerBy.IsCreated)
-                LayerBy.Dispose();
-        }
-
-        public readonly bool IsOccupied(int2 location, BuildingLayer layer)
-        {
-            return BuildingLayers.TryGetValue(location, out var hasLayer) && hasLayer.Overlaps(layer); 
         }
         
-        public readonly bool IsOccupied(int2 cell, BuildingLayer layer, out Entity e)
+        public readonly int3 LayerKey(int2 cell, bool isGhost) => isGhost ? new int3(cell.x, cell.y, 0) : new int3(cell.x, cell.y, 1);
+
+        public readonly bool IsOccupiedForBuilding(int2 location, BuildingLayer layer)
+        {
+            return BuildingLayers.TryGetValue(LayerKey(location, true), out var hasLayer) && hasLayer.Overlaps(layer)
+                || BuildingLayers.TryGetValue(LayerKey(location, false), out var hasLayer2) && hasLayer2.Overlaps(layer);
+        }
+        
+        public readonly bool IsOccupiedExact(int2 location, BuildingLayer layer)
+        {
+            return BuildingLayers.TryGetValue(LayerKey(location, false), out var hasLayer) && (hasLayer & layer) == layer; 
+        }
+        
+        public readonly bool IsOccupiedExact(int2 cell, BuildingLayer layer, out Entity e)
         {
             e = default;
+            if(!BuildingLayers.TryGetValue(LayerKey(cell, false), out var allLayers) || (allLayers & layer) != layer)
+                return false;
             foreach(var entity in ByCell.GetValuesForKey(cell))
-                if (LayerBy.TryGetValue(new CertainlyNotAnEntity { A = entity.Index, B = entity.Version }, out var hasLayer) &&
-                    hasLayer.Item1.Overlaps(layer))
+                if (LayerBy.TryGetValue(entity, out var hasLayer) 
+                    && (hasLayer.layer & layer) == layer)
                 {
                     e = entity;
                     return true;
@@ -95,30 +104,18 @@ namespace Grids
             return ByCell.GetValueArray(Allocator.Temp).AsReadOnly();
         }
 
-        public readonly bool IsPlacementValid(GridBounds bounds, BuildingLayer layer)
-        {
-            for (int x = bounds.Min.x; x <= bounds.Max.x; x++)
-            for (int y = bounds.Min.y; y <= bounds.Max.y; y++)
-            {
-                if(IsOccupied(new int2(x, y), layer))
-                    return false;
-            }
-
-            return true;
-        }
-
-        public bool TryPlace(Entity e, BuildingLayer layer, GridBounds area)
+        public bool TryPlace(Entity e, BuildingLayer layer, GridBounds area, bool isGhost)
         {
             if (e.Index < 0) return false;
-            if (!IsPlacementValid(area, layer)) return false;
-            if (!LayerBy.TryAdd(new CertainlyNotAnEntity { A = e.Index, B = e.Version }, (layer, area))) return false;
+            if (!IsBuildable(area, layer)) return false;
+            if (!LayerBy.TryAdd(e, (layer, area, isGhost))) return false;
             for (int x = area.Min.x; x <= area.Max.x; x++)
             for (int y = area.Min.y; y <= area.Max.y; y++)
             {
                 var cell = new int2(x, y);
-                if (BuildingLayers.TryGetValue(cell, out var l2))
+                if (BuildingLayers.TryGetValue(LayerKey(cell, isGhost), out var l2))
                     layer |= l2;
-                BuildingLayers[cell] = layer;
+                BuildingLayers[LayerKey(cell, isGhost)] = layer;
                 ByCell.Add(cell, e);
             }
 
@@ -128,45 +125,59 @@ namespace Grids
 
         public void Remove(Entity e)
         {
-            if(!LayerBy.TryGetValue(new CertainlyNotAnEntity(e), out var data))
+            if(!LayerBy.TryGetValue(e, out var data))
                 return;
             for (int x = data.bounds.Min.x; x <= data.bounds.Max.x; x++)
             for (int y = data.bounds.Min.y; y <= data.bounds.Max.y; y++)
             {
+                var coord = LayerKey(new int2(x, y), data.isGhost);
                 ByCell.Remove(new int2(x, y), e);
-                var newLayer = BuildingLayers[new int2(x, y)] & ~data.layer;
+                var newLayer = BuildingLayers[coord] & ~data.layer;
                 if(newLayer > 0)
-                    BuildingLayers[new int2(x, y)] = newLayer;
+                    BuildingLayers[coord] = newLayer;
                 else
                 {
-                    BuildingLayers.Remove(new int2(x, y));
+                    BuildingLayers.Remove(coord);
                     ShrinkBounds();
                 }
             }
-            LayerBy.Remove(new CertainlyNotAnEntity(e));
+            LayerBy.Remove(e);
         }
 
         void ShrinkBounds()
         {
             ActualBounds = GridBounds.Empty;
             foreach(var cell in BuildingLayers.GetKeyArray(Allocator.Temp))
-                ActualBounds.Encapsulate(cell);
+                ActualBounds.Encapsulate(cell.xy);
         }
 
-        public readonly bool IsPathable(int2 cell) => BuildingLayers.TryGetValue(cell, out var layer) 
-                                                      && (layer & (BuildingLayer.BaseLevel | BuildingLayer.FloorLevel)) == BuildingLayer.FloorLevel;
-
-        public void ModifyLayer(Entity e, BuildingLayer newLayer)
+        public readonly bool IsPathable(int2 cell) => BuildingLayers.TryGetValue(LayerKey(cell, false), out var layer) 
+                                                      && layer.IsFloor() && !layer.IsWall();
+        
+        public readonly bool IsBuildable(GridBounds bounds, BuildingLayer layer)
         {
-            if(!LayerBy.TryGetValue(new CertainlyNotAnEntity(e), out var data) || data.layer == newLayer)
+            for (int x = bounds.Min.x; x <= bounds.Max.x; x++)
+            for (int y = bounds.Min.y; y <= bounds.Max.y; y++)
+            {
+                if(IsOccupiedForBuilding(new int2(x, y), layer))
+                    return false;
+            }
+
+            return true;
+        }
+
+        public void ModifyLayerNoGhost(Entity e, BuildingLayer newLayer)
+        {
+            if(!LayerBy.TryGetValue(e, out var data) || data.layer == newLayer)
                 return;
             data.layer = newLayer;
-            LayerBy[new CertainlyNotAnEntity(e)] = data;
+            LayerBy[e] = data;
             for (int x = data.bounds.Min.x; x <= data.bounds.Max.x; x++)
             for (int y = data.bounds.Min.y; y <= data.bounds.Max.y; y++)
             {
-                var cellLayer = BuildingLayers[new int2(x, y)];
-                BuildingLayers[new int2(x, y)] = (cellLayer & ~data.layer) | newLayer;
+                var coord = LayerKey(new int2(x, y), false);
+                var cellLayer = BuildingLayers[coord];
+                BuildingLayers[coord] = (cellLayer & ~data.layer) | newLayer;
             }
         }
     }

@@ -36,7 +36,7 @@ public class StatsUI : VisualElement
         Add(Stats = new VisualElement(){name = "Stats"});
     }
     
-    public void AddOrUpdateNeed(string stat, float value, float maxValue, bool isLow, bool isCritical, Func<VisualElement> tooltipFunc)
+    public void AddOrUpdateNeed(string stat, float value, float maxValue, int level, Func<VisualElement> tooltipFunc)
     {
         var bar = this.Q<StatBar>(stat);
         if (bar == null)
@@ -44,30 +44,47 @@ public class StatsUI : VisualElement
         
         bar.maxValue = maxValue;
         bar.value = value;
-        if (isCritical)
+        if (bar.lastLevel != level)
         {
-            bar.AddToClassList("critical");
-            bar.RemoveFromClassList("low");
-        }
-        else if (isLow)
-        {
-            bar.AddToClassList("low");
-            bar.RemoveFromClassList("critical");
-        }
-        else
             bar.ClearClassList();
-            
+            bar.AddToClassList($"level{level}");
+            bar.lastLevel = level;
+        }
     }
 
-    public void SetStats(DynamicBuffer<Statuses> stats)
+    public void SetStats(DynamicBuffer<Statuses> stats, uint currenTick)
     {
-        if(stats.Length == Stats.childCount && (stats.Length == 0 || stats[^1].Id == ((IdentifiableButton)Stats[stats.Length - 1]).Target))
-            return;
-        
-        Stats.Clear();
-        for (int i = 0; i < stats.Length; i++)
+        for(int i = 0; i < stats.Length; i++)
+            if(Stats.childCount <= i)
+                Stats.Add(new StatButton(stats[i], currenTick));
+            else
+                (Stats[i] as StatButton).SetStat(stats[i], currenTick);
+
+        for (int i = stats.Length; i < Stats.childCount; i++)
+            Stats.RemoveAt(i);
+    }
+
+    public class StatButton : IdentifiableButton, ITooltipProvider
+    {
+        Statuses Stat;
+        uint timeLeft;
+        uint timeSince;
+        public StatButton(Statuses stat, uint tick)
         {
-            Stats.Add(new IdentifiableButton{Target = stats[i].Id});
+            SetStat(stat, tick);
+        }
+
+        public IEnumerable<VisualElement> TooltipContent => new[]
+        {
+            new Label($"{Stat.Id.ToString()} x{Stat.Stacks}\nAdded: {timeSince} ago{(Stat.LastsForever ? "" : $"\nExpires in: {timeLeft}")}")
+        };
+
+        public void SetStat(Statuses stat, uint tick)
+        {
+            Target = stat.Id;
+            Stat = stat;
+            timeLeft = stat.LastsUntilTick - tick;
+            timeSince = tick - stat.ActiveSinceTick;
         }
     }
 
@@ -75,6 +92,7 @@ public class StatsUI : VisualElement
     {
         VisualElement Progress;
         public float maxValue;
+        public int lastLevel;
         
         float _value;
         public float value

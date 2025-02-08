@@ -11,6 +11,7 @@ public struct BakedIntoRoomMap : ICleanupComponentData
 {
     public GridBounds Area;
     public BuildingLayer Layer;
+    public bool IsGhost;
     public Entity Grid;
     public int2 Offset;
     public byte Rotation;

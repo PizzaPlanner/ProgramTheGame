@@ -49,7 +49,7 @@ public class BuildUtils
             baked.Area = baked.Area.WithOffset(boundsDelta);
             baked.Grid = toSector;
             fromGrid.Remove(placed);
-            if(!toGrid.TryPlace(placed, baked.Layer, baked.Area))
+            if(!toGrid.TryPlace(placed, baked.Layer, baked.Area, baked.IsGhost))
                 Debug.LogError($"Something went wrong while placing {placed} at {baked.Area} from {fromBounds} to {toBounds}");
             if (baked.Layer.IsWall())
             {

@@ -7,6 +7,7 @@ namespace Equipment.Authoring
     {
         public UnitAuthoring UnitType;
         public TaskAuthoring DispensionTask;
+        public StatusAuthoring StatusAddedOnDispensed;
         public class AuthoringBaker : Baker<UnitDispenserAuthoring>
         {
             public override void Bake(UnitDispenserAuthoring authoring)
@@ -15,7 +16,8 @@ namespace Equipment.Authoring
                 AddComponent(entity, new UnitDispenser
                 {
                     Unit = authoring.UnitType.GetComponent<IdentifieableAuthoring>().Id,
-                    TaskPrefab = authoring.DispensionTask.GetComponent<IdentifieableAuthoring>().Id
+                    TaskPrefab = authoring.DispensionTask.GetComponent<IdentifieableAuthoring>().Id,
+                    StatusAddedOnDispensed = authoring.StatusAddedOnDispensed?.GetComponent<IdentifieableAuthoring>().Id ?? default
                 });
             }
         }

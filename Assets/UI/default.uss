@@ -650,27 +650,75 @@ StatBar > #Bar > #Progress {
     background-color: rgb(255, 255, 255);
 }
 
-#Needs StatBar.low {
+#Needs StatBar.level3 {
+    -unity-background-image-tint-color: rgb(0, 100, 80);
+}
+
+#Needs StatBar.level3 > #Bar > #Progress {
+    background-color: rgb(0, 240, 170);
+}
+
+#Needs StatBar.level3 > .id-button > #Icon {
+    -unity-background-image-tint-color: rgb(0, 240, 170);
+}
+
+#Needs StatBar.level2 {
+    -unity-background-image-tint-color: rgb(30, 80, 0);
+}
+
+#Needs StatBar.level2 > #Bar > #Progress {
+    background-color: rgb(70, 230, 80);
+}
+
+#Needs StatBar.level2 > .id-button > #Icon {
+    -unity-background-image-tint-color: rgb(70, 230, 80);
+}
+
+#Needs StatBar.level1 {
+    -unity-background-image-tint-color: rgb(55, 70, 0);
+}
+
+#Needs StatBar.level1 > #Bar > #Progress {
+    background-color: rgb(180, 220, 80);
+}
+
+#Needs StatBar.level1 > .id-button > #Icon {
+    -unity-background-image-tint-color: rgb(180, 220, 80);
+}
+
+#Needs StatBar.level-1 {
+    -unity-background-image-tint-color: rgb(70, 55, 0);
+}
+
+#Needs StatBar.level-1 > #Bar > #Progress {
+    background-color: rgb(210, 190, 80);
+}
+
+#Needs StatBar.level-1 > .id-button > #Icon {
+    -unity-background-image-tint-color: rgb(210, 190, 80);
+}
+
+#Needs StatBar.level-2 {
     -unity-background-image-tint-color: rgb(68, 32, 0);
 }
 
-#Needs StatBar.critical {
-    -unity-background-image-tint-color: rgb(82, 0, 0);
-}
-
-#Needs StatBar.low > #Bar > #Progress {
+#Needs StatBar.level-2 > #Bar > #Progress {
     background-color: rgb(200, 150, 44);
 }
 
-#Needs StatBar.low > .id-button > #Icon {
+#Needs StatBar.level-2 > .id-button > #Icon {
     -unity-background-image-tint-color: rgb(200, 150, 44);
 }
 
-#Needs StatBar.critical > #Bar > #Progress {
+#Needs StatBar.level-3 {
+    -unity-background-image-tint-color: rgb(82, 0, 0);
+}
+
+#Needs StatBar.level-3 > #Bar > #Progress {
     background-color: rgb(255, 35, 35);
 }
 
-#Needs StatBar.critical > .id-button > #Icon {
+#Needs StatBar.level-3 > .id-button > #Icon {
     -unity-background-image-tint-color: rgb(255, 35, 35);
 }
 

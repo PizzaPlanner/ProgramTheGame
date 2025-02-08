@@ -7,6 +7,7 @@ namespace Equipment
     {
         public Identifiable Unit;
         public Identifiable TaskPrefab;
+        public Identifiable StatusAddedOnDispensed;
         public bool IsDispensed;
     }
 }

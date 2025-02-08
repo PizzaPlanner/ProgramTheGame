@@ -5,15 +5,21 @@ using UnityEngine;
 [RequireComponent(typeof(IdentifieableAuthoring))]
 public class StatusAuthoring : MonoBehaviour
 {
-    // [RestrictTo(typeof(IStatus))]
-    // public TypeWrapper StatusType;
+    [Tooltip("Leave at 0 for permanent status")]
+    public uint BaseDuration;
+    public int MoodChange;
+    public Status.StackPolicy StackPolicy;
     public class Baker : Baker<StatusAuthoring>
     {
         public override void Bake(StatusAuthoring authoring)
         {
             var entity = GetEntity(TransformUsageFlags.None);
-            AddComponent<Status>(entity);
-            // AddComponent(entity, TypeManager.GetType(authoring.StatusType));
+            AddComponent(entity, new Status
+            {
+                MoodChangePerStack = authoring.MoodChange,
+                Duration = authoring.BaseDuration,
+                AddPolicy = authoring.StackPolicy,
+            });
         }
     }
 

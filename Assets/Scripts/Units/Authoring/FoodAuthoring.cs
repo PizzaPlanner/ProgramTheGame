@@ -1,4 +1,5 @@
-﻿using Unity.Entities;
+﻿using Identifiables;
+using Unity.Entities;
 using UnityEngine;
 
 [RequireComponent(typeof(ItemAuthoring))]
@@ -6,6 +7,7 @@ public class FoodAuthoring : MonoBehaviour
 {
     public uint Nutrition;
     public uint NutritionPerTick;
+    public IdentifieableAuthoring MoodStatus;
     public class StomachAuthoringBaker : Baker<FoodAuthoring>
     {
         public override void Bake(FoodAuthoring authoring)
@@ -15,6 +17,7 @@ public class FoodAuthoring : MonoBehaviour
             {
                 Nutrition = authoring.Nutrition,
                 NutritionPerTick = authoring.NutritionPerTick,
+                MoodStatus = authoring.MoodStatus?.Id ?? default
             });
         }
     }

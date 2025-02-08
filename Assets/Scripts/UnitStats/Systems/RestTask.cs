@@ -1,58 +1,79 @@
 ﻿using Grids;
-using Navigation;
+using Identifiables;
 using Units;
 using Unity.Collections;
 using Unity.Entities;
+using UnityEngine;
+using Task = Units.Task;
 
 namespace Core.Equipment
 {
-    public struct RestTask : IComponentData { }
+    public struct RestTask : IComponentData 
+    {
+        public State RestState;
+        
+        public enum State
+        {
+            LookingForBed,
+            Approaching,
+            Resting
+        }
+        
+    }
     
     [WithOptions(EntityQueryOptions.IgnoreComponentEnabledState)]
     [WithAll(typeof(RestTask))]
     partial struct FindRestTargetJob : IJobEntity
     {
-        public EntityCommandBuffer ecb;
+        public uint currentTick;
         public ComponentLookup<Stamina> staminaLookup;
-        [ReadOnly] public ComponentLookup<Bed> bedLookup;
+        public BufferLookup<Statuses> statsLookup;
+        public ComponentLookup<Bed> bedLookup;
         [ReadOnly] public ComponentLookup<CGrid> navLookup;
         [ReadOnly] public ComponentLookup<OnGrid> onGridLookup;
-        void Execute(Entity e, ref Task task, ref DynamicBuffer<TaskProvider> dependencies, EnabledRefRO<WorkedOn> workedOn)
+        void Execute(ref Task task, ref RestTask rest, ref DynamicBuffer<TaskProvider> dependencies, EnabledRefRO<WorkedOn> workedOn)
         {
-            if(bedLookup.HasComponent(task.Target) || !staminaLookup.HasComponent(task.Executor))
-                return;
-            
-            ref var stamina = ref staminaLookup.GetRefRW(task.Executor).ValueRW;
-            if(workedOn.ValueRO)
-                return;
-
-            if (bedLookup.TryGetComponent(stamina.CurrentBed, out var bed)
-                && bed.Owner == task.Executor
-                && onGridLookup.TryGetComponent(stamina.CurrentBed, out var bedGrid)
-                && bedGrid.Grid == task.CrewProvider)
-            {
-                task.Target = stamina.CurrentBed;
-                return;
-            }
-            
-            stamina.CurrentBed = default;
-            if (!stamina.IsTired)
+            if (!staminaLookup.HasComponent(task.Executor))
             {
                 task.Origin = default;
                 return;
             }
-            task.Priority = stamina.IsExhausted 
-                ? TaskPriority.HighPriority 
-                : TaskPriority.MediumPriority;
-            
-            // Find Bed???
-            foreach(var entity in navLookup[task.CrewProvider].GetAllEntities())
-                if(bedLookup.TryGetComponent(entity, out var bed2) && (bed2.Owner == default || bed2.Owner == task.Origin))
-                    stamina.CurrentBed = entity;
-            
-            // Sleep on floor
-            if(stamina.IsExhausted && stamina.CurrentBed == default)
-                task.Target = task.Origin;
+            ref var stamina = ref staminaLookup.GetRefRW(task.Executor).ValueRW;
+            switch (rest.RestState)
+            {
+                case RestTask.State.LookingForBed:
+                    if (bedLookup.TryGetComponent(stamina.CurrentBed, out var bed)
+                        && bed.Owner == task.Executor
+                        && onGridLookup.TryGetComponent(stamina.CurrentBed, out var bedGrid)
+                        && bedGrid.Grid == task.CrewProvider)
+                    {
+                        task.Target = stamina.CurrentBed;
+                        rest.RestState = RestTask.State.Approaching;
+                        return;
+                    }
+                    foreach(var entity in navLookup[task.CrewProvider].GetAllEntities())
+                        if (bedLookup.TryGetComponent(entity, out var bed2) &&
+                            (bed2.Owner == default || bed2.Owner == task.Origin))
+                        {
+                            stamina.CurrentBed = entity;
+                            bed2.Owner = task.Origin;
+                            bedLookup[entity] = bed2;
+                            return;
+                        }
+                    stamina.CurrentBed = default;
+                    task.Target = task.Origin;
+                    rest.RestState = RestTask.State.Approaching;
+                    break;
+                case RestTask.State.Approaching:
+                    if (workedOn.ValueRO)
+                        rest.RestState = RestTask.State.Resting;
+                    break;
+                case RestTask.State.Resting:
+                    statsLookup[task.Executor].Add(Identifiable.FromName("Resting"), currentTick);
+                    if (stamina.IsFull || !workedOn.ValueRO)
+                        task.Origin = default;
+                    break;
+            }
         }
     }
 }

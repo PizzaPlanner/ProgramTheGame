@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 3724361011114579357}
   - component: {fileID: -5380242976130347905}
   - component: {fileID: 5923588122422854532}
+  - component: {fileID: 7499958838433006619}
   m_Layer: 0
   m_Name: RestTask
   m_TagString: Untagged
@@ -61,6 +62,18 @@ MonoBehaviour:
   RequiredSkill: {fileID: 0}
   MinSkillLevel: 0
   UniquenessGroupIdentifier: {fileID: 5923588122422854532}
+--- !u!114 &7499958838433006619
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3605263813790912188}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1b05ff113317435faabdb350f1b307f6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &5657100428946741286
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -10,13 +10,18 @@ namespace Core.Equipment
 {
     public struct Stamina : IComponentData
     {
-        public int Fullness;
-        public int Capacity;
-        public int ConsumptionPerTick;
-        public int LowThreshold;
-        public int CriticalThreshold;
+        public ushort Fullness;
+        public ushort Capacity;
+        public ushort ConsumptionPerTick;
+        public ushort LowThreshold;
+        public ushort CriticalThreshold;
+        public ushort BaseProductionPerTick;
+        public Identifiable NoBedMood;
         public bool IsTired => Fullness < LowThreshold;
         public bool IsExhausted => Fullness < CriticalThreshold;
+        public bool IsFull => Fullness >= Capacity;
+        public int Level => IsTired ? -3 : IsExhausted ? -2 : 0;
+
         public Entity CurrentBed;
     }
 
@@ -30,6 +35,7 @@ namespace Core.Equipment
 
         public void OnUpdate(ref SystemState state)
         {
+            var currentTick = SystemAPI.GetSingleton<SimulationState>().LastSimulationTick;
             var ecb = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>().CreateCommandBuffer(state.WorldUnmanaged);
             foreach (var (stamina, stats, onGrid, e) in 
                      SystemAPI.Query<RefRW<Stamina>, DynamicBuffer<Statuses>, OnGrid>()
@@ -37,16 +43,24 @@ namespace Core.Equipment
                               .WithEntityAccess())
             {
                 if (!stats.Has(RestingStatus))
-                    stamina.ValueRW.Fullness = math.max(0, stamina.ValueRW.Fullness - stamina.ValueRW.ConsumptionPerTick);
-                else if(SystemAPI.HasComponent<Bed>(stamina.ValueRW.CurrentBed))
-                {
-                    ref var bed = ref SystemAPI.GetComponentRW<Bed>(stamina.ValueRW.CurrentBed).ValueRW;
-                    var rest = math.min(bed.RestValue, stamina.ValueRW.Capacity - stamina.ValueRW.Fullness);
-                    rest = math.max(0, rest);
-                    stamina.ValueRW.Fullness += (int)rest;
-                }
+                    stamina.ValueRW.Fullness = (ushort)math.max(0, stamina.ValueRW.Fullness - stamina.ValueRW.ConsumptionPerTick);
                 else
-                    stamina.ValueRW.Fullness += 1;
+                {
+                    var restFactor = 1f;
+                    var addedMood = stamina.ValueRW.NoBedMood;
+                    if (SystemAPI.HasComponent<Bed>(stamina.ValueRW.CurrentBed))
+                    {
+                        var bed = SystemAPI.GetComponent<Bed>(stamina.ValueRW.CurrentBed);
+                        restFactor = bed.RestFactor;
+                        addedMood = bed.UsageMood;
+                    }
+                    
+                    var production = stamina.ValueRW.BaseProductionPerTick * restFactor;
+                    var rest = (ushort)math.min(production, stamina.ValueRW.Capacity - stamina.ValueRW.Fullness);
+                    stamina.ValueRW.Fullness += rest;
+                    if(addedMood != default)
+                        stats.Add(addedMood, currentTick);
+                }
                 
                 if (stamina.ValueRW.Fullness <= 0)
                 {
@@ -59,13 +73,13 @@ namespace Core.Equipment
                 {
                     stats.Remove(ExhaustedStatus);
                     if (stamina.ValueRW.IsTired)
-                        stats.Add(TiredStatus);
+                        stats.Add(TiredStatus, currentTick);
                     continue;
                 }
                 else if (!wasCritical && stamina.ValueRW.IsExhausted)
                 {
                     stats.Remove(TiredStatus);
-                    stats.Add(ExhaustedStatus);
+                    stats.Add(ExhaustedStatus, currentTick);
                     continue;
                 }
                 
@@ -77,17 +91,18 @@ namespace Core.Equipment
                     Task.Schedule(RestTask, ecb, new Task { Priority = TaskPriority.MediumPriority, 
                         Origin = e, Executor = e, 
                         CrewProvider = onGrid.Grid });
-                    stats.Add(TiredStatus);
+                    stats.Add(TiredStatus, currentTick);
                 }
             }
             
             new FindRestTargetJob()
             {
-                ecb = ecb,
                 staminaLookup = SystemAPI.GetComponentLookup<Stamina>(false),
                 bedLookup = SystemAPI.GetComponentLookup<Bed>(false),
+                statsLookup = SystemAPI.GetBufferLookup<Statuses>(false),
                 navLookup = SystemAPI.GetComponentLookup<CGrid>(true),
-                onGridLookup = SystemAPI.GetComponentLookup<OnGrid>(true)
+                onGridLookup = SystemAPI.GetComponentLookup<OnGrid>(true),
+                currentTick = SystemAPI.GetSingleton<SimulationState>().LastSimulationTick
             }.Schedule();
         }
     }

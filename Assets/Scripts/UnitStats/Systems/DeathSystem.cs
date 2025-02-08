@@ -15,13 +15,14 @@ namespace Core.Equipment
 
         public void OnUpdate(ref SystemState state)
         {
+            var currentTick = SystemAPI.GetSingleton<SimulationState>().LastSimulationTick;
             var ecb = new EntityCommandBuffer(Allocator.Temp);
             foreach (var (stats, e) in SystemAPI.Query<DynamicBuffer<Statuses>>()
                                                 .WithAll<Dead>()
                                                 .WithNone<Handled>().WithEntityAccess())
             {
                 stats.Clear();
-                stats.Add(DeadStatus);
+                stats.Add(DeadStatus, currentTick);
                 ecb.AddComponent<Handled>(e);
                 if (SystemAPI.HasBuffer<ToDos>(e))
                     SystemAPI.GetBuffer<ToDos>(e).Clear();

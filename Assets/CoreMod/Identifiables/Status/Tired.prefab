@@ -58,6 +58,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 826e5419947743808066a0664979f641, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Duration: 0
+  MaxStack: 0
+  MoodChange: -3
 --- !u!114 &5657100428946741286
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -17,18 +17,13 @@ partial class StatusMappingSystem : IdentifiableMappingSystem
 
     protected override void OnUpdate()
     {
-        foreach (var (id, e) in SystemAPI.Query<Identifiable>()
-                                         .WithAll<Prefab, Status>()
+        foreach (var (id, status, e) in SystemAPI.Query<Identifiable, Status>()
+                                         .WithAll<Prefab>()
                                          .WithNone<IdentifiablesMappingGroup.Mapped>()
                                          .WithOptions(EntityQueryOptions.IncludePrefab)
                                          .WithEntityAccess())
         {
-            foreach(var type in EntityManager.GetChunk(e).Archetype.GetComponentTypes())
-                if (typeof(IStatus).IsAssignableFrom(type.GetManagedType()) 
-                    && type is { IsComponent: true, IsManagedComponent: false })
-                {
-                    Status.StatusTypesById.Data[id] = type.TypeIndex;
-                }
+            Status.StatusTypesById.Data[id] = status;
         }
     }
 }

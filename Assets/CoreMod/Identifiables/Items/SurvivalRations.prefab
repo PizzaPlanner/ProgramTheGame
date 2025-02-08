@@ -74,6 +74,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Nutrition: 5000
   NutritionPerTick: 25
+  MoodStatus: {fileID: -5380242976130347905, guid: 2f7915daa88333343911255128d2bb48, type: 3}
 --- !u!114 &3298949536115023949
 MonoBehaviour:
   m_ObjectHideFlags: 0

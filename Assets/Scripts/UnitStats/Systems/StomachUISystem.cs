@@ -16,7 +16,7 @@ partial class StomachUISystem : UISystem
             var window = ui.Q<StatsUI>();
             if(window == null)
                 return;
-            window.AddOrUpdateNeed("Stomach", stomach.Fullness, stomach.Capacity, stomach.IsHungry, stomach.IsStarving, GetTooltip);
+            window.AddOrUpdateNeed("Stomach", stomach.Fullness, stomach.Capacity, stomach.Level, GetTooltip);
             _target = e;
         }
     }

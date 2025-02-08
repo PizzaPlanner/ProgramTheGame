@@ -12,6 +12,7 @@ partial struct BuildSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
+        state.CompleteDependency();
         var ecb = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>()
                            .CreateCommandBuffer(state.WorldUnmanaged);
         
@@ -26,8 +27,7 @@ partial struct BuildSystem : ISystem
             ref var navTree = ref SystemAPI.GetComponentRW<NavTree>(baked.Grid).ValueRW;
             ref var roomModel = ref SystemAPI.GetComponentRW<RoomModel>(baked.Grid).ValueRW;
             ref var grid = ref SystemAPI.GetComponentRW<CGrid>(baked.Grid).ValueRW;
-            var isGhost = SystemAPI.HasComponent<Ghost>(e);
-            if (!grid.TryPlace(e, baked.Layer, baked.Area))
+            if (!grid.TryPlace(e, baked.Layer, baked.Area, baked.IsGhost))
             {
                 var id = SystemAPI.GetComponent<Identifiable>(e);
                 Debug.LogWarning($"Failed to place {id} in occupied {baked.Area}:{baked.Layer}");
@@ -36,13 +36,13 @@ partial struct BuildSystem : ISystem
             }
             
             massModel.Resize(grid.BoundsWithBorder.Min, grid.BoundsWithBorder.Max);
-            if (baked.Layer.IsWall() && !isGhost)
+            if (baked.Layer.IsWall() && !baked.IsGhost)
             {
                 massModel.AddWall(baked.Area);
                 navTree.SetAreaDirty(baked.Area);
                 roomModel.AddWall(baked.Area);
             }
-            else if (baked.Layer.IsFloor() && !isGhost)
+            else if (baked.Layer.IsFloor() && !baked.IsGhost)
             {
                 massModel.AddFloor(baked.Area);
                 navTree.SetAreaDirty(baked.Area);

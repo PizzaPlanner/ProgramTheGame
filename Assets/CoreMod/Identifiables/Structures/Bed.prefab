@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 5400088794976185110}
   - component: {fileID: -3586789379621802683}
   - component: {fileID: 404759063531143838}
+  - component: {fileID: -2903988472453510462}
   m_Layer: 0
   m_Name: Bed
   m_TagString: Untagged
@@ -131,6 +132,20 @@ MonoBehaviour:
   Element: {fileID: 8326911734933721908, guid: 7c1cb09404340334e81d4ef17cdeab0b, type: 3}
   Mass: 5000
   Temperature: 22
+--- !u!114 &-2903988472453510462
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3605263813790912188}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 21f1353bbcad4d2e9079654967f145bf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  RestValue: 2.75
+  AddedMood: {fileID: -5380242976130347905, guid: c3a5477e57cd4b8478a3ca302b7abbd1, type: 3}
 --- !u!1001 &3534216099991864359
 PrefabInstance:
   m_ObjectHideFlags: 0

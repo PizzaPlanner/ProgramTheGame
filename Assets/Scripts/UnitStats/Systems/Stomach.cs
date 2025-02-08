@@ -15,6 +15,8 @@ namespace Core.Equipment
         public int CriticalThreshold;
         public bool IsHungry => Fullness < LowThreshold;
         public bool IsStarving => Fullness < CriticalThreshold;
+        public int Level => IsStarving ? -3 : IsHungry ? -2 : 0;
+
         public Entity CurrentFood;
     }
 
@@ -33,6 +35,7 @@ namespace Core.Equipment
 
         public void OnUpdate(ref SystemState state)
         {
+            var currentTick = SystemAPI.GetSingleton<SimulationState>().LastSimulationTick;
             var ecb = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>().CreateCommandBuffer(state.WorldUnmanaged);
             foreach (var (stomach, stats, onGrid, e) in 
                      SystemAPI.Query<RefRW<Stomach>, DynamicBuffer<Statuses>, OnGrid>()
@@ -49,6 +52,8 @@ namespace Core.Equipment
                     nutrition = math.max(0, nutrition);
                     stomach.ValueRW.Fullness += (int)nutrition;
                     food.Nutrition -= nutrition;
+                    if(food.MoodStatus != default)
+                        stats.Add(food.MoodStatus, currentTick);
                 }
                 else
                     stomach.ValueRW.Fullness = math.max(0, stomach.ValueRW.Fullness - stomach.ValueRW.ConsumptionPerTick);
@@ -63,13 +68,13 @@ namespace Core.Equipment
                 {
                     stats.Remove(StarvingStatus);
                     if (stomach.ValueRW.IsHungry)
-                        stats.Add(HungryStatus);
+                        stats.Add(HungryStatus, currentTick);
                     continue;
                 }
                 if (!wasStarving && stomach.ValueRW.IsStarving)
                 {
                     stats.Remove(HungryStatus);
-                    stats.Add(StarvingStatus);
+                    stats.Add(StarvingStatus, currentTick);
                     continue;
                 }
                 
@@ -80,7 +85,7 @@ namespace Core.Equipment
                     Task.Schedule(EatTask, ecb, new Task { Priority = TaskPriority.MediumPriority, 
                         Origin = e, Executor = e, 
                         CrewProvider = onGrid.Grid });
-                    stats.Add(HungryStatus);
+                    stats.Add(HungryStatus, currentTick);
                 }
             }
             

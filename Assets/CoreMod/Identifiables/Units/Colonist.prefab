@@ -20,6 +20,7 @@ GameObject:
   - component: {fileID: 5937198235935566398}
   - component: {fileID: -7911197205485802768}
   - component: {fileID: 5753995910479102398}
+  - component: {fileID: 8487611650434688914}
   m_Layer: 0
   m_Name: Colonist
   m_TagString: Untagged
@@ -191,10 +192,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bc2f2258cce24d95b74495ca541496ad, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Capacity: 800
-  LowThreshold: 600
-  SuffocateThreshold: 400
-  ConsumptionPerTick: 8
+  Capacity: 1000
+  LowThreshold: 500
+  SuffocateThreshold: 300
+  ConsumptionPerTick: 6
   ProductionPerTick: 2
   Inhales: {fileID: -7111768246366295914, guid: ee7ceab8787fcfc40b1b387446cf825e, type: 3}
   Exhales: {fileID: -7111768246366295914, guid: 681d5423487fa9440bf32b0b5d28a013, type: 3}
@@ -229,9 +230,25 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Capacity: 1500
-  LowThreshold: 600
+  LowThreshold: 400
   CriticalThreshold: 200
   ConsumptionPerTick: 1
+  BaseProductionPerTick: 2
+  NoBedMoodStatus: {fileID: -5380242976130347905, guid: f11db6c71d3ac7145bc0920de22068ea, type: 3}
+--- !u!114 &8487611650434688914
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6595311514760627798}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f272e5edba0449589d7342bfe886e7db, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Capacity: 100
+  MaxChangePerTick: 1
 --- !u!1001 &3072592592385049462
 PrefabInstance:
   m_ObjectHideFlags: 0

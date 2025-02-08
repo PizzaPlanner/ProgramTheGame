@@ -72,7 +72,7 @@ namespace Units
                     continue;
                 }
                 
-                var isTargetCellPathable = !grid.IsOccupied(targetCell, BuildingLayer.Wall) && grid.IsOccupied(targetCell, BuildingLayer.FloorLevel);
+                var isTargetCellPathable = grid.IsPathable(targetCell);
                 var isInTaskRange = math.csum(math.abs(myCell - targetCell)) <= (isTargetCellPathable ? 0 : 1);
                 if (!isInTaskRange)
                 {

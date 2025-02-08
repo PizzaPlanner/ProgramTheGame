@@ -23,7 +23,11 @@ partial class UnitDispenserUISystem : UISystem
                         Target = e,
                         IsCancelable = true,
                     });
-                ecb.SetComponent(task, new DispenseUnitTask{UnitPrefab = dispenser.ValueRO.Unit});   
+                ecb.SetComponent(task, new DispenseUnitTask
+                {
+                    UnitPrefab = dispenser.ValueRO.Unit, 
+                    AddedStatus = dispenser.ValueRO.StatusAddedOnDispensed
+                });   
             }
                 
             window.wantCreateTask = false;

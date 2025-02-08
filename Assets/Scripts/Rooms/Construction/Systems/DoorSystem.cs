@@ -35,12 +35,12 @@ partial struct DoorSystem : ISystem
             if (door.ValueRW.CurrentState == Door.DoorState.Locked)
             {
                 ecb.AddComponent<Wall>(e);
-                grid.ModifyLayer(e, BuildingLayer.Wall);
+                grid.ModifyLayerNoGhost(e, BuildingLayer.Wall);
             }
             else
             {
                 ecb.RemoveComponent<Wall>(e);
-                grid.ModifyLayer(e, BuildingLayer.Door);
+                grid.ModifyLayerNoGhost(e, BuildingLayer.Door);
             }
             
             if(door.ValueRW.CurrentState == Door.DoorState.Open)

@@ -44,7 +44,7 @@ public partial struct BuildJob : IJobEntity
         }
         
         var area = building.ToArea(planned.Location, planned.Rotation);
-        var isPlacementOk = navigation.IsPlacementValid(area, building.Layer);
+        var isPlacementOk = navigation.IsBuildable(area, building.Layer);
         if (!isPlacementOk && planned.Mode != ConstructionMode.PlacementPreview)
         {
             Debug.LogWarning($"Discarded pending part in invalid or occupied area {area}");
@@ -60,7 +60,8 @@ public partial struct BuildJob : IJobEntity
             Area = area,
             Layer = building.Layer,
             Grid = planned.Parent,
-            Offset = planned.Location
+            Offset = planned.Location,
+            IsGhost = isPlacing || isUnderConstruction
         };
 
         // Create Part

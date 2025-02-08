@@ -15,7 +15,7 @@ partial class StaminaUISystem : UISystem
             var window = ui.Q<StatsUI>();
             if(window == null)
                 return;
-            window.AddOrUpdateNeed("Stamina", stamina.Fullness, stamina.Capacity, stamina.IsTired, stamina.IsExhausted, GetTooltip);
+            window.AddOrUpdateNeed("Stamina", stamina.Fullness, stamina.Capacity, stamina.Level, GetTooltip);
             _target = e;
         }
     }

@@ -21,7 +21,8 @@
         "Units.Authoring",
         "Tasks",
         "Elements.Authoring",
-        "Elements"
+        "Elements",
+        "UnitStats.Authoring"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

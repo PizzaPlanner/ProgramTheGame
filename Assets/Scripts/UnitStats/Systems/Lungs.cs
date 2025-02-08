@@ -20,6 +20,7 @@ namespace Core.Equipment
         
         public bool IsLowOxygen => Fullness < LowThreshold;
         public bool IsSuffocating => Fullness < CriticalThreshold;
+        public int Level => IsSuffocating ? -3 : IsLowOxygen ? -2 : 0;
     }
     
     [UpdateInGroup(typeof(TickBasedSystemGroup))]
@@ -32,6 +33,7 @@ namespace Core.Equipment
         public void OnUpdate(ref SystemState state)
         {
             var ecb = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>().CreateCommandBuffer(state.WorldUnmanaged);
+            var currentTick = SystemAPI.GetSingleton<SimulationState>().LastSimulationTick;
             foreach (var (lungs, stats, onGrid, body, transform, e) in 
                      SystemAPI.Query<RefRW<Lungs>, DynamicBuffer<Statuses>, OnGrid, MassData, LocalTransform>()
                               .WithNone<Dead>()
@@ -66,13 +68,13 @@ namespace Core.Equipment
                 {
                     stats.Remove(EmptyStatus);
                     if (lungs.ValueRW.IsLowOxygen)
-                        stats.Add(LowStatus);
+                        stats.Add(LowStatus, currentTick);
                     continue;
                 }
                 if (!wasSuffocating && lungs.ValueRW.IsSuffocating)
                 {
                     stats.Remove(LowStatus);
-                    stats.Add(EmptyStatus);
+                    stats.Add(EmptyStatus, currentTick);
                     continue;
                 }
                 
@@ -81,7 +83,7 @@ namespace Core.Equipment
                 else if (!wasLowOxygen && lungs.ValueRW.IsLowOxygen)
                 {
                     Task.Schedule(BreatheTask, ecb, new Task { Priority = TaskPriority.MediumPriority, Origin = e, Executor = e, CrewProvider = onGrid.Grid });
-                    stats.Add(LowStatus);   
+                    stats.Add(LowStatus, currentTick);   
                 }
             }
             

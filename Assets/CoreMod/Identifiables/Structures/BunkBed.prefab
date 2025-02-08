@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 5400088794976185110}
   - component: {fileID: -3586789379621802683}
   - component: {fileID: 404759063531143838}
+  - component: {fileID: -3733865109965108786}
   m_Layer: 0
   m_Name: BunkBed
   m_TagString: Untagged
@@ -131,6 +132,19 @@ MonoBehaviour:
   Element: {fileID: 8326911734933721908, guid: 7c1cb09404340334e81d4ef17cdeab0b, type: 3}
   Mass: 5000
   Temperature: 22
+--- !u!114 &-3733865109965108786
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3605263813790912188}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 21f1353bbcad4d2e9079654967f145bf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  RestValue: 2
 --- !u!1001 &1119492684448523592
 PrefabInstance:
   m_ObjectHideFlags: 0
