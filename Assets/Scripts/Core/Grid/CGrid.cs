@@ -151,6 +151,7 @@ namespace Grids
                 ActualBounds.Encapsulate(cell.xy);
         }
 
+        public readonly BuildingLayer GetPathing(int2 cell) => BuildingLayers.TryGetValue(LayerKey(cell, false), out var layer) ? layer : default;
         public readonly bool IsPathable(int2 cell) => BuildingLayers.TryGetValue(LayerKey(cell, false), out var layer) 
                                                       && layer.IsFloor() && !layer.IsWall();
         

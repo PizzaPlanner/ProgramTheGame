@@ -3,6 +3,7 @@ using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using Unity.Mathematics;
+using UnityEngine;
 
 namespace Navigation
 {
@@ -21,56 +22,47 @@ namespace Navigation
             var roomRemapMap = new NativeHashMap<int, int>(32, Allocator.Temp);
             
             var bbox = grid.BoundsWithBorder;
-            tree.Init(bbox);
+            tree.Init();
             tree.LastUpdate = currentTick;
             var maxArea = 0;
             for (int x = bbox.Min.x; x <= bbox.Max.x; x++)
             for (int y = bbox.Min.y; y <= bbox.Max.y; y++)
             {
                 var selfCell = new int2(x, y);
-                if(!grid.IsPathable(selfCell))
+                var pathing = grid.GetPathing(selfCell);
+                CellType cellType;
+                if(pathing == default)
+                    cellType = CellType.Space;
+                else if(pathing.IsFloor() && !pathing.IsWall())
+                    cellType = CellType.Floored;
+                else if(pathing.IsFloor() && (pathing & BuildingLayer.Door) == BuildingLayer.Door)
+                    cellType = CellType.Portal;
+                else
                     continue;
-                var areas = new FixedList64Bytes<int>
-                {
-                    Length = tree.MaxLevel
-                };
-                var cell = new NavCell
-                {
-                    Areas = areas
-                };
-
-                for (int level = 1; level <= tree.MaxLevel; level++)
-                {
-                    foreach (var nb in Neighbours)
-                    {
-                        var nbCell = selfCell + nb;
-                        if(!tree.Cells.TryGetValue(nbCell, out var otherCell))
-                            continue;
-                        if(math.any(tree.GetBoundsAtLevel(selfCell, level).Min != tree.GetBoundsAtLevel(nbCell, level).Min))
-                            continue;
-
-                        var selfArea = cell.Areas[level - 1];
-                        var nbArea = otherCell.Areas[level - 1];
-                        var sharedArea = math.min(selfArea, nbArea);
-                        if(sharedArea <= NavTree.LEVEL_LIMIT)
-                            sharedArea = ++maxArea * NavTree.LEVEL_LIMIT + level;
-                        if(selfArea > NavTree.LEVEL_LIMIT)
-                            sameRoomMap.Add((selfArea, sharedArea));
-                        if(nbArea > NavTree.LEVEL_LIMIT)
-                            sameRoomMap.Add((nbArea, sharedArea));
-                        
-                        otherCell.Areas[level - 1] = sharedArea;
-                        tree.Cells[nbCell] = otherCell;
-                        cell.Areas[level - 1] = sharedArea;
-                        
-                    }
-                    if (cell.Areas[level - 1] <= NavTree.LEVEL_LIMIT)
-                    {
-                        cell.Areas[level - 1] = ++maxArea * NavTree.LEVEL_LIMIT + level;
-                    }
-                }
-                tree.Cells[selfCell] = cell;
                 
+                var cell = new NavCell { Type = cellType, Area = ++maxArea };
+
+                foreach (var nb in Neighbours)
+                {
+                    var nbCell = selfCell + nb;
+                    if(!tree.Cells.TryGetValue(nbCell, out var otherCell) || otherCell.Type != cellType)
+                        continue;
+
+                    var selfArea = cell.Area;
+                    var nbArea = otherCell.Area;
+                    var sharedArea = math.min(selfArea, nbArea);
+                    if(selfArea > sharedArea)
+                        sameRoomMap.Add((selfArea, sharedArea));
+                    if(nbArea > sharedArea)
+                        sameRoomMap.Add((nbArea, sharedArea));
+                        
+                    otherCell.Area = sharedArea;
+                    tree.Cells[nbCell] = otherCell;
+                    cell.Area = sharedArea;
+                        
+                }
+
+                tree.Cells[selfCell] = cell; 
             }
             
             var queue = new NativeQueue<(int, int)>(Allocator.Temp);
@@ -96,55 +88,90 @@ namespace Navigation
             // Calculate final rooms
             foreach (var cell in tree.Cells.GetKeyArray(Allocator.Temp))
             {
-                var areas =  tree.Cells[cell].Areas;
-                for (int i = 0; i < tree.MaxLevel; i++)
+                var roomId = tree.Cells[cell].Area;
+                if (roomId == 0)
                 {
-                    var roomId = areas[i];
-                    if(roomId == 0)
-                        continue;
-                    while(roomRemapMap.TryGetValue(roomId, out var remap) && roomId != remap)
-                        roomId = remap;
-                    areas[i] = roomId;
-                    tree.CellsByArea.Add(areas[i], cell);
-                    var bounds  = tree.BoundsByArea.TryGetValue(areas[i], out var b) ? b : GridBounds.Empty;
-                    bounds.Encapsulate(cell);
-                    tree.BoundsByArea[areas[i]] = bounds;
+                    Debug.LogError($"Something wrong! {cell} has room {roomId}");
+                    continue;
                 }
+                while(roomRemapMap.TryGetValue(roomId, out var remap) && roomId != remap)
+                    roomId = remap;
                 var c = tree.Cells[cell];
-                c.Areas = areas;
+                c.Area = roomId;
                 tree.Cells[cell] = c;
+                
+                if(!tree.Areas.TryGetValue(roomId, out var area))
+                    area = new AreaData(Allocator.Persistent) { Type = tree.Cells[cell].Type };
+                area.Cells.Add(cell);
+                var bounds = area.AABB;
+                bounds.Encapsulate(cell);
+                area.AABB = bounds;
+                tree.Areas[roomId] = area;
+            }
+            
+            // Remap adjacent areas
+            foreach (var areaId in tree.Areas.GetKeyArray(Allocator.Temp))
+            {
+                var area = tree.Areas[areaId];
+                var connections = area.Connections;
+                foreach(var cell in area.Cells)
+                    foreach(var nb in Neighbours)
+                        if (tree.Cells.TryGetValue(cell + nb, out var neighbour) && neighbour.Area != areaId)
+                        {
+                            area.AdjacentCellsByArea.Add(neighbour.Area, cell + nb);
+                            connections[neighbour.Area] = new AreaNavigationData
+                            {
+                                PreviousArea = areaId,
+                                PreviousAreaTraversalCost = 1
+                            };
+                        }
+                area.Connections = connections;
+                tree.Areas[areaId] = area;
             }
             
             CalculateAreaConnections(ref tree);
             
             treeLookup[e] = tree;
         }
-        
+
         internal void CalculateAreaConnections(ref NavTree tree)
         {
-            using var connections = new NativeHashSet<int>(8, Allocator.Temp);
-            foreach (var kvp in tree.Cells)
+            var changed = true;
+            while (changed)
             {
-                for (int i = 0; i < tree.MaxLevel; i++)
+                changed = false;
+
+                foreach (var areaId in tree.Areas.GetKeyArray(Allocator.Temp))
                 {
-                    connections.Clear();
-                    var area = kvp.Value.Areas[i];
-                    foreach(var offset in Neighbours)
-                        if(tree.Cells.TryGetValue(kvp.Key + offset, out var otherCell) 
-                           && otherCell.Areas[i] != area)
-                            connections.Add(otherCell.Areas[i]);
-                    
-                    if(i > 0)
-                        connections.Add(kvp.Value.Areas[i - 1]);
-                    if(i < tree.MaxLevel - 1)
-                        connections.Add(kvp.Value.Areas[i + 1]);
-                    if(!tree.AreaConnections.ContainsKey(area))
-                        tree.AreaConnections.Add(area, new UnsafeHashSet<int>(connections.Count, Allocator.Persistent));
-                    // Need to use local variable here! (to keep Count correctly?)
-                    var hs = tree.AreaConnections[area];
-                    foreach (var neighbour in connections)
-                        hs.Add(neighbour);
-                    tree.AreaConnections[area] = hs;
+                    var area = tree.Areas[areaId];
+
+                    foreach (var neighborAreaId in area.Connections.GetKeyArray(Allocator.Temp))
+                    {
+                        var navData = area.Connections[neighborAreaId];
+                        if (!tree.Areas.TryGetValue(neighborAreaId, out var neighborArea))
+                            continue;
+
+                        foreach (var otherAreaId in neighborArea.Connections.GetKeyArray(Allocator.Temp))
+                        {
+                            if (otherAreaId == areaId) continue; // Avoid looping back
+                            var otherNavData = neighborArea.Connections[otherAreaId];
+                            var newCost = navData.PreviousAreaTraversalCost + otherNavData.PreviousAreaTraversalCost;
+
+                            if (area.Connections.ContainsKey(otherAreaId) &&
+                                newCost >= area.Connections[otherAreaId].PreviousAreaTraversalCost) 
+                                continue;
+                            var connections = area.Connections;
+                            connections[otherAreaId] = new AreaNavigationData
+                            {
+                                PreviousArea = neighborAreaId,
+                                PreviousAreaTraversalCost = newCost
+                            };
+                            area.Connections = connections;
+                            changed = true;
+                        }
+                    }
+
+                    tree.Areas[areaId] = area;
                 }
             }
         }

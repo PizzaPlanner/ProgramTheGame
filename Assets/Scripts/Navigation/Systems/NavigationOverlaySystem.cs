@@ -47,18 +47,12 @@ namespace Navigation
             
             if (navTree.Cells.ContainsKey(CellAtCursor))
             {
-                var myAreas =  navTree.Cells[CellAtCursor].Areas.ToArray();
-                var connectionsByArea = new Dictionary<int, List<int>>();
-                foreach (var area in myAreas)
+                var myArea =  navTree.Cells[CellAtCursor].Area;
+                text += $"Area {myArea} ({navTree.Areas[myArea].Type})";
+                foreach (var area in navTree.Areas[myArea].Connections)
                 {
-                    connectionsByArea[area] = new List<int>();
-                    foreach(var connection in navTree.AreaConnections[area])
-                        connectionsByArea[area].Add(connection);
+                    text += $"\n-> {area.Key}: Distance {area.Value.PreviousAreaTraversalCost} via {area.Value.PreviousArea}";
                 }
-                text += @$"Areas: {string.Join(", ", myAreas)}
-
-{string.Join('\n', myAreas.Select(x => $"Area {x} >> {string.Join($", ", connectionsByArea[x])}"))}
-";
             }
             _window.Q<Label>("text").text = text;
         }
@@ -76,18 +70,20 @@ namespace Navigation
             }
             
             var c1 = new Color(0, 0, 0, .25f);
-            var c2 = new Color(0, 0, 0, 0.1f);
-            for (int i = 0; i < navTree.MaxLevel; i++)
-            {
-                var area = cell.Areas[i];
-                if(!navTree.CellsByArea.ContainsKey(area))
-                    continue;
+            var c2 = new Color(0, 0, 0, 1f);
+            var area = cell.Area;
+            if(!navTree.Areas.TryGetValue(area, out var areaData))
+                return;
 
-                foreach (var item in navTree.CellsByArea.GetValuesForKey(area))
-                {
-                    var itemRelative = item - bounds.Min;
-                    data[itemRelative.x + itemRelative.y * bounds.Scale.x] += Color.Lerp(c1, c2, i / 9f);
-                }
+            foreach (var item in areaData.Cells)
+            {
+                var itemRelative = item - bounds.Min;
+                data[itemRelative.x + itemRelative.y * bounds.Scale.x] += Color.Lerp(c1, c2, 0);
+            }
+            foreach (var item in areaData.AdjacentCellsByArea)
+            {
+                var itemRelative = item.Value - bounds.Min;
+                data[itemRelative.x + itemRelative.y * bounds.Scale.x] += Color.Lerp(c1, c2, 1);
             }
             texture.SetPixels32(data);
             texture.Apply();

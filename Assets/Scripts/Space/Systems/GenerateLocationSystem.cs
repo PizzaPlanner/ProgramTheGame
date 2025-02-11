@@ -38,7 +38,7 @@ namespace Space.Systems
                 ecb.AddComponent(e, model);
                 
                 var tree = new NavTree();
-                tree.Init(default);
+                tree.Init();
                 ecb.AddComponent(e, tree);
                 
                 var roomModel = new RoomModel();

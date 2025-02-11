@@ -11,62 +11,76 @@ using Unity.Mathematics;
 
 namespace Navigation
 {
+    [Flags]
+    public enum CellType 
+    {
+        Blocked = 0,
+        Space = 1,
+        Floored = 2,
+        Portal = 4,
+        
+        Walkable = Floored | Portal,
+        Flyable = Walkable | Space
+    }
+    
     public struct NavCell
     {
-        public const int NO_PATH = 1000000;
-        public int4 CostTRBL;
-        public bool4 HasPath => CostTRBL != 0;
-        public int SelfCost;
-        public FixedList64Bytes<int> Areas;
-        
-        public int CostLeft => CostTRBL.w;
-        public int CostRight => CostTRBL.y;
-        public int CostUp => CostTRBL.x;
-        public int CostDown => CostTRBL.z;
+        public int Area;
+        public CellType Type;
     }
+
+    public struct AreaNavigationData
+    {
+        public int PreviousArea;
+        public int PreviousAreaTraversalCost;
+    }
+
+    public struct AreaData : IDisposable
+    {
+        public UnsafeHashSet<int2> Cells;
+        // Cells directly adjacent to this area that are located in other areas.
+        public UnsafeParallelMultiHashMap<int, int2> AdjacentCellsByArea;
+        public GridBounds AABB;
+        public UnsafeHashMap<int, AreaNavigationData> Connections;
+        public CellType Type;
+
+        public AreaData(Allocator allocator)
+        {
+            Cells = new (16, allocator);
+            AdjacentCellsByArea = new (16, allocator);
+            Connections = new (16, allocator);
+            AABB = GridBounds.Empty;
+            Type = CellType.Blocked;
+        }
+        
+        public void Dispose()
+        {
+            Cells.Dispose();
+            Connections.Dispose();
+            AdjacentCellsByArea.Dispose();
+        }
+    }
+    
     public struct NavTree : ICleanupComponentData, IDisposable
     {
         // TODO: ChangeAreas data not used
         internal UnsafeList<GridBounds> ChangeAreas;
         internal UnsafeHashMap<int2, NavCell> Cells;
-        internal UnsafeParallelMultiHashMap<int, int2> CellsByArea;
-        internal UnsafeParallelHashMap<int, GridBounds> BoundsByArea;
-        internal UnsafeParallelHashMap<int, UnsafeHashSet<int>> AreaConnections;
-        public GridBounds Bounds;
-        public int MaxLevel => (int)math.log2(math.ceilpow2(math.max(Bounds.Scale.x, Bounds.Scale.y)));
+        internal UnsafeParallelHashMap<int, AreaData> Areas;
         public bool IsDirty => ChangeAreas.Length > 0 || Cells.IsEmpty;
         public uint LastUpdate;
 
-        public const int LEVEL_LIMIT = 10;
-        public int LevelOf(int area) => area % LEVEL_LIMIT;
-
-        public int3 ParentOf(int3 cell)
-        {
-            var relativeCell = cell.xy - Bounds.Min;
-            var result = new int3(cell.xy - relativeCell.xy % (1 << (cell.z + 1)), cell.z + 1);
-            return result;
-        }
-
-        public GridBounds GetBoundsAtLevel(int2 absoluteCell, int level)
-        {
-            var min = ParentOf(new int3(absoluteCell, level - 1)).xy;
-            var max = min + (1 << level) - 1;
-            return new GridBounds
-            {
-                Min = min,
-                Max = max
-            };
-        }
+        public CellType GetCellType(int2 cell) => Cells.TryGetValue(cell, out var c) ? c.Type : CellType.Blocked;
 
         // For finding paths to walls, which are not on the navtree
-        public bool NavigateAdjacent(int2 start, int2 blockedEnd, ref NativeList<int2> path)
+        public bool NavigateAdjacent(int2 start, int2 blockedEnd, CellType allowedTypes, ref NativeList<int2> path)
         {
             Span<int2> neighbours = stackalloc int2[] { new int2(1, 0), new int2(-1, 0), new int2(0, 1), new int2(0, -1)};
             foreach (var nb in neighbours)
             {
                 var cell = blockedEnd + nb;
                 if(Cells.TryGetValue(cell, out _))
-                    return Navigate(start, cell, ref path);
+                    return Navigate(start, cell, allowedTypes, ref path);
             }
             return false;
         }
@@ -76,46 +90,44 @@ namespace Navigation
             ChangeAreas.Add(bounds);
         }
 
-        public bool IsReachable(int2 start, int2 end, bool allowAdjacent, out int level)
+        public bool IsReachable(int2 start, int2 end, CellType allowedTypes, bool allowAdjacent)
         {
             if (allowAdjacent)
             {
                 foreach(var nb in stackalloc int2[] { new int2(1, 0), new int2(-1, 0), new int2(0, 1), new int2(0, -1)})
-                    if(IsReachable(start, end + nb, false, out level))
+                    if(IsReachable(start, end + nb, allowedTypes, false))
                         return true;
             }
-            level = 0;
-            if(!Cells.TryGetValue(end, out var toCell))
+            if(!Cells.TryGetValue(end, out var toCell) || (toCell.Type & allowedTypes) == CellType.Blocked)
                 return false;
-            if(!Cells.TryGetValue(start, out var fromCell))
+            if(!Cells.TryGetValue(start, out var fromCell) || (fromCell.Type & allowedTypes) == CellType.Blocked)
                 return false;
-            for (; level < MaxLevel; level++)
-            {
-                if(toCell.Areas[level] == fromCell.Areas[level])
-                    return true;
-            }
-            return false;
+            return fromCell.Area == toCell.Area || Areas[fromCell.Area].Connections.ContainsKey(toCell.Area);
         }
         
-        public bool Navigate(int2 start, int2 end, ref NativeList<int2> path)
+        public bool Navigate(int2 start, int2 end, CellType allowedTypes, ref NativeList<int2> path)
         {
-            if(!IsReachable(start, end, false, out var level))
+            if(!IsReachable(start, end, allowedTypes, false))
                 return false;
-            if (level < 2)
-            {
-                AStarDirect(start, end, ref path);
-                return true;
-            }
             var fromCell = Cells[start];
             var toCell = Cells[end];
-            var topLevel = AStar(fromCell, toCell, level - 1);
-            var nextArea = topLevel[0];
-            AStarToArea(start, nextArea, ref path);
+                AStarDirect(start, end, allowedTypes, ref path);
+            // if(fromCell.Area == toCell.Area)
+            //     AStarDirect(start, end, allowedTypes, ref path);
+            // else
+            // {
+            //     // Find path within fromCell.Area towards the next area closest on path to toCell.Area
+            //     // This also needs to include the first cell traversed through in nextArea, so we can run again from there when reached
+            //     var nextArea = toCell.Area;
+            //     while(Areas[fromCell.Area].Connections[nextArea].PreviousAreaTraversalCost > 1)
+            //         nextArea = Areas[fromCell.Area].Connections[nextArea].PreviousArea;
+            //     AStarToArea(start, nextArea, ref path);
+            // }
             path.Add(end);
             return true;
         }
 
-        unsafe void AStarDirect(int2 start, int2 end, ref NativeList<int2> path)
+        unsafe void AStarDirect(int2 start, int2 end, CellType allowedTypes, ref NativeList<int2> path)
         {
             var open = new NativeList<int2>(32, Allocator.Temp);
             var closed = new NativeHashSet<int2>(32, Allocator.Temp);
@@ -138,7 +150,7 @@ namespace Navigation
                 foreach (var neighbour in neighbours)
                 {
                     var next = current + neighbour;
-                    if(closed.Contains(next) || !Cells.ContainsKey(next))
+                    if(closed.Contains(next) || (GetCellType(next) & allowedTypes) == CellType.Blocked)
                         continue;
                     var gScore = gScores[current] + 1;
                     var previousGScore = gScores.TryGetValue(next, out var s) ? s : int.MaxValue; 
@@ -168,152 +180,185 @@ namespace Navigation
             // Debug.Log(p[..^4]);
         }
         
-        unsafe void AStarToArea(int2 start, int nextArea, ref NativeList<int2> path)
-        {
-            // AStar to the best cell from targetArea directly reachable by startArea
-            var targetLevelIndex = LevelOf(nextArea) - 1;
-            var currentArea = Cells[start].Areas[targetLevelIndex];
-
-            var open = new NativeList<int2>(32, Allocator.Temp);
-            var closed = new NativeHashSet<int2>(32, Allocator.Temp);
-            var bestSourceNodeMap = new NativeHashMap<int2, int2>(32, Allocator.Temp);
-            var gScores = new NativeHashMap<int2, int>(32, Allocator.Temp);
-            gScores[start] = 0;
-            var fScores = new NativeHashMap<int2, int>(32, Allocator.Temp);
-            fScores[start] = 0;
-            open.Add(start);
-            Span<int2> neighbours = stackalloc int2[] { new int2(1, 0), new int2(-1, 0), new int2(0, 1), new int2(0, -1)};
-            int2 current = 0;
-            while (!open.IsEmpty)
-            {
-                current = open[0];
-                open.RemoveAt(0);
-                var currentCell = Cells[current];
-                if(currentCell.Areas[targetLevelIndex] == nextArea)
-                    break;
-                if(currentCell.Areas[targetLevelIndex] != currentArea)
-                    continue;
-                if(!closed.Add(current))
-                    continue;
-                foreach (var neighbour in neighbours)
-                {
-                    var next = current + neighbour;
-                    if(closed.Contains(next) || !Cells.ContainsKey(next))
-                        continue;
-                    var gScore = gScores[current] + 1;
-                    var previousGScore = gScores.TryGetValue(next, out var s) ? s : int.MaxValue; 
-                    if (gScore < previousGScore)
-                    {
-                        var h = (int)math.distance(BoundsByArea[nextArea].Center, CGrid.CellCenterToLocal(next));
-                        bestSourceNodeMap[next] = current;
-                        gScores[next] = gScore;
-                        fScores[next] = gScore + h;
-                        open.Add(next);
-                    }
-                }
-                open.Sort(new WeightSorter2(fScores));
-            }
-            
-            var fromCell = current;
-            while (math.any(fromCell != start))
-            {
-                path.Add(fromCell);
-                fromCell = bestSourceNodeMap[fromCell];
-            }
-            path.Add(start);
-            path.AsArray().AsSpan().Reverse();
-            // var p = "";
-            // foreach(var a in path)
-            //     p += $"{a} -> ";
-            // Debug.Log(p[..^4]);
-        }
-
-        NativeList<int> AStar(NavCell start, NavCell end, int areaLevel)
-        {
-            var startArea = start.Areas[areaLevel];
-            var endArea = end.Areas[areaLevel];
-            var open = new NativeList<int>(32, Allocator.Temp);
-            var closed = new NativeHashSet<int>(32, Allocator.Temp);
-            var bestSourceNodeMap = new NativeHashMap<int, int>(32, Allocator.Temp);
-            var gScores = new NativeHashMap<int, int>(32, Allocator.Temp);
-            gScores[startArea] = 0;
-            var fScores = new NativeHashMap<int, int>(32, Allocator.Temp);
-            fScores[startArea] = 0;
-            open.Add(startArea);
-            while (!open.IsEmpty)
-            {
-                var current = open[0];
-                open.RemoveAt(0);
-                if(current == endArea)
-                    break;
-                if(!closed.Add(current))
-                    continue;
-                foreach (var connection in AreaConnections[current])
-                {
-                    if(closed.Contains(connection) || LevelOf(connection) != LevelOf(current))
-                        continue;
-                    var gScore = gScores[current] + (2 << LevelOf(connection));
-                    var previousGScore = gScores.TryGetValue(connection, out var s) ? s : int.MaxValue; 
-                    if (gScore < previousGScore)
-                    {
-                        var h = (int)math.distance(BoundsByArea[connection].Center, BoundsByArea[endArea].Center);
-                        bestSourceNodeMap[connection] = current;
-                        gScores[connection] = gScore;
-                        fScores[connection] = gScore + h;
-                        open.Add(connection);
-                    }
-                }
-                open.Sort(new WeightSorter(fScores));
-            }
-
-            if (bestSourceNodeMap.ContainsKey(endArea))
-            {
-                var areas = new NativeList<int>(Allocator.Temp);
-                var fromArea = endArea;
-                while (fromArea != startArea)
-                {
-                    CellsByArea.TryGetFirstValue(fromArea, out var cell, out _);
-                    areas.Add(fromArea);
-                    fromArea = bestSourceNodeMap[fromArea];
-                }
-                areas.AsArray().AsSpan().Reverse();
-                // var p = $"{startArea} -> ";
-                // foreach(var a in areas)
-                //     p += $"{a} -> ";
-                // Debug.Log(p[..^4]);
-                return areas;
-            }
-            return default;
-        }
+        // unsafe void AStarToArea(int2 start, int nextArea, ref NativeList<int2> path)
+        // {
+        //     // AStar to the best cell from targetArea directly reachable by startArea
+        //     var currentArea = 
+        //
+        //     var open = new NativeList<int2>(32, Allocator.Temp);
+        //     var closed = new NativeHashSet<int2>(32, Allocator.Temp);
+        //     var bestSourceNodeMap = new NativeHashMap<int2, int2>(32, Allocator.Temp);
+        //     var gScores = new NativeHashMap<int2, int>(32, Allocator.Temp);
+        //     gScores[start] = 0;
+        //     var fScores = new NativeHashMap<int2, int>(32, Allocator.Temp);
+        //     fScores[start] = 0;
+        //     open.Add(start);
+        //     Span<int2> neighbours = stackalloc int2[] { new int2(1, 0), new int2(-1, 0), new int2(0, 1), new int2(0, -1)};
+        //     int2 current = 0;
+        //     while (!open.IsEmpty)
+        //     {
+        //         current = open[0];
+        //         open.RemoveAt(0);
+        //         var currentCell = Cells[current];
+        //         if(currentCell.Areas[targetLevelIndex] == nextArea)
+        //             break;
+        //         if(currentCell.Areas[targetLevelIndex] != currentArea)
+        //             continue;
+        //         if(!closed.Add(current))
+        //             continue;
+        //         foreach (var neighbour in neighbours)
+        //         {
+        //             var next = current + neighbour;
+        //             if(closed.Contains(next) || !Cells.ContainsKey(next))
+        //                 continue;
+        //             var gScore = gScores[current] + 1;
+        //             var previousGScore = gScores.TryGetValue(next, out var s) ? s : int.MaxValue; 
+        //             if (gScore < previousGScore)
+        //             {
+        //                 var h = (int)math.distance(Areas[nextArea].AABB.Center, CGrid.CellCenterToLocal(next));
+        //                 bestSourceNodeMap[next] = current;
+        //                 gScores[next] = gScore;
+        //                 fScores[next] = gScore + h;
+        //                 open.Add(next);
+        //             }
+        //         }
+        //         open.Sort(new WeightSorter2(fScores));
+        //     }
+        //     
+        //     var fromCell = current;
+        //     while (math.any(fromCell != start))
+        //     {
+        //         path.Add(fromCell);
+        //         fromCell = bestSourceNodeMap[fromCell];
+        //     }
+        //     path.Add(start);
+        //     path.AsArray().AsSpan().Reverse();
+        //     // var p = "";
+        //     // foreach(var a in path)
+        //     //     p += $"{a} -> ";
+        //     // Debug.Log(p[..^4]);
+        // }
+        //
+        // NativeList<int> AStar(NavCell start, NavCell end, CellType allowedTypes, int areaLevel)
+        // {
+        //     var startArea = start.Area;
+        //     var endArea = end.Area;
+        //     var open = new NativeList<int>(32, Allocator.Temp);
+        //     var closed = new NativeHashSet<int>(32, Allocator.Temp);
+        //     var bestSourceNodeMap = new NativeHashMap<int, int>(32, Allocator.Temp);
+        //     var gScores = new NativeHashMap<int, int>(32, Allocator.Temp);
+        //     gScores[startArea] = 0;
+        //     var fScores = new NativeHashMap<int, int>(32, Allocator.Temp);
+        //     fScores[startArea] = 0;
+        //     open.Add(startArea);
+        //     while (!open.IsEmpty)
+        //     {
+        //         var current = open[0];
+        //         open.RemoveAt(0);
+        //         if(current == endArea)
+        //             break;
+        //         if(!closed.Add(current))
+        //             continue;
+        //         foreach (var connection in Areas[current].Connections)
+        //         {
+        //             var toArea = connection.Key;
+        //             if(closed.Contains(toArea)
+        //                || (Areas[toArea].Type & allowedTypes) == CellType.Blocked)
+        //                 continue;
+        //             var gScore = gScores[current] + connection.Value.PreviousAreaTraversalCost;
+        //             var previousGScore = gScores.TryGetValue(toArea, out var s) ? s : int.MaxValue; 
+        //             if (gScore < previousGScore)
+        //             {
+        //                 var h = (int)math.distance(Areas[toArea].AABB.Center, Areas[endArea].AABB.Center);
+        //                 bestSourceNodeMap[connection] = current;
+        //                 gScores[connection] = gScore;
+        //                 fScores[connection] = gScore + h;
+        //                 open.Add(connection);
+        //             }
+        //         }
+        //         open.Sort(new WeightSorter(fScores));
+        //     }
+        //
+        //     if (bestSourceNodeMap.ContainsKey(endArea))
+        //     {
+        //         var areas = new NativeList<int>(Allocator.Temp);
+        //         var fromArea = endArea;
+        //         while (fromArea != startArea)
+        //         {
+        //             areas.Add(fromArea);
+        //             fromArea = bestSourceNodeMap[fromArea];
+        //         }
+        //         areas.AsArray().AsSpan().Reverse();
+        //         // var p = $"{startArea} -> ";
+        //         // foreach(var a in areas)
+        //         //     p += $"{a} -> ";
+        //         // Debug.Log(p[..^4]);
+        //         return areas;
+        //     }
+        //     return default;
+        // }
+        
+        // public int GetNextArea(int startArea, int endArea)
+        // {
+        //     if (startArea == endArea)
+        //         return startArea; // Already at the destination area
+        //
+        //     var queue = new NativeQueue<int>(Allocator.Temp);
+        //     var visited = new NativeHashSet<int>(4, Allocator.Temp);
+        //     var parentMap = new NativeHashMap<int, int>(4, Allocator.Temp);
+        //
+        //     queue.Enqueue(startArea);
+        //     visited.Add(startArea);
+        //
+        //     while (queue.Count > 0)
+        //     {
+        //         int currentArea = queue.Dequeue();
+        //         var currentNav = Areas[currentArea].Connections;
+        //
+        //         foreach (var neighborArea in currentNav.GetKeyArray(Allocator.Temp))
+        //         {
+        //             if (visited.Contains(neighborArea)) continue;
+        //
+        //             visited.Add(neighborArea);
+        //             parentMap[neighborArea] = currentArea;
+        //             queue.Enqueue(neighborArea);
+        //
+        //             // If we reached the target area, trace back the next step
+        //             if (neighborArea == endArea)
+        //             {
+        //                 int nextArea = endArea;
+        //                 while (parentMap[nextArea] != startArea)
+        //                 {
+        //                     nextArea = parentMap[nextArea];
+        //                 }
+        //                 return nextArea;
+        //             }
+        //         }
+        //     }
+        //
+        //     return -1; // Should never happen if path exists
+        // }
 
         public void Dispose()
         {
             if(Cells.IsCreated)
                 Cells.Dispose();
-            if(CellsByArea.IsCreated)
-                CellsByArea.Dispose();
-            if(BoundsByArea.IsCreated)
-                BoundsByArea.Dispose();
+            if(Areas.IsCreated)
+                foreach(var area in Areas)
+                    area.Value.Dispose();
             if(ChangeAreas.IsCreated)
                 ChangeAreas.Dispose();
-            if (AreaConnections.IsCreated)
-            {
-                foreach(var entry in AreaConnections.GetValueArray(Allocator.Temp))
-                    entry.Dispose();
-                AreaConnections.Dispose();
-            }
         }
         
-        public void Init(GridBounds bounds)
+        public void Init()
         {
             Dispose();
-            Bounds = bounds;
             ChangeAreas = new (4, Allocator.Persistent);
-            CellsByArea = new (64, Allocator.Persistent);
+            Areas = new (8, Allocator.Persistent);
             Cells = new (64, Allocator.Persistent);
-            AreaConnections = new (16, Allocator.Persistent);
-            BoundsByArea = new(16, Allocator.Persistent);
         }
+
+        public bool IsWalkable(int2 targetCell) => (GetCellType(targetCell) & CellType.Walkable) != CellType.Blocked;
     }
 
     internal struct WeightSorter : IComparer<int>

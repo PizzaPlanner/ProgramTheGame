@@ -14,7 +14,6 @@ namespace Space.Authoring
             {
                 var e = GetEntity(TransformUsageFlags.WorldSpace);
                 AddComponent(e, new Sector{ PositionInSpace = authoring.PositionInSpace });
-                AddBuffer<Crew>(e);
                 if(authoring.SpawnWith != null)
                     AddComponent(e, new LocationPopulationSettings
                     {

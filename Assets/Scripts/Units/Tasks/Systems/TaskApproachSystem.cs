@@ -18,9 +18,9 @@ namespace Units
             {
                 var list = new NativeList<int2>(Allocator.Temp);
                 pathfinding.Clear();
-                if (isTargetPathable && !navigation.Navigate(currentCell, toCell, ref list))
+                if (isTargetPathable && !navigation.Navigate(currentCell, toCell, CellType.Walkable, ref list))
                     return false;
-                if (!isTargetPathable && !navigation.NavigateAdjacent(currentCell, toCell, ref list))
+                if (!isTargetPathable && !navigation.NavigateAdjacent(currentCell, toCell, CellType.Walkable, ref list))
                     return false;
                 
                 pathfinding.Reinterpret<int2>().AddRange(list.AsArray());
@@ -61,7 +61,7 @@ namespace Units
                 var grid = SystemAPI.GetComponent<CGrid>(onGrid.Grid);
 
                 // Is unit trapped? Try to teleport to nearby unoccupied cell
-                if (!grid.IsPathable(myCell))
+                if (!navTree.IsWalkable(myCell))
                 {
                     foreach (var neighbour in stackalloc int2[]
                                  { new int2(1, 0), new int2(-1, 0), new int2(0, 1), new int2(0, -1) })
@@ -72,7 +72,7 @@ namespace Units
                     continue;
                 }
                 
-                var isTargetCellPathable = grid.IsPathable(targetCell);
+                var isTargetCellPathable = navTree.IsWalkable(targetCell);
                 var isInTaskRange = math.csum(math.abs(myCell - targetCell)) <= (isTargetCellPathable ? 0 : 1);
                 if (!isInTaskRange)
                 {

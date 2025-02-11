@@ -157,7 +157,7 @@ partial struct ItemOrderTaskJob : IJobEntity
             if (distSq > bestDistanceSq)
                 continue;
             if (!navTreeLookup.TryGetComponent(task.CrewProvider, out var navTree) 
-                || !navTree.IsReachable(CGrid.LocalToCell(ltw.Position), CGrid.LocalToCell(selfLtw.Position), true, out _))
+                || !navTree.IsReachable(CGrid.LocalToCell(ltw.Position), CGrid.LocalToCell(selfLtw.Position), CellType.Walkable, true))
                 continue;
             bestDistanceSq = distSq;
             bestEntity = entry.Item1;

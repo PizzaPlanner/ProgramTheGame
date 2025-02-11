@@ -64,12 +64,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 10c91c86e70c42069cdb1758580e9d3c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Layer: 11
+  Layer: 9
   PlacementType: 0
+  NotAllowedOnShips: 0
+  CanBeRotated: 0
   Duration: 1
-  Size:
+  ExtentsURDL:
     x: 1
     y: 1
+    z: 0
+    w: 0
+  InteractionOffset:
+    x: 0
+    y: 0
   Variants:
   - Element: {fileID: -7047243780222175833, guid: 2d08fe34d7e1b34488389132c02bd97d, type: 3}
     OverrideMaterial: {fileID: 0}
@@ -128,6 +135,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 36d40eaae5ea430f9e693821d37105cb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ContributionPriority: 0
 --- !u!114 &3561199254616989595
 MonoBehaviour:
   m_ObjectHideFlags: 0
