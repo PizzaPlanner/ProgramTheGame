@@ -1,5 +1,6 @@
 ﻿using Grids;
 using Navigation;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
@@ -7,7 +8,7 @@ using UnityEngine;
 
 public class BuildUtils
 {
-    public static bool Transfer(Entity fromSector, GridBounds fromBounds, Entity toSector, int2 toBoundsMin,
+    public static bool Transfer(Entity fromSector, NativeArray<int2> fromCells, Entity toSector, int2 toBoundsMin,
                                 EntityCommandBuffer ecb,
                                 ComponentLookup<NavTree> navTreeLookup,
                                 ComponentLookup<MassModel> massLookup,
@@ -24,12 +25,20 @@ public class BuildUtils
         ref var fromGrid = ref gridLookup.GetRefRW(fromSector).ValueRW;
         ref var toGrid = ref gridLookup.GetRefRW(toSector).ValueRW;
         
+        var fromBounds = GridBounds.Empty;
+        foreach (var cell in fromCells)
+            fromBounds.Encapsulate(cell);
         var boundsDelta = toBoundsMin - fromBounds.Min;
         var toBounds = fromBounds.WithOffset(boundsDelta);
-        if (!toGrid.GetAllEntitiesIn(toBounds).IsEmpty)
+        var toCells = new NativeArray<int2>(fromCells.Length, Allocator.Temp);
+        for (var i = 0; i < fromCells.Length; i++)
         {
-            Debug.Log($"Blocked: {toBounds} on {toSector}");
-            return false;
+            toCells[i] = fromCells[i] + boundsDelta;
+            if (toGrid.GetPathing(toCells[i]) != default)
+            {
+                Debug.Log($"Blocked: {toBounds} on {toSector}");
+                return false;
+            }    
         }
 
         ref var fromMass = ref massLookup.GetRefRW(fromSector).ValueRW;

@@ -18,14 +18,16 @@ namespace Space.Systems
         public ComponentLookup<MassModel> massLookup;
         public ComponentLookup<RoomModel> roomLookup;
         [ReadOnly] public ComponentLookup<Building> buildingLookup;
-        void Execute(Entity e, ref Task task, ref TaskProgress progress, ref TravelTask travel, ref Sector sector, EnabledRefRO<WorkedOn> workedOn)
+        [ReadOnly] public BufferLookup<BelongsToShip> shipLookup;
+        void Execute(Entity e, ref Task task, ref TaskProgress progress, ref TravelTask travel, ref Sector sector,
+                     EnabledRefRO<WorkedOn> workedOn)
         {
             if (task.Target == default)
             {
                 task.Origin = default;
                 return;
             }
-
+            var shipCells = shipLookup[task.Target].Reinterpret<int2>().AsNativeArray();
             switch (travel.Stage)
             {
                 case TravelStage.Validation:
@@ -38,8 +40,8 @@ namespace Space.Systems
                         return;
                     }
                     var baked = bakedLookup[task.Origin];
-                    var fromBounds = baked.Area.Extend(5);
-                    if(!BuildUtils.Transfer(travel.FromLocation, fromBounds, e, fromBounds.Min - baked.Area.Min, ecb, 
+                    if(!BuildUtils.Transfer(travel.FromLocation, shipCells, 
+                           e, 0, ecb, 
                         navTreeLookup, massLookup, roomLookup, bakedLookup, gridLookup, buildingLookup))
                         return;
                     
@@ -98,7 +100,7 @@ namespace Space.Systems
                 }break;
                 case TravelStage.Landing:
                 {
-                    if(!BuildUtils.Transfer(e, gridLookup[e].BoundsWithBorder, travel.ToLocation, 
+                    if(!BuildUtils.Transfer(e, shipCells, travel.ToLocation, 
                            gridLookup[travel.ToLocation].BoundsWithBorder.Min - gridLookup[e].BoundsWithBorder.Scale, ecb, 
                            navTreeLookup, massLookup, roomLookup, bakedLookup, gridLookup, buildingLookup))
                         return;
@@ -128,7 +130,8 @@ namespace Space.Systems
                 massLookup = SystemAPI.GetComponentLookup<MassModel>(false),
                 roomLookup = SystemAPI.GetComponentLookup<RoomModel>(false),
                 navTreeLookup = SystemAPI.GetComponentLookup<NavTree>(false),
-                buildingLookup = SystemAPI.GetComponentLookup<Building>(true)
+                buildingLookup = SystemAPI.GetComponentLookup<Building>(true),
+                shipLookup = SystemAPI.GetBufferLookup<BelongsToShip>(true)
             }.Run();
             
             new LocationTransferJob

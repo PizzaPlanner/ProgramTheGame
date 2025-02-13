@@ -3,6 +3,7 @@ using Unity.Entities;
 
 namespace Navigation
 {
+    [UpdateInGroup(typeof(GridUpdateSystemGroup), OrderFirst = true)]
     partial struct NavTreeSystem : ISystem
     {
         public void OnUpdate(ref SystemState state)

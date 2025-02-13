@@ -1,28 +1,36 @@
-﻿using Identifiables;
+﻿using Grids;
+using Identifiables;
 using Identifiables.UI;
 using Units;
 using Unity.Collections;
 using Unity.Entities;
+using Unity.Entities.Graphics;
+using Unity.Mathematics;
+using Unity.Rendering;
 using Unity.Transforms;
+using UnityEngine;
+using UnityEngine.AddressableAssets;
 using UnityEngine.UIElements;
 
 namespace Space.Systems
 {
     partial class ShipUISystem : UISystem
     {
+
         protected override void OnUpdate()
         {
             if(!UISystemGroup.TryGet<SelectedUnitElement>(out var ui))
                 return;
             
-            foreach (var (controller, baked, e) in 
-                     SystemAPI.Query<ShipContoller, BakedIntoRoomMap>()
+            var graphicsSystem = World.GetExistingSystemManaged<EntitiesGraphicsSystem>();
+            foreach (var (controller, baked, mmi, inShip, e) in 
+                     SystemAPI.Query<ShipController, BakedIntoRoomMap, RefRW<MaterialMeshInfo>, DynamicBuffer<BelongsToShip>>()
                               .WithAll<Selected>()
                               .WithNone<Ghost>().WithEntityAccess())
             {
                 var stats = ui.GetOrCreate<ShipUI>("Ship");
-                // var roomModel = SystemAPI.GetComponent<RoomModel>(baked.Grid);
-                // stats.Room = roomModel.CellRoomMap[baked.Area.Min];
+                // stats.SetCells(inShip.Reinterpret<int2>().AsNativeArray(), graphicsSystem.GetMesh(mmi.ValueRW.MeshID));
+                stats.Q<Label>().text = $"Size: {inShip.Length}";
                 var travelBtn = ui.GetOrCreateActionButton(Core.ID.TravelTask, EntityManager);
                 if (travelBtn.wantCreateTask)
                 {
@@ -79,6 +87,16 @@ namespace Space.Systems
         {
             Add(new Label("0"));
         }
+
+        int lastCellCount;
+        public void SetCells(NativeArray<int2> cells, Mesh mesh)
+        {
+            if(lastCellCount == cells.Length)
+                return;
+            
+            CellMesh.GenerateChunkMesh(cells, mesh);
+        }
+
         public int Room
         {
             set

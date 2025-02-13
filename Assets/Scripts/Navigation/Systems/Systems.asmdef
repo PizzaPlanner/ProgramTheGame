@@ -18,7 +18,8 @@
         "Rooms",
         "Core.Input",
         "Core.UI",
-        "Construction"
+        "Construction",
+        "Construction.Systems"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

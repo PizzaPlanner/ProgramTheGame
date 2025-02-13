@@ -16,8 +16,6 @@ namespace Navigation
         void Execute(Entity e, in CGrid grid)
         {
             var tree = treeLookup[e];
-            if(!tree.IsDirty)
-                return;
             var sameRoomMap = new NativeHashSet<(int, int)>(32, Allocator.Temp);
             var roomRemapMap = new NativeHashMap<int, int>(32, Allocator.Temp);
             
@@ -31,14 +29,14 @@ namespace Navigation
                 var selfCell = new int2(x, y);
                 var pathing = grid.GetPathing(selfCell);
                 CellType cellType;
-                if(pathing == default)
-                    cellType = CellType.Space;
-                else if(pathing.IsFloor() && !pathing.IsWall())
+                if(pathing.IsFloor() && !pathing.IsWall())
                     cellType = CellType.Floored;
                 else if(pathing.IsFloor() && (pathing & BuildingLayer.Door) == BuildingLayer.Door)
                     cellType = CellType.Portal;
+                else if(pathing.IsWall())
+                    cellType = CellType.Blocked;
                 else
-                    continue;
+                    cellType = CellType.Space;
                 
                 var cell = new NavCell { Type = cellType, Area = ++maxArea };
 
@@ -126,6 +124,8 @@ namespace Navigation
                             };
                         }
                 area.Connections = connections;
+                if(area.Type == CellType.Space && area.AABB.Size == grid.BoundsWithBorder.Size)
+                    area.Type = CellType.Outside;
                 tree.Areas[areaId] = area;
             }
             

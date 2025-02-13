@@ -18,7 +18,7 @@ namespace Navigation
         Space = 1,
         Floored = 2,
         Portal = 4,
-        
+        Outside = 8 | Space,
         Walkable = Floored | Portal,
         Flyable = Walkable | Space
     }
@@ -68,6 +68,7 @@ namespace Navigation
         internal UnsafeHashMap<int2, NavCell> Cells;
         internal UnsafeParallelHashMap<int, AreaData> Areas;
         public bool IsDirty => ChangeAreas.Length > 0 || Cells.IsEmpty;
+
         public uint LastUpdate;
 
         public CellType GetCellType(int2 cell) => Cells.TryGetValue(cell, out var c) ? c.Type : CellType.Blocked;
@@ -88,6 +89,29 @@ namespace Navigation
         public void SetAreaDirty(GridBounds bounds)
         {
             ChangeAreas.Add(bounds);
+        }
+
+        public void GetAllConnectedCells(int2 fromCell, ref NativeList<int2> allCells)
+        {
+            var checkedAreas = new NativeHashSet<int>(4, Allocator.Temp);
+            GetAllConnectedCells(fromCell, ref allCells, ref checkedAreas);
+        }
+        
+        void GetAllConnectedCells(int2 fromCell, ref NativeList<int2> allCells, ref NativeHashSet<int> checkedAreas)
+        {
+            if(!Cells.TryGetValue(fromCell, out var c))
+                return;
+            if(!checkedAreas.Add(c.Area))
+                return;
+            if(!Areas.TryGetValue(c.Area, out var area))
+                return;
+            if(area.Type == CellType.Outside)
+                return;
+            
+            allCells.AddRange(area.Cells.ToNativeArray(Allocator.Temp));
+            foreach(var nbArea in area.AdjacentCellsByArea.GetKeyArray(Allocator.Temp))
+                if(area.AdjacentCellsByArea.TryGetFirstValue(nbArea, out var nb, out _))
+                    GetAllConnectedCells(nb, ref allCells, ref checkedAreas);    
         }
 
         public bool IsReachable(int2 start, int2 end, CellType allowedTypes, bool allowAdjacent)

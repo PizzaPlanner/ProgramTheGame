@@ -99,6 +99,15 @@ namespace Grids
             return hs.AsReadOnly();
         }
         
+        public NativeHashSet<Entity>.ReadOnly GetAllEntitiesIn(NativeArray<int2> area)
+        {
+            var hs = new NativeHashSet<Entity>(4, Allocator.Temp);
+            foreach(var cell in area)
+            foreach(var entity in ByCell.GetValuesForKey(cell))
+                    hs.Add(entity);
+            return hs.AsReadOnly();
+        }
+        
         public NativeArray<Entity>.ReadOnly GetAllEntities()
         {
             return ByCell.GetValueArray(Allocator.Temp).AsReadOnly();
