@@ -10,26 +10,72 @@ using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
+using UnityEngine.Rendering;
 using UnityEngine.UIElements;
 
 namespace Space.Systems
 {
     partial class ShipUISystem : UISystem
     {
+        Mesh boundsMesh;
+        BatchMeshID bmesh;
+        Material mat;
+        CommandBuffer commandBuffer;
+        Entity displayEntity;
+
+        protected override void OnCreate()
+        {
+            RequireForUpdate(SystemAPI.QueryBuilder().WithAll<Selected, ShipController>().Build());
+        }
+
+        protected override void OnStartRunning()
+        {
+            base.OnStartRunning();
+            if (displayEntity != default)
+            {
+                EntityManager.RemoveComponent<Disabled>(displayEntity);
+                return;
+            }
+            
+            var graphicsSystem = World.GetExistingSystemManaged<EntitiesGraphicsSystem>();
+            boundsMesh = new Mesh();
+            mat = Addressables.LoadAssetAsync<Material>("TestMat").WaitForCompletion();
+
+            displayEntity = EntityManager.CreateEntity(typeof(Static));
+            #if UNITY_EDITOR
+            EntityManager.SetName(displayEntity, "BoundsVisuals");
+            #endif
+            var filterSettings = RenderFilterSettings.Default;
+            filterSettings.MotionMode = MotionVectorGenerationMode.ForceNoMotion;
+            filterSettings.ReceiveShadows = false;
+            filterSettings.ShadowCastingMode = ShadowCastingMode.Off;
+            RenderMeshUtility.AddComponents(displayEntity, EntityManager, new RenderMeshDescription
+            {
+                FilterSettings  = filterSettings
+            }, new MaterialMeshInfo
+            {
+                MeshID  = graphicsSystem.RegisterMesh(boundsMesh),
+                MaterialID = graphicsSystem.RegisterMaterial(mat)
+            });
+        }
+
+        protected override void OnStopRunning()
+        {
+            EntityManager.AddComponent<Disabled>(displayEntity);
+        }
 
         protected override void OnUpdate()
         {
             if(!UISystemGroup.TryGet<SelectedUnitElement>(out var ui))
                 return;
             
-            var graphicsSystem = World.GetExistingSystemManaged<EntitiesGraphicsSystem>();
-            foreach (var (controller, baked, mmi, inShip, e) in 
-                     SystemAPI.Query<ShipController, BakedIntoRoomMap, RefRW<MaterialMeshInfo>, DynamicBuffer<BelongsToShip>>()
+            foreach (var (controller, baked, inShip, e) in 
+                     SystemAPI.Query<ShipController, BakedIntoRoomMap, DynamicBuffer<BelongsToShip>>()
                               .WithAll<Selected>()
                               .WithNone<Ghost>().WithEntityAccess())
             {
                 var stats = ui.GetOrCreate<ShipUI>("Ship");
-                // stats.SetCells(inShip.Reinterpret<int2>().AsNativeArray(), graphicsSystem.GetMesh(mmi.ValueRW.MeshID));
+                CellMesh.GenerateChunkMesh(inShip.Reinterpret<int2>().AsNativeArray(), boundsMesh);
                 stats.Q<Label>().text = $"Size: {inShip.Length}";
                 var travelBtn = ui.GetOrCreateActionButton(Core.ID.TravelTask, EntityManager);
                 if (travelBtn.wantCreateTask)
@@ -37,7 +83,17 @@ namespace Space.Systems
                     UISystemGroup.ShowAsPopup(new TravelUI(EntityManager, baked.Grid, e));
                     travelBtn.wantCreateTask = false;
                 }
-                
+                SystemAPI.SetComponent(displayEntity, SystemAPI.GetComponent<LocalToWorld>(baked.Grid));
+                var grid = SystemAPI.GetComponent<CGrid>(baked.Grid);
+                var scale = new float3(grid.BoundsWithBorder.Scale.x, 1000, grid.BoundsWithBorder.Scale.y);
+                SystemAPI.SetComponent(displayEntity, new RenderBounds()
+                {
+                    Value = new AABB
+                    {
+                        Center = grid.BoundsWithBorder.Center,
+                        Extents = scale
+                    }
+                });
             } 
         }
     }
@@ -56,25 +112,7 @@ namespace Space.Systems
                 var target = entities[i];
                 btn.RegisterCallback<MouseDownEvent>((_) =>
                 {
-                    var currentSector = mgr.GetComponentData<Sector>(currentLocation);
-                    var toSector = mgr.GetComponentData<Sector>(target);
-                    var ecb = new EntityCommandBuffer(Allocator.Temp);
-                    var task = Task.Schedule(Core.ID.TravelTask, ecb, new Task
-                    {
-                        Target = controller,
-                        Executor = controller,
-                        Origin = controller
-                    });
-                    ecb.SetComponent(task, new TravelTask
-                    {
-                        ToLocation = target, 
-                        FromLocation = currentLocation, 
-                        From = currentSector,
-                        To = toSector,
-                        TakeoffPointInFromSector = mgr.GetComponentData<LocalTransform>(controller).Position
-                    });
-                    ecb.SetComponent(task, mgr.GetComponentData<Sector>(currentLocation));
-                    ecb.Playback(mgr);
+                    TravelTask.Create(mgr, currentLocation, target, controller);
                 });
                 Add(btn);
             }
@@ -95,6 +133,7 @@ namespace Space.Systems
                 return;
             
             CellMesh.GenerateChunkMesh(cells, mesh);
+            lastCellCount = cells.Length;
         }
 
         public int Room

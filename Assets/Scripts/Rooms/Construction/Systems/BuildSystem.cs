@@ -25,7 +25,6 @@ partial struct BuildSystem : ISystem
             var baked = toBake.Value;
             ref var massModel = ref SystemAPI.GetComponentRW<MassModel>(baked.Grid).ValueRW;
             ref var navTree = ref SystemAPI.GetComponentRW<NavTree>(baked.Grid).ValueRW;
-            ref var roomModel = ref SystemAPI.GetComponentRW<RoomModel>(baked.Grid).ValueRW;
             ref var grid = ref SystemAPI.GetComponentRW<CGrid>(baked.Grid).ValueRW;
             if (!grid.TryPlace(e, baked.Layer, baked.Area, baked.IsGhost))
             {
@@ -40,7 +39,6 @@ partial struct BuildSystem : ISystem
             {
                 massModel.AddWall(baked.Area);
                 navTree.SetAreaDirty(baked.Area);
-                roomModel.AddWall(baked.Area);
             }
             else if (baked.Layer.IsFloor() && !baked.IsGhost)
             {
@@ -52,7 +50,7 @@ partial struct BuildSystem : ISystem
             ecbNow.AddComponent(e, new Parent { Value = baked.Grid });
             ecbNow.AddComponent(e, new OnGrid { Grid  = baked.Grid });
             ecbNow.RemoveComponent<ToBeBakedIntoRoomMap>(e);
-            ecbNow.AddComponent<BuildingsChangedEvent>(baked.Grid);
+            ecbNow.AddComponent<GridLayoutChangedEvent>(baked.Grid);
         }
         
         // Clean up occupations
@@ -61,18 +59,16 @@ partial struct BuildSystem : ISystem
             if(!SystemAPI.HasComponent<NavTree>(baked.Grid))
                 continue;
             
-            BuildUtils.Cleanup(e, baked, ecbNow, 
-                SystemAPI.GetComponentLookup<CGrid>(),
-                SystemAPI.GetComponentLookup<NavTree>(), 
-                SystemAPI.GetComponentLookup<MassModel>(), 
-                SystemAPI.GetComponentLookup<RoomModel>());
+            BuildUtils.Cleanup(e, baked, ecbNow, new BuildUtils.AllLookups
+            {
+                grid = SystemAPI.GetComponentLookup<CGrid>(),
+                navTree = SystemAPI.GetComponentLookup<NavTree>(),
+                mass = SystemAPI.GetComponentLookup<MassModel>()
+            });
         }
         ecbNow.Playback(state.EntityManager);
         
         state.CompleteDependency();
-        
-        // Calculate rooms
-        new GridRoomRecalculationJob { }.Run();
         
         // Spawn buildings and ghosts based on planned constructions
         new BuildJob()

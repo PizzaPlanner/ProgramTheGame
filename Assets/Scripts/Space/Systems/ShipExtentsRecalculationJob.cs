@@ -1,5 +1,6 @@
 ﻿using Grids;
 using Navigation;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -18,9 +19,13 @@ namespace Space.Systems
             }.Run();
         }
     }
+    
+    [BurstCompile]
     public partial struct ShipExtentsRecalculationJob : IJobEntity
     {
         [ReadOnly] public ComponentLookup<NavTree> navLookup;
+        
+        [BurstCompile]
         void Execute(in BakedIntoRoomMap baked, in ShipController controller, DynamicBuffer<BelongsToShip> onShip)
         {
             if(!navLookup.TryGetComponent(baked.Grid, out var grid))

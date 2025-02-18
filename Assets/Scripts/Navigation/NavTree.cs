@@ -6,6 +6,7 @@ using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using Unity.Mathematics;
+using UnityEngine;
 
 [assembly:InternalsVisibleTo("Navigation.Systems")]
 
@@ -89,6 +90,12 @@ namespace Navigation
         public void SetAreaDirty(GridBounds bounds)
         {
             ChangeAreas.Add(bounds);
+        }
+        
+        public void SetAreaDirty(NativeArray<int2> cells)
+        {
+            foreach (var cell in cells)
+                ChangeAreas.Add(new GridBounds{Min = cell, Max = cell});
         }
 
         public void GetAllConnectedCells(int2 fromCell, ref NativeList<int2> allCells)
@@ -367,9 +374,12 @@ namespace Navigation
         {
             if(Cells.IsCreated)
                 Cells.Dispose();
-            if(Areas.IsCreated)
+            if (Areas.IsCreated)
+            {
                 foreach(var area in Areas)
                     area.Value.Dispose();
+                Areas.Dispose();
+            }
             if(ChangeAreas.IsCreated)
                 ChangeAreas.Dispose();
         }

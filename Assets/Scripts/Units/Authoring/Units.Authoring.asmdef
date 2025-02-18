@@ -13,7 +13,6 @@
         "Unity.Physics",
         "Identifiables",
         "Units",
-        "Items.Authoring",
         "Items",
         "Tasks",
         "Core.Authoring",
@@ -22,7 +21,8 @@
         "Equipment",
         "Elements.Authoring",
         "UnitStats",
-        "Space"
+        "Space",
+        "Items.Authoring"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

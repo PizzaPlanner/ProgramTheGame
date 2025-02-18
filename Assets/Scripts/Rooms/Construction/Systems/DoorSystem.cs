@@ -16,6 +16,9 @@ partial struct DoorSystem : ISystem
                                .WithNone<Ghost>()
                                .WithEntityAccess())
         {
+            if(!SystemAPI.HasBuffer<Crew>(birm.Grid))
+                continue;
+            
             var crew = SystemAPI.GetBuffer<Crew>(birm.Grid);
             var hasTravellers = false;
             foreach(var unit in crew)

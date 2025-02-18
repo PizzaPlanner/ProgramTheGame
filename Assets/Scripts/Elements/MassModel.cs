@@ -1,6 +1,7 @@
 ﻿using Grids;
 using System.Runtime.CompilerServices;
 using Unity.Burst;
+using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using Unity.Jobs;
@@ -210,6 +211,16 @@ public struct MassModel : ICleanupComponentData
             toCell.Dispose();
             UnsafeUtility.MemSwap(UnsafeUtility.AddressOf(ref toCell), UnsafeUtility.AddressOf(ref fromCell), sizeof(MassHeader));
         }
-        
+    }
+
+    public static unsafe void TransferCells(ref MassModel fromMass, ref MassModel toMass, NativeArray<int2> fromCells, int2 deltaOffset)
+    {
+        foreach (var cell in fromCells)
+        {
+            ref var fromCell = ref fromMass.AbsoluteCellRW(cell);
+            ref var toCell = ref toMass.AbsoluteCellRW(cell + deltaOffset);
+            toCell.Dispose();
+            UnsafeUtility.MemSwap(UnsafeUtility.AddressOf(ref toCell), UnsafeUtility.AddressOf(ref fromCell), sizeof(MassHeader));
+        }
     }
 }

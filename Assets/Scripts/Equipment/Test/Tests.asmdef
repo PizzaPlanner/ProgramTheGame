@@ -22,7 +22,8 @@
         "UnitStats.Systems",
         "Construction",
         "Mod.Testing",
-        "UnitStats"
+        "UnitStats",
+        "Space"
     ],
     "optionalUnityReferences": [
         "TestAssemblies"

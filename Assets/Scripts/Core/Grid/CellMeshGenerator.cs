@@ -2,6 +2,8 @@
 using Unity.Collections.NotBurstCompatible;
 using Unity.Mathematics;
 using UnityEngine;
+using UnityEngine.Rendering;
+using float2 = Unity.Mathematics.float2;
 
 namespace Grids
 {
@@ -14,22 +16,18 @@ namespace Grids
             var uvs = new NativeList<float2>(Allocator.Temp);
             var triangles = new NativeList<int>(Allocator.Temp);
         
-            int vertexOffset = 0;
             var bounds = grid.BoundsWithBorder;
+            var voxelMap = new NativeHashSet<int2>(bounds.Size, Allocator.Temp);
             for (int x = bounds.Min.x; x <= bounds.Max.x; x++)
             for (int y = bounds.Min.y; y <= bounds.Max.y; y++)
             {
-                if((grid.GetPathing(new int2(x, y)) & BuildingLayer.FloorLevel) == 0)
-                    continue;
-                AddCubeMesh(vertices, triangles, uvs, new int3(x, 0, y), ref vertexOffset);
+                if((grid.GetPathing(new int2(x, y)) & BuildingLayer.FloorLevel) != 0)
+                    voxelMap.Add(new int2(x, y));
             }
+            foreach(var voxel in voxelMap)
+                AddCube(vertices, triangles, uvs, new int3(voxel.x, 0, voxel.y), voxelMap);
 
-            mesh ??= new Mesh();
-            mesh.SetVertices(vertices.ToArray(Allocator.Temp));
-            mesh.SetUVs(0, uvs.ToArray(Allocator.Temp));
-            mesh.triangles = triangles.ToArrayNBC();
-            mesh.Optimize();
-            mesh.RecalculateNormals();
+            UpdateMesh(ref mesh, vertices, triangles, uvs);
             return mesh;
         }
         
@@ -39,54 +37,93 @@ namespace Grids
             var uvs = new NativeList<float2>(Allocator.Temp);
             var triangles = new NativeList<int>(Allocator.Temp);
             
-            int vertexOffset = 0;
+            var voxelMap = new NativeHashSet<int2>(cells.Length, Allocator.Temp);
+            
             foreach(var c in cells)
-                AddCubeMesh(vertices, triangles, uvs, new int3(c.x, 0, c.y), ref vertexOffset);
+                voxelMap.Add(c);
+            foreach(var c in cells)
+                AddCube(vertices, triangles, uvs, new int3(c.x, 0, c.y), voxelMap);
 
-            mesh ??= new Mesh();
-            mesh.SetVertices(vertices.ToArray(Allocator.Temp));
-            mesh.SetUVs(0, uvs.ToArray(Allocator.Temp));
-            mesh.triangles = triangles.ToArrayNBC();
-            mesh.Optimize();
-            mesh.RecalculateNormals();
+            UpdateMesh(ref mesh, vertices, triangles, uvs);
             return mesh;
         }
 
-        private static void AddCubeMesh(NativeList<float3> vertices, NativeList<int> triangles, NativeList<float2> uvs, int3 pos, ref int vertexOffset)
+        static void UpdateMesh(ref Mesh mesh, NativeList<float3> vertices, NativeList<int> triangles, NativeList<float2> uvs)
         {
-            for (int i = 0; i < 8; i++)
-            {
-                vertices.Add(CubeVertices[i] + pos);
-                uvs.Add(CubeUVs[i]);
-            }
-
-            for (int i = 0; i < 36; i++)
-                triangles.Add(CubeTriangles[i] + vertexOffset);
-
-            vertexOffset += 8;
+            mesh ??= new Mesh();
+            mesh.Clear();
+            mesh.SetVertices(vertices.ToArray(Allocator.Temp));
+            mesh.triangles = triangles.ToArrayNBC();
+            mesh.SetUVs(0, uvs.ToArray(Allocator.Temp));
+            mesh.Optimize();
+            mesh.RecalculateNormals();
         }
         
-        static readonly float3[] CubeVertices = {
-            new float3(0.0f, -1.0f,  0.0f), new float3(1.0f, -1.0f,  0.0f),
-            new float3(1.0f,  0.0f,  0.0f), new float3(0.0f,  0.0f,  0.0f),
-            new float3(0.0f, -1.0f,  1.0f), new float3(1.0f, -1.0f,  1.0f),
-            new float3(1.0f,  0.0f,  1.0f), new float3(0.0f,  0.0f,  1.0f)
-        };
-        
-        static readonly float2[] CubeUVs = {
-            new float2(0, 0), new float2(1, 0),
-            new float2(1, 1), new float2(0, 1),
-            new float2(0, 0), new float2(1, 0),
-            new float2(1, 1), new float2(0, 1)
-        };
-        
-        static readonly int[] CubeTriangles = {
-            0, 2, 1, 0, 3, 2, // Front
-            4, 5, 6, 4, 6, 7, // Back
-            0, 1, 5, 0, 5, 4, // Bottom
-            2, 3, 7, 2, 7, 6, // Top
-            0, 4, 7, 0, 7, 3, // Left
-            1, 2, 6, 1, 6, 5  // Right
-        };
+        static void AddCube(NativeList<float3> vertices, NativeList<int> triangles, NativeList<float2> uvs, int3 pos, NativeHashSet<int2> voxelMap)
+        {
+            float3 min = new float3(0, 0, 0);
+            float3 max = new float3(1, 2, 1);
+            float3[] faceOffsets = new float3[]
+            {
+                new (min.x, min.y, min.z), new (max.x, min.y, min.z),
+                new (max.x, max.y, min.z), new (min.x, max.y, min.z), // Back
+                new (min.x, min.y, max.z), new (max.x, min.y, max.z),
+                new (max.x, max.y, max.z), new (min.x, max.y, max.z)  // Front
+            };
+
+            int[][] faces = new int[][]
+            {
+                new int[] {0, 1, 2, 3}, // Back
+                new int[] {5, 4, 7, 6}, // Front
+                new int[] {4, 0, 3, 7}, // Left
+                new int[] {1, 5, 6, 2}, // Right
+                new int[] {3, 2, 6, 7}, // Top
+                new int[] {4, 5, 1, 0}  // Bottom
+            };
+
+            var topUVs = new float2[]
+            {
+                new float2(0, 0.5f), new float2(0.25f, 0.5f), new float2(0.25f, 0.75f), new float2(0, 0.75f)
+            };
+            var sideUVs = new float2[]
+            {
+                new float2(0.5f, 0), new float2(1, 0), new float2(1, 0.5f), new float2(0.5f, 0.5f)
+            };
+            var bottomUVs = new float2[]
+            {
+                new float2(0, 0), new float2(0.25f, 0), new float2(0.25f, 0.25f), new float2(0, 0.25f)
+            };
+
+            bool[] shouldRender = new bool[]
+            {
+                !voxelMap.Contains(pos.xz + (int2)math.back().xz),
+                !voxelMap.Contains(pos.xz + (int2)math.forward().xz),
+                !voxelMap.Contains(pos.xz + (int2)math.left().xz),
+                !voxelMap.Contains(pos.xz + (int2)math.right().xz),
+                true,
+                true
+            };
+
+            for (int face = 0; face < 6; face++)
+            {
+                if (!shouldRender[face]) continue;
+
+                int vertexIndex = vertices.Length;
+                float2[] selectedUVs = (face == 4) ? topUVs : (face == 5) ? bottomUVs : sideUVs;
+
+                for (int v = 0; v < 4; v++)
+                {
+                    vertices.Add(pos + faceOffsets[faces[face][v]]);
+                    uvs.Add(selectedUVs[v]);
+                }
+
+                triangles.Add(vertexIndex);
+                triangles.Add(vertexIndex + 2);
+                triangles.Add(vertexIndex + 1);
+                triangles.Add(vertexIndex);
+                triangles.Add(vertexIndex + 3);
+                triangles.Add(vertexIndex + 2);
+            }
+        }
     }
 }

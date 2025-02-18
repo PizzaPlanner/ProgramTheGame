@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Grids;
+using System;
 using System.Runtime.CompilerServices;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
@@ -72,6 +73,16 @@ public unsafe struct NativeElementMap : IDisposable
         var newChunkSize = newChunkMax - newChunkMin + 1;
         var newTiles = UnsafeUtility.MallocTracked(newChunkSize.x * newChunkSize.y * sizeof(MassHeader),
             UnsafeUtility.AlignOf<MassHeader>(), m_AllocatorLabel, 0);
+
+        if (math.any(newChunkMin > chunkMin | newChunkMax < chunkMax))
+        {
+            var newBounds = new GridBounds { Min = newChunkMin, Max = newChunkMax };
+            for (var x = chunkMin.x; x <= chunkMax.x; x++)
+            for (var y = chunkMin.y; y <= chunkMax.y; y++)
+                if(!newBounds.Contains(new int2(x, y)))
+                    this[x,y].Dispose();
+        }
+        
         for (var x = newChunkMin.x; x <= newChunkMax.x; x++)
         for (var y = newChunkMin.y; y <= newChunkMax.y; y++)
         {
@@ -89,7 +100,6 @@ public unsafe struct NativeElementMap : IDisposable
             }
             UnsafeUtility.WriteArrayElement(newTiles, indexInNew, header);
         }
-        // TODO: If shrinking is supported, need to free all leftover headers as well? How to handle the contents?
         if(_massMap != null)
             UnsafeUtility.FreeTracked(_massMap, m_AllocatorLabel);
         _massMap = newTiles;

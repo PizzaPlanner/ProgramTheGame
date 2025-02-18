@@ -27,8 +27,7 @@ public partial class IdentifiablesMappingGroup : ComponentSystemGroup
     {
         if(Identifiable.IdMap.Data.IsCreated)
             Identifiable.IdMap.Data.Dispose();
-        // modQuery.Dispose();
-        // idQuery.Dispose();
+        base.OnDestroy();
     }
 
     protected override void OnUpdate()

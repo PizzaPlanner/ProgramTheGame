@@ -30,7 +30,6 @@ namespace Space.Systems
                 foreach (var (loc, transform) in SystemAPI.Query<Sector, RefRW<LocalTransform>>()
                                                           .WithNone<TravelTask>())
                 {
-                    Debug.Log($"Update where {loc.PositionInSpace} is in CAM");
                     var delta = loc.PositionInSpace - camLocation;
                     var pos = new float3(delta.x, 0, delta.y);
                     transform.ValueRW.Position = pos * Sector.LENGTH;
@@ -39,7 +38,6 @@ namespace Space.Systems
                 foreach (var (loc, transform) in SystemAPI.Query<Sector, RefRW<LocalTransform>>()
                                                           .WithChangeFilter<Sector>().WithNone<TravelTask>())
                 {
-                    Debug.Log($"Update where {loc.PositionInSpace} is in CAM");
                     var delta = loc.PositionInSpace - camLocation;
                     var pos = new float3(delta.x, 0, delta.y);
                     transform.ValueRW.Position = pos * Sector.LENGTH;

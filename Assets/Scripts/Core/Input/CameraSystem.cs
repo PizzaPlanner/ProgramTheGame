@@ -74,7 +74,7 @@ partial struct CameraSystem : ISystem
         camAnchor.ValueRW.Rotation += rotate * SystemAPI.Time.DeltaTime * camAnchor.ValueRW.RotationFactor;
         var offset = camAnchor.ValueRW.Offset.xyy;
         offset.y = 0;
-        var lookAtPoint = shipLtw.Position + offset;
+        var lookAtPoint = shipLtw.Position + math.mul(shipLtw.Rotation, offset);
         var userRotation = quaternion.AxisAngle(math.up(), camAnchor.ValueRW.Rotation);
         var camPitch = quaternion.AxisAngle(math.right(), math.radians(55));
         cam.rotation = math.mul(math.mul(userRotation, shipLtw.Rotation), camPitch);
@@ -92,7 +92,7 @@ partial struct CameraSystem : ISystem
         var euler = math.Euler(cam.rotation);
         var camYaw = quaternion.Euler(0, euler.y, 0); // Camera rotation with only yaw
         
-        direction = math.mul(camYaw, direction);
+        direction = math.mul(userRotation, direction);
         camAnchor.ValueRW.Offset += (direction * SystemAPI.Time.DeltaTime * camAnchor.ValueRW.MoveFactor).xz;
     }
 }

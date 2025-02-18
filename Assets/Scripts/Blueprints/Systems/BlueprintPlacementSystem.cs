@@ -1,4 +1,5 @@
 ﻿using Core;
+using Navigation;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
@@ -24,7 +25,7 @@ partial struct BlueprintPlacementSystem : ISystem
         
         foreach (var (bp, content, e) in SystemAPI.Query<Blueprint, DynamicBuffer<BlueprintContents>>().WithEntityAccess())
         {
-            if(!SystemAPI.HasComponent<MassModel>(bp.BuildOn) || !SystemAPI.HasComponent<RoomModel>(bp.BuildOn))
+            if(!SystemAPI.HasComponent<MassModel>(bp.BuildOn) || !SystemAPI.HasComponent<NavTree>(bp.BuildOn))
                 continue;
             ecb.DestroyEntity(e);
             foreach (var part in content)

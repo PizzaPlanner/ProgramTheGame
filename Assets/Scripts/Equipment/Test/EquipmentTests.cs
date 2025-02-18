@@ -4,6 +4,7 @@ using Core.Status;
 using Equipment;
 using Identifiables;
 using NUnit.Framework;
+using Space;
 using System;
 using System.Collections;
 using Tasks.UI;
@@ -13,6 +14,7 @@ using Unity.Entities;
 using Unity.Entities.Serialization;
 using Unity.Mathematics;
 using Unity.Scenes;
+using Unity.Transforms;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.TestTools;
@@ -222,5 +224,23 @@ public class EquipmentTests
         yield return new WaitForSeconds(3);
         var newStam = EntityManager.GetComponentData<Stamina>(e);
         Assert.IsTrue(newStam.Fullness > stamina.Fullness, "Did not rest");
+    }
+    
+    [UnityTest]
+    public IEnumerator CrewStaysInPlaceOnFerry()
+    {
+        var gridFrom = EntityManager.Instantiate(Testing.ID.LabSceneForFlight.SpawnablePrefab);
+        var gridTo = EntityManager.Instantiate(Testing.ID.LabSceneForConstruction.SpawnablePrefab);
+        yield return WaitForEntityWith<ShipController>();
+        var controller = FindEntity<ShipController>();
+        var crew = EntityManager.GetBuffer<Crew>(gridFrom);
+        var member= crew[0].Member;
+        var posBefore = EntityManager.GetComponentData<LocalTransform>(member);
+        yield return new WaitForSeconds(1);
+        TravelTask.Create(EntityManager, gridFrom, gridTo, controller);
+        yield return new WaitForSeconds(1);
+        var posAfter = EntityManager.GetComponentData<LocalTransform>(member);
+        yield return new WaitForSeconds(10);
+        Assert.Fail("Implementation not finished");
     }
 }

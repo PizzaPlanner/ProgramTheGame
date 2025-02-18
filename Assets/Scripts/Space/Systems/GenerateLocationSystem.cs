@@ -10,11 +10,10 @@ namespace Space.Systems
     {
         public void OnDestroy(ref SystemState state)
         {
-            foreach (var (grid, mass, rooms, nav) in SystemAPI.Query<Grids.CGrid, MassModel, RoomModel, NavTree>())
+            foreach (var (grid, mass, nav) in SystemAPI.Query<Grids.CGrid, MassModel, NavTree>())
             {
                 grid.Dispose();
                 mass.Dispose();
-                rooms.Dispose();
                 nav.Dispose();
             }
         }
@@ -41,14 +40,10 @@ namespace Space.Systems
                 tree.Init();
                 ecb.AddComponent(e, tree);
                 
-                var roomModel = new RoomModel();
-                roomModel.Initialize();
-                ecb.AddComponent(e, roomModel);
-                
                 Debug.Log($"Populated {e}");
             }
 
-            foreach (var (grid, mass, rooms, nav, e) in SystemAPI.Query<CGrid, MassModel, RoomModel, NavTree>().WithNone<Sector>().WithEntityAccess())
+            foreach (var (grid, mass, nav, e) in SystemAPI.Query<CGrid, MassModel, NavTree>().WithNone<Sector>().WithEntityAccess())
             {
                 Debug.Log($"Depopulated {e}");
                 
@@ -57,9 +52,6 @@ namespace Space.Systems
                 
                 mass.Dispose();
                 ecb.RemoveComponent<MassModel>(e);
-                
-                rooms.Dispose();
-                ecb.RemoveComponent<RoomModel>(e);
                 
                 nav.Dispose();
                 ecb.RemoveComponent<NavTree>(e);

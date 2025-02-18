@@ -1,4 +1,5 @@
 ﻿using Grids;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
@@ -7,15 +8,15 @@ using UnityEngine;
 
 namespace Navigation
 {
-    [WithAll(typeof(NavTree), typeof(RoomModel))]
+    [BurstCompile]
+    [WithAll(typeof(GridLayoutChangedEvent))]
     public partial struct NavTreeRecalculationJob : IJobEntity
     {
-        [NativeDisableContainerSafetyRestriction] 
-        public ComponentLookup<NavTree> treeLookup;
         public uint currentTick;
-        void Execute(Entity e, in CGrid grid)
+        
+        [BurstCompile]
+        void Execute(Entity e, in CGrid grid, ref NavTree tree)
         {
-            var tree = treeLookup[e];
             var sameRoomMap = new NativeHashSet<(int, int)>(32, Allocator.Temp);
             var roomRemapMap = new NativeHashMap<int, int>(32, Allocator.Temp);
             
@@ -130,8 +131,6 @@ namespace Navigation
             }
             
             CalculateAreaConnections(ref tree);
-            
-            treeLookup[e] = tree;
         }
 
         internal void CalculateAreaConnections(ref NavTree tree)

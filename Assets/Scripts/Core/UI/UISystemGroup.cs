@@ -32,6 +32,7 @@ public partial class UISystemGroup : ComponentSystemGroup
     {
         Root = null;
         Menu = null;
+        base.OnDestroy();
     }
 
     protected override void OnUpdate()

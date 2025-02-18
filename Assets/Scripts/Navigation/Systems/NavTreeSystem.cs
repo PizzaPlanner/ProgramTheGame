@@ -8,11 +8,10 @@ namespace Navigation
     {
         public void OnUpdate(ref SystemState state)
         {
-            state.Dependency = new NavTreeRecalculationJob
+            new NavTreeRecalculationJob
             {
-                treeLookup = SystemAPI.GetComponentLookup<NavTree>(false),
                 currentTick = SystemAPI.GetSingleton<SimulationState>().LastSimulationTick
-            }.Schedule(state.Dependency);
+            }.Run();
         }
     }
 }

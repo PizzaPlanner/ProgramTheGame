@@ -35,7 +35,7 @@ namespace Grids
             public static implicit operator CertainlyNotAnEntity(Entity e) => new CertainlyNotAnEntity(e);
         }
         
-        // TODO: Key can't be entity, causes remap error in ECB! Report Bug
+        // TODO: Key can't be entity [IN-94536]
         UnsafeHashMap<CertainlyNotAnEntity, (BuildingLayer layer, GridBounds bounds, bool isGhost)> LayerBy; 
         UnsafeParallelMultiHashMap<int2, Entity> ByCell;
         UnsafeHashMap<int3, BuildingLayer> BuildingLayers;
@@ -158,6 +158,10 @@ namespace Grids
             ActualBounds = GridBounds.Empty;
             foreach(var cell in BuildingLayers.GetKeyArray(Allocator.Temp))
                 ActualBounds.Encapsulate(cell.xy);
+            // If empty, ensure valid bounds
+            if(!ActualBounds.IsValid)
+                ActualBounds = new GridBounds();
+                
         }
 
         public readonly BuildingLayer GetPathing(int2 cell) => BuildingLayers.TryGetValue(LayerKey(cell, false), out var layer) ? layer : default;

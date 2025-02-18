@@ -53,7 +53,7 @@ namespace Power
                     cableLookup[c] = new PowerCable { Network = bestGrid };
             }
             
-            var powerGrids = new NativeParallelHashMap<Entity, int>(0, Allocator.TempJob);
+            var powerGrids = new NativeParallelHashMap<Entity, int>(0, Allocator.Temp);
             foreach(var network in SystemAPI.QueryBuilder().WithAll<PowerNetwork>().Build().ToEntityArray(Allocator.Temp))
                 powerGrids[network] = 0;
             foreach(var cable in cableQuery.ToComponentDataArray<PowerCable>(Allocator.Temp))

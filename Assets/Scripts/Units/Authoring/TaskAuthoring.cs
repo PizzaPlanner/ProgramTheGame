@@ -16,6 +16,7 @@ public class TaskAuthoring : MonoBehaviour
             var e= GetEntity(TransformUsageFlags.None);
             AddComponent<Task>(e);
             AddComponent<WorkedOn>(e);
+            AddComponent<OnGrid>(e);
             AddBuffer<TaskProvider>(e);
             AddBuffer<BroadcastStatus>(e);
             SetComponentEnabled<WorkedOn>(e, false);

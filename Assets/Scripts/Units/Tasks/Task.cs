@@ -1,5 +1,6 @@
 ﻿using Identifiables;
 using Unity.Entities;
+using UnityEngine;
 
 namespace Units
 {
@@ -17,14 +18,17 @@ namespace Units
 
         public static Entity Schedule(Identifiable taskPrefab, EntityCommandBuffer ecb, Task t)
         {
+            if (t.CrewProvider == default || t.Origin == default)
+            {
+                Debug.LogError($"Tried to schedule {taskPrefab} without CrewProvide or Origin");
+                return default;
+            }
             var task = ecb.Instantiate(taskPrefab.SpawnablePrefab);
             t._isPersonalized = t.Executor != default;
             if (t.IsPersonalized)
-            {
-                t._isPersonalized = true;
                 ecb.AppendToBuffer(t.Executor, new ToDos { Task = task, Status = ToDoStatus.Requested });
-            }
             ecb.SetComponent(task, t);
+            ecb.SetComponent(task, new OnGrid { Grid = t.CrewProvider });
             ecb.AppendToBuffer(t.Origin, new TaskProvider { Task = task });
             return task;
         }

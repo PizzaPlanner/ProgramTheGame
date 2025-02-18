@@ -13,7 +13,8 @@
         "Unity.ResourceManager",
         "Core",
         "Identifiables",
-        "Identifiables.UI"
+        "Identifiables.UI",
+        "Tasks"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

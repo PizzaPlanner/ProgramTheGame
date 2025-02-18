@@ -2,6 +2,7 @@
 using Navigation;
 using Units;
 using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
@@ -12,13 +13,10 @@ namespace Space.Systems
     partial struct TravelJob : IJobEntity
     {
         public EntityCommandBuffer ecb;
-        public ComponentLookup<BakedIntoRoomMap> bakedLookup;
-        public ComponentLookup<CGrid> gridLookup;
-        public ComponentLookup<NavTree> navTreeLookup;
-        public ComponentLookup<MassModel> massLookup;
-        public ComponentLookup<RoomModel> roomLookup;
-        [ReadOnly] public ComponentLookup<Building> buildingLookup;
+        [NativeDisableContainerSafetyRestriction] 
+        public BuildUtils.AllLookups lookups;
         [ReadOnly] public BufferLookup<BelongsToShip> shipLookup;
+
         void Execute(Entity e, ref Task task, ref TaskProgress progress, ref TravelTask travel, ref Sector sector,
                      EnabledRefRO<WorkedOn> workedOn)
         {
@@ -32,19 +30,17 @@ namespace Space.Systems
             {
                 case TravelStage.Validation:
                 {
-                    if (!massLookup.HasComponent(e) 
-                        || !gridLookup.HasComponent(e) 
+                    if (!lookups.mass.HasComponent(e) 
+                        || !lookups.grid.HasComponent(e) 
                         || !VerifyShipIntegrity(task))
                     {
                         task.IsCancelable = true;
                         return;
                     }
-                    var baked = bakedLookup[task.Origin];
                     if(!BuildUtils.Transfer(travel.FromLocation, shipCells, 
-                           e, 0, ecb, 
-                        navTreeLookup, massLookup, roomLookup, bakedLookup, gridLookup, buildingLookup))
+                           e, 0, ecb, lookups, out var offset))
                         return;
-                    
+                    BuildUtils.TransferCrew(travel.FromLocation, e, shipCells, offset, lookups);
                     travel.Stage = TravelStage.Preparation;
                     progress.RequiredTicks = 100;
                     progress.PartialTicks = 0;
@@ -101,9 +97,10 @@ namespace Space.Systems
                 case TravelStage.Landing:
                 {
                     if(!BuildUtils.Transfer(e, shipCells, travel.ToLocation, 
-                           gridLookup[travel.ToLocation].BoundsWithBorder.Min - gridLookup[e].BoundsWithBorder.Scale, ecb, 
-                           navTreeLookup, massLookup, roomLookup, bakedLookup, gridLookup, buildingLookup))
+                           lookups.grid[travel.ToLocation].BoundsWithBorder.Min - lookups.grid[e].BoundsWithBorder.Scale, ecb, 
+                           lookups, out var offset))
                         return;
+                    BuildUtils.TransferCrew(e, travel.ToLocation, shipCells, offset, lookups);
                     ecb.DestroyEntity(e);
                 }break;
             }
@@ -122,25 +119,30 @@ namespace Space.Systems
             state.CompleteDependency();
             var ecb = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>()
                                .CreateCommandBuffer(state.WorldUnmanaged);
+            var allLookups = new BuildUtils.AllLookups
+            {
+                building = SystemAPI.GetComponentLookup<Building>(true),
+                baked = SystemAPI.GetComponentLookup<BakedIntoRoomMap>(false),
+                transform = SystemAPI.GetComponentLookup<LocalTransform>(false),
+                grid = SystemAPI.GetComponentLookup<CGrid>(false),
+                task = SystemAPI.GetComponentLookup<Task>(false),
+                navTree = SystemAPI.GetComponentLookup<NavTree>(false),
+                mass = SystemAPI.GetComponentLookup<MassModel>(false),
+                onGrid = SystemAPI.GetComponentLookup<OnGrid>(false),
+                provider = SystemAPI.GetBufferLookup<TaskProvider>(true),
+                crew = SystemAPI.GetBufferLookup<Crew>(true)
+            };
             new TravelJob
             {
                 ecb = ecb,
-                bakedLookup = SystemAPI.GetComponentLookup<BakedIntoRoomMap>(false),
-                gridLookup = SystemAPI.GetComponentLookup<CGrid>(false),
-                massLookup = SystemAPI.GetComponentLookup<MassModel>(false),
-                roomLookup = SystemAPI.GetComponentLookup<RoomModel>(false),
-                navTreeLookup = SystemAPI.GetComponentLookup<NavTree>(false),
-                buildingLookup = SystemAPI.GetComponentLookup<Building>(true),
-                shipLookup = SystemAPI.GetBufferLookup<BelongsToShip>(true)
+                shipLookup = SystemAPI.GetBufferLookup<BelongsToShip>(true),
+                lookups = allLookups 
             }.Run();
             
             new LocationTransferJob
             {
                 ecb = ecb,
-                massLookup = SystemAPI.GetComponentLookup<MassModel>(false),
-                roomLookup = SystemAPI.GetComponentLookup<RoomModel>(false),
-                navTreeLookup = SystemAPI.GetComponentLookup<NavTree>(false),
-                gridLookup = SystemAPI.GetComponentLookup<CGrid>(false)
+                lookups = allLookups
             }.Run();
 
             foreach (var (anim, transform, e) in
