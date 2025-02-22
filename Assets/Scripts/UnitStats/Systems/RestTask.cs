@@ -39,6 +39,12 @@ namespace Core.Equipment
                 return;
             }
             ref var stamina = ref staminaLookup.GetRefRW(task.Executor).ValueRW;
+            if(stamina.IsExhausted)
+                task.Priority = TaskPriority.Emergency;
+            else if(stamina.IsTired)
+                task.Priority = TaskPriority.HighPriority;
+            else
+                task.Priority = TaskPriority.Idle;
             switch (rest.RestState)
             {
                 case RestTask.State.LookingForBed:
@@ -70,6 +76,7 @@ namespace Core.Equipment
                     break;
                 case RestTask.State.Resting:
                     statsLookup[task.Executor].Add(Identifiable.FromName("Resting"), currentTick);
+                    task.Priority = TaskPriority.HighPriority;
                     if (stamina.IsFull || !workedOn.ValueRO)
                         task.Origin = default;
                     break;

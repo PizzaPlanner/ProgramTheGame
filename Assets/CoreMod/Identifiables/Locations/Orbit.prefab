@@ -58,10 +58,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bb976bcc3f224d8a898d6286a1d6a2cd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  SpawnWith: {fileID: -4676840679068276071, guid: 4778b9972f2404046a7a070483b80e7d, type: 3}
+  SpawnWith: {fileID: -8795153883137430110, guid: 3e90e5f38101c4944ae1b12ec47f5eb9, type: 3}
   PositionInSpace:
     x: 7
     y: 0
+  Seed: 513
 --- !u!114 &3174735954207645279
 MonoBehaviour:
   m_ObjectHideFlags: 0

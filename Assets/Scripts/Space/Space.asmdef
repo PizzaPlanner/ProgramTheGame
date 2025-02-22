@@ -14,7 +14,10 @@
         "Core",
         "Identifiables",
         "Identifiables.UI",
-        "Tasks"
+        "Tasks",
+        "Blueprints",
+        "Construction",
+        "Elements"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

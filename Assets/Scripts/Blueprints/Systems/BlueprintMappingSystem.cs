@@ -35,24 +35,30 @@ public partial class BlueprintMappingSystem : IdentifiableMappingSystem
                 yield return definition;
         }
     }
-    
-    protected override void OnUpdate() { }
 
+    protected override void OnUpdate() { }
+    
     public DynamicIdentifiableDefinition LoadAsPrefab(string text, string key, SourceType type)
     {
         key = $"{type}/{key}";
 
         try
         {
-            if (!Deserialize(text, EntityManager, out var prefab))
+
+            var bp = EntityManager.CreateEntity(typeof(Prefab), typeof(Blueprint));
+            EntityManager.SetComponentData(bp, new Blueprint
             {
-                Debug.LogError($"Error loading Blueprint {key}");
-                return default;
-            }
+                Data = BuildString(text)
+            });
+            // if (!Deserialize(text, EntityManager, out var prefab))
+            // {
+            //     Debug.LogError($"Error loading Blueprint {key}");
+            //     return default;
+            // }
 
             return new DynamicIdentifiableDefinition
             {
-                Prefab = prefab,
+                Prefab = bp,
                 Name = $"Blueprint/{key}",
                 Tags = new FixedString64Bytes[] { "TagBlueprint" },
                 IsSpawnable = true,

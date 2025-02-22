@@ -105,7 +105,7 @@ namespace Grid.Blueprints
             data.Spawns[id].Add(partToAdd);
         }
 
-        public void Load(string data, EntityManager em, Entity prefab)
+        public void Load(string data, DynamicBuffer<BlueprintContents> content)
         {
             var builder = new DeserializerBuilder()
                           .WithNamingConvention(PascalCaseNamingConvention.Instance)
@@ -119,7 +119,6 @@ namespace Grid.Blueprints
             var blueprint = builder.Build().Deserialize<BlueprintV4DataStructure>(data);
             Profiler.EndSample();
             Profiler.BeginSample("Load Blueprint");
-            var content = em.GetBuffer<BlueprintContents>(prefab);
             foreach (var cell in blueprint.Spawns)
                 foreach(var part in cell.Value)
                 {

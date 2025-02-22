@@ -91,8 +91,8 @@ MonoBehaviour:
     Amount: 5000
     Filter: {fileID: 0}
     TransferDirection: 3
-  - Item: {fileID: 0}
-    Amount: 0
+  - Item: {fileID: 697860641069326925, guid: 13db47b78d81287459a2c4d94b7d11f2, type: 3}
+    Amount: 20
     Filter: {fileID: 0}
     TransferDirection: 3
   - Item: {fileID: 0}
@@ -143,7 +143,12 @@ MonoBehaviour:
   NotAllowedOnShips: 0
   CanBeRotated: 1
   Duration: 0
-  Size:
+  ExtentsURDL:
+    x: 0
+    y: 0
+    z: 0
+    w: 0
+  InteractionOffset:
     x: 0
     y: 0
   Variants: []

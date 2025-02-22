@@ -18,7 +18,8 @@
         "Identifiables.Authoring",
         "Units.Authoring",
         "Tasks",
-        "Core"
+        "Core",
+        "Blueprints"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

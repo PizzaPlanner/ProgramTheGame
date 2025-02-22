@@ -4,13 +4,9 @@ using Unity.Mathematics;
 
 public struct Sector : IComponentData
 {
+    public float SolarIntensity;
     public float2 PositionInSpace;
     public const int LENGTH = 1000;
-}
-
-public struct LocationPopulationSettings : IComponentData
-{
-    public Identifiable BlueprintToSpawn;
 }
 
 public struct TransferToLocation : IComponentData

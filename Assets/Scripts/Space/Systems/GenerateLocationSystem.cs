@@ -21,13 +21,6 @@ namespace Space.Systems
         public void OnUpdate(ref SystemState state)
         {
             var ecb = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>().CreateCommandBuffer(state.WorldUnmanaged);
-            foreach (var (loc, e) in SystemAPI.Query<LocationPopulationSettings>()
-                                              .WithAll<Sector>()
-                                              .WithEntityAccess())
-            {
-                Blueprint.Spawn(ecb, loc.BlueprintToSpawn, e);
-                ecb.RemoveComponent<LocationPopulationSettings>(e);
-            }
             
             foreach (var (_, e) in SystemAPI.Query<Sector>().WithNone<CGrid>().WithEntityAccess())
             {

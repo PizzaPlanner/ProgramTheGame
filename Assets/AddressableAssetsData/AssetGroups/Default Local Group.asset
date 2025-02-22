@@ -15,6 +15,11 @@ MonoBehaviour:
   m_GroupName: Default Local Group
   m_GUID: eb29362f08cfd0b47b42c597cd046314
   m_SerializeEntries:
+  - m_GUID: 0451f6e5129c7034b8e343da860ed37d
+    m_Address: TestMat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 120d758a188f7934299a0406976912a9
     m_Address: API/TagSpawnable.asset
     m_ReadOnly: 0
@@ -62,6 +67,11 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: b6323d28b277f8b419e88efec0109668
     m_Address: Test/Materials
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: be1d4781335dd9b41ac238fce05f7e53
+    m_Address: DefaultMaterial
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0

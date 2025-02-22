@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
@@ -14,6 +15,7 @@ public struct Blueprint : IComponentData
 {
     public Entity BuildOn;
     public int2 Offset;
+    public BlobAssetReference<BlobString> Data;
 
     public static Entity Spawn(EntityCommandBuffer ecb, Identifiable prefab, Entity onGrid, int2 offset = default)
     {
@@ -41,14 +43,14 @@ public struct BlueprintContents : IBufferElementData
 public interface IBlueprintParser
 {
     string Save(Entity grid, EntityManager manager);
-    public void Load(string data, EntityManager manager, Entity prefab);
+    public void Load(string data, DynamicBuffer<BlueprintContents> content);
 
     public string VersionIdentifier { get; }
 }
 
 public enum SourceType : byte
 {
-    Internal,
+    Mod,
     Local,
     Steam
 }
@@ -95,7 +97,7 @@ public static class BlueprintUtils
 {parser.Save(grid, em)}";
     }
 
-    public static bool DeserializeInto(string blueprint, EntityManager em, Entity intoPrefab)
+    public static bool DeserializeInto(string blueprint, DynamicBuffer<BlueprintContents> content)
     {
         if(versionToLoader == null)
             Initialize();
@@ -108,7 +110,7 @@ public static class BlueprintUtils
 
         try
         {
-            versionToLoader[versionId].Load(blueprint, em, intoPrefab);
+            versionToLoader[versionId].Load(blueprint, content);
             return true;
         }
         catch(Exception e)
@@ -121,12 +123,24 @@ public static class BlueprintUtils
     public static bool Deserialize(string blueprint, EntityManager em, out Entity prefab)
     {
         prefab = em.CreateEntity(typeof(BlueprintContents), typeof(Prefab), typeof(Blueprint));
-        if (!DeserializeInto(blueprint, em, prefab))
+        em.SetComponentData(prefab, new Blueprint
+        {
+            Data = BuildString(blueprint)
+        });
+        if (!DeserializeInto(blueprint, em.GetBuffer<BlueprintContents>(prefab)))
         {
             em.DestroyEntity(prefab);
             prefab = default;
             return false;
         }
         return true;
+    }
+    
+    public static BlobAssetReference<BlobString> BuildString(string value)
+    {
+        var builder = new BlobBuilder(Allocator.Temp);
+        ref var bpblob = ref builder.ConstructRoot<BlobString>();
+        builder.AllocateString(ref bpblob, value);
+        return builder.CreateBlobAssetReference<BlobString>(Allocator.Persistent);
     }
 }

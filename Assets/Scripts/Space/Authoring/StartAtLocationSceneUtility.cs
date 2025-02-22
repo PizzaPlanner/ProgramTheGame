@@ -1,5 +1,6 @@
 ﻿using Identifiables;
 using System.Reflection;
+using Unity.Collections;
 using Unity.Entities;
 using UnityEditor;
 using UnityEditor.Toolbars;
@@ -18,27 +19,37 @@ partial class EditorStartAtLocationSceneUtility : SystemBase
     static EditorToolbarDropdown Selector;
     Identifiable shouldSpawn;
 
-    protected override void OnCreate()
+    protected override void OnStartRunning()
     {
+        EnsureSelector();
+    }
+
+    protected override void OnUpdate()
+    {
+        if (!Application.isPlaying)
+        {
+            Enabled = false;
+            return;
+        }
+        
         var startup = EditorUserSettings.GetConfigValue("startupBlueprint");
         shouldSpawn = Identifiable.FromName(startup ?? "");
-        
+        if (shouldSpawn == default)
+            Enabled = false;
+        if(!Identifiable.Exists(shouldSpawn.DefaultName) || !SceneManager.GetSceneByName("Editor").isLoaded)
+            return;
+        EntityManager.Instantiate(shouldSpawn.SpawnablePrefab);
+        Enabled = false;
+    }
+
+    void EnsureSelector()
+    {
         if (Selector != null)
             return;
         var toolbars = Resources.FindObjectsOfTypeAll(ToolbarType);
         currentToolbar = toolbars.Length > 0 ? (ScriptableObject)toolbars[0] : null;
         if (currentToolbar != null)
             AddHandler(currentToolbar);
-    }
-
-    protected override void OnUpdate()
-    {
-        if (shouldSpawn == default)
-            Enabled = false;
-        if(!Identifiable.Exists(shouldSpawn.DefaultName) || !SceneManager.GetSceneByName("Editor").isLoaded)
-            return;
-        EntityManager.Instantiate(shouldSpawn.SpawnablePrefab);
-        shouldSpawn = default;
     }
 
     static void AddHandler(object toolbar)
@@ -67,14 +78,12 @@ partial class EditorStartAtLocationSceneUtility : SystemBase
             foreach (var id in Tag.AllIdsForTag(Identifiable.FromName("TagLocation")))
             {
                 menu.AddItem(new GUIContent(id.DefaultName.Value), !Application.isPlaying && currentValue == id.DefaultName.Value,
-                    () =>
-                    {
-                        if(Application.isPlaying)
-                            World.DefaultGameObjectInjectionWorld.EntityManager.Instantiate(id.SpawnablePrefab);
-                        else
-                            EditorUserSettings.SetConfigValue("startupBlueprint", id.DefaultName.Value);
-                        SetName();
-                    });
+                    () => OnSelectEntry(id, false));
+            }
+            foreach (var id in Tag.AllIdsForTag(Identifiable.FromName("TagBlueprint")))
+            {
+                menu.AddItem(new GUIContent(id.DefaultName.Value), !Application.isPlaying && currentValue == id.DefaultName.Value,
+                    () => OnSelectEntry(id, true));
             }
             menu.ShowAsContext();
         })
@@ -86,6 +95,26 @@ partial class EditorStartAtLocationSceneUtility : SystemBase
         SetName();
         parent.Add(Selector);
         toolbarZone.Add(parent);
+    }
+
+    static void OnSelectEntry(Identifiable id, bool wrapInLocation)
+    {
+        SetName();
+        if (!Application.isPlaying)
+        {
+            EditorUserSettings.SetConfigValue("startupBlueprint", id.DefaultName.Value);
+            return;
+        }
+        var em = World.DefaultGameObjectInjectionWorld.EntityManager;
+        if (wrapInLocation)
+        {
+            var loc = em.Instantiate(Identifiable.FromName("EmptyLocation").SpawnablePrefab);
+            var ecb = new EntityCommandBuffer(Allocator.Temp);
+            Blueprint.Spawn(ecb, id, loc);
+            ecb.Playback(em);
+        }
+        else
+            em.Instantiate(id.SpawnablePrefab);
     }
 
     static void SetName()

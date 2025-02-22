@@ -9,9 +9,9 @@ public class DoorAuthoring : MonoBehaviour
     {
         public override void Bake(DoorAuthoring authoring)
         {
-            if (authoring.GetComponent<BuildingAuthoring>().Layer != BuildingLayer.Wall)
+            if (authoring.GetComponent<BuildingAuthoring>().Layer != BuildingLayer.Door)
             {
-                Debug.LogError($"Doors must be buildings on the Wall layer", authoring);
+                Debug.LogError($"Doors must be buildings on the Door layer", authoring);
                 return;
             }
             var e = GetEntity(TransformUsageFlags.Renderable);

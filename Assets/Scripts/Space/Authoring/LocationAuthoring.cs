@@ -6,8 +6,9 @@ namespace Space.Authoring
 {
     public class LocationAuthoring : MonoBehaviour
     {
-        public BlueprintAuthoring SpawnWith;
+        public MapGenAuthoringBase SpawnWith;
         public int2 PositionInSpace;
+        public uint Seed;
         class Baker : Baker<LocationAuthoring>
         {
             public override void Bake(LocationAuthoring authoring)
@@ -15,9 +16,10 @@ namespace Space.Authoring
                 var e = GetEntity(TransformUsageFlags.WorldSpace);
                 AddComponent(e, new Sector{ PositionInSpace = authoring.PositionInSpace });
                 if(authoring.SpawnWith != null)
-                    AddComponent(e, new LocationPopulationSettings
+                    AddComponent(e, new GenerateMap()
                     {
-                        BlueprintToSpawn = authoring.SpawnWith.GetComponent<IdentifieableAuthoring>().Id
+                        RootGenerator = authoring.SpawnWith.GetComponent<IdentifieableAuthoring>().Id,
+                        Seed = authoring.Seed
                     });
             }
         }

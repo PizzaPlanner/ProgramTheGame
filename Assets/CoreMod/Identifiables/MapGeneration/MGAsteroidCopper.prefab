@@ -1,0 +1,90 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &6595311514760627798
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6513637787785079020}
+  - component: {fileID: 5304243422145376601}
+  - component: {fileID: -8795153883137430110}
+  m_Layer: 0
+  m_Name: MGAsteroidCopper
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6513637787785079020
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6595311514760627798}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5304243422145376601
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6595311514760627798}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 190e307b1d2618d4db66b4ac27b0adba, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Asset: {fileID: 7081885345490934788}
+--- !u!114 &-8795153883137430110
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6595311514760627798}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 04d03b2aca654bda8e49d061976d7bdc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Children:
+  - Child: {fileID: -5380242976130347905, guid: 09befc73aba34be47ad7c38994a36b48, type: 3}
+    Weight: 0.1
+  - Child: {fileID: -5380242976130347905, guid: cf336d1e480f46c44b24b934338f4bc6, type: 3}
+    Weight: 0.4
+  - Child: {fileID: -5380242976130347905, guid: 4b65d3d0f252487408b76a709157a5a0, type: 3}
+    Weight: 0.7
+  MinSize:
+    x: 70
+    y: 70
+  MaxSize:
+    x: 120
+    y: 120
+  NoiseScale: 10
+--- !u!114 &7081885345490934788
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6d96781d50c744d5b90125a6e0a230bb, type: 3}
+  m_Name: MGAsteroidCopper
+  m_EditorClassIdentifier: 
+  Icon: {fileID: 2800000, guid: 7e18a42968cc309498d86b9a6a2b7e82, type: 3}
+  Tags:
+  - {fileID: 11400000, guid: 120d758a188f7934299a0406976912a9, type: 2}
+  Reference: {fileID: 5304243422145376601}
