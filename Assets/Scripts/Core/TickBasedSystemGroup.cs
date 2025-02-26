@@ -1,6 +1,8 @@
 ﻿using System.Diagnostics;
 using Unity.Entities;
 using Unity.Mathematics;
+using UnityEngine.SceneManagement;
+using Debug = UnityEngine.Debug;
 
 namespace Core
 {
@@ -53,12 +55,30 @@ namespace Core
             base.OnCreate();
             RateManager = new TickBasedRateManager();
             EntityManager.CreateSingleton(new SimulationState { RequestedTicksPerSecond = 10 });
+            RequireForUpdate<WorldTypes.InGame>();
         }
 
         protected override void OnDestroy()
         {
             base.OnDestroy();
             EntityManager.DestroyEntity(SystemAPI.GetSingletonEntity<SimulationState>());
+        }
+
+        protected override void OnStartRunning()
+        {
+            var op = SceneManager.LoadSceneAsync("InGame", LoadSceneMode.Additive);
+            LoadingScreen.Load(op, "Enter Session");
+            base.OnStartRunning();
+        }
+
+        protected override void OnStopRunning()
+        {
+            base.OnStopRunning();
+            if(!SystemAPI.HasSingleton<WorldTypes.InGame>())
+                return;
+            Debug.Log($"Unloading InGame from World {World.Name}");
+            var op = SceneManager.UnloadSceneAsync("InGame");
+            LoadingScreen.Load(op, "Leaving Session");
         }
 
         protected override void OnUpdate()

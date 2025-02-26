@@ -1,3 +1,4 @@
+using Core;
 using Grids;
 using Identifiables;
 using Space;
@@ -127,6 +128,13 @@ partial class PlayfieldUISystem : UISystem
         UISystemGroup.AddOverlay(_view);
         _view.style.display = DisplayStyle.Flex;
         _view.style.position = Position.Absolute;
+    }
+
+    protected override void OnStartRunning()
+    {
+        if(!SystemAPI.HasSingleton<WorldTypes.Sandbox>())
+            return;
+        _view.Add(new Button(){text = "+", name = "SandboxAddSector"});
     }
 
     protected override void OnUpdate()

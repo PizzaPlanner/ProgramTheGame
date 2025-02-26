@@ -18,7 +18,8 @@
         "Construction",
         "Elements",
         "Navigation",
-        "Core"
+        "Core",
+        "Modding.API"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

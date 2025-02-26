@@ -10,9 +10,10 @@ GameObject:
   m_Component:
   - component: {fileID: 6513637787785079020}
   - component: {fileID: 5304243422145376601}
-  - component: {fileID: -4676840679068276071}
+  - component: {fileID: 697860641069326925}
+  - component: {fileID: -5167055394000507283}
   m_Layer: 0
-  m_Name: BP1
+  m_Name: Corn
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -45,8 +46,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 190e307b1d2618d4db66b4ac27b0adba, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Asset: {fileID: 3174735954207645279}
---- !u!114 &-4676840679068276071
+  Asset: {fileID: 3298949536115023949}
+--- !u!114 &697860641069326925
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -55,11 +56,26 @@ MonoBehaviour:
   m_GameObject: {fileID: 6595311514760627798}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 50b95956a9b94ea29cf798bee75c6913, type: 3}
+  m_Script: {fileID: 11500000, guid: b38d79e42db94e7999fdd448d0f7f3db, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  DefinitionYaml: {fileID: 4900000, guid: 5155bb403e2a26f4395474ec877d80a9, type: 3}
---- !u!114 &3174735954207645279
+  MaxStackSize: 1
+--- !u!114 &-5167055394000507283
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6595311514760627798}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7a91bd53ca14957be7739efa1084798, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Nutrition: 5
+  NutritionPerTick: 1
+  MoodStatus: {fileID: 0}
+--- !u!114 &3298949536115023949
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -69,9 +85,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6d96781d50c744d5b90125a6e0a230bb, type: 3}
-  m_Name: BP1
+  m_Name: Corn
   m_EditorClassIdentifier: 
-  Icon: {fileID: 2800000, guid: f9ebdf97a6c6f524cb76de63b281593c, type: 3}
+  Icon: {fileID: 2800000, guid: b65589ae2716852438eaa131146853a8, type: 3}
   Tags:
-  - {fileID: 11400000, guid: f7caa9a23fc0b624d95d2b4f8a921182, type: 2}
+  - {fileID: 11400000, guid: 80f258bf514ce4c4a9d95803e10e81d5, type: 2}
+  - {fileID: 11400000, guid: a35de56c6bc523d449dd5a18be62e2a7, type: 2}
   Reference: {fileID: 5304243422145376601}

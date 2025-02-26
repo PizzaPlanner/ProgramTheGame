@@ -45,6 +45,12 @@ partial class BuildToolUISystem : MapOverlaySystem<BuildTool>
         newGhostChangedQuery.AddChangedVersionFilter(typeof(CurrentGhost));
     }
 
+    protected override void OnStartRunning()
+    {
+        base.OnStartRunning();
+        Window.IsSandboxMode = SystemAPI.HasSingleton<WorldTypes.Sandbox>(); 
+    }
+
     protected override void OnStopRunning()
     {
         base.OnStopRunning();
@@ -96,7 +102,7 @@ partial class BuildToolUISystem : MapOverlaySystem<BuildTool>
                         Materials = SystemAPI.GetComponent<ConstructionVariant>(ghost),
                         Parent = parent,
                         Prefab = SystemAPI.GetComponent<Identifiable>(ghost),
-                        Mode = Window.IsCreativeMode ? ConstructionMode.Complete : ConstructionMode.UnderConstruction,
+                        Mode = Window.IsInstaBuild ? ConstructionMode.Complete : ConstructionMode.UnderConstruction,
                         Rotation = LastRotation
                     });
                 }

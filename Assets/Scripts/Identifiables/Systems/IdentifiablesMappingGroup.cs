@@ -1,17 +1,18 @@
 using Identifiables;
+using System;
+using System.Linq;
 using Unity.Collections;
 using Unity.Entities;
-using Unity.Scenes;
 using UnityEngine;
 
 [WorldSystemFilter(WorldSystemFilterFlags.Editor | WorldSystemFilterFlags.Default)]
-[UpdateInGroup(typeof(InitializationSystemGroup), OrderFirst = true)]
+[UpdateInGroup(typeof(InitializationSystemGroup), OrderLast = true)]
+[UpdateAfter(typeof(EndInitializationEntityCommandBufferSystem))]
 public partial class IdentifiablesMappingGroup : ComponentSystemGroup
 {
     EntityQuery idQuery;
     
     public struct Mapped : IComponentData { }
-    public struct Loaded : IComponentData { }
     
     protected override void OnCreate()
     {
@@ -20,6 +21,8 @@ public partial class IdentifiablesMappingGroup : ComponentSystemGroup
                            .WithNone<Mapped>()
                            .WithOptions(EntityQueryOptions.IncludePrefab).Build();
         RequireForUpdate(idQuery);
+        if(Identifiable.IdMap.Data.IsCreated)
+            Identifiable.IdMap.Data.Dispose();
         Identifiable.IdMap.Data = new(0, Allocator.Persistent);
     }
 
@@ -32,10 +35,6 @@ public partial class IdentifiablesMappingGroup : ComponentSystemGroup
 
     protected override void OnUpdate()
     {
-        foreach(var (scene, e) in SystemAPI.Query<RequestSceneLoaded>().WithAll<SceneEntityReference>().WithEntityAccess())
-            if (!SceneSystem.IsSectionLoaded(World.Unmanaged, e))
-                return;
-        
         var ecb = new EntityCommandBuffer(Allocator.Temp);
         var mappedThisFrame = new NativeList<Entity>(Allocator.Temp);
         foreach (var (id, e) in SystemAPI.Query<IdentifiableData>()
@@ -47,22 +46,22 @@ public partial class IdentifiablesMappingGroup : ComponentSystemGroup
             else
                 mappedThisFrame.Add(e);
         }
-        // foreach(var system in ManagedSystems.OfType<IdentifiableMappingSystem>())
-        // foreach (var id in system.RegisterAdditionalIds?.Invoke() ?? Array.Empty<DynamicIdentifiableDefinition>())
-        // {
-        //     var data = new IdentifiableData { Prefab = id.Prefab, DefaultName = id.Name, Spawnable = id.IsSpawnable, Icon = id.Icon };
-        //     if (!RegisterAsIdentifiable(id.Prefab, data))
-        //     {
-        //         ecb.DestroyEntity(id.Prefab);
-        //         continue;
-        //     }
-        //     mappedThisFrame.Add(id.Prefab);
-        //     EntityManager.AddComponentData(id.Prefab, Identifiable.FromName(id.Name));
-        //     EntityManager.AddComponentData(id.Prefab, data);
-        //     var tagBuffer = EntityManager.AddBuffer<Tags>(id.Prefab);
-        //     foreach(var tag in id.Tags)
-        //         tagBuffer.Add(new Tags { Tag = Identifiable.FromName(tag) });
-        // }
+        foreach(var system in ManagedSystems.OfType<IdentifiableMappingSystem>())
+        foreach (var id in system.RegisterAdditionalIds?.Invoke() ?? Array.Empty<DynamicIdentifiableDefinition>())
+        {
+            var data = new IdentifiableData { Prefab = id.Prefab, DefaultName = id.Name, Spawnable = id.IsSpawnable, Icon = id.Icon };
+            if (!RegisterAsIdentifiable(id.Prefab, data))
+            {
+                ecb.DestroyEntity(id.Prefab);
+                continue;
+            }
+            mappedThisFrame.Add(id.Prefab);
+            EntityManager.AddComponentData(id.Prefab, Identifiable.FromName(id.Name));
+            EntityManager.AddComponentData(id.Prefab, data);
+            var tagBuffer = EntityManager.AddBuffer<Tags>(id.Prefab);
+            foreach(var tag in id.Tags)
+                tagBuffer.Add(new Tags { Tag = Identifiable.FromName(tag) });
+        }
         ecb.Playback(EntityManager);
         
         base.OnUpdate();
@@ -70,8 +69,6 @@ public partial class IdentifiablesMappingGroup : ComponentSystemGroup
         EntityManager.RemoveComponent<IdentifiableData>(mappedThisFrame.AsArray());
         EntityManager.RemoveComponent<Tags>(mappedThisFrame.AsArray());
         EntityManager.AddComponent<Mapped>(mappedThisFrame.AsArray());
-        if(!SystemAPI.HasSingleton<Loaded>())
-            EntityManager.CreateSingleton<Loaded>();
         Debug.Log($"Loaded {mappedThisFrame.Length} Identifiables");
     }
 
@@ -90,9 +87,9 @@ public partial class IdentifiablesMappingGroup : ComponentSystemGroup
             return false;
         }
         Identifiable.Register(data);
-// #if UNITY_EDITOR
-//         EntityManager.SetName(e, data.DefaultName);
-// #endif
+#if UNITY_EDITOR
+        EntityManager.SetName(e, data.DefaultName);
+#endif
         return true;
     }
 }

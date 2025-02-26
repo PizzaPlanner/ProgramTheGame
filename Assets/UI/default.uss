@@ -985,3 +985,18 @@ ToggleButtonGroup#Tasks .id-button{
     border-color: var(--color-border-widget);
     -unity-background-image-tint-color: var(--color-foreground-bright) ;
 }
+
+MainMenu {
+    position: absolute;
+    width: 220px;
+    top: 20%;
+    left: 15%;
+    color: var(--color-text-default);
+}
+
+#SandboxAddSector {
+    position: absolute;
+    right: -32px;
+    width: 32px;
+    height: 32px;
+}

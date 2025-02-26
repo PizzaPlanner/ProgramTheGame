@@ -1,0 +1,19 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI/loadingscreen.uss?fileID=7433441132597879392&amp;guid=05da480647a402f46bab88f47665d65e&amp;type=3#loadingscreen" />
+    <ui:VisualElement name="VisualElement" class="loading-root ShrinkSweep loading" style="flex-grow: 1; align-items: center; justify-content: center;">
+        <ui:VisualElement name="Black" style="position: absolute; left: 0; right: 0; flex-grow: 1; width: 100%; align-items: center; justify-content: center;" />
+        <ui:VisualElement name="Content" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); justify-content: center; align-items: center;">
+            <ui:VisualElement name="Icon" class="delay-grow-200ms" style="background-image: url(&quot;project://database/Assets/3rdParty/64%20flat%20icons/png/128px/Modifiers_Sleep.png?fileID=2800000&amp;guid=6cacf1e376fc85e49a784c6782fd3333&amp;type=3#Modifiers_Sleep&quot;); width: 128px; height: 128px;" />
+            <ui:VisualElement name="Bar" style="background-color: rgba(255, 255, 255, 0.16); height: 8px; width: 100px; border-left-color: rgb(96, 96, 96); border-right-color: rgb(96, 96, 96); border-top-color: rgb(96, 96, 96); border-bottom-color: rgb(96, 96, 96); border-left-width: 1px; border-right-width: 1px; border-top-width: 1px; border-bottom-width: 1px;">
+                <ui:VisualElement name="Progress" class="progressbar" style="background-color: rgb(0, 226, 255); width: 33%; flex-grow: 1;" />
+            </ui:VisualElement>
+            <ui:VisualElement name="TextDump" style="height: 0; align-items: center;">
+                <ui:Label tabindex="-1" text="Loading..." display-tooltip-when-elided="true" name="Text" class="active" />
+                <ui:Label tabindex="-1" text="Loading..." display-tooltip-when-elided="true" name="Text" class="active" />
+                <ui:Label tabindex="-1" text="Loading..." display-tooltip-when-elided="true" name="Text" />
+                <ui:Label tabindex="-1" text="Loading..." display-tooltip-when-elided="true" name="Text" class="active" />
+                <ui:Label tabindex="-1" text="Loading..." display-tooltip-when-elided="true" name="Text" class="active" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

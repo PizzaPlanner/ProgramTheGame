@@ -6,11 +6,18 @@ namespace Core
     public class TimeUI : VisualElement
     {
         public float DesiredUps = -1;
-        public TimeUI()
+        public bool WantSwitchSandbox;
+        public TimeUI(bool isSandbox)
         {
             var top = new VisualElement();
             Add(top);
             top.Add(new Label{name = "Time"});
+            if (isSandbox)
+            {
+                var sbToggle = new Toggle("Sandbox Mode"){value = true};
+                sbToggle.RegisterValueChangedCallback(x => WantSwitchSandbox = true);
+                top.Add(sbToggle);
+            }
             var bottom = new VisualElement();
             Add(bottom);
             bottom.Add(new Button(() => DesiredUps = 0){name = "Pause", text = "II"});
@@ -62,7 +69,7 @@ namespace Core
         protected override void OnCreate()
         {
             RequireForUpdate<SimulationState>();
-            _view = new TimeUI();
+            _view = new TimeUI(SystemAPI.HasSingleton<WorldTypes.Sandbox>());
             UISystemGroup.AddOverlay(_view);
             _view.style.display = DisplayStyle.Flex;
             _view.style.position = Position.Absolute;
@@ -77,6 +84,13 @@ namespace Core
                 _view.DesiredUps = -1;
             }
             _view.Update(timeState);
+
+            if (_view.WantSwitchSandbox)
+            {
+                ref var sandbox = ref SystemAPI.GetSingletonRW<WorldTypes.Sandbox>().ValueRW;
+                sandbox.On = !sandbox.On;
+                _view.WantSwitchSandbox = false;
+            }
         }
     }
 }

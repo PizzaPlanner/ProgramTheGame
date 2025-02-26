@@ -5,9 +5,6 @@ namespace Core
 {
     public static class ID
     {
-       public static readonly Identifiable BigAsteroid = Identifiable.FromName("BigAsteroid");
-       public static readonly Identifiable BP1 = Identifiable.FromName("BP1");
-       public static readonly Identifiable CraftingSetup = Identifiable.FromName("CraftingSetup");
        public static readonly Identifiable CarbonDioxide = Identifiable.FromName("CarbonDioxide");
        public static readonly Identifiable Hydrogen = Identifiable.FromName("Hydrogen");
        public static readonly Identifiable Ice = Identifiable.FromName("Ice");

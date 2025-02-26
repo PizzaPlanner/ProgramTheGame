@@ -5,7 +5,7 @@
         "Unity.Entities",
         "Unity.Mathematics",
         "Unity.Transforms",
-        "Unity.Physics",
+        "Unity.Scenes",
         "Unity.Burst",
         "Unity.Collections",
         "Unity.Entities.Graphics",
@@ -13,7 +13,8 @@
         "Unity.Addressables",
         "Unity.ResourceManager",
         "Bootstrap",
-        "Identifiables"
+        "Identifiables",
+        "Modding.API"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

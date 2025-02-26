@@ -52,7 +52,7 @@ namespace WorldManagement
                 foreach (var child in children
                              .Where(x => ignoreDisableAutoCreateOnChildren ||
                                          x.GetCustomAttribute<DisableAutoCreationAttribute>() == null))
-                    WithRecursive(child);
+                    WithRecursive(child, ignoreDisableAutoCreateOnChildren);
             return this;
         }
 
@@ -179,10 +179,13 @@ namespace WorldManagement
             {
                 if (!finalSystems.Contains(groupType))
                     continue;
-
+                
                 var group = (world.GetExistingSystemManaged(groupType) as ComponentSystemGroup)!;
                 if(flags.HasFlag(BuildFlags.RemoveRateManagers))
                     group.RateManager = null;
+                // TODO: Does not work for groups with [DisableAutoCreate],
+                // even if populated and created through GetOrCreateSystems?
+                // Unity Bug?
                 foreach (var childType in children)
                     AddToUpdateList(group, childType);
             }

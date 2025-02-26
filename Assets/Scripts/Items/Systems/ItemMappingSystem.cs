@@ -7,12 +7,15 @@ public partial class ItemMappingSystem : IdentifiableMappingSystem
 {
     protected override void OnCreate()
     {
+        if(ItemId.ItemsById.Data.IsCreated)
+            ItemId.ItemsById.Data.Dispose();
         ItemId.ItemsById.Data = new NativeParallelHashMap<Identifiable, Item>(0, Allocator.Persistent);
     }
 
     protected override void OnDestroy()
     {
-        ItemId.ItemsById.Data.Dispose();
+        if(ItemId.ItemsById.Data.IsCreated)
+            ItemId.ItemsById.Data.Dispose();
     }
 
     protected override void OnUpdate()

@@ -34,7 +34,6 @@ public class IdentifiableAuthoringEditor : Editor
                 var prefabPath = PrefabUtility.GetPrefabAssetPathOfNearestInstanceRoot(authoring.gameObject);
                 var asset = AssetDatabase.LoadAssetAtPath<IdentifiableThingAsset>(prefabPath) ?? CreateInstance<IdentifiableThingAsset>();
                 asset.Reference = authoring;
-                asset.AssignEditorValues();
                 AssetDatabase.AddObjectToAsset(asset, AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath));
                 var so = new SerializedObject(authoring);
                 so.FindProperty("Asset").objectReferenceValue = asset;

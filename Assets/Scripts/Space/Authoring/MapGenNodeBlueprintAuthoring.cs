@@ -1,10 +1,23 @@
-﻿namespace Space.Authoring
+﻿using Unity.Collections;
+using Unity.Entities;
+using Unity.Entities.LowLevel.Unsafe;
+using UnityEngine;
+
+namespace Space.Authoring
 {
     public class MapGenNodeBlueprintAuthoring : MapGenerationNodeAuthoring<SpawnBlueprint>
     {
-        public BlueprintAuthoring Blueprint;
+        public TextAsset Blueprint;
+        
+        protected override BlobAssetReference<SpawnBlueprint> Data => makeData();
 
-        protected override SpawnBlueprint Data => new SpawnBlueprint { Prefab = Blueprint.GetComponent<IdentifieableAuthoring>().Id };
-        class Baker : MapGenBaker<MapGenNodeBlueprintAuthoring, SpawnBlueprint> { }        
+        BlobAssetReference<SpawnBlueprint> makeData()
+        {
+            if(!BlueprintUtils.DeserializeInto(Blueprint.text, Allocator.Persistent, out var data))
+                Debug.LogError($"Invalid Blueprint on {gameObject.name}", gameObject);
+            return UnsafeUntypedBlobAssetReference.Create(data).Reinterpret<SpawnBlueprint>();
+        }
+        
+        class Baker : MapGenBaker<MapGenNodeBlueprintAuthoring> { }
     }
 }

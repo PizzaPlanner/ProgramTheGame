@@ -1,50 +1,29 @@
-﻿using Identifiables;
+﻿using Core;
+using Identifiables;
 using System.Reflection;
+using System.Threading.Tasks;
 using Unity.Collections;
 using Unity.Entities;
 using UnityEditor;
 using UnityEditor.Toolbars;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
 
 // See https://qiita.com/iixd_pog/items/ae7220bfeae49750f354
-[WorldSystemFilter(WorldSystemFilterFlags.Editor | WorldSystemFilterFlags.Default)]
-partial class EditorStartAtLocationSceneUtility : SystemBase
+static class EditorStartAtLocationSceneUtility
 {
 
     static ScriptableObject currentToolbar = null;
     static readonly System.Type ToolbarType = typeof(UnityEditor.Editor).Assembly.GetType("UnityEditor.Toolbar");
 
     static EditorToolbarDropdown Selector;
-    Identifiable shouldSpawn;
+    
 
-    protected override void OnStartRunning()
+    [InitializeOnLoadMethod]
+    static void EnsureSelector()
     {
-        EnsureSelector();
-    }
-
-    protected override void OnUpdate()
-    {
-        if (!Application.isPlaying)
-        {
-            Enabled = false;
-            return;
-        }
-        
-        var startup = EditorUserSettings.GetConfigValue("startupBlueprint");
-        shouldSpawn = Identifiable.FromName(startup ?? "");
-        if (shouldSpawn == default)
-            Enabled = false;
-        if(!Identifiable.Exists(shouldSpawn.DefaultName) || !SceneManager.GetSceneByName("Editor").isLoaded)
-            return;
-        EntityManager.Instantiate(shouldSpawn.SpawnablePrefab);
-        Enabled = false;
-    }
-
-    void EnsureSelector()
-    {
-        if (Selector != null)
+        Bootstrap.OnQuickstart = DoQuickstart;
+        if (Selector is { parent: not null })
             return;
         var toolbars = Resources.FindObjectsOfTypeAll(ToolbarType);
         currentToolbar = toolbars.Length > 0 ? (ScriptableObject)toolbars[0] : null;
@@ -52,12 +31,41 @@ partial class EditorStartAtLocationSceneUtility : SystemBase
             AddHandler(currentToolbar);
     }
 
+    static bool DoQuickstart()
+    {
+        var startup = EditorUserSettings.GetConfigValue("startupBlueprint");
+        if(string.IsNullOrWhiteSpace(startup))
+            return false;
+        World.DefaultGameObjectInjectionWorld = WorldTypes.CreateGameWorld("Session 0", false, Mod.WantedMods);
+        if(!Identifiable.Exists(startup))
+            return true;
+        var entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
+        var prefab = Identifiable.FromName(startup).SpawnablePrefab;
+        if (entityManager.HasComponent<Sector>(prefab))
+        {
+            entityManager.Instantiate(prefab);
+        }
+        else
+        {
+            var loc = entityManager.Instantiate(Identifiable.FromName("EmptyLocation").SpawnablePrefab);
+            var ecb = new EntityCommandBuffer(Allocator.Temp);
+            Blueprint.Spawn(ecb, entityManager.GetComponentData<Blueprint>(prefab), loc);
+            ecb.Playback(entityManager);
+        }
+        return true;
+    }
+
     static void AddHandler(object toolbar)
     {
+        EditorApplication.hierarchyChanged -= EnsureSelector;
         var root = toolbar.GetType().GetField("m_Root", BindingFlags.NonPublic | BindingFlags.Instance);
         var concreteRoot = root.GetValue(toolbar) as VisualElement;
-        if(concreteRoot == null)
+        if (concreteRoot == null)
+        {
+            // Force update again once loaded, First call is too early.
+            EditorApplication.hierarchyChanged += EnsureSelector;
             return;
+        }
         var toolbarZone = concreteRoot.Q("ToolbarZoneRightAlign");
         var parent = new VisualElement();
         parent.style.flexGrow = 1;
@@ -110,7 +118,7 @@ partial class EditorStartAtLocationSceneUtility : SystemBase
         {
             var loc = em.Instantiate(Identifiable.FromName("EmptyLocation").SpawnablePrefab);
             var ecb = new EntityCommandBuffer(Allocator.Temp);
-            Blueprint.Spawn(ecb, id, loc);
+            Blueprint.Spawn(ecb, em.GetComponentData<Blueprint>(id.SpawnablePrefab), loc);
             ecb.Playback(em);
         }
         else

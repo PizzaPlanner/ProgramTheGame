@@ -4,9 +4,11 @@
     "references": [
         "Unity.Entities",
         "Unity.Mathematics",
+        "Unity.Scenes",
         "Unity.Burst",
         "Unity.Collections",
-        "Identifiables"
+        "Identifiables",
+        "Bootstrap"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

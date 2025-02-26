@@ -15,7 +15,8 @@
         "Core.UI",
         "Identifiables",
         "Identifiables.UI",
-        "Modding.API"
+        "Modding.API",
+        "Blueprints"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Unity.Collections;
 using Unity.Entities;
 using UnityEngine;
@@ -29,7 +30,6 @@ namespace Identifiables.Authoring
                     if(prefab is ModCollectionAsset)
                         continue;
                     DependsOn(prefab);
-                    prefab.AssignEditorValues();
                     if (prefab is IdentifiableThingAsset ita)
                         leg.Add(GetEntity(ita.Reference, TransformUsageFlags.None));
                     else

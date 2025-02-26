@@ -1,4 +1,5 @@
-﻿using Core.Input;
+﻿using Core;
+using Core.Input;
 using System;
 using Unity.Entities;
 using UnityEngine;
@@ -25,6 +26,7 @@ public partial class UISystemGroup : ComponentSystemGroup
         Root = new VisualElement();
         Menu = new IngameMenu();
         AddOverlay(new Tooltip());
+        RequireForUpdate<WorldTypes.InGame>();
     }
 
     // Because of Domain reload, dangling UI creates some weird situations
@@ -37,9 +39,9 @@ public partial class UISystemGroup : ComponentSystemGroup
 
     protected override void OnUpdate()
     {
-        if (Root.parent == null && GameObject.FindFirstObjectByType<UIDocument>() != null)
+        if (Root.parent == null &&  MainUI.Root != null)
         {
-            var goRoot = GameObject.FindFirstObjectByType<UIDocument>().rootVisualElement;
+            var goRoot = MainUI.Root;
             goRoot.pickingMode = PickingMode.Ignore;
             Root.style.position = Position.Absolute;
             Root.style.left = 0;

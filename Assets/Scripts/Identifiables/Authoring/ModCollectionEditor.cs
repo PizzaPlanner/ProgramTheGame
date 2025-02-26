@@ -35,6 +35,7 @@ public class ModCollectionEditor : Editor
             ids.InsertArrayElementAtIndex(i);
             ids.GetArrayElementAtIndex(i).objectReferenceValue = idasset; 
         }
+        
         serializedObject.ApplyModifiedPropertiesWithoutUndo();
         EditorUtility.SetDirty(serializedObject.targetObject);
         GenerateBoilerplate(target, selfFolder, ids);

@@ -15,6 +15,8 @@ using Unity.Entities.Serialization;
 using Unity.Mathematics;
 using Unity.Scenes;
 using Unity.Transforms;
+using UnityEditor;
+using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.TestTools;
@@ -41,17 +43,24 @@ public class EquipmentTests
     [OneTimeSetUp]
     public void OneTimeSetup()
     {
-        TestWorld = World.DefaultGameObjectInjectionWorld;
-        SceneManager.LoadScene(0, LoadSceneMode.Additive);
-        LoadSubScene(PREFABS_SCENE_GUID);
-        LoadSubScene(TEST_PREFABS_SCENE_GUID);
+        EnsureTestWorld();
         TestWorld.Update();
         TestWorld.Update();
         using var tickQuery = EntityManager.CreateEntityQuery(typeof(SimulationState));
         tickQuery.GetSingletonRW<SimulationState>().ValueRW.RequestedTicksPerSecond = long.MaxValue;
         using var modQuery = EntityManager.CreateEntityQuery(new EntityQueryBuilder(Allocator.Temp)
-                                                                       .WithAll<Identifiable, Prefab>().WithOptions(EntityQueryOptions.IncludePrefab));
+                                                             .WithAll<Identifiable, Prefab>().WithOptions(EntityQueryOptions.IncludePrefab));
         Assert.IsTrue(!modQuery.IsEmpty);
+    }
+
+    void EnsureTestWorld()
+    {
+        World.DisposeAllWorlds();
+        TestWorld = World.DefaultGameObjectInjectionWorld = WorldTypes.CreateGameWorld($"Test Session", true, new []
+        {
+            Mod.Find(new Hash128(PREFABS_SCENE_GUID)),
+            Mod.Find(new Hash128(TEST_PREFABS_SCENE_GUID))
+        });
     }
 
     [OneTimeTearDown]

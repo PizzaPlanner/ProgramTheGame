@@ -3,6 +3,57 @@ API:
   Tag:       [!Tag { }]
   Mod:       [!Tag { }]
 
+Locations:
+  ExampleAsteroidField:
+    Generator:
+      CombineArea:
+        Density: 0.5
+        MinSize: [72, 72]
+    SubNodes:
+      BigAsteroid: 0.1
+      SmallAsteroid: 0.4
+
+  SmallAsteroid:
+    Generator:
+      SelectOne:
+    SubNodes:
+      SmallAsteroidA: 0.3
+      SmallAsteroidB: 0.3
+      SmallAsteroidCopper: 0.1
+
+  SmallAsteroidA:
+    Generator:
+      PerlinShape:
+        MinSize: [7, 7]
+        MaxSize: [12, 12]
+        NoiseScale: 0.3
+    SubNodes:
+      TileRock: 0.1
+      TileDirt: 0.3
+      TileCopper: 0.02
+
+  SmallAsteroidB:
+    Generator:
+      PerlinShape:
+        MinSize: [7, 7]
+        MaxSize: [12, 12]
+        NoiseScale: 0.4
+    SubNodes:
+      TileRock: 0.3
+      TileDirt: 0.1
+      TileCopper: 0.02
+
+  SmallAsteroidCopper:
+    Generator:
+      PerlinShape:
+        MinSize: [7, 7]
+        MaxSize: [12, 12]
+        NoiseScale: 0.3
+    SubNodes:
+      TileCopper: 1
+
+
+
 Core:
 - !Mod
   Spawnable: [!Tag { }]
@@ -10,6 +61,39 @@ Core:
   Solid:     [!Tag { Implies: [Item], Conflicts: [Liquid, Gas] }]
   Liquid:    [!Tag { Implies: [Item], Conflicts: [Solid, Gas] }]
   Gas:       [!Tag { Implies: [Item], Conflicts: [Solid, Liquid] }]
+  UnitDispenser:
+  - !Tag
+    Implies: [Worker]
+    Fields:
+    - Name: UnitType
+      Type: Id[Unit]
+    - Name: DispenseTask
+      Type: Id[DispenseUnitTask]
+
+
+  Hungry:
+  - !Status
+    MoodChange: -3
+    StackPolicy: Discard
+
+  BreatheTask: [ !BreatheTask { } ]
+  DispenseUnitTask:
+  - !Task
+    MinSkillLevel: 2
+    RequiredSkill: SkillHack
+    UniquenessGroup: DispenseUnitTask
+  - !DispenseUnitTask
+    RequiredTicks: 25
+
+  CryoTank:
+  - !Building
+    Layer: Building
+    PlacementType: Single
+    CanRotate: true
+  - !UnitDispenser
+    UnitType: Colonist
+    DispenseTask: DispenseUnitTask
+    StatusAddedOnDispsense: FinallyAwake
 
   Wall:
   - !Building

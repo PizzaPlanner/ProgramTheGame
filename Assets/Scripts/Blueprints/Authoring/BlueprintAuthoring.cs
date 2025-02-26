@@ -2,12 +2,6 @@
 using Unity.Entities;
 using UnityEngine;
 
-[BakingType]
-struct BlueprintYaml : IComponentData
-{
-    public UnityObjectRef<TextAsset> YamlText;    
-}
-
 public class BlueprintAuthoring : MonoBehaviour
 {
     public TextAsset DefinitionYaml;
@@ -17,7 +11,8 @@ public class BlueprintAuthoring : MonoBehaviour
         public override void Bake(BlueprintAuthoring authoring)
         {
             var e = GetEntity(TransformUsageFlags.None);
-            var bpBlob = BlueprintUtils.BuildString(authoring.DefinitionYaml.text);
+            if(!BlueprintUtils.DeserializeInto(authoring.DefinitionYaml.text, Allocator.Persistent, out var bpBlob))
+                return;
             AddComponent(e, new Blueprint
             {
                 Data = bpBlob

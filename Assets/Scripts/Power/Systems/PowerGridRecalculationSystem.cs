@@ -45,8 +45,8 @@ namespace Power
 
                 if (bestGrid == Entity.Null)
                 {
-                    bestGrid = state.EntityManager.CreateEntity();
-                    state.EntityManager.AddComponentData(bestGrid, PowerNetwork.Next);
+                    bestGrid = state.EntityManager.CreateEntity(typeof(PowerNetwork));
+                    state.EntityManager.SetComponentData(bestGrid, PowerNetwork.Next);
                     cableLookup.Update(ref state);
                 }
                 foreach (var c in connectedGroup)

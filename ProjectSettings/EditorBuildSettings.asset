@@ -8,6 +8,12 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Entry.unity
     guid: 77d64cb5b694a3a40affd4cb9ada94c7
+  - enabled: 1
+    path: Assets/Scenes/MainMenu.unity
+    guid: 7a6f9d2455192ee4fb5033cec319404d
+  - enabled: 1
+    path: Assets/Scenes/InGame.unity
+    guid: 1ea119b35464915448121cc921ed7dd9
   m_configObjects:
     com.unity.addressableassets: {fileID: 11400000, guid: 3490643383e1abf46a59f40e38317241, type: 2}
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}

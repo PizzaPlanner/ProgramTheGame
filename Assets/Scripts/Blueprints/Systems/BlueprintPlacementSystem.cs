@@ -11,7 +11,6 @@ partial struct BlueprintPlacementSystem : ISystem
 {
     public void OnCreate(ref SystemState state)
     {
-        state.RequireForUpdate<IdentifiablesMappingGroup.Loaded>();
         state.RequireForUpdate<Blueprint>();
     }
     
@@ -23,24 +22,13 @@ partial struct BlueprintPlacementSystem : ISystem
         // Only run immediately after a tick, so added gases will not spread due to constructions happening a frame late
         if(!state.World.GetExistingSystemManaged<TickBasedSystemGroup>().TickedThisFrame)
             return;
-
-        foreach (var (bp, id, e) in SystemAPI.Query<Blueprint, Identifiable>().WithEntityAccess().WithNone<BlueprintContents>())
-        {
-            ref var content = ref SystemAPI.GetComponent<Blueprint>(id.SpawnablePrefab).Data.Value;
-            var b1 = ecb.AddBuffer<BlueprintContents>(e);
-            var b2 = ecb.AddBuffer<BlueprintContents>(id.SpawnablePrefab);
-            if(!BlueprintUtils.DeserializeInto(content.ToString(), b1))
-                ecb.DestroyEntity(e);
-            else
-                BlueprintUtils.DeserializeInto(content.ToString(), b2);
-        }
         
-        foreach (var (bp, content, e) in SystemAPI.Query<Blueprint, DynamicBuffer<BlueprintContents>>().WithEntityAccess())
+        foreach (var (bp, e) in SystemAPI.Query<Blueprint>().WithEntityAccess())
         {
             if(!SystemAPI.HasComponent<MassModel>(bp.BuildOn) || !SystemAPI.HasComponent<NavTree>(bp.BuildOn))
                 continue;
             ecb.DestroyEntity(e);
-            foreach (var part in content)
+            foreach (var part in bp.Data.Value.Contents.ToArray())
             {
                 var prefab = part.Prefab.SpawnablePrefab;
                 if (SystemAPI.HasComponent<Element>(prefab))

@@ -1,3 +1,4 @@
+using Core;
 using Grid.Blueprints;
 using Identifiables;
 using System;
@@ -15,13 +16,19 @@ public struct Blueprint : IComponentData
 {
     public Entity BuildOn;
     public int2 Offset;
-    public BlobAssetReference<BlobString> Data;
+    public BlobAssetReference<BlueprintData> Data;
 
-    public static Entity Spawn(EntityCommandBuffer ecb, Identifiable prefab, Entity onGrid, int2 offset = default)
+    public static Entity Spawn(EntityCommandBuffer ecb, BlobAssetReference<BlueprintData> data, Entity onGrid, int2 offset = default)
     {
-        var e = ecb.Instantiate(prefab.SpawnablePrefab);
-        ecb.SetComponent(e, new Blueprint{BuildOn = onGrid, Offset = offset});
+        var e = ecb.CreateEntity();
+        ecb.AddComponent(e, new Blueprint{BuildOn = onGrid, Offset = offset, Data = data});
         return e;
+    }
+    
+    public static Entity Spawn(EntityCommandBuffer ecb, Blueprint blueprint, Entity onGrid, int2 offset = default)
+    {
+        var data = blueprint.Data;
+        return Spawn(ecb, data, onGrid, offset);
     }
 }
 
@@ -30,6 +37,11 @@ public struct DefaultMatterOverride
     public Mass Mass;
     public Temperature Temperature;
     public Identifiable Id;
+}
+
+public struct BlueprintData
+{
+    public BlobArray<BlueprintContents> Contents;
 }
 
 public struct BlueprintContents : IBufferElementData
@@ -43,26 +55,25 @@ public struct BlueprintContents : IBufferElementData
 public interface IBlueprintParser
 {
     string Save(Entity grid, EntityManager manager);
-    public void Load(string data, DynamicBuffer<BlueprintContents> content);
+    public void Load(string data, NativeList<BlueprintContents> content);
 
     public string VersionIdentifier { get; }
 }
 
 public enum SourceType : byte
 {
+    Local = 0,
     Mod,
-    Local,
     Steam
 }
 
 
 public static class BlueprintUtils
 {
-    public static string BaseFolder => Path.Combine(Application.persistentDataPath, "blueprints");
+    public static string UserBlueprintsFolder => Path.Combine(Application.persistentDataPath, "blueprints");
     public const string BlueprintFileExtension = ".yaml";
     public static string[] GetBlueprintFiles(string folder) => Directory
-        .EnumerateFiles(folder, $"*{BlueprintUtils.BlueprintFileExtension}", SearchOption.AllDirectories)
-        .Select(x => x.Substring(folder.Length + 1)).ToArray();
+        .EnumerateFiles(folder, $"*{BlueprintUtils.BlueprintFileExtension}", SearchOption.AllDirectories).ToArray();
     
     private static Dictionary<string, IBlueprintParser> versionToLoader;
 
@@ -84,7 +95,7 @@ public static class BlueprintUtils
     public static void Save(Entity grid, EntityManager em)
     {
         var result = Serialize(grid, em);
-        var toPath = Path.Combine(BaseFolder, "saved_bp.yaml");
+        var toPath = Path.Combine(UserBlueprintsFolder, "saved_bp.yaml");
         Directory.CreateDirectory(Path.GetPathRoot(toPath));
         File.WriteAllText(toPath, result);
         Debug.Log($"Blueprint saved to {toPath}");
@@ -97,6 +108,38 @@ public static class BlueprintUtils
 {parser.Save(grid, em)}";
     }
 
+    public static bool DeserializeInto(string blueprint, Allocator allocator,
+                                       out BlobAssetReference<BlueprintData> data)
+    {
+        data = default;
+        if(versionToLoader == null)
+            Initialize();
+        var versionId = blueprint.Split('\n')[0].Trim();
+        if (!versionToLoader.ContainsKey(versionId))
+        {
+            Debug.LogError($"No Parser found for version identifier '{versionId}'");
+            return false;
+        }
+        
+        var content = new NativeList<BlueprintContents>(Allocator.Temp); 
+        try
+        {
+            versionToLoader[versionId].Load(blueprint, content);
+        }
+        catch(Exception e)
+        {
+            Debug.LogException(e);
+            return false;
+        }
+        var builder = new BlobBuilder(Allocator.Temp);
+        ref var root = ref builder.ConstructRoot<BlueprintData>();
+        var builderArray = builder.Allocate(ref root.Contents, content.Length);
+        for(int i = 0; i < content.Length; i++)
+            builderArray[i] = content[i];
+        data = builder.CreateBlobAssetReference<BlueprintData>(allocator);
+        return true;
+    }
+    
     public static bool DeserializeInto(string blueprint, DynamicBuffer<BlueprintContents> content)
     {
         if(versionToLoader == null)
@@ -110,7 +153,10 @@ public static class BlueprintUtils
 
         try
         {
-            versionToLoader[versionId].Load(blueprint, content);
+            var list = new NativeList<BlueprintContents>(Allocator.Temp);
+            versionToLoader[versionId].Load(blueprint, list);
+            content.Clear();
+            content.AddRange(list);
             return true;
         }
         catch(Exception e)
@@ -120,22 +166,6 @@ public static class BlueprintUtils
         }
     }
     
-    public static bool Deserialize(string blueprint, EntityManager em, out Entity prefab)
-    {
-        prefab = em.CreateEntity(typeof(BlueprintContents), typeof(Prefab), typeof(Blueprint));
-        em.SetComponentData(prefab, new Blueprint
-        {
-            Data = BuildString(blueprint)
-        });
-        if (!DeserializeInto(blueprint, em.GetBuffer<BlueprintContents>(prefab)))
-        {
-            em.DestroyEntity(prefab);
-            prefab = default;
-            return false;
-        }
-        return true;
-    }
-    
     public static BlobAssetReference<BlobString> BuildString(string value)
     {
         var builder = new BlobBuilder(Allocator.Temp);
@@ -143,4 +173,6 @@ public static class BlueprintUtils
         builder.AllocateString(ref bpblob, value);
         return builder.CreateBlobAssetReference<BlobString>(Allocator.Persistent);
     }
+
+    public static FixedString64Bytes GetId(SourceType source, string blueprintName) => $"BP/{source}/{blueprintName}";
 }

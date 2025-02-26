@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 6513637787785079020}
   - component: {fileID: 5304243422145376601}
   - component: {fileID: 6686401315034826630}
+  - component: {fileID: 7397670182425411834}
   m_Layer: 0
   m_Name: LabSceneForFlight
   m_TagString: Untagged
@@ -58,10 +59,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bb976bcc3f224d8a898d6286a1d6a2cd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  SpawnWith: {fileID: -4676840679068276071, guid: 9878510bffc7b3e43bf0e98d36218417, type: 3}
+  SpawnWith: {fileID: 7397670182425411834}
   PositionInSpace:
     x: 0
     y: 0
+  Seed: 0
+--- !u!114 &7397670182425411834
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6595311514760627798}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c4101b5393604f2db6cd0a6fbe973be8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Blueprint: {fileID: 4900000, guid: 2a31c0520e6a1294395381dce99b3bea, type: 3}
 --- !u!114 &3174735954207645279
 MonoBehaviour:
   m_ObjectHideFlags: 0

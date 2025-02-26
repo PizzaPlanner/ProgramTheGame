@@ -20,7 +20,8 @@
         "Construction.Systems",
         "Units",
         "Blueprints",
-        "Navigation"
+        "Navigation",
+        "Modding.API"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

@@ -19,7 +19,9 @@
         "Units.Authoring",
         "Tasks",
         "Core",
-        "Blueprints"
+        "Blueprints",
+        "Elements",
+        "Modding.API"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

@@ -1,4 +1,6 @@
 ﻿using Unity.Collections;
+using Unity.Entities;
+using Unity.Entities.LowLevel.Unsafe;
 using Unity.Mathematics;
 
 namespace Space.Authoring
@@ -8,26 +10,28 @@ namespace Space.Authoring
         public WeightedChild[] Children; 
         public int2 MinSize, MaxSize;
         public float MinDistance;
-        protected override PoissonDisk Data
+        protected override BlobAssetReference<PoissonDisk> Data
         {
             get
             {
-                var list = new FixedList128Bytes<WeightedNode>();
-                foreach(var child in Children)
-                    list.Add(new WeightedNode
+                var builder = new BlobBuilder(Allocator.Temp);
+                ref var blob = ref builder.ConstructRoot<PoissonDisk>();
+                var childBuilder = builder.Allocate(ref blob.Children, Children.Length);
+                for (var i = 0; i < Children.Length; i++)
+                {
+                    var child = Children[i];
+                    childBuilder[i] = new WeightedNode
                     {
                         Entity = child.Child.Id,
                         Weight = child.Weight
-                    });
-                return new PoissonDisk
-                {
-                    Children = list,
-                    MinSize = MinSize,
-                    MaxSize = MaxSize,
-                    MinDistance = MinDistance
-                };
+                    };
+                }
+                blob.MinSize = MinSize;
+                blob.MaxSize = MaxSize;
+                blob.MinDistance = MinDistance;
+                return builder.CreateBlobAssetReference<PoissonDisk>(Allocator.Persistent);
             }
         } 
-        class Baker : MapGenBaker<MapGenNodePoissonDiskAuthoring, PoissonDisk> { }      
+        class Baker : MapGenBaker<MapGenNodePoissonDiskAuthoring> { }      
     }
 }

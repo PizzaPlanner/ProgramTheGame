@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Transforms;
+using UnityEngine;
 using UnityEngine.UIElements;
 
 public partial class ElementMappingSystem : IdentifiableMappingSystem, IWikiProvider
@@ -15,7 +16,8 @@ public partial class ElementMappingSystem : IdentifiableMappingSystem, IWikiProv
 
     protected override void OnDestroy()
     {
-        Element.ElementById.Data.Dispose();
+        if(Element.ElementById.Data.IsCreated)
+            Element.ElementById.Data.Dispose();
     }
 
     protected override void OnUpdate()

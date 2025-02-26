@@ -276,7 +276,12 @@ MonoBehaviour:
   NotAllowedOnShips: 0
   CanBeRotated: 0
   Duration: 30
-  Size:
+  ExtentsURDL:
+    x: 0
+    y: 0
+    z: 0
+    w: 0
+  InteractionOffset:
     x: 0
     y: 0
   Variants:

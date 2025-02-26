@@ -4,6 +4,7 @@ using Unity.Burst;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
+using Unity.Entities.LowLevel.Unsafe;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Scripting;
@@ -14,7 +15,7 @@ public struct PerlinShape : IMapGenerationNode
 {
     public int2 MinSize, MaxSize;
     public float NoiseScale;
-    public FixedList128Bytes<WeightedNode> Children;
+    public BlobArray<WeightedNode> Children;
     
     public bool Execute(ref MapGenerationContext ctx, ref Random random)
     {
@@ -58,7 +59,7 @@ public struct PerlinShape : IMapGenerationNode
     [BurstCompile]
     public static bool ExecuteFrom(NodeSerializer ns, ref MapGenerationContext ctx, ref Random random)
     {
-        var tile = UnsafeUtility.As<FixedBytes510, PerlinShape>(ref ns.Data);
+        ref var tile = ref ns.Data.Reinterpret<PerlinShape>().Value;
         return tile.Execute(ref ctx, ref random);
     }
 }
@@ -68,7 +69,7 @@ public struct PoissonDisk : IMapGenerationNode
 {
     public float MinDistance;
     public int2 MinSize, MaxSize;
-    public FixedList128Bytes<WeightedNode> Children;
+    public BlobArray<WeightedNode> Children;
 
 
     public bool Execute(ref MapGenerationContext ctx, ref Random random)
@@ -119,7 +120,7 @@ public struct PoissonDisk : IMapGenerationNode
         foreach (var point in finalList)
         {
             ctx.CurrentOffset = point;
-            NodeSerializer.Execute(ctx.SelectOne(Children, ref random), ref ctx, ref random);
+            NodeSerializer.Execute(ctx.SelectOne(ref Children, ref random), ref ctx, ref random);
         }
         return true;
     }
@@ -162,7 +163,7 @@ public struct PoissonDisk : IMapGenerationNode
     [BurstCompile]
     public static bool ExecuteFrom(NodeSerializer ns, ref MapGenerationContext ctx, ref Random random)
     {
-        var tile = UnsafeUtility.As<FixedBytes510, PoissonDisk>(ref ns.Data);
+        ref var tile = ref ns.Data.Reinterpret<PoissonDisk>().Value;
         return tile.Execute(ref ctx, ref random);
     }
 }
@@ -170,19 +171,21 @@ public struct PoissonDisk : IMapGenerationNode
 [BurstCompile]
 public struct SpawnBlueprint : IMapGenerationNode
 {
-    public Identifiable Prefab;
+    // Must only contain this field.
+    // We create a SpawnBlueprint Blob in authoring and treat it as BlueprintData blob below. 
+    public BlueprintData Data;
     
     public bool Execute(ref MapGenerationContext ctx, ref Random random)
     {
-        Blueprint.Spawn(ctx.ecb, Prefab, ctx.GridEntity, ctx.CurrentOffset);
-        return true;
+        return false;
     }
     
     [BurstCompile]
     public static bool ExecuteFrom(NodeSerializer ns, ref MapGenerationContext ctx, ref Random random)
     {
-        var tile = UnsafeUtility.As<FixedBytes510, SpawnBlueprint>(ref ns.Data);
-        return tile.Execute(ref ctx, ref random);
+        var bp = ns.Data.Reinterpret<BlueprintData>();
+        Blueprint.Spawn(ctx.ecb, bp, ctx.GridEntity, ctx.CurrentOffset);
+        return true;
     }
 }
 
@@ -190,7 +193,14 @@ public struct SpawnBlueprint : IMapGenerationNode
 public struct SpawnTile : IMapGenerationNode
 {
     public Identifiable Prefab;
-    
+
+    [BurstCompile]
+    public static bool ExecuteFrom(NodeSerializer ns, ref MapGenerationContext ctx, ref Random random)
+    {
+        var tile = ns.Data.Reinterpret<SpawnTile>().Value;
+        return tile.Execute(ref ctx, ref random);
+    }
+
     public bool Execute(ref MapGenerationContext ctx, ref Random random)
     {
         var plan = ctx.ecb.CreateEntity();
@@ -203,19 +213,12 @@ public struct SpawnTile : IMapGenerationNode
         });
         return true;
     }
-
-    [BurstCompile]
-    public static bool ExecuteFrom(NodeSerializer ns, ref MapGenerationContext ctx, ref Random random)
-    {
-        var tile = UnsafeUtility.As<FixedBytes510, SpawnTile>(ref ns.Data);
-        return tile.Execute(ref ctx, ref random);
-    }
 }
 
 public struct NodeSerializer : IComponentData
 {
     public ulong TypeHash;
-    public FixedBytes510 Data;
+    public UnsafeUntypedBlobAssetReference Data;
     
     public static NativeHashMap<ulong, FunctionPointer<ExecuteDelegate>> functionPointers;
 
@@ -236,13 +239,9 @@ public struct NodeSerializer : IComponentData
 
 public interface IMapGenerationNode : IComponentData
 {
-    bool Execute(ref MapGenerationContext ctx, ref Random random);
-}
-
-public struct GenerateMap : IComponentData
-{
-    public Identifiable RootGenerator;
-    public uint Seed;
+    // Needs to be implemented on each IMapGenerationNode implementation, including the [BurstCompile]
+    [BurstCompile]
+    public static bool ExecuteFrom(NodeSerializer ns, ref MapGenerationContext ctx, ref Random random) { return false; }
 }
 
 public struct MapGenerationContext
@@ -254,7 +253,7 @@ public struct MapGenerationContext
     public int2 CurrentOffset;
     public EntityCommandBuffer ecb;
     
-    public Identifiable SelectOne(FixedList128Bytes<WeightedNode> children, ref Random random)
+    public Identifiable SelectOne(ref BlobArray<WeightedNode> children, ref Random random)
     {
         if (children.Length == 0) return default;
 

@@ -8,7 +8,13 @@ class NewBuildingUI : VisualElement
 {
     public Identifiable WantBuildPlan;
     public Identifiable VariantMaterial;
-    public bool IsCreativeMode => this.Q<Toggle>().value;
+    public bool IsInstaBuild => IsSandboxMode && this.Q<Toggle>().value;
+
+    public bool IsSandboxMode
+    {
+        set => this.Q<Toggle>().style.display = value ? DisplayStyle.Flex : DisplayStyle.None;
+        get => this.Q<Toggle>().style.display == DisplayStyle.Flex;
+    }
     
     VisualElement BuildingSelection, VariantSelection;
     public NewBuildingUI()

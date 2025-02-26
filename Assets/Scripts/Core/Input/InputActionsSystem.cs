@@ -122,6 +122,7 @@ namespace Core.Input
             _entityLookup.Dispose();
             _actionSets.Dispose();
             _setDefaults.Dispose();
+            InputActions.Instance.Disable();
         }
 
         protected override void OnUpdate()
@@ -130,7 +131,7 @@ namespace Core.Input
             var isPointerOverUI = false;
             foreach (var ui in GameObject.FindObjectsByType<UIDocument>(0))
             {
-                isPointerOverUI |= ui.rootVisualElement?.panel.Pick(
+                isPointerOverUI |= ui?.rootVisualElement?.panel.Pick(
                     RuntimePanelUtils.ScreenToPanel(ui.rootVisualElement?.panel, mousePosition)) != null;
             }
             if(isPointerOverUI == SystemAPI.HasSingleton<PointerOverUI>())

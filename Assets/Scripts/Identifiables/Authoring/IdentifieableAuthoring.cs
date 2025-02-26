@@ -17,10 +17,7 @@ public class IdentifieableAuthoring : MonoBehaviour
         public override void Bake(IdentifieableAuthoring authoring)
         {
             var entity = GetEntity(TransformUsageFlags.None);
-            if(PrefabUtility.IsPartOfPrefabAsset(authoring.gameObject))
-                ModCollectionAuthoring.MakeIdentifiable(this, entity, authoring.Asset);
-            else
-                AddComponent(entity, authoring.Asset.Id);
+            ModCollectionAuthoring.MakeIdentifiable(this, entity, authoring.Asset);
         }
     }
 }

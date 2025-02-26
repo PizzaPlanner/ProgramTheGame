@@ -13,7 +13,9 @@
         "Unity.InputSystem",
         "Identifiables",
         "Core.Input",
-        "Core"
+        "Core",
+        "Bootstrap",
+        "Modding.API"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

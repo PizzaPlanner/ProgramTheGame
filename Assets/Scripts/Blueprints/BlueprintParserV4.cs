@@ -1,6 +1,7 @@
 using Identifiables;
 using System;
 using System.Collections.Generic;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
@@ -105,7 +106,7 @@ namespace Grid.Blueprints
             data.Spawns[id].Add(partToAdd);
         }
 
-        public void Load(string data, DynamicBuffer<BlueprintContents> content)
+        public void Load(string data, NativeList<BlueprintContents> content)
         {
             var builder = new DeserializerBuilder()
                           .WithNamingConvention(PascalCaseNamingConvention.Instance)
