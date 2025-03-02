@@ -10,7 +10,7 @@ partial class UnitDispenserUISystem : UISystem
             return;
         foreach (var (dispenser, onGrid, e) in SystemAPI.Query<RefRW<UnitDispenser>, OnGrid>().WithAll<Selected>().WithEntityAccess())
         {
-            var window = ui.GetOrCreateActionButton(dispenser.ValueRO.TaskPrefab, EntityManager);
+            var window = ui.GetOrCreateActionButton(dispenser.ValueRO.TaskPrefab, EntityManager, false);
             window.SetEnabled(!dispenser.ValueRO.IsDispensed);
             if (window.wantCreateTask)
             {

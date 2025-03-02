@@ -8,8 +8,6 @@ public class CrafterAuthoring : MonoBehaviour
         public override void Bake(CrafterAuthoring authoring)
         {
             var self = GetEntity(TransformUsageFlags.None);
-            AddComponent(self, new CrafterLogic { });
-            AddBuffer<CraftingQueue>(self);
             AddBuffer<Craftables>(self);
         }
     }

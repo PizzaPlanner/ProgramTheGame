@@ -41,7 +41,7 @@ partial struct ItemOrderTaskJob : IJobEntity
     public EntityCommandBuffer ecb;
     public TransactionStore transactionStore;
     
-    void Execute(Entity e, ref Task task, ref ItemOrderTask order, ref TaskProgress progress, EnabledRefRO<WorkedOn> workedOn)
+    void Execute(Entity e, ref Task task, ref ItemOrderTask order, ref TaskProgress progress, EnabledRefRO<WorkedOn> workedOn, RefRO<WorkedOn> workedOnParams)
     {
         // Find best target
         if (task.Target == Entity.Null)
@@ -51,7 +51,7 @@ partial struct ItemOrderTaskJob : IJobEntity
                 Debug.LogError($"{task.CrewProvider} missing Logistics Network");
                 return;
             }
-            AssignTarget(ref task, order.Requester, ltwLookup, navTreeLookup, network, order.Item, order.Amount);
+            AssignTarget(ref task, order.Requester, ltwLookup, navTreeLookup, network, order.Item, order.Amount, workedOnParams.ValueRO.MaxRange);
             if (task.Target != Entity.Null)
                 order.State = OrderState.NoTransporter;
             return;
@@ -138,7 +138,10 @@ partial struct ItemOrderTaskJob : IJobEntity
         progress.PartialTicks = 0;
     }
     
-    static void AssignTarget(ref Task task, Entity requester, ComponentLookup<LocalTransform> ltwLookup, ComponentLookup<NavTree> navTreeLookup, LogisticsNetwork network, ItemId item, ushort amount)
+    static void AssignTarget(ref Task task, Entity requester, 
+                             ComponentLookup<LocalTransform> ltwLookup, ComponentLookup<NavTree> navTreeLookup, 
+                             LogisticsNetwork network, ItemId item, ushort amount,
+                             int maxRange)
     {
         if (!ltwLookup.TryGetComponent(requester, out var selfLtw))
         {
@@ -157,7 +160,7 @@ partial struct ItemOrderTaskJob : IJobEntity
             if (distSq > bestDistanceSq)
                 continue;
             if (!navTreeLookup.TryGetComponent(task.CrewProvider, out var navTree) 
-                || !navTree.IsReachable(CGrid.LocalToCell(ltw.Position), CGrid.LocalToCell(selfLtw.Position), CellType.Walkable, true))
+                || !navTree.HasPathWithin(CGrid.LocalToCell(ltw.Position), CGrid.LocalToCell(selfLtw.Position), maxRange, CellType.Walkable, ~CellType.Blocked))
                 continue;
             bestDistanceSq = distSq;
             bestEntity = entry.Item1;

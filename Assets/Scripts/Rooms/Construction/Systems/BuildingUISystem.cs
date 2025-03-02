@@ -18,7 +18,7 @@ namespace Construction.Systems
             {
                 if (building.DismantleTaskPrefab == default)
                     continue;
-                var window = ui.GetOrCreateActionButton(building.DismantleTaskPrefab, EntityManager);
+                var window = ui.GetOrCreateActionButton(building.DismantleTaskPrefab, EntityManager, false);
                 
                 if(!window.wantCreateTask)
                     continue;

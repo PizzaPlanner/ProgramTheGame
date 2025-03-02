@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Units
 {
-    public struct WorkedOn : IComponentData, IEnableableComponent { }
+    public struct WorkedOn : IComponentData, IEnableableComponent { public int MaxRange; }
     public struct Task : IComponentData
     {
         public TaskPriority Priority;
@@ -12,6 +12,7 @@ namespace Units
         public Entity Executor;
         public Entity Origin;
         public bool IsPersonalized => _isPersonalized;
+
         public bool IsCancelable;
         public Entity CrewProvider;
         bool _isPersonalized;
@@ -29,7 +30,7 @@ namespace Units
                 ecb.AppendToBuffer(t.Executor, new ToDos { Task = task, Status = ToDoStatus.Requested });
             ecb.SetComponent(task, t);
             ecb.SetComponent(task, new OnGrid { Grid = t.CrewProvider });
-            ecb.AppendToBuffer(t.Origin, new TaskProvider { Task = task });
+            ecb.AppendToBuffer(t.Origin, new TaskProvider { Task = task, Type = taskPrefab });
             return task;
         }
     }

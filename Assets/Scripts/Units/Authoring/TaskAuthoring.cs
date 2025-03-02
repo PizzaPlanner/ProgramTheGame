@@ -6,6 +6,7 @@ public class TaskAuthoring : MonoBehaviour
 {
     public IdentifiableAsset RequiredSkill;
     public int MinSkillLevel;
+    public int MaxExecutionRange;
     
     [Tooltip("If set, limit number of tasks with the same UGI to one per TaskProvider")]
     public TaskAuthoring UniquenessGroupIdentifier;
@@ -15,10 +16,10 @@ public class TaskAuthoring : MonoBehaviour
         {
             var e= GetEntity(TransformUsageFlags.None);
             AddComponent<Task>(e);
-            AddComponent<WorkedOn>(e);
             AddComponent<OnGrid>(e);
             AddBuffer<TaskProvider>(e);
             AddBuffer<BroadcastStatus>(e);
+            AddComponent(e, new WorkedOn { MaxRange = authoring.MaxExecutionRange });
             SetComponentEnabled<WorkedOn>(e, false);
             if(authoring.UniquenessGroupIdentifier != null)
                 AddComponent(e, new TaskUniquenessGroup{ Group = authoring.UniquenessGroupIdentifier.GetComponent<IdentifieableAuthoring>().Id });

@@ -12,7 +12,7 @@ namespace Power
         public ComponentLookup<Battery> batteyLookup;
         
         static readonly Tag BatteryTag = Tag.FromName("BatteryTag");
-        void Execute(ref PowerProvider provider, DynamicBuffer<Inventory> inventory)
+        void Execute(ref PowerProvider provider, ref DynamicBuffer<Inventory> inventory)
         {
             foreach (var item in inventory)
             {

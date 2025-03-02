@@ -16,6 +16,14 @@ namespace Core
         public string hash;
         public string name;
     }
+
+    public enum ModType
+    {
+        Internal = 0,
+        PersistentData,
+        Editor,
+    }
+    
     public partial struct Mod : IComponentData
     {
         public FixedString64Bytes Name;
@@ -71,17 +79,15 @@ namespace Core
                                 ShouldLoadMod = true,
                                 FilePath = dir
                             });
-                        } catch { Debug.Log($"Skipped wrongly formatted Mod {dir}"); }
+                        } catch { Debug.LogWarning($"Skipped wrongly formatted Mod {dir}"); }
                     }
                 });
+            Debug.Log($"Indexed {IndexedMods.Count} mods");
         }
 
         static void IndexMod(Mod mod)
         {
-            if(IndexedMods.TryAdd(mod.SceneHash, mod))
-                Debug.Log($"Discovered mod {mod.Name}");
-            else
-                Debug.Log($"Skipped duplicate mod {mod.Name}");
+            IndexedMods.TryAdd(mod.SceneHash, mod);
         }
 
         public static void SetShouldLoad(FixedString64Bytes modName, bool shouldLoad)

@@ -1,5 +1,6 @@
 ﻿using Core;
 using Identifiables;
+using System;
 using Units;
 using Unity.Entities;
 using UnityEngine;
@@ -7,112 +8,78 @@ using UnityEngine;
 [UpdateInGroup(typeof(TickBasedSystemGroup))]
 partial struct CrafterSystem : ISystem
 {
+    static readonly Identifiable orderTaskPrefab = Identifiable.FromName("ItemOrderTask");
+    
     public void OnUpdate(ref SystemState state)
     {
         var ecb = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>()
                            .CreateCommandBuffer(state.WorldUnmanaged);
         var store = SystemAPI.GetSingletonRW<TransactionStore>();
-        
-        // Queue up a new craft task
-        foreach (var (crafter, recipes, taskProviders, onGrid, e) in 
-                 SystemAPI.Query<RefRW<CrafterLogic>, DynamicBuffer<Craftables>, DynamicBuffer<TaskProvider>, OnGrid>()
-                          .WithNone<Ghost>().WithEntityAccess())
+        var logisticsLookup = SystemAPI.GetComponentLookup<LogisticsNetwork>(true);
+        var inventoryLookup = SystemAPI.GetBufferLookup<Inventory>(true);
+        state.Dependency.Complete();
+        foreach (var (task, progress, craftTask, workedOn, e) in 
+                 SystemAPI.Query<Task, RefRW<TaskProgress>, RefRW<CraftRecipeTask>, EnabledRefRW<WorkedOn>>().WithEntityAccess())
         {
-            if (crafter.ValueRW.Recipe == default)
-            {
-                crafter.ValueRW.IsCrafting = false;
-                crafter.ValueRW.Cooldown = 0;
-                crafter.ValueRW.ReadyIn = 0;
-                foreach(var task in taskProviders)
-                    ecb.DestroyEntity(task.Task);
-                continue;
-            }
-
-            if (taskProviders.Length > 0)
-                continue;
-            
-            var canCraft = false;
-            foreach (var recipe in recipes)
-            {
-                if(recipe.Recipe == crafter.ValueRO.Recipe)
-                    canCraft = true;
-            }
-
-            if (!canCraft)
-            {
-                Debug.LogError($"Assigned invalid recipe {crafter.ValueRW.Recipe} to crafter. Crafter is reset.");
-                crafter.ValueRW.Recipe = default;
-                continue;
-            }
-                
-            CreateCraftTask(ref state, e, onGrid.Grid, crafter.ValueRW.Recipe, ecb);
-        }
-        
-        // Finish crafting
-        foreach (var (task, progress, recipe, e) in 
-                 SystemAPI.Query<Task, RefRW<TaskProgress>, CraftRecipeTask>().WithAll<WorkedOn>().WithEntityAccess())
-        {
-            var crafter = SystemAPI.GetComponent<CrafterLogic>(task.Origin);
-            if (crafter.Recipe != recipe.Recipe)
-            {
+            if(craftTask.ValueRW.Recipe == default)
                 ecb.DestroyEntity(e);
-                return;
+            
+            var recipe = craftTask.ValueRW.Recipe;
+
+            switch (craftTask.ValueRW.State)
+            {
+                case CraftState.OrderItems:
+                    progress.ValueRW.PartialTicks = 0;
+                    workedOn.ValueRW = false;
+                    var recipeInput = SystemAPI.GetBuffer<CraftingInput>(recipe.SpawnablePrefab);
+                    if (!inventoryLookup.TryGetBuffer(task.Origin, out var inventory))
+                    {
+                        Debug.LogWarning($"Origin of CraftTask missing Inventory");
+                        ecb.DestroyEntity(e);
+                        continue;
+                    }
+                    foreach (var requirement in recipeInput)
+                    {
+                        if(inventory.Contains(requirement.ItemId, requirement.Amount))
+                            continue;
+            
+                        var order = Task.Schedule(orderTaskPrefab, ecb, 
+                            new Task
+                            {
+                                Priority = task.Priority,
+                                Origin = e,
+                                CrewProvider = task.CrewProvider
+                            });
+                        ecb.SetComponent(order, new ItemOrderTask
+                        {
+                            Amount = requirement.Amount, 
+                            Item = requirement.ItemId,
+                            Requester = task.Origin
+                        });
+                    }
+                    craftTask.ValueRW.State = CraftState.Crafting;
+                    break;
+                case CraftState.Crafting when workedOn.ValueRO:
+                    progress.ValueRW.PartialTicks += 1;
+                    if (progress.ValueRW.IsDone)
+                        craftTask.ValueRW.State = CraftState.Done;
+                    break;
+                case CraftState.Done:
+                    var transaction = store.ValueRW.CreateBuilder;
+                    foreach(var requirement in SystemAPI.GetBuffer<CraftingInput>(craftTask.ValueRW.Recipe.SpawnablePrefab))
+                        transaction.RemoveFrom(task.Origin, requirement.ItemId, requirement.Amount);
+                    foreach(var result in SystemAPI.GetBuffer<CraftingOutput>(craftTask.ValueRW.Recipe.SpawnablePrefab))
+                        transaction.AddTo(task.Origin, result.ItemId, result.Amount);
+                    if (craftTask.ValueRW.Mode == CraftMode.Times)
+                    {
+                        craftTask.ValueRW.Repeat--;
+                        if(craftTask.ValueRW.Repeat <= 0)
+                            ecb.DestroyEntity(e);
+                    } 
+                    craftTask.ValueRW.State = CraftState.OrderItems;
+                    break;
+                default: break;
             }
-            
-            progress.ValueRW.PartialTicks += 1;
-            if (!progress.ValueRW.IsDone)
-                continue;
-            
-            var transaction = store.ValueRW.CreateBuilder;
-            foreach(var requirement in SystemAPI.GetBuffer<CraftingInput>(recipe.Recipe.SpawnablePrefab))
-                transaction.RemoveFrom(task.Origin, requirement.ItemId, requirement.Amount);
-            foreach(var result in SystemAPI.GetBuffer<CraftingOutput>(recipe.Recipe.SpawnablePrefab))
-                transaction.AddTo(task.Origin, result.ItemId, result.Amount);
-            ecb.DestroyEntity(e);
         }
-    }
-    
-    Identifiable craftTaskPrefab => Identifiable.FromName("CraftTask");
-    Identifiable orderTaskPrefab => Identifiable.FromName("ItemOrderTask");
-    Entity CreateCraftTask(ref SystemState state, Entity crafter, Entity crewContext, Identifiable recipe, EntityCommandBuffer ecb)
-    {
-        var inventory = SystemAPI.GetBuffer<Inventory>(crafter);
-        var recipeInput = SystemAPI.GetBuffer<CraftingInput>(recipe.SpawnablePrefab);
-        var craftTask = Task.Schedule(craftTaskPrefab, ecb, new Task
-        {
-            Target = crafter, 
-            Priority = TaskPriority.MediumPriority,
-            Origin = crafter,
-            Executor = crafter,
-            CrewProvider = crewContext
-        });
-        ecb.SetComponent(craftTask, new TaskProgress
-        {
-            RequiredTicks = SystemAPI.GetComponent<CraftingRecipe>(recipe.SpawnablePrefab).Duration
-        });
-        ecb.SetComponent(craftTask, new CraftRecipeTask
-        {
-            Recipe = recipe
-        });
-        foreach (var requirement in recipeInput)
-        {
-            if(inventory.Contains(requirement.ItemId, requirement.Amount))
-                continue;
-            
-            var order = Task.Schedule(orderTaskPrefab, ecb, 
-            new Task
-            {
-                Priority = TaskPriority.MediumPriority,
-                Origin = craftTask,
-                CrewProvider = crewContext
-            });
-            ecb.SetComponent(order, new ItemOrderTask
-            {
-                Amount = requirement.Amount, 
-                Item = requirement.ItemId,
-                Requester = crafter
-            });
-        }
-        return craftTask;
     }
 }

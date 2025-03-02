@@ -9,6 +9,8 @@ public struct LogisticsNetwork : ICleanupComponentData, IDisposable
     public UnsafeParallelHashMap<Identifiable, long> HasItems;
     public UnsafeParallelMultiHashMap<Identifiable, (Entity, uint)> EntitiesWithItems;
     public UnsafeParallelMultiHashMap<Entity, (Identifiable, uint)> ItemsByEntities;
+    
+    public long GetItemCount(Identifiable id) => HasItems.TryGetValue(id, out var val) ? val : 0u;
 
     public void Initialize()
     {

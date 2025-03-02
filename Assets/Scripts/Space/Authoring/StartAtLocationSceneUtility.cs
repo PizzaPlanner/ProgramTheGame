@@ -36,7 +36,7 @@ static class EditorStartAtLocationSceneUtility
         var startup = EditorUserSettings.GetConfigValue("startupBlueprint");
         if(string.IsNullOrWhiteSpace(startup))
             return false;
-        World.DefaultGameObjectInjectionWorld = WorldTypes.CreateGameWorld("Session 0", false, Mod.WantedMods);
+        World.DefaultGameObjectInjectionWorld = WorldTypes.CreateGameWorld("Session 0", true, Mod.WantedMods);
         if(!Identifiable.Exists(startup))
             return true;
         var entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;

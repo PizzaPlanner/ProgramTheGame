@@ -1,6 +1,7 @@
 ﻿using Identifiables;
 using Identifiables.UI;
 using Unity.Entities;
+using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.UIElements;
 
@@ -15,34 +16,61 @@ class NewBuildingUI : VisualElement
         set => this.Q<Toggle>().style.display = value ? DisplayStyle.Flex : DisplayStyle.None;
         get => this.Q<Toggle>().style.display == DisplayStyle.Flex;
     }
+
+    public Identifiable Category
+    {
+        set
+        {
+            ShowBasic();
+            
+            BuildingSelection.Clear();
+            foreach (var id in Tag.AllIdsForTag(value))
+            {
+                var button = new BuildingPlanElement(id);
+                button.RegisterCallback<MouseDownEvent>(_ => ShowVariants(button));
+                BuildingSelection.Add(button);
+            }
+        }
+    }
     
     VisualElement BuildingSelection, VariantSelection;
     public NewBuildingUI()
     {
         styleSheets.Add(Addressables.LoadAssetAsync<StyleSheet>("UI/Stylesheets/buildings.uss").WaitForCompletion());
-        var buildingTag = Tag.FromName("TagBuilding");
-        Add(BuildingSelection = new VisualElement{name = "Buildings"});
-        VariantSelection = new ScrollView(ScrollViewMode.Vertical){name = "BuildingVariants"};
-        foreach (var id in Tag.AllIdsForTag(buildingTag))
+        var header = new VisualElement(){name = "Header"};
+        header.Add(new Label("Building Planner"));
+        header.Add(new Toggle("Insta-build"));
+        Add(header);
+        var body = new VisualElement() {name = "Body" };
+        Add(body);
+        var categoryTag = Tag.FromName("TagBuildCategory");
+        var categories = new VisualElement{name = "Categories"};
+        body.Add(categories);
+        foreach (var category in Tag.AllIdsForTag(categoryTag))
         {
-            var button = new BuildingPlanElement(id);
-            button.RegisterCallback<MouseDownEvent>(_ => ShowVariants(button));
-            BuildingSelection.Add(button);
+            var button = new BuildingPlanElement(category);
+            button.RegisterCallback<MouseDownEvent>(_ =>
+            {
+                Category = category;
+                button.AddToClassList("selected");
+            });
+            categories.Add(button);
         }
-        Add(new Toggle("Insta-build"));
+        body.Add(BuildingSelection = new VisualElement{name = "Buildings"});
+        body.Add(VariantSelection = new VisualElement(){name = "BuildingVariants"});
     }
 
     public void  ShowBasic()
     {
         RemoveFromClassList("with-variants");
         this.Query<BuildingPlanElement>().ForEach(x => x.RemoveFromClassList("selected"));
+        BuildingSelection.Clear();
         VariantSelection.Clear();
-        VariantSelection.RemoveFromHierarchy();
     }
 
     public void ShowVariants(BuildingPlanElement target)
     {
-        this.Query<BuildingPlanElement>().ForEach(x => x.RemoveFromClassList("selected"));
+        BuildingSelection.Query<BuildingPlanElement>().ForEach(x => x.RemoveFromClassList("selected"));
         target.AddToClassList("selected");
         VariantSelection.Clear();
         var mgr = World.DefaultGameObjectInjectionWorld.EntityManager;
@@ -55,20 +83,23 @@ class NewBuildingUI : VisualElement
         AddToClassList("with-variants");
         foreach (var variant in variants)
         {
-            var recipe = new VisualElement{name = "Recipe"};
-            recipe.Add(new IdentifiableButton(){ Target = variant.Element });
-            recipe.Add(new Label($"{variant.RequiredMass}"));
-            recipe.RegisterCallback<MouseDownEvent>(_ =>
-            {
-                WantBuildPlan = target.Q<IdentifiableButton>().Target;
-                VariantMaterial = variant.Element; 
-            });
+            var recipe = new BuildingPlanElement(variant.Element){name = "Recipe"};
+            recipe.Q<Label>().text = $"{variant.RequiredMass}";
+            var v1 = variant;
+            recipe.RegisterCallback<MouseDownEvent>(_ => { OnSelectVariant(target, v1); });
             VariantSelection.Add(recipe);
-            // foreach(var mat in mgr.GetBuffer<BuildMaterials>(variant.Variant))
-            //     Add();
         }
-        target.Q("Anchor").Add(VariantSelection);
+        if(variants.Length > 0)
+            OnSelectVariant(target, variants[0]);
         
+    }
+
+    void OnSelectVariant(BuildingPlanElement target, BuildingVariant variant)
+    {
+        WantBuildPlan = target.Q<IdentifiableButton>().Target;
+        VariantMaterial = variant.Element;
+        VariantSelection.Query<BuildingPlanElement>().ForEach(x => 
+            x.EnableInClassList("selected", x.Q<IdentifiableButton>().Target == variant.Element));
     }
 }
 
@@ -77,6 +108,7 @@ class BuildingPlanElement : VisualElement
     public BuildingPlanElement(Identifiable id)
     {
         Add(new IdentifiableButton(){Target = id});
-        Add(new VisualElement(){name = "Anchor"});
+        Add(new Label(id.DefaultName.ToString()));
+        Add(new VisualElement(){name = "SelectionIndicator"});
     }
 }

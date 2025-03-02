@@ -12,15 +12,13 @@ namespace Units
 {
     public partial class TaskApproachSystem : SystemBase
     {
-        bool CalculatePath(DynamicBuffer<UnitPathing> pathfinding, int2 toCell, int2 currentCell, bool isTargetPathable, NavTree navigation)
+        bool CalculatePath(DynamicBuffer<UnitPathing> pathfinding, int2 toCell, int2 currentCell, int maxRange, NavTree navigation)
         {
             if (pathfinding.Length < 2 || math.any(pathfinding[^1].Cell != toCell))
             {
                 var list = new NativeList<int2>(Allocator.Temp);
                 pathfinding.Clear();
-                if (isTargetPathable && !navigation.Navigate(currentCell, toCell, CellType.Walkable, ref list))
-                    return false;
-                if (!isTargetPathable && !navigation.NavigateAdjacent(currentCell, toCell, CellType.Walkable, ref list))
+                if (!navigation.NavigateWithin(currentCell, toCell, maxRange, CellType.Walkable, ~CellType.Blocked, ref list))
                     return false;
                 
                 pathfinding.Reinterpret<int2>().AddRange(list.AsArray());
@@ -72,33 +70,43 @@ namespace Units
                     continue;
                 }
                 
-                var isTargetCellPathable = navTree.IsWalkable(targetCell);
-                var isInTaskRange = math.csum(math.abs(myCell - targetCell)) <= (isTargetCellPathable ? 0 : 1);
+                var maxRange  = SystemAPI.GetComponent<WorkedOn>(td.Task).MaxRange;
+                var isInTaskRange = math.lengthsq(math.abs(myCell - targetCell)) <= maxRange * maxRange;
                 if (!isInTaskRange)
                 {
-                    if (!CalculatePath(pathing, targetCell, myCell, isTargetCellPathable, navTree))
+                    if (!CalculatePath(pathing, targetCell, myCell, maxRange, navTree))
                     {
                         td.Status = ToDoStatus.Unreachable;
                         continue;
                     }
                     var distance = math.distance(CellCenterToLocal(pathing[0].Cell), transform.ValueRO.Position);
-                    var direction = math.normalize(CellCenterToLocal(pathing[0].Cell) - transform.ValueRO.Position);
+                    if (distance > 0)
+                    {
+                        var direction = math.normalize(CellCenterToLocal(pathing[0].Cell) - transform.ValueRO.Position);
+                        transform.ValueRW.Rotation = quaternion.LookRotationSafe(direction, math.up());
+                        transform.ValueRW.Position += direction * math.min(distance, movable.MovementSpeed * SystemAPI.Time.DeltaTime / timeStep);
+                    }
+                }
+                else if (math.any(targetCell != myCell))
+                {
+                    var direction = math.normalize(toTransform.Position - transform.ValueRO.Position);
                     transform.ValueRW.Rotation = quaternion.LookRotationSafe(direction, math.up());
-                    transform.ValueRW.Position += direction * math.min(distance, movable.MovementSpeed * SystemAPI.Time.DeltaTime / timeStep);
                 }
                 
                 td.Status = isInTaskRange ? ToDoStatus.Working : ToDoStatus.Approaching;
-                SystemAPI.SetComponentEnabled<WorkedOn>(td.Task, td.Status == ToDoStatus.Working);
             }
 
             foreach (var (todos, e) in SystemAPI.Query<DynamicBuffer<ToDos>>().WithNone<Movable>().WithEntityAccess())
             {
-                if (!ShouldApproachTopToDo(todos, taskLookup, depenencyLookup, out var task)) 
+                if (!ShouldApproachTopToDo(todos, taskLookup, depenencyLookup, out var task))
                     continue;
                 ref var td = ref todos.ElementAt(0);
-                td.Status = task.Target == e ?  ToDoStatus.Working : ToDoStatus.Unreachable;
-                SystemAPI.SetComponentEnabled<WorkedOn>(td.Task, td.Status == ToDoStatus.Working);
+                td.Status = task.Target == e ? ToDoStatus.Working : ToDoStatus.Unreachable;
             }
+            
+            foreach(var todos in SystemAPI.Query<DynamicBuffer<ToDos>>())
+                if(todos.Length > 0)
+                    SystemAPI.SetComponentEnabled<WorkedOn>(todos[0].Task, todos[0].Status == ToDoStatus.Working);
         }
 
         static bool ShouldApproachTopToDo(DynamicBuffer<ToDos> todos, ComponentLookup<Task> taskLookup, BufferLookup<TaskProvider> providerLookup, out Task task)
@@ -113,8 +121,12 @@ namespace Units
                 return false;
             }
                 
-            var td = todos[0];
-            return td.Status is ToDoStatus.Approaching or ToDoStatus.Working && providerLookup[todos[0].Task].Length == 0 && task.Target != default;
+            ref var td = ref todos.ElementAt(0);
+            var shouldApproach = td.Status is ToDoStatus.Approaching or ToDoStatus.Working;
+            var canWork = providerLookup[todos[0].Task].Length == 0 && task.Target != default;
+            if(shouldApproach && !canWork)
+                td.Status = ToDoStatus.Requested;
+            return shouldApproach && canWork;
         }
     }
 }

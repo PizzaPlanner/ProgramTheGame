@@ -51,35 +51,20 @@ namespace Core
 
     public static class WorldTypes
     {
-        const int MOD_LOADING_PREWARM_FRAMES = 10; // Mod Loading 
         public static World CreateGameWorld(string name, bool isSandbox, IEnumerable<Mod> modPool)
         { 
             var world = WorldBuilder.Presets.DefaultWorld(name);
-            LoadMods(world, modPool);
             var e = world.EntityManager.CreateEntity(typeof(InGame));
+            LoadMods(world, modPool);
             if(isSandbox)
-                world.EntityManager.AddComponent<Sandbox>(e);
+                world.EntityManager.AddComponentData(e, new Sandbox{On = true});
+            Debug.Log($"Start Game: {name}");
             return world;
         }
 
         static void LoadModHeaders(World world)
         {
             Mod.InitializeModLoader();
-            // foreach (var mod in Mod.AllMods)
-            // {
-            //     if(Identifiable.Exists(mod.Name))
-            //         continue;
-            //     var modE = world.EntityManager.CreateEntity(typeof(Prefab), typeof(Identifiable), 
-            //         typeof(IdentifiableData), typeof(Tags));
-            //     world.EntityManager.SetComponentData(modE, new IdentifiableData
-            //     {
-            //         Prefab = modE,
-            //         DefaultName = mod.Name,
-            //         Spawnable = false
-            //     });
-            //     world.EntityManager.GetBuffer<Tags>(modE).Add(new Tags { Tag = Tag.FromName("TagMod")} );
-            // }
-            // world.Update();
         }
         
         public static void LoadMods(World world, IEnumerable<Mod> modPool)
@@ -89,20 +74,13 @@ namespace Core
             foreach (var mod in modPool)
                 LoadMod(mod, world.Unmanaged);
 
-            for (int i = 0; i < MOD_LOADING_PREWARM_FRAMES; i++)
-            {
-                world.Update();
-                // Debug.Log($"Prewarm {i}");
-                // foreach(var mod in modPool)
-                //     Debug.Log(SceneSystem.GetSceneStreamingState(world.Unmanaged, SceneSystem.GetSceneEntity(world.Unmanaged, mod.SceneHash)));
-            }
+            world.Update();
         }
 
         const string MOD_API_HASH = "22278db6dcf69dc43a5149e137f46302";
 
         static void LoadMod(Mod mod, WorldUnmanaged world)
         {
-            Debug.Log($"Loading {mod.SceneHash} as {mod.Name}");
             var load = SceneSystem.LoadSceneAsync(world, mod.SceneHash, new SceneSystem.LoadParameters
             {
                 Flags = SceneLoadFlags.BlockOnStreamIn | SceneLoadFlags.BlockOnImport

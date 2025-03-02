@@ -36,7 +36,7 @@ namespace Units
             return window;
         }
 
-        public CreateTaskButton GetOrCreateActionButton(Identifiable taskId, EntityManager em)
+        public CreateTaskButton GetOrCreateActionButton(Identifiable taskId, EntityManager em, bool requiresPlan)
         {
             var actionsTab = this.Q<Foldout>("Actions");
             if (actionsTab == null)
@@ -47,7 +47,7 @@ namespace Units
             var window = actionsTab.Q<CreateTaskButton>(taskId.DefaultName.Value);
             if (window == null)
             {
-                window = new CreateTaskButton(taskId, em);
+                window = new CreateTaskButton(taskId, em, requiresPlan);
                 actionsTab.Add(window);
             }
             return window;

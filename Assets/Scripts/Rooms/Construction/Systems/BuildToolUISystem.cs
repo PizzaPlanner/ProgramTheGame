@@ -48,13 +48,13 @@ partial class BuildToolUISystem : MapOverlaySystem<BuildTool>
     protected override void OnStartRunning()
     {
         base.OnStartRunning();
-        Window.IsSandboxMode = SystemAPI.HasSingleton<WorldTypes.Sandbox>(); 
+        Window.IsSandboxMode = SystemAPI.TryGetSingleton<WorldTypes.Sandbox>(out var sb) && sb.On; 
     }
 
     protected override void OnStopRunning()
     {
         base.OnStopRunning();
-        var ecb = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>()
+        var ecb = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>()
                            .CreateCommandBuffer(World.Unmanaged);
         ClearPreview(ecb);
         Window.ShowBasic();
@@ -71,6 +71,7 @@ partial class BuildToolUISystem : MapOverlaySystem<BuildTool>
     GridBounds DragArea;
     Identifiable GhostPrefab;
     Identifiable GhostMaterial;
+    bool wantBuild;
     protected override void OnUpdate()
     {
         base.OnUpdate();
@@ -90,8 +91,9 @@ partial class BuildToolUISystem : MapOverlaySystem<BuildTool>
             if (BuildTool.PlaceBuilding.WasPressedThisFrame())
             {
                 DragArea.Max = DragArea.Min = pointedCell;
+                wantBuild = true;
             }
-            else if(BuildTool.PlaceBuilding.WasReleasedThisFrame())
+            else if(BuildTool.PlaceBuilding.WasReleasedThisFrame() && wantBuild)
             {
                 foreach (var ghost in newGhostQuery.ToEntityArray(Allocator.Temp))
                 {
@@ -223,5 +225,6 @@ partial class BuildToolUISystem : MapOverlaySystem<BuildTool>
             Materials = mats,
             Rotation = LastRotation
         });
+        wantBuild = false;
     }
 }

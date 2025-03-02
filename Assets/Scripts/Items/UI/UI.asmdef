@@ -21,7 +21,9 @@
         "Items.Systems",
         "Modding.API",
         "Units.UI",
-        "Construction"
+        "Construction",
+        "Core",
+        "Tasks"
 
     ],
     "includePlatforms": [],

@@ -74,17 +74,54 @@ namespace Navigation
 
         public CellType GetCellType(int2 cell) => Cells.TryGetValue(cell, out var c) ? c.Type : CellType.Blocked;
 
-        // For finding paths to walls, which are not on the navtree
-        public bool NavigateAdjacent(int2 start, int2 blockedEnd, CellType allowedTypes, ref NativeList<int2> path)
+        public bool HasPathWithin(int2 start, int2 end, int range, CellType walkableFilter, CellType reachableFilter)
         {
-            Span<int2> neighbours = stackalloc int2[] { new int2(1, 0), new int2(-1, 0), new int2(0, 1), new int2(0, -1)};
-            foreach (var nb in neighbours)
-            {
-                var cell = blockedEnd + nb;
-                if(Cells.TryGetValue(cell, out _))
-                    return Navigate(start, cell, allowedTypes, ref path);
-            }
+            if(HasPath(start, end, walkableFilter))
+                return true;
+            for(int x = end.x - range; x < end.x + range; x++)
+            for(int y = end.y - range; y < end.y + range; y++)
+                if(math.lengthsq(new float2(x, y) - end) <= range * range 
+                   && HasLineOfSight(new int2(x, y), end, range, reachableFilter)
+                   && HasPath(new int2(x, y), end, reachableFilter))
+                    return true;
             return false;
+        }
+        
+        public bool NavigateWithin(int2 start, int2 end, int range, CellType walkableFilter, CellType reachableFilter, ref NativeList<int2> path)
+        {
+            if(Navigate(start, end, walkableFilter, ref path))
+               return true;
+            for(int x = end.x - range; x <= end.x + range; x++)
+            for(int y = end.y - range; y <= end.y + range; y++)
+                if (HasLineOfSight(new int2(x, y), end, range, reachableFilter) 
+                    && Navigate(start, new int2(x, y), walkableFilter, ref path))
+                    return true;
+            return false;
+        }
+        
+        // LOS check using Bresenham’s line algorithm or raycasting
+        bool HasLineOfSight(int2 from, int2 to, int maxRange, CellType allowedTypes)
+        {
+            if (math.distancesq(from, to) > maxRange * maxRange)
+                return false;
+            
+            var dx = math.abs(to.x - from.x);
+            var dy = math.abs(to.y - from.y);
+            var sx = from.x < to.x ? 1 : -1;
+            var sy = from.y < to.y ? 1 : -1;
+            var err = dx - dy;
+
+            var pos = from;
+            while (math.any(pos != to))
+            {
+                if (!Cells.TryGetValue(pos, out var c) || (allowedTypes & c.Type) == 0)
+                    return false; // Blocked LOS
+
+                var e2 = 2 * err;
+                if (e2 > -dy) { err -= dy; pos.x += sx; }
+                if (e2 < dx) { err += dx; pos.y += sy; }
+            }
+            return true;
         }
 
         public void SetAreaDirty(GridBounds bounds)
@@ -120,25 +157,19 @@ namespace Navigation
                 if(area.AdjacentCellsByArea.TryGetFirstValue(nbArea, out var nb, out _))
                     GetAllConnectedCells(nb, ref allCells, ref checkedAreas);    
         }
-
-        public bool IsReachable(int2 start, int2 end, CellType allowedTypes, bool allowAdjacent)
+        
+        public bool HasPath(int2 start, int2 end, CellType walkableFilter)
         {
-            if (allowAdjacent)
-            {
-                foreach(var nb in stackalloc int2[] { new int2(1, 0), new int2(-1, 0), new int2(0, 1), new int2(0, -1)})
-                    if(IsReachable(start, end + nb, allowedTypes, false))
-                        return true;
-            }
-            if(!Cells.TryGetValue(end, out var toCell) || (toCell.Type & allowedTypes) == CellType.Blocked)
+            if(!Cells.TryGetValue(end, out var toCell) || (toCell.Type & walkableFilter) == CellType.Blocked)
                 return false;
-            if(!Cells.TryGetValue(start, out var fromCell) || (fromCell.Type & allowedTypes) == CellType.Blocked)
+            if(!Cells.TryGetValue(start, out var fromCell) || (fromCell.Type & walkableFilter) == CellType.Blocked)
                 return false;
             return fromCell.Area == toCell.Area || Areas[fromCell.Area].Connections.ContainsKey(toCell.Area);
         }
         
         public bool Navigate(int2 start, int2 end, CellType allowedTypes, ref NativeList<int2> path)
         {
-            if(!IsReachable(start, end, allowedTypes, false))
+            if(!HasPath(start, end, allowedTypes))
                 return false;
             var fromCell = Cells[start];
             var toCell = Cells[end];

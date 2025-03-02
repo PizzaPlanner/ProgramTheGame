@@ -1,4 +1,5 @@
-﻿using Unity.Entities;
+﻿using Identifiables;
+using Unity.Entities;
 
 namespace Units
 {
@@ -6,5 +7,6 @@ namespace Units
     public struct TaskProvider : IBufferElementData
     {
         public Entity Task;
+        public Identifiable Type;
     }
 }
