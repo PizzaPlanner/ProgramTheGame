@@ -130,6 +130,8 @@ namespace Space.Systems
 
         public void Update(EntityManager entityManager, Task task, Entity taskEntity)
         {
+            if(taskEntity == default)
+                return;
             var travelTask = entityManager.GetComponentData<TravelTask>(taskEntity);
             Status.text = travelTask.Stage.ToString();
             Checklist.text = $"All Conditions met: Yes";
@@ -141,16 +143,6 @@ namespace Space.Systems
         public ShipUI()
         {
             Add(new Label("0"));
-        }
-
-        int lastCellCount;
-        public void SetCells(NativeArray<int2> cells, Mesh mesh)
-        {
-            if(lastCellCount == cells.Length)
-                return;
-            
-            CellMesh.GenerateChunkMesh(cells, mesh);
-            lastCellCount = cells.Length;
         }
 
         public int Room

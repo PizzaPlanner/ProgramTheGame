@@ -25,12 +25,23 @@ namespace Units
             Add(Content = new ScrollView(ScrollViewMode.Vertical));
         }
 
-        public T GetOrCreate<T>(string tab, Func<T> createFunc = null) where T : VisualElement, new()
+        public T GetOrCreate<T>(string tab) where T : VisualElement, new()
         {
             var window = this.Q<Foldout>(tab)?.Q<T>();
             if (window == null)
             {
-                window = createFunc?.Invoke() ?? new T();
+                window = new T();
+                Add(tab, window);
+            }
+            return window;
+        }
+        
+        public T GetOrCreate<T>(string tab, Func<T> createFunc) where T : VisualElement
+        {
+            var window = this.Q<Foldout>(tab)?.Q<T>();
+            if (window == null)
+            {
+                window = createFunc?.Invoke();
                 Add(tab, window);
             }
             return window;

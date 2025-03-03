@@ -10,10 +10,11 @@ GameObject:
   m_Component:
   - component: {fileID: 6513637787785079020}
   - component: {fileID: 5304243422145376601}
-  - component: {fileID: 697860641069326925}
-  - component: {fileID: 2829154048688644239}
+  - component: {fileID: 6380801680489609840}
+  - component: {fileID: -22475143690637340}
+  - component: {fileID: -414374969187428675}
   m_Layer: 0
-  m_Name: Assembler
+  m_Name: SpaceSuit
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -46,8 +47,35 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 190e307b1d2618d4db66b4ac27b0adba, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Asset: {fileID: -410248543343351266}
---- !u!114 &697860641069326925
+  Asset: {fileID: 7081885345490934788}
+--- !u!114 &6380801680489609840
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6595311514760627798}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: efe7f1c79676474aa501f4d2595a7ce1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Element: {fileID: -2056211199530363027, guid: 9fbc316f8e8545941811bda52bae3fe0, type: 3}
+  Mass: 150
+  Temperature: -10
+--- !u!114 &-22475143690637340
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6595311514760627798}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 035bb4a3065e488c86be1de50a18c154, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &-414374969187428675
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -60,19 +88,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MaxStackSize: 1
---- !u!114 &2829154048688644239
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6595311514760627798}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1cc657df93b545efbc9716b6ea082c21, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &-410248543343351266
+--- !u!114 &7081885345490934788
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -82,9 +98,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6d96781d50c744d5b90125a6e0a230bb, type: 3}
-  m_Name: Assembler
+  m_Name: SpaceSuit
   m_EditorClassIdentifier: 
-  Icon: {fileID: 2800000, guid: 6732c908b10ab3143beb4353e399219e, type: 3}
+  Icon: {fileID: 2800000, guid: 159ac2ff7c2d29b48abf37e2b66614d5, type: 3}
   Tags:
-  - {fileID: 11400000, guid: a73054e5f649c6c4fbfc5ab867572827, type: 2}
+  - {fileID: 11400000, guid: 80f258bf514ce4c4a9d95803e10e81d5, type: 2}
+  - {fileID: 11400000, guid: 120d758a188f7934299a0406976912a9, type: 2}
   Reference: {fileID: 5304243422145376601}

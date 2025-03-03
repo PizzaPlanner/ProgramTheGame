@@ -145,6 +145,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   RestValue: 2
+  AddedMood: {fileID: 0}
 --- !u!1001 &1119492684448523592
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -234,4 +235,5 @@ MonoBehaviour:
   Icon: {fileID: 2800000, guid: 586cce0253565204c834f96ae4bc43a4, type: 3}
   Tags:
   - {fileID: 11400000, guid: 104929695e765034f914bd930682c889, type: 2}
+  - {fileID: 11400000, guid: 1218332a5a68d6b48af332799e57aa24, type: 2}
   Reference: {fileID: -5380242976130347905}

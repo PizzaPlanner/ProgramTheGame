@@ -68,7 +68,7 @@ MonoBehaviour:
   - Prefab: {fileID: 697860641069326925, guid: 5a580b2bc75411c4197f40047c32667d, type: 3}
     Amount: 3
   CraftedIn:
-  - {fileID: 2829154048688644239, guid: 289510bf4f425dc4e93ee43927eac0ac, type: 3}
+  - {fileID: 391204783856717328, guid: e94bc3849ce2983479f4836879bc6ff8, type: 3}
 --- !u!114 &-1673903675654649368
 MonoBehaviour:
   m_ObjectHideFlags: 0

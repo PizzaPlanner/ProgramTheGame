@@ -24,6 +24,8 @@ namespace Core
             bottom.Add(new Button(() => DesiredUps = 5){name = "x1", text = "x1"});
             bottom.Add(new Button(() => DesiredUps = 10){name = "x2", text = "x2"});
             bottom.Add(new Button(() => DesiredUps = 20){name = "x4", text = "x4"});
+            if(isSandbox)
+                bottom.Add(new Button(() => DesiredUps = 100){name = "x20", text = "x20"});
         }
 
         public void Update(SimulationState state)
@@ -69,10 +71,13 @@ namespace Core
         protected override void OnCreate()
         {
             RequireForUpdate<SimulationState>();
+        }
+
+        protected override void OnStartRunning()
+        {
             _view = new TimeUI(SystemAPI.HasSingleton<WorldTypes.Sandbox>());
             UISystemGroup.AddOverlay(_view);
-            _view.style.display = DisplayStyle.Flex;
-            _view.style.position = Position.Absolute;
+            UISystemGroup.Show(_view);
         }
 
         protected override void OnUpdate()

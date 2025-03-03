@@ -10,8 +10,9 @@ public class MovableAuthoring : MonoBehaviour
         public override void Bake(MovableAuthoring authoring)
         {
             var e= GetEntity(TransformUsageFlags.Dynamic);
-            AddComponent(e, new Movable{MovementSpeed = authoring.MovementSpeed});
-            AddBuffer<UnitPathing>(e);
+            var pathing = CreateAdditionalEntity(TransformUsageFlags.Dynamic);
+            AddComponent(e, new Movable{MovementSpeed = authoring.MovementSpeed, PathEntity = pathing });
+            AddBuffer<UnitPathing>(pathing);
         }
     }
 }

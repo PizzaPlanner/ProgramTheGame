@@ -10,7 +10,6 @@ using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.Rendering;
 
-[DisableAutoCreation]
 partial class GridMeshMaterialAtlasSystem : IdentifiableMappingSystem
 {
     public static Material Atlas;
@@ -54,9 +53,12 @@ partial class GridMeshMaterialAtlasSystem : IdentifiableMappingSystem
                                          .WithOptions(EntityQueryOptions.IncludePrefab))
         {
             ref var v = ref visuals.ValueRW;
-            dict.TryGetValue(v.Floor,    out v.FloorUVs);
-            dict.TryGetValue(v.WallSide, out v.WallUVs);
-            dict.TryGetValue(v.WallTop,  out v.TopUVs);
+            if(v.Floor != null)
+                dict.TryGetValue(v.Floor,    out v.FloorUVs);
+            if(v.WallSide != null)
+                dict.TryGetValue(v.WallSide, out v.WallUVs);
+            if(v.WallTop != null)
+                dict.TryGetValue(v.WallTop,  out v.TopUVs);
         }
         Debug.Log($"Built Texture Atlas with {textures.Length} textures");
     }
@@ -75,7 +77,7 @@ partial class GridMeshMaterialAtlasSystem : IdentifiableMappingSystem
 
     Rect[] RebuildAtlas()
     {
-        var atlTex = new Texture2D(2048, 2048);
+        var atlTex = (Texture2D)Atlas.GetTexture(MainTex) ?? new Texture2D(2048, 2048);
         var uvs = atlTex.PackTextures(AllTextures.ToArray(), 0);
         Atlas.SetTexture(MainTex, atlTex);
         var graphicsSystem = World.GetExistingSystemManaged<EntitiesGraphicsSystem>();
@@ -87,7 +89,6 @@ partial class GridMeshMaterialAtlasSystem : IdentifiableMappingSystem
     }
 }
 
-[DisableAutoCreation]
 [UpdateInGroup(typeof(GridUpdateSystemGroup))]
 partial struct GridMeshSystem : ISystem
 {

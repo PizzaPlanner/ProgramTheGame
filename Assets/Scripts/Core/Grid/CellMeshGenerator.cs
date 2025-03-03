@@ -140,13 +140,14 @@ namespace Grids
             mesh.triangles = triangles.ToArrayNBC();
             mesh.SetUVs(0, uvs.ToArray(Allocator.Temp));
             mesh.Optimize();
+            mesh.RecalculateBounds();
             mesh.RecalculateNormals();
         }
         
         static void AddCube(NativeList<float3> vertices, NativeList<int> triangles, NativeList<float2> uvs, int3 pos, UVSet selfUVs, NativeHashSet<int3> voxelMap)
         {
             float3 min = new float3(0, -1, 0);
-            float3 max = new float3(1, pos.y, 1);
+            float3 max = new float3(1, pos.y * 0.5f, 1);
             float3[] faceOffsets = new float3[]
             {
                 new (min.x, min.y, min.z), new (max.x, min.y, min.z),

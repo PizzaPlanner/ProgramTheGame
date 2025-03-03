@@ -1,7 +1,6 @@
 ﻿using Grids;
 using Unity.Burst;
 using Unity.Collections;
-using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
@@ -17,7 +16,7 @@ namespace Navigation
         [BurstCompile]
         void Execute(Entity e, in CGrid grid, ref NavTree tree)
         {
-            var sameRoomMap = new NativeHashSet<(int, int)>(32, Allocator.Temp);
+            var sameRoomMap = new NativeHashSet<int2>(32, Allocator.Temp);
             var roomRemapMap = new NativeHashMap<int, int>(32, Allocator.Temp);
             
             var bbox = grid.BoundsWithBorder;
@@ -29,15 +28,15 @@ namespace Navigation
             {
                 var selfCell = new int2(x, y);
                 var pathing = grid.GetPathing(selfCell);
-                CellType cellType;
-                if(pathing.IsFloor() && !pathing.IsWall())
+                var cellType = CellType.Blocked;
+                if(pathing.IsFloor())
                     cellType = CellType.Floored;
-                else if(pathing.IsFloor() && (pathing & BuildingLayer.Door) == BuildingLayer.Door)
-                    cellType = CellType.Portal;
-                else if(pathing.IsWall())
-                    cellType = CellType.Blocked;
                 else
                     cellType = CellType.Space;
+                if((pathing & BuildingLayer.Door) == BuildingLayer.Door)
+                    cellType |= CellType.Portal;
+                else if(pathing.IsWall())
+                    cellType = CellType.Blocked;
                 
                 var cell = new NavCell { Type = cellType, Area = ++maxArea };
 
@@ -51,9 +50,9 @@ namespace Navigation
                     var nbArea = otherCell.Area;
                     var sharedArea = math.min(selfArea, nbArea);
                     if(selfArea > sharedArea)
-                        sameRoomMap.Add((selfArea, sharedArea));
+                        sameRoomMap.Add(new int2(selfArea, sharedArea));
                     if(nbArea > sharedArea)
-                        sameRoomMap.Add((nbArea, sharedArea));
+                        sameRoomMap.Add(new int2(nbArea, sharedArea));
                         
                     otherCell.Area = sharedArea;
                     tree.Cells[nbCell] = otherCell;
@@ -64,24 +63,24 @@ namespace Navigation
                 tree.Cells[selfCell] = cell; 
             }
             
-            var queue = new NativeQueue<(int, int)>(Allocator.Temp);
+            var queue = new NativeQueue<int2>(Allocator.Temp);
             foreach (var value in sameRoomMap)
                 queue.Enqueue(value);
             
             // Combine neighbouring rooms
             while(queue.TryDequeue(out var remap))
             {
-                var newRoom = math.min(remap.Item1, remap.Item2);
-                if (roomRemapMap.TryGetValue(remap.Item1, out var other))
+                var newRoom = math.min(remap.x, remap.y);
+                if (roomRemapMap.TryGetValue(remap.x, out var other))
                     newRoom = math.min(newRoom, other);
-                if (roomRemapMap.TryGetValue(remap.Item2, out var other2))
+                if (roomRemapMap.TryGetValue(remap.y, out var other2))
                     newRoom = math.min(newRoom, other2);
-                roomRemapMap[remap.Item1] = newRoom;
-                roomRemapMap[remap.Item2] = newRoom;
-                if(other != remap.Item1 && other != remap.Item2 && other != newRoom && other != 0)
-                    queue.Enqueue((other, newRoom));
-                if(other2 != remap.Item1 && other2 != remap.Item2 && other2 != newRoom && other2 != 0 && other2 != other)
-                    queue.Enqueue((other2, newRoom));
+                roomRemapMap[remap.x] = newRoom;
+                roomRemapMap[remap.y] = newRoom;
+                if(other != remap.x && other != remap.y && other != newRoom && other != 0)
+                    queue.Enqueue(new int2(other, newRoom));
+                if(other2 != remap.x && other2 != remap.y && other2 != newRoom && other2 != 0 && other2 != other)
+                    queue.Enqueue(new int2(other2, newRoom));
             }
             
             // Calculate final rooms
@@ -105,76 +104,14 @@ namespace Navigation
                 var bounds = area.AABB;
                 bounds.Encapsulate(cell);
                 area.AABB = bounds;
+                if(area.Type == CellType.Space && area.AABB.Size == grid.BoundsWithBorder.Size)
+                    area.Type = CellType.Outside;
                 tree.Areas[roomId] = area;
             }
             
-            // Remap adjacent areas
-            foreach (var areaId in tree.Areas.GetKeyArray(Allocator.Temp))
-            {
-                var area = tree.Areas[areaId];
-                var connections = area.Connections;
-                foreach(var cell in area.Cells)
-                    foreach(var nb in Neighbours)
-                        if (tree.Cells.TryGetValue(cell + nb, out var neighbour) && neighbour.Area != areaId)
-                        {
-                            area.AdjacentCellsByArea.Add(neighbour.Area, cell + nb);
-                            connections[neighbour.Area] = new AreaNavigationData
-                            {
-                                PreviousArea = areaId,
-                                PreviousAreaTraversalCost = 1
-                            };
-                        }
-                area.Connections = connections;
-                if(area.Type == CellType.Space && area.AABB.Size == grid.BoundsWithBorder.Size)
-                    area.Type = CellType.Outside;
-                tree.Areas[areaId] = area;
-            }
-            
-            CalculateAreaConnections(ref tree);
+            NavTree.RecalculateAreaConnections(ref tree);
         }
 
-        internal void CalculateAreaConnections(ref NavTree tree)
-        {
-            var changed = true;
-            while (changed)
-            {
-                changed = false;
-
-                foreach (var areaId in tree.Areas.GetKeyArray(Allocator.Temp))
-                {
-                    var area = tree.Areas[areaId];
-
-                    foreach (var neighborAreaId in area.Connections.GetKeyArray(Allocator.Temp))
-                    {
-                        var navData = area.Connections[neighborAreaId];
-                        if (!tree.Areas.TryGetValue(neighborAreaId, out var neighborArea))
-                            continue;
-
-                        foreach (var otherAreaId in neighborArea.Connections.GetKeyArray(Allocator.Temp))
-                        {
-                            if (otherAreaId == areaId) continue; // Avoid looping back
-                            var otherNavData = neighborArea.Connections[otherAreaId];
-                            var newCost = navData.PreviousAreaTraversalCost + otherNavData.PreviousAreaTraversalCost;
-
-                            if (area.Connections.ContainsKey(otherAreaId) &&
-                                newCost >= area.Connections[otherAreaId].PreviousAreaTraversalCost) 
-                                continue;
-                            var connections = area.Connections;
-                            connections[otherAreaId] = new AreaNavigationData
-                            {
-                                PreviousArea = neighborAreaId,
-                                PreviousAreaTraversalCost = newCost
-                            };
-                            area.Connections = connections;
-                            changed = true;
-                        }
-                    }
-
-                    tree.Areas[areaId] = area;
-                }
-            }
-        }
-    
         static readonly int2[] Neighbours =
         {
             new(1, 0), new(-1, 0), new(0, 1), new(0, -1)

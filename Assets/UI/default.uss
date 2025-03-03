@@ -171,6 +171,18 @@ CraftOrderWindow > #Orders {
     flex-direction: row;
 }
 
+CraftOrderWindow #InOut {
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+CraftOrderWindow #In {
+    flex-direction: row;
+}
+CraftOrderWindow #Out {
+    flex-direction: row;
+}
+
 CraftOrderWindow > #CraftOrder {
     flex-direction: row;
     font-size: 12px;
@@ -930,6 +942,14 @@ ConfigPanel.planned > #Header {
 
 ConfigPanel > PercentProgressBar {
     display: none;
+    margin: 4px 1px;
+    height: 8px;
+}
+
+ConfigPanel > #Header Label {
+    margin: 0;
+    flex-grow: 1;
+    -unity-text-align: middle-center;
 }
 
 ConfigPanel.cannot-cancel > #Header > Button#Cancel
@@ -951,18 +971,10 @@ ConfigPanel > #Header .id-button {
     height: 24px;
 }
 
-ConfigPanel PercentProgressBar {
-    height: 8px;
-    margin: 0;
-}
-
 Button#Cancel {
-    position: absolute;
-    top: 3px;
-    right: 3px;
     background-color: rgb(82, 0, 0);
-    width: 20px;
-    height: 20px;
+    width: 24px;
+    height: 24px;
     margin: 0;
     padding: 5px;
     padding-bottom: 7px;

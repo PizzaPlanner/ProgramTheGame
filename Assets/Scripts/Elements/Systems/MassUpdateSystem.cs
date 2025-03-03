@@ -105,7 +105,7 @@ partial struct MassesUpdateJobWall : IJobEntity
     public EntityCommandBuffer ecb;
     
     [BurstCompile]
-    void Execute(Entity e, in LocalTransform transform, DynamicBuffer<Neighbours> neighbours, in BakedIntoRoomMap baked)
+    void Execute(Entity e, in LocalTransform transform, in DynamicBuffer<Neighbours> neighbours, in BakedIntoRoomMap baked)
     {
         if(!massModelLookup.TryGetComponent(baked.Grid, out var massModel))
             return;

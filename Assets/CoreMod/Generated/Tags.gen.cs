@@ -5,8 +5,17 @@ namespace Core
 {
     public static class Tags
     {
+       public static readonly Tag TagAccomodation = Tag.FromName("TagAccomodation");
+       public static readonly Tag TagFabrication = Tag.FromName("TagFabrication");
+       public static readonly Tag TagLifeSupport = Tag.FromName("TagLifeSupport");
+       public static readonly Tag TagLogistics = Tag.FromName("TagLogistics");
+       public static readonly Tag TagNavigation = Tag.FromName("TagNavigation");
+       public static readonly Tag TagPlants = Tag.FromName("TagPlants");
+       public static readonly Tag TagPower = Tag.FromName("TagPower");
+       public static readonly Tag TagStructural = Tag.FromName("TagStructural");
        public static readonly Tag TagBattery = Tag.FromName("TagBattery");
        public static readonly Tag TagBlueprint = Tag.FromName("TagBlueprint");
+       public static readonly Tag TagBuildCategory = Tag.FromName("TagBuildCategory");
        public static readonly Tag TagBuilding = Tag.FromName("TagBuilding");
        public static readonly Tag TagBuildMaterial = Tag.FromName("TagBuildMaterial");
        public static readonly Tag TagColor = Tag.FromName("TagColor");

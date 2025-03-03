@@ -6,6 +6,7 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEngine;
 using static Grids.CGrid;
 
 namespace Units
@@ -20,7 +21,6 @@ namespace Units
                 pathfinding.Clear();
                 if (!navigation.NavigateWithin(currentCell, toCell, maxRange, CellType.Walkable, ~CellType.Blocked, ref list))
                     return false;
-                
                 pathfinding.Reinterpret<int2>().AddRange(list.AsArray());
             }
 
@@ -39,8 +39,8 @@ namespace Units
             var depenencyLookup = SystemAPI.GetBufferLookup<TaskProvider>(true);
             var transformLookup = SystemAPI.GetComponentLookup<LocalTransform>(true); 
             CompleteDependency();
-            foreach (var (todos, transform, movable, onGrid, pathing, e) in 
-                     SystemAPI.Query<DynamicBuffer<ToDos>, RefRW<LocalTransform>, Movable, OnGrid, DynamicBuffer<UnitPathing>>()
+            foreach (var (todos, transform, movable, onGrid, e) in 
+                     SystemAPI.Query<DynamicBuffer<ToDos>, RefRW<LocalTransform>, Movable, OnGrid>()
                               .WithNone<Dead>().WithEntityAccess())
             {
                 if (!ShouldApproachTopToDo(todos, taskLookup, depenencyLookup, out var task)) 
@@ -74,6 +74,7 @@ namespace Units
                 var isInTaskRange = math.lengthsq(math.abs(myCell - targetCell)) <= maxRange * maxRange;
                 if (!isInTaskRange)
                 {
+                    var pathing = SystemAPI.GetBuffer<UnitPathing>(movable.PathEntity);
                     if (!CalculatePath(pathing, targetCell, myCell, maxRange, navTree))
                     {
                         td.Status = ToDoStatus.Unreachable;
@@ -94,6 +95,7 @@ namespace Units
                 }
                 
                 td.Status = isInTaskRange ? ToDoStatus.Working : ToDoStatus.Approaching;
+                SystemAPI.SetComponentEnabled<WorkedOn>(td.Task, td.Status == ToDoStatus.Working);
             }
 
             foreach (var (todos, e) in SystemAPI.Query<DynamicBuffer<ToDos>>().WithNone<Movable>().WithEntityAccess())
@@ -102,14 +104,11 @@ namespace Units
                     continue;
                 ref var td = ref todos.ElementAt(0);
                 td.Status = task.Target == e ? ToDoStatus.Working : ToDoStatus.Unreachable;
+                SystemAPI.SetComponentEnabled<WorkedOn>(td.Task, td.Status == ToDoStatus.Working);
             }
-            
-            foreach(var todos in SystemAPI.Query<DynamicBuffer<ToDos>>())
-                if(todos.Length > 0)
-                    SystemAPI.SetComponentEnabled<WorkedOn>(todos[0].Task, todos[0].Status == ToDoStatus.Working);
         }
 
-        static bool ShouldApproachTopToDo(DynamicBuffer<ToDos> todos, ComponentLookup<Task> taskLookup, BufferLookup<TaskProvider> providerLookup, out Task task)
+        bool ShouldApproachTopToDo(DynamicBuffer<ToDos> todos, ComponentLookup<Task> taskLookup, BufferLookup<TaskProvider> providerLookup, out Task task)
         {
             task = default;
             if(todos.Length == 0)
@@ -124,8 +123,11 @@ namespace Units
             ref var td = ref todos.ElementAt(0);
             var shouldApproach = td.Status is ToDoStatus.Approaching or ToDoStatus.Working;
             var canWork = providerLookup[todos[0].Task].Length == 0 && task.Target != default;
-            if(shouldApproach && !canWork)
+            if (shouldApproach && !canWork)
+            {
                 td.Status = ToDoStatus.Requested;
+                SystemAPI.SetComponentEnabled<WorkedOn>(todos[0].Task, false);
+            }
             return shouldApproach && canWork;
         }
     }

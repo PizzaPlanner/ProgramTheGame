@@ -19,6 +19,15 @@ namespace Units
                 window.Update(e, todos, SystemAPI.GetComponentLookup<Task>(true), SystemAPI.GetComponentLookup<Identifiable>(true));
                 window.parent.style.display = todos.Length > 0 ? DisplayStyle.Flex : DisplayStyle.None;
             }
+            
+            foreach (var (todos, e) in SystemAPI.Query<DynamicBuffer<ToDos>>().WithAll<Selected>().WithEntityAccess())
+            {
+            
+                var window = ui.GetOrCreate<UnitTaskList>("ToDos");
+                window.Update(e, todos, SystemAPI.GetComponentLookup<Task>(true), SystemAPI.GetComponentLookup<Identifiable>(true));
+                window.parent.style.display = todos.Length > 0 ? DisplayStyle.Flex : DisplayStyle.None;
+            }
+            
             foreach (var (orders, e) in SystemAPI.Query<DynamicBuffer<TaskProvider>>().WithAll<Selected>().WithEntityAccess())
             {
                 var window = ui.GetOrCreate<UnitOrderList>("Orders");

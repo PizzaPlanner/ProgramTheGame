@@ -102,7 +102,7 @@ partial struct ItemOrderTaskJob : IJobEntity
             }
             return;
         }
-            
+        
         if (!workedOn.ValueRO)
             return;
         

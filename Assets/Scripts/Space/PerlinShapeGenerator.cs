@@ -57,7 +57,7 @@ public struct PerlinShape : IMapGenerationNode
     }
     
     [BurstCompile]
-    public static bool ExecuteFrom(NodeSerializer ns, ref MapGenerationContext ctx, ref Random random)
+    public static bool ExecuteFrom(in NodeSerializer ns, ref MapGenerationContext ctx, ref Random random)
     {
         ref var tile = ref ns.Data.Reinterpret<PerlinShape>().Value;
         return tile.Execute(ref ctx, ref random);
@@ -161,7 +161,7 @@ public struct PoissonDisk : IMapGenerationNode
     }
     
     [BurstCompile]
-    public static bool ExecuteFrom(NodeSerializer ns, ref MapGenerationContext ctx, ref Random random)
+    public static bool ExecuteFrom(in NodeSerializer ns, ref MapGenerationContext ctx, ref Random random)
     {
         ref var tile = ref ns.Data.Reinterpret<PoissonDisk>().Value;
         return tile.Execute(ref ctx, ref random);
@@ -181,7 +181,7 @@ public struct SpawnBlueprint : IMapGenerationNode
     }
     
     [BurstCompile]
-    public static bool ExecuteFrom(NodeSerializer ns, ref MapGenerationContext ctx, ref Random random)
+    public static bool ExecuteFrom(in NodeSerializer ns, ref MapGenerationContext ctx, ref Random random)
     {
         var bp = ns.Data.Reinterpret<BlueprintData>();
         Blueprint.Spawn(ctx.ecb, bp, ctx.GridEntity, ctx.CurrentOffset);
@@ -195,7 +195,7 @@ public struct SpawnTile : IMapGenerationNode
     public Identifiable Prefab;
 
     [BurstCompile]
-    public static bool ExecuteFrom(NodeSerializer ns, ref MapGenerationContext ctx, ref Random random)
+    public static bool ExecuteFrom(in NodeSerializer ns, ref MapGenerationContext ctx, ref Random random)
     {
         var tile = ns.Data.Reinterpret<SpawnTile>().Value;
         return tile.Execute(ref ctx, ref random);
@@ -220,12 +220,13 @@ public struct NodeSerializer : IComponentData
     public ulong TypeHash;
     public UnsafeUntypedBlobAssetReference Data;
     
-    public static NativeHashMap<ulong, FunctionPointer<ExecuteDelegate>> functionPointers;
+    public static readonly SharedStatic<NativeHashMap<ulong, FunctionPointer<ExecuteDelegate>>> functionPointers    
+        = SharedStatic<NativeHashMap<ulong, FunctionPointer<ExecuteDelegate>>>.GetOrCreate<NodeSerializer>();
 
     public static bool Execute(Identifiable id, ref MapGenerationContext ctx, ref Random random)
     {
         if (!ctx.nodeLookup.TryGetComponent(id.SpawnablePrefab, out var node) ||
-            !functionPointers.TryGetValue(node.TypeHash, out var func))
+            !functionPointers.Data.TryGetValue(node.TypeHash, out var func))
         {
             if(id.SpawnablePrefab != default)
                 return new SpawnTile { Prefab = id }.Execute(ref ctx, ref random);
@@ -234,14 +235,14 @@ public struct NodeSerializer : IComponentData
         return func.Invoke(node, ref ctx, ref random);
     }
     
-    public delegate bool ExecuteDelegate(NodeSerializer ns, ref MapGenerationContext ctx, ref Random random);
+    public delegate bool ExecuteDelegate(in NodeSerializer ns, ref MapGenerationContext ctx, ref Random random);
 }
 
 public interface IMapGenerationNode : IComponentData
 {
     // Needs to be implemented on each IMapGenerationNode implementation, including the [BurstCompile]
     [BurstCompile]
-    public static bool ExecuteFrom(NodeSerializer ns, ref MapGenerationContext ctx, ref Random random) { return false; }
+    public static bool ExecuteFrom(in NodeSerializer ns, ref MapGenerationContext ctx, ref Random random) { return false; }
 }
 
 public struct MapGenerationContext

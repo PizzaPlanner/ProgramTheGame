@@ -274,7 +274,12 @@ MonoBehaviour:
   NotAllowedOnShips: 0
   CanBeRotated: 0
   Duration: 10
-  Size:
+  ExtentsURDL:
+    x: 0
+    y: 0
+    z: 0
+    w: 0
+  InteractionOffset:
     x: 0
     y: 0
   Variants:
@@ -638,4 +643,5 @@ MonoBehaviour:
   Icon: {fileID: 2800000, guid: 6e8229af91331ea4eae7a0591a8c6ab5, type: 3}
   Tags:
   - {fileID: 11400000, guid: 104929695e765034f914bd930682c889, type: 2}
+  - {fileID: 11400000, guid: 2ba4d8fcdafe5e348aad7368fa470d77, type: 2}
   Reference: {fileID: -5380242976130347905}

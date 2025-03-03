@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 460068120002007332}
   - component: {fileID: -5624043721593407137}
   - component: {fileID: 404759063531143838}
+  - component: {fileID: -1131196614640052474}
   m_Layer: 0
   m_Name: TileRock
   m_TagString: Untagged
@@ -69,8 +70,14 @@ MonoBehaviour:
   Layer: 5
   PlacementType: 3
   NotAllowedOnShips: 1
+  CanBeRotated: 0
   Duration: 0
-  Size:
+  ExtentsURDL:
+    x: 0
+    y: 0
+    z: 0
+    w: 0
+  InteractionOffset:
     x: 0
     y: 0
   Variants:
@@ -125,6 +132,21 @@ MonoBehaviour:
   Element: {fileID: 6240678538308625820, guid: c42440416ef81f64693865cd7d1325d9, type: 3}
   Mass: 1000
   Temperature: -20
+--- !u!114 &-1131196614640052474
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3605263813790912188}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 60fae2c7b6854c5bbe9e100905cd60ac, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Top: {fileID: 2800000, guid: 9ac240616742a354b91e979eb7618c8c, type: 3}
+  Walls: {fileID: 2800000, guid: 9ac240616742a354b91e979eb7618c8c, type: 3}
+  Floor: {fileID: 2800000, guid: 9ac240616742a354b91e979eb7618c8c, type: 3}
 --- !u!1 &6169444174593764099
 GameObject:
   m_ObjectHideFlags: 0
@@ -143,7 +165,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 2147483647
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &6317775497688792053
 Transform:
   m_ObjectHideFlags: 0
@@ -242,6 +264,10 @@ PrefabInstance:
     - target: {fileID: 1269826234957420, guid: f783106e0df273c46808529caaed5e8e, type: 3}
       propertyPath: m_Name
       value: SM_Rock_Wall_01 (2)
+      objectReference: {fileID: 0}
+    - target: {fileID: 1269826234957420, guid: f783106e0df273c46808529caaed5e8e, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4889370043198460, guid: f783106e0df273c46808529caaed5e8e, type: 3}
       propertyPath: m_LocalScale.x
@@ -373,6 +399,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: SM_Rock_Wall_01 (1)
       objectReference: {fileID: 0}
+    - target: {fileID: 1269826234957420, guid: f783106e0df273c46808529caaed5e8e, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4889370043198460, guid: f783106e0df273c46808529caaed5e8e, type: 3}
       propertyPath: m_LocalScale.x
       value: 0.3
@@ -503,6 +533,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: SM_Rock_Wall_01
       objectReference: {fileID: 0}
+    - target: {fileID: 1269826234957420, guid: f783106e0df273c46808529caaed5e8e, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4889370043198460, guid: f783106e0df273c46808529caaed5e8e, type: 3}
       propertyPath: m_LocalScale.x
       value: 0.3
@@ -632,6 +666,10 @@ PrefabInstance:
     - target: {fileID: 1269826234957420, guid: f783106e0df273c46808529caaed5e8e, type: 3}
       propertyPath: m_Name
       value: SM_Rock_Wall_01 (3)
+      objectReference: {fileID: 0}
+    - target: {fileID: 1269826234957420, guid: f783106e0df273c46808529caaed5e8e, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4889370043198460, guid: f783106e0df273c46808529caaed5e8e, type: 3}
       propertyPath: m_LocalScale.x
@@ -770,4 +808,5 @@ MonoBehaviour:
   Icon: {fileID: 2800000, guid: 1d502d64599815443a2ba29ccc8fc1a3, type: 3}
   Tags:
   - {fileID: 11400000, guid: 104929695e765034f914bd930682c889, type: 2}
+  - {fileID: 11400000, guid: a7e9bfc2802f2ee48afc82c20864abaf, type: 2}
   Reference: {fileID: -5380242976130347905}

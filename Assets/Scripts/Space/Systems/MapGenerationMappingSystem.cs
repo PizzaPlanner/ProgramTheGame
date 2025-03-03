@@ -8,17 +8,17 @@ partial class MapGenerationMappingSystem : IdentifiableMappingSystem
 {
     protected override void OnDestroy()
     {
-        if(NodeSerializer.functionPointers.IsCreated)
-            NodeSerializer.functionPointers.Dispose();
+        if(NodeSerializer.functionPointers.Data.IsCreated)
+            NodeSerializer.functionPointers.Data.Dispose();
     }
 
     protected override void OnUpdate()
     {
         OnDestroy();
-        NodeSerializer.functionPointers = new NativeHashMap<ulong, FunctionPointer<NodeSerializer.ExecuteDelegate>>(0, Allocator.Persistent);
+        NodeSerializer.functionPointers.Data = new NativeHashMap<ulong, FunctionPointer<NodeSerializer.ExecuteDelegate>>(0, Allocator.Persistent);
         foreach (var node in SystemAPI.Query<NodeSerializer>().WithOptions(EntityQueryOptions.IncludePrefab))
         {
-            if(NodeSerializer.functionPointers.TryGetValue(node.TypeHash, out _))
+            if(NodeSerializer.functionPointers.Data.TryGetValue(node.TypeHash, out _))
                 continue;
             var type = TypeManager.GetTypeIndexFromStableTypeHash(node.TypeHash);
             if (type == TypeIndex.Null)
@@ -33,7 +33,7 @@ partial class MapGenerationMappingSystem : IdentifiableMappingSystem
                 continue;
             }
             var func = (NodeSerializer.ExecuteDelegate)method.CreateDelegate(typeof(NodeSerializer.ExecuteDelegate));
-            NodeSerializer.functionPointers.Add(node.TypeHash, BurstCompiler.CompileFunctionPointer(func));
+            NodeSerializer.functionPointers.Data.Add(node.TypeHash, BurstCompiler.CompileFunctionPointer(func));
         }
     }
 }

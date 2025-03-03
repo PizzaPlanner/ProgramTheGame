@@ -31,19 +31,20 @@ partial struct DoorSystem : ISystem
             
             door.ValueRW.CurrentState = hasTravellers ? Door.DoorState.Open : door.ValueRW.TargetState;
             
-            ref var navTree = ref SystemAPI.GetComponentRW<NavTree>(birm.Grid).ValueRW;
-            navTree.SetAreaDirty(birm.Area);
             
             ref var grid = ref SystemAPI.GetComponentRW<CGrid>(birm.Grid).ValueRW;
+            ref var navTree = ref SystemAPI.GetComponentRW<NavTree>(birm.Grid).ValueRW;
             if (door.ValueRW.CurrentState == Door.DoorState.Locked)
             {
                 ecb.AddComponent<Wall>(e);
                 grid.ModifyLayerNoGhost(e, BuildingLayer.Wall);
+                navTree.UpdateAreaPathing(birm.Area.Min, CellType.Blocked);
             }
             else
             {
                 ecb.RemoveComponent<Wall>(e);
                 grid.ModifyLayerNoGhost(e, BuildingLayer.Door);
+                navTree.UpdateAreaPathing(birm.Area.Min, CellType.Walkable);
             }
             
             if(door.ValueRW.CurrentState == Door.DoorState.Open)

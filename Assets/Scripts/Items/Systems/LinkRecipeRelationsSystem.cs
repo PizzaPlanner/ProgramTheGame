@@ -1,11 +1,25 @@
 using Identifiables;
 using Identifiables.UI;
 using System.Linq;
+using Unity.Collections;
 using Unity.Entities;
 using UnityEngine.UIElements;
 
 partial class CraftingRecipesMappingSystem : IdentifiableMappingSystem, IWikiProvider
 {
+    protected override void OnCreate()
+    {
+        OnDestroy();
+        Recipe.RecipeById.Data = new (0, Allocator.Persistent);
+    }
+
+    protected override void OnDestroy()
+    {
+        // Blobassets in map are owned by Entities, so no disposal here
+        if(Recipe.RecipeById.Data.IsCreated)
+            Recipe.RecipeById.Data.Dispose();
+    }
+    
     protected override void OnUpdate()
     {
         foreach (var (craftIn, id) in 
@@ -22,22 +36,26 @@ partial class CraftingRecipesMappingSystem : IdentifiableMappingSystem, IWikiPro
             }
         }
         
-        foreach (var (inputs, outputs, recipe) in
-                 SystemAPI.Query<DynamicBuffer<CraftingInput>, DynamicBuffer<CraftingOutput>, Identifiable>()
+        
+        
+        foreach (var (recipe, id) in
+                 SystemAPI.Query<CraftingRecipe, Identifiable>()
                           .WithAll<Prefab>()
                           .WithNone<IdentifiablesMappingGroup.Mapped>()
                           .WithOptions(EntityQueryOptions.IncludePrefab))
         {
-            foreach (var input in inputs)
+            Recipe.RecipeById.Data[id] = recipe.Data;
+            
+            foreach (var input in recipe.Data.Value.Inputs.ToArray())
             {
-                AddRelation(input.ItemId.BaseId, new IdentifiableLink{ To = recipe, Relation = "UsedIn"});
-                AddRelation(recipe, new IdentifiableLink{ To = input.ItemId.BaseId, Relation = "RecipeInput"});
+                AddRelation(input.ItemId.BaseId, new IdentifiableLink{ To = id, Relation = "UsedIn"});
+                AddRelation(id, new IdentifiableLink{ To = input.ItemId.BaseId, Relation = "RecipeInput"});
             }
             
-            foreach (var output in outputs)
+            foreach (var output in recipe.Data.Value.Outputs.ToArray())
             {
-                AddRelation(output.ItemId.BaseId, new IdentifiableLink{ To = recipe, Relation = "FromRecipe"});
-                AddRelation(recipe, new IdentifiableLink{ To = output.ItemId.BaseId, Relation = "RecipeOutput"});
+                AddRelation(output.ItemId.BaseId, new IdentifiableLink{ To = id, Relation = "FromRecipe"});
+                AddRelation(id, new IdentifiableLink{ To = output.ItemId.BaseId, Relation = "RecipeOutput"});
             }
         }
     }

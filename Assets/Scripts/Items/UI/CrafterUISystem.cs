@@ -1,5 +1,6 @@
 ﻿using Identifiables;
 using Identifiables.UI;
+using System;
 using Tasks.UI;
 using Units;
 using Unity.Entities;
@@ -47,7 +48,7 @@ partial class CrafterUISystem : UISystem
     {
         if(panel.IsPlan)
             return;
-        panel.Q<CraftOrderWindow>().Update(em.GetComponentData<CraftRecipeTask>(panel.TaskEntity), em.GetComponentData<LogisticsNetwork>(task.CrewProvider));
+        panel.Q<CraftOrderWindow>().Update(em, panel);
     }
 
     class CraftOrderWindow : VisualElement
@@ -70,7 +71,8 @@ partial class CrafterUISystem : UISystem
                 }
                 Add(orders);
             }
-            
+            var inOutRow = new VisualElement{name="InOut"};
+            Add(inOutRow);
             var row = new VisualElement(){name = "CraftOrder"};
             row.Add(RecipeToCraft = new IdentifiableButton());
             row.Add(new Label("maintain"));
@@ -91,11 +93,30 @@ partial class CrafterUISystem : UISystem
                 }){text = "Confirm"});
         }
 
-        public void Update(CraftRecipeTask task, LogisticsNetwork logistics)
+        public void Update(EntityManager em, ConfigPanel panel)
         {
+            var task = em.GetComponentData<CraftRecipeTask>(panel.TaskEntity);
+            var recipe = Recipe.From(task.Recipe);
             Wants.value = (uint)task.Repeat;
-            Has.value = (uint)logistics.GetItemCount(RecipeToCraft.Target);
+            // Has.value = (uint)logistics.GetItemCount(RecipeToCraft.Target);
+            if(RecipeToCraft.Target != task.Recipe)
+                RebuildRecipe(recipe.Inputs, recipe.Outputs);
             RecipeToCraft.Target = task.Recipe;
+        }
+
+        void RebuildRecipe(ReadOnlySpan<CraftingIngredient> input, ReadOnlySpan<CraftingIngredient> output)
+        {
+            var recipe = this.Q("InOut");   
+            recipe.Clear();
+            var inputs = new VisualElement { name = "In" };
+            recipe.Add(inputs);
+            foreach(var i in input)
+                inputs.Add(new IdentifiableButton{Target = i.ItemId});
+            
+            var outputs = new VisualElement { name = "Out" };
+            recipe.Add(outputs);
+            foreach(var i in output)
+                outputs.Add(new IdentifiableButton{Target = i.ItemId});
         }
     }
 }

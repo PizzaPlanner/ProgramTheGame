@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 460068120002007332}
   - component: {fileID: -5624043721593407137}
   - component: {fileID: 404759063531143838}
+  - component: {fileID: 5581716752693801808}
   m_Layer: 0
   m_Name: Wall
   m_TagString: Untagged
@@ -71,7 +72,12 @@ MonoBehaviour:
   NotAllowedOnShips: 0
   CanBeRotated: 0
   Duration: 30
-  Size:
+  ExtentsURDL:
+    x: 0
+    y: 0
+    z: 0
+    w: 0
+  InteractionOffset:
     x: 0
     y: 0
   Variants:
@@ -122,6 +128,21 @@ MonoBehaviour:
   Element: {fileID: 6240678538308625820, guid: c42440416ef81f64693865cd7d1325d9, type: 3}
   Mass: 400
   Temperature: 25
+--- !u!114 &5581716752693801808
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3605263813790912188}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 60fae2c7b6854c5bbe9e100905cd60ac, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Top: {fileID: 2800000, guid: dd5fc944383082a4b999c9ae131c5913, type: 3}
+  Walls: {fileID: 2800000, guid: 86bda50d7093f3e48921a2a9592dd1dc, type: 3}
+  Floor: {fileID: 2800000, guid: 79a691f11c78dd947b2dfbff24828793, type: 3}
 --- !u!1 &5604092210760565406
 GameObject:
   m_ObjectHideFlags: 0
@@ -139,7 +160,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 2147483647
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &7487135245202886520
 Transform:
   m_ObjectHideFlags: 0
@@ -219,6 +240,10 @@ PrefabInstance:
     - target: {fileID: 1814321836418854, guid: 81b74d56cb4f9a54dad9ce387b742bcd, type: 3}
       propertyPath: m_Name
       value: SM_Bld_Wall_Exterior_04 (2)
+      objectReference: {fileID: 0}
+    - target: {fileID: 1814321836418854, guid: 81b74d56cb4f9a54dad9ce387b742bcd, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1814321836418854, guid: 81b74d56cb4f9a54dad9ce387b742bcd, type: 3}
       propertyPath: m_StaticEditorFlags
@@ -325,6 +350,10 @@ PrefabInstance:
       value: SM_Bld_Wall_Exterior_04 (3)
       objectReference: {fileID: 0}
     - target: {fileID: 1814321836418854, guid: 81b74d56cb4f9a54dad9ce387b742bcd, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1814321836418854, guid: 81b74d56cb4f9a54dad9ce387b742bcd, type: 3}
       propertyPath: m_StaticEditorFlags
       value: 2147483647
       objectReference: {fileID: 0}
@@ -429,6 +458,10 @@ PrefabInstance:
       value: SM_Bld_Wall_Exterior_04 (1)
       objectReference: {fileID: 0}
     - target: {fileID: 1814321836418854, guid: 81b74d56cb4f9a54dad9ce387b742bcd, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1814321836418854, guid: 81b74d56cb4f9a54dad9ce387b742bcd, type: 3}
       propertyPath: m_StaticEditorFlags
       value: 2147483647
       objectReference: {fileID: 0}
@@ -531,6 +564,10 @@ PrefabInstance:
     - target: {fileID: 1814321836418854, guid: 81b74d56cb4f9a54dad9ce387b742bcd, type: 3}
       propertyPath: m_Name
       value: SM_Bld_Wall_Exterior_04
+      objectReference: {fileID: 0}
+    - target: {fileID: 1814321836418854, guid: 81b74d56cb4f9a54dad9ce387b742bcd, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1814321836418854, guid: 81b74d56cb4f9a54dad9ce387b742bcd, type: 3}
       propertyPath: m_StaticEditorFlags
@@ -639,4 +676,5 @@ MonoBehaviour:
   Icon: {fileID: 2800000, guid: 71bcd660d42d6af4bb280456b2c36821, type: 3}
   Tags:
   - {fileID: 11400000, guid: 104929695e765034f914bd930682c889, type: 2}
+  - {fileID: 11400000, guid: a7e9bfc2802f2ee48afc82c20864abaf, type: 2}
   Reference: {fileID: -5380242976130347905}

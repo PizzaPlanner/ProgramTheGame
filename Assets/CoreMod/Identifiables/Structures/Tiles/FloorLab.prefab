@@ -12,10 +12,10 @@ GameObject:
   - component: {fileID: -5380242976130347905}
   - component: {fileID: 5847055320590538475}
   - component: {fileID: 6240614005169757687}
-  - component: {fileID: -5310317420030576044}
+  - component: {fileID: -3261680800715204360}
   - component: {fileID: 404759063531143838}
   m_Layer: 0
-  m_Name: AsteroidDirt
+  m_Name: FloorLab
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -34,7 +34,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 7977948188482622666}
+  - {fileID: 9199734606387136641}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &-5380242976130347905
@@ -64,15 +64,28 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Layer: 2
   PlacementType: 2
-  NotAllowedOnShips: 1
+  NotAllowedOnShips: 0
   CanBeRotated: 0
   Duration: 0
-  Size:
+  ExtentsURDL:
     x: 0
     y: 0
-  Variants: []
+    z: 0
+    w: 0
+  InteractionOffset:
+    x: 0
+    y: 0
+  Variants:
+  - Element: {fileID: 3575229165814279346, guid: d22f709baab20cf4982e177275393cf9, type: 3}
+    OverrideMaterial: {fileID: 0}
+  - Element: {fileID: 6240678538308625820, guid: c42440416ef81f64693865cd7d1325d9, type: 3}
+    OverrideMaterial: {fileID: 0}
+  - Element: {fileID: -7047243780222175833, guid: 2d08fe34d7e1b34488389132c02bd97d, type: 3}
+    OverrideMaterial: {fileID: 0}
+  - Element: {fileID: -4396463729144112910, guid: c86f9a9dd4cefcd4eac232e99d6b93be, type: 3}
+    OverrideMaterial: {fileID: 0}
   OtherMaterials: []
-  DismantleTask: {fileID: 0}
+  DismantleTask: {fileID: 5923588122422854532, guid: e6fbab2b9276e9642a2e14a08ec0aa19, type: 3}
 --- !u!114 &6240614005169757687
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -85,7 +98,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 68a92fc250ef4511b43df6da7fdcee09, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &-5310317420030576044
+--- !u!114 &-3261680800715204360
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -109,10 +122,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: efe7f1c79676474aa501f4d2595a7ce1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Element: {fileID: 6240678538308625820, guid: c42440416ef81f64693865cd7d1325d9, type: 3}
-  Mass: 10000
-  Temperature: -20
---- !u!1 &4209637067704815615
+  Element: {fileID: 3575229165814279346, guid: d22f709baab20cf4982e177275393cf9, type: 3}
+  Mass: 100
+  Temperature: 0
+--- !u!1 &7509671455151162163
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -120,52 +133,52 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 7977948188482622666}
-  - component: {fileID: 2693840097381638447}
-  - component: {fileID: 1345775796922449262}
-  - component: {fileID: 5611071338511790571}
+  - component: {fileID: 9199734606387136641}
+  - component: {fileID: 919808907287166819}
+  - component: {fileID: 8326007879858578493}
+  - component: {fileID: 3335464893233130856}
   m_Layer: 0
-  m_Name: GameObject
+  m_Name: Cube
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 2147483647
+  m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &7977948188482622666
+--- !u!4 &9199734606387136641
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4209637067704815615}
+  m_GameObject: {fileID: 7509671455151162163}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0.5, y: -0.5, z: 0.5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 3724361011114579357}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!33 &2693840097381638447
+--- !u!33 &919808907287166819
 MeshFilter:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4209637067704815615}
+  m_GameObject: {fileID: 7509671455151162163}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
---- !u!23 &1345775796922449262
+--- !u!23 &8326007879858578493
 MeshRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4209637067704815615}
+  m_GameObject: {fileID: 7509671455151162163}
   m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
-  m_StaticShadowCaster: 0
+  m_StaticShadowCaster: 1
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
@@ -177,7 +190,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: d7a14fdd33ecb1e4a932c17c599120fb, type: 2}
+  - {fileID: -876546973899608171, guid: 823f29b93ea7d3b4e937ff3fa5447a8a, type: 3}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -199,25 +212,27 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!114 &5611071338511790571
-MonoBehaviour:
+--- !u!65 &3335464893233130856
+BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4209637067704815615}
+  m_GameObject: {fileID: 7509671455151162163}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
   m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 56da88057f954997a6fc9648a57976e0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Variants:
-  - Element: {fileID: 6240678538308625820, guid: c42440416ef81f64693865cd7d1325d9, type: 3}
-    OverrideMaterial: {fileID: 2100000, guid: d7a14fdd33ecb1e4a932c17c599120fb, type: 2}
-  - Element: {fileID: -7047243780222175833, guid: 2d08fe34d7e1b34488389132c02bd97d, type: 3}
-    OverrideMaterial: {fileID: 2100000, guid: 1e16b642109be7040a7f589235223c46, type: 2}
-  - Element: {fileID: -4396463729144112910, guid: c86f9a9dd4cefcd4eac232e99d6b93be, type: 3}
-    OverrideMaterial: {fileID: 2100000, guid: 0bcbf714cf65ced47a90830663d15160, type: 2}
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &7823240410255373372
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -228,9 +243,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6d96781d50c744d5b90125a6e0a230bb, type: 3}
-  m_Name: AsteroidDirt
+  m_Name: FloorLab
   m_EditorClassIdentifier: 
-  Icon: {fileID: 2800000, guid: 3665a18d3725e2940b608f2621c18036, type: 3}
+  Icon: {fileID: 2800000, guid: 923035db45bb15641a15563e3ad166cd, type: 3}
   Tags:
-  - {fileID: 11400000, guid: bb945fbaac849774099142d57400eb52, type: 2}
+  - {fileID: 11400000, guid: 104929695e765034f914bd930682c889, type: 2}
+  - {fileID: 11400000, guid: a7e9bfc2802f2ee48afc82c20864abaf, type: 2}
   Reference: {fileID: -5380242976130347905}

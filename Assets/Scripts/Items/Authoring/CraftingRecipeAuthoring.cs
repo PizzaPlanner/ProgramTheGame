@@ -1,4 +1,5 @@
 #if UNITY_EDITOR
+using Unity.Collections;
 using Unity.Entities;
 using UnityEngine;
 
@@ -28,30 +29,33 @@ public class CraftingRecipeAuthoring : MonoBehaviour
     {
         public override void Bake(CraftingRecipeAuthoring authoring)
         {
+            var blobBUilder = new BlobBuilder(Allocator.Temp);
+            ref var recipe = ref blobBUilder.ConstructRoot<Recipe>();
+            recipe.Duration = authoring.Duration;
+            var input = blobBUilder.Allocate(ref recipe.Inputs, authoring.Input.Length);
+            for(int i = 0; i < authoring.Input.Length; i++)
+                input[i] = new CraftingIngredient
+                {
+                    Amount = authoring.Input[i].Amount,
+                    ItemId = authoring.Input[i].Prefab.GetComponent<ItemAuthoring>().Id,
+                    Location = IngredientLocation.Inventory
+                };
+            var output = blobBUilder.Allocate(ref recipe.Outputs, authoring.Output.Length);
+            for(int i = 0; i < authoring.Output.Length; i++)
+                output[i] = new CraftingIngredient
+                {
+                    Amount = authoring.Output[i].Amount,
+                    ItemId = authoring.Output[i].Prefab.GetComponent<ItemAuthoring>().Id,
+                    Location = IngredientLocation.Inventory
+                };
+            var blob = blobBUilder.CreateBlobAssetReference<Recipe>(Allocator.Persistent);
+            
             var self = GetEntity(TransformUsageFlags.None);
             AddComponent(self, new CraftingRecipe
             {
-                Duration = authoring.Duration
+                Data = blob
             });
-            var inBuffer = AddBuffer<CraftingInput>(self);
-            foreach (var thing in authoring.Input)
-            {
-                inBuffer.Add(new CraftingInput
-                {
-                    Amount = thing.Amount, 
-                    ItemId = thing.Prefab.GetComponent<ItemAuthoring>().Id
-                });
-            }
-
-            var outBuffer = AddBuffer<CraftingOutput>(self);
-            foreach (var thing in authoring.Output)
-            {
-                outBuffer.Add(new CraftingOutput
-                {
-                    Amount = thing.Amount, 
-                    ItemId = thing.Prefab.GetComponent<ItemAuthoring>().Id
-                });
-            }
+            AddBlobAsset(ref blob, out _);
 
             var crafters = AddBuffer<CraftedIn>(self);
             foreach (var crafter in authoring.CraftedIn)

@@ -24,21 +24,20 @@ partial struct CrafterSystem : ISystem
             if(craftTask.ValueRW.Recipe == default)
                 ecb.DestroyEntity(e);
             
-            var recipe = craftTask.ValueRW.Recipe;
+            var recipe = Recipe.From(craftTask.ValueRW.Recipe);
 
             switch (craftTask.ValueRW.State)
             {
                 case CraftState.OrderItems:
                     progress.ValueRW.PartialTicks = 0;
                     workedOn.ValueRW = false;
-                    var recipeInput = SystemAPI.GetBuffer<CraftingInput>(recipe.SpawnablePrefab);
                     if (!inventoryLookup.TryGetBuffer(task.Origin, out var inventory))
                     {
                         Debug.LogWarning($"Origin of CraftTask missing Inventory");
                         ecb.DestroyEntity(e);
                         continue;
                     }
-                    foreach (var requirement in recipeInput)
+                    foreach (var requirement in recipe.Inputs)
                     {
                         if(inventory.Contains(requirement.ItemId, requirement.Amount))
                             continue;
@@ -66,9 +65,9 @@ partial struct CrafterSystem : ISystem
                     break;
                 case CraftState.Done:
                     var transaction = store.ValueRW.CreateBuilder;
-                    foreach(var requirement in SystemAPI.GetBuffer<CraftingInput>(craftTask.ValueRW.Recipe.SpawnablePrefab))
+                    foreach(var requirement in recipe.Inputs)
                         transaction.RemoveFrom(task.Origin, requirement.ItemId, requirement.Amount);
-                    foreach(var result in SystemAPI.GetBuffer<CraftingOutput>(craftTask.ValueRW.Recipe.SpawnablePrefab))
+                    foreach(var result in recipe.Outputs)
                         transaction.AddTo(task.Origin, result.ItemId, result.Amount);
                     if (craftTask.ValueRW.Mode == CraftMode.Times)
                     {

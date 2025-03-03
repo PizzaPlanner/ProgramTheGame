@@ -3,6 +3,7 @@ using System;
 using System.Linq;
 using Unity.Collections;
 using Unity.Entities;
+using Unity.Scenes;
 using UnityEngine;
 
 [WorldSystemFilter(WorldSystemFilterFlags.Editor | WorldSystemFilterFlags.Default)]
@@ -35,6 +36,10 @@ public partial class IdentifiablesMappingGroup : ComponentSystemGroup
 
     protected override void OnUpdate()
     {
+        foreach(var (scene, e) in SystemAPI.Query<RequestSceneLoaded>().WithAll<SceneEntityReference>().WithEntityAccess())
+            if (!SceneSystem.IsSectionLoaded(World.Unmanaged, e))
+                return;
+        
         var ecb = new EntityCommandBuffer(Allocator.Temp);
         var mappedThisFrame = new NativeList<Entity>(Allocator.Temp);
         foreach (var (id, e) in SystemAPI.Query<IdentifiableData>()
@@ -69,7 +74,7 @@ public partial class IdentifiablesMappingGroup : ComponentSystemGroup
         EntityManager.RemoveComponent<IdentifiableData>(mappedThisFrame.AsArray());
         EntityManager.RemoveComponent<Tags>(mappedThisFrame.AsArray());
         EntityManager.AddComponent<Mapped>(mappedThisFrame.AsArray());
-        Debug.Log($"Loaded {mappedThisFrame.Length} Identifiables");
+        Debug.Log($"Loaded {mappedThisFrame.Length} IDs");
     }
 
     bool RegisterAsIdentifiable(Entity e, IdentifiableData data)

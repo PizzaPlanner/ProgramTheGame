@@ -51,7 +51,7 @@ namespace Navigation
                 text += $"Area {myArea} ({navTree.Areas[myArea].Type})";
                 foreach (var area in navTree.Areas[myArea].Connections)
                 {
-                    text += $"\n-> {area.Key}: Distance {area.Value.PreviousAreaTraversalCost} via {area.Value.PreviousArea}";
+                    text += $"\n-> {area.Key}: Distance {area.Value.PathingRestrictions} via {area.Value.PreviousArea}";
                 }
             }
             _window.Q<Label>("text").text = text;
