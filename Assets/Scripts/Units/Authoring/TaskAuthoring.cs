@@ -7,6 +7,7 @@ public class TaskAuthoring : MonoBehaviour
     public IdentifiableAsset RequiredSkill;
     public int MinSkillLevel;
     public int MaxExecutionRange;
+    public bool IsCancelable;
     
     [Tooltip("If set, limit number of tasks with the same UGI to one per TaskProvider")]
     public TaskAuthoring UniquenessGroupIdentifier;
@@ -19,6 +20,8 @@ public class TaskAuthoring : MonoBehaviour
             AddComponent<OnGrid>(e);
             AddBuffer<TaskProvider>(e);
             AddBuffer<BroadcastStatus>(e);
+            if(authoring.IsCancelable)
+                AddComponent<Cancelable>(e);
             AddComponent(e, new WorkedOn { MaxRange = authoring.MaxExecutionRange });
             SetComponentEnabled<WorkedOn>(e, false);
             if(authoring.UniquenessGroupIdentifier != null)

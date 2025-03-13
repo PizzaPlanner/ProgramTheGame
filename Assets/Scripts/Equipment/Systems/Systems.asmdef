@@ -27,7 +27,8 @@
         "Tasks",
         "Construction",
         "Elements",
-        "Elements.Systems"
+        "Elements.Systems",
+        "UnitStats.Systems"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

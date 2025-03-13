@@ -20,8 +20,7 @@ partial class UnitDispenserUISystem : UISystem
                     {
                         Origin = e,
                         CrewProvider = onGrid.Grid,
-                        Target = e,
-                        IsCancelable = true,
+                        Target = e
                     });
                 ecb.SetComponent(task, new DispenseUnitTask
                 {

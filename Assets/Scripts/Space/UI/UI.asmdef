@@ -23,7 +23,8 @@
         "Construction",
         "Blueprints",
         "Units.UI",
-        "Navigation"
+        "Navigation",
+        "Equipment.Systems"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

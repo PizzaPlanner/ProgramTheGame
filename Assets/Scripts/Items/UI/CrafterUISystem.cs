@@ -34,8 +34,7 @@ partial class CrafterUISystem : UISystem
                     Priority = TaskPriority.MediumPriority,
                     Origin = e,
                     Executor = e,
-                    CrewProvider = onGrid.Grid,
-                    IsCancelable = true
+                    CrewProvider = onGrid.Grid
                 });
                 ecb.SetComponent(craftTask, wantCraft);
                 ecb.SetComponent(craftTask, new TaskProgress { RequiredTicks = SystemAPI.GetComponent<CraftingRecipe>(wantCraft.Recipe.SpawnablePrefab).Duration});

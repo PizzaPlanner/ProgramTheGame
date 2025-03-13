@@ -121,8 +121,7 @@ partial class DeconstructToolUISystem : MapOverlaySystem<DeconstructTool>
                         Target = entity,
                         Origin = entity,
                         Priority = TaskPriority.MediumPriority,
-                        CrewProvider = GridEntity,
-                        IsCancelable = true
+                        CrewProvider = GridEntity
                     });
                 }
             DragArea.Max = CellAtCursor + 1;

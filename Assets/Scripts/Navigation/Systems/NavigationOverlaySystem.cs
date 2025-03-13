@@ -37,10 +37,6 @@ namespace Navigation
                 return;
             var navTree = SystemAPI.GetComponent<NavTree>(GridEntity);
             var text = "";
-            if(Input.GetMouseButtonDown(0))
-                _measureCell = CellAtCursor;
-            else if(Input.GetMouseButtonDown(1))
-                _measureCell = int.MaxValue;
             if(math.all (CellAtCursor == _lastCursor))
                 return;
             _lastCursor = CellAtCursor;

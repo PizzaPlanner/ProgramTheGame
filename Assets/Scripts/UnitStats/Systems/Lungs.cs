@@ -58,10 +58,10 @@ namespace Core.Equipment
                 }
                 else
                 {
-                    lungs.ValueRW.Fullness = math.min(lungs.ValueRW.Capacity, lungs.ValueRW.Fullness + lungs.ValueRW.ConsumptionPerTick);
                     ref var cellRW = ref gridMasses.ValueRW.AbsoluteCellRW(cellInGrid);
                     cellRW.Remove(lungs.ValueRW.Inhales, (uint)lungs.ValueRW.ConsumptionPerTick, out _);
                     cellRW.Add(MassData.From(lungs.ValueRW.Exhales, (uint)lungs.ValueRW.ProductionPerTick, body.Temperature));
+                    lungs.ValueRW.Fullness = math.min(lungs.ValueRW.Capacity, lungs.ValueRW.Fullness + lungs.ValueRW.ConsumptionPerTick);
                 }
 
                 if (wasSuffocating && !lungs.ValueRW.IsSuffocating)

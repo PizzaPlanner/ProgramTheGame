@@ -40,6 +40,11 @@ namespace Units
                     });
                 }
             }
+            
+            foreach(var (tasks, e) in SystemAPI.Query<DynamicBuffer<TaskProvider>>()
+                                               .WithAll<UnderConstruction>().WithEntityAccess())
+                if(tasks.Length == 0)
+                    ecb.DestroyEntity(e);
         }
     }
 }

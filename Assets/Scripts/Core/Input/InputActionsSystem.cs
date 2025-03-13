@@ -19,7 +19,7 @@ namespace Core.Input
     
     internal struct InputActionState : IComponentData { }
     
-    [UpdateInGroup(typeof(PresentationSystemGroup))]
+    [UpdateInGroup(typeof(PresentationSystemGroup), OrderFirst = true)]
     public partial class InputActionsSystem : SystemBase
     {
         NativeHashMap<TypeIndex, Entity> _entityLookup;

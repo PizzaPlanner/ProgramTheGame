@@ -29,7 +29,10 @@ namespace Core
        public static readonly Identifiable CopperOre = Identifiable.FromName("CopperOre");
        public static readonly Identifiable Corn = Identifiable.FromName("Corn");
        public static readonly Identifiable CornSeeds = Identifiable.FromName("CornSeeds");
+       public static readonly Identifiable DataDrive = Identifiable.FromName("DataDrive");
+       public static readonly Identifiable EssentialData = Identifiable.FromName("EssentialData");
        public static readonly Identifiable GenomeSequence = Identifiable.FromName("GenomeSequence");
+       public static readonly Identifiable IndustrialData = Identifiable.FromName("IndustrialData");
        public static readonly Identifiable IronIngot = Identifiable.FromName("IronIngot");
        public static readonly Identifiable IronOre = Identifiable.FromName("IronOre");
        public static readonly Identifiable Leedite = Identifiable.FromName("Leedite");
@@ -41,6 +44,7 @@ namespace Core
        public static readonly Identifiable SteelIngot = Identifiable.FromName("SteelIngot");
        public static readonly Identifiable Stone = Identifiable.FromName("Stone");
        public static readonly Identifiable SurvivalRations = Identifiable.FromName("SurvivalRations");
+       public static readonly Identifiable TacticalData = Identifiable.FromName("TacticalData");
        public static readonly Identifiable EmptyLocation = Identifiable.FromName("EmptyLocation");
        public static readonly Identifiable Orbit = Identifiable.FromName("Orbit");
        public static readonly Identifiable StartRock = Identifiable.FromName("StartRock");
@@ -50,6 +54,9 @@ namespace Core
        public static readonly Identifiable MGAsteroidField = Identifiable.FromName("MGAsteroidField");
        public static readonly Identifiable CopperIngotRecipe = Identifiable.FromName("CopperIngotRecipe");
        public static readonly Identifiable CornRecipe = Identifiable.FromName("CornRecipe");
+       public static readonly Identifiable EmptyDriveRecipe = Identifiable.FromName("EmptyDriveRecipe");
+       public static readonly Identifiable EssentialDriveRecipe = Identifiable.FromName("EssentialDriveRecipe");
+       public static readonly Identifiable IndustryDataRecipe = Identifiable.FromName("IndustryDataRecipe");
        public static readonly Identifiable IronIngotRecipe = Identifiable.FromName("IronIngotRecipe");
        public static readonly Identifiable MotherboardRecipe = Identifiable.FromName("MotherboardRecipe");
        public static readonly Identifiable SteelIngotRecipe = Identifiable.FromName("SteelIngotRecipe");
@@ -75,6 +82,7 @@ namespace Core
        public static readonly Identifiable Stomach = Identifiable.FromName("Stomach");
        public static readonly Identifiable Suffocating = Identifiable.FromName("Suffocating");
        public static readonly Identifiable Tired = Identifiable.FromName("Tired");
+       public static readonly Identifiable Analyzer = Identifiable.FromName("Analyzer");
        public static readonly Identifiable Assembler = Identifiable.FromName("Assembler");
        public static readonly Identifiable Battery = Identifiable.FromName("Battery");
        public static readonly Identifiable Bed = Identifiable.FromName("Bed");
@@ -126,6 +134,7 @@ namespace Core
        public static readonly Identifiable TagRecipe = Identifiable.FromName("TagRecipe");
        public static readonly Identifiable TagRefinedMetal = Identifiable.FromName("TagRefinedMetal");
        public static readonly Identifiable TagResource = Identifiable.FromName("TagResource");
+       public static readonly Identifiable TagSchematic = Identifiable.FromName("TagSchematic");
        public static readonly Identifiable TagSkill = Identifiable.FromName("TagSkill");
        public static readonly Identifiable TagSolid = Identifiable.FromName("TagSolid");
        public static readonly Identifiable TagStatus = Identifiable.FromName("TagStatus");
@@ -134,6 +143,8 @@ namespace Core
        public static readonly Identifiable TagTrait = Identifiable.FromName("TagTrait");
        public static readonly Identifiable TagUnit = Identifiable.FromName("TagUnit");
        public static readonly Identifiable TagWorld = Identifiable.FromName("TagWorld");
+       public static readonly Identifiable AnalyzeEssentialDataTask = Identifiable.FromName("AnalyzeEssentialDataTask");
+       public static readonly Identifiable AnalyzeIndustrialDataTask = Identifiable.FromName("AnalyzeIndustrialDataTask");
        public static readonly Identifiable ApproachTask = Identifiable.FromName("ApproachTask");
        public static readonly Identifiable BreatheTask = Identifiable.FromName("BreatheTask");
        public static readonly Identifiable BuildTask = Identifiable.FromName("BuildTask");
@@ -147,7 +158,17 @@ namespace Core
        public static readonly Identifiable MineTask = Identifiable.FromName("MineTask");
        public static readonly Identifiable RestTask = Identifiable.FromName("RestTask");
        public static readonly Identifiable TravelTask = Identifiable.FromName("TravelTask");
+       public static readonly Identifiable Accomodation = Identifiable.FromName("Accomodation");
+       public static readonly Identifiable Electronics = Identifiable.FromName("Electronics");
+       public static readonly Identifiable Farming = Identifiable.FromName("Farming");
+       public static readonly Identifiable Industry = Identifiable.FromName("Industry");
+       public static readonly Identifiable LifeSupport = Identifiable.FromName("LifeSupport");
+       public static readonly Identifiable Manufacturing = Identifiable.FromName("Manufacturing");
        public static readonly Identifiable Navigation = Identifiable.FromName("Navigation");
+       public static readonly Identifiable Production = Identifiable.FromName("Production");
+       public static readonly Identifiable Shelter = Identifiable.FromName("Shelter");
+       public static readonly Identifiable Tactics = Identifiable.FromName("Tactics");
+       public static readonly Identifiable Travel = Identifiable.FromName("Travel");
        public static readonly Identifiable TraitCouchPotato = Identifiable.FromName("TraitCouchPotato");
        public static readonly Identifiable TraitExtrovert = Identifiable.FromName("TraitExtrovert");
        public static readonly Identifiable TraitPosh = Identifiable.FromName("TraitPosh");
@@ -156,6 +177,7 @@ namespace Core
        public static readonly Identifiable Colonist = Identifiable.FromName("Colonist");
        public static readonly Identifiable DOGGO = Identifiable.FromName("DOGGO");
        public static readonly Identifiable MOLE = Identifiable.FromName("MOLE");
+       public static readonly Identifiable ResearchCache = Identifiable.FromName("ResearchCache");
        public static readonly Identifiable StarterCache = Identifiable.FromName("StarterCache");
        public static readonly Identifiable WallRubble = Identifiable.FromName("WallRubble");
 

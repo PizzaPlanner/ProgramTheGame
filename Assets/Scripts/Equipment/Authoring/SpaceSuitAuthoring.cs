@@ -5,9 +5,9 @@ namespace Equipment.Authoring
 {
     public class SpaceSuitAuthoring : MonoBehaviour
     {
-        class TheBaker : Baker<CanisterAuthoring>
+        class TheBaker : Baker<SpaceSuitAuthoring>
         {
-            public override void Bake(CanisterAuthoring authoring)
+            public override void Bake(SpaceSuitAuthoring authoring)
             {
                 var self = GetEntity(TransformUsageFlags.None);
                 AddComponent<SpaceSuit>(self);

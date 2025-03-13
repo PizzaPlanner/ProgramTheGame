@@ -4,6 +4,7 @@ using UnityEngine;
 
 namespace Units
 {
+    public struct Cancelable : IComponentData { }
     public struct WorkedOn : IComponentData, IEnableableComponent { public int MaxRange; }
     public struct Task : IComponentData
     {
@@ -12,10 +13,9 @@ namespace Units
         public Entity Executor;
         public Entity Origin;
         public bool IsPersonalized => _isPersonalized;
-
-        public bool IsCancelable;
         public Entity CrewProvider;
         bool _isPersonalized;
+        bool _unused;
 
         public static Entity Schedule(Identifiable taskPrefab, EntityCommandBuffer ecb, Task t)
         {

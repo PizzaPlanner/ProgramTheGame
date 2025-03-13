@@ -91,23 +91,25 @@ public partial class PlayfieldUI : VisualElement, IComponentData, IDisposable
     {
         if(Crew == null)
             Add(Crew = new VisualElement() { name = "Crew" });
-        Crew.Clear();
         Crew.style.display = crew.Length == 0 ? DisplayStyle.None : DisplayStyle.Flex;
-        foreach (var member in crew)
+        for (var i = 0; i < crew.Length; i++)
         {
-            var memberUI = new SignalButton
+            var member = crew[i];
+            if (Crew.childCount <= i)
             {
-                Target = em.GetComponentData<Identifiable>(member.Member),
-                Entity = member.Member
-            };
-            memberUI.RegisterCallback<MouseDownEvent>(_ =>
-            {
-                using var query = em.CreateEntityQuery(typeof(Selected));
-                em.RemoveComponent<Selected>(query);
-                em.AddComponent<Selected>(member.Member);
-            });
-            Crew.Add(memberUI);
+                var memberUI = new UnitButtonWithMood();
+                memberUI.RegisterCallback<MouseDownEvent>(_ =>
+                {
+                    using var query = em.CreateEntityQuery(typeof(Selected));
+                    em.RemoveComponent<Selected>(query);
+                    em.AddComponent<Selected>(memberUI.Entity);
+                });
+                Crew.Add(memberUI);
+            }
+            (Crew[i] as UnitButtonWithMood)!.Update(member.Member, em);
         }
+        for (var  i = crew.Length; i < Crew.childCount; i++)
+            Crew.RemoveAt(i--);
     }
 
     public void Dispose()
@@ -148,13 +150,9 @@ partial class PlayfieldUISystem : UISystem
             EntityManager.AddComponentObject(e, ui);
         }
         
-        var anyCrewChanged = SystemAPI.QueryBuilder().WithAll<Crew>().WithNone<Ghost>().Build();
-        anyCrewChanged.SetChangedVersionFilter(typeof(Crew));
-        if(!anyCrewChanged.IsEmpty)
-            foreach (var (crew, ui) in SystemAPI.Query<DynamicBuffer<Crew>, PlayfieldUI>())
-            {
-                ui.SetCrew(crew, EntityManager);
-            }
+        
+        foreach (var (crew, ui) in SystemAPI.Query<DynamicBuffer<Crew>, PlayfieldUI>())
+            ui.SetCrew(crew, EntityManager);
         
         var cgrid = SystemAPI.GetSingletonRW<CurrentGrid>();
         foreach (var (ui, e) in SystemAPI.Query<PlayfieldUI>().WithEntityAccess())

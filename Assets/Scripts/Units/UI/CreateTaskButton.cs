@@ -82,6 +82,8 @@ namespace Tasks.UI
             { 
                 var config = (ConfigPanel)ConfigArea[i];
                 config.Update(entityManager);
+                if (config.WantCancel)
+                    entityManager.DestroyEntity(config.TaskEntity);
             }
         }
     }
@@ -110,6 +112,9 @@ namespace Tasks.UI
                 AddToClassList("planned");
                 return;
             }
+            
+            if(!em.HasComponent<Cancelable>(taskEntity))
+                AddToClassList("cannot-cancel");
             
             if(em.HasComponent<TaskProgress>(taskEntity))
                 Add(ProgressBar = new PercentProgressBar());
@@ -143,10 +148,6 @@ namespace Tasks.UI
                 Executor.Entity = task.Executor;
                 Executor.Target = task.Executor != default ? entityManager.GetComponentData<Identifiable>(task.Executor) : default;
             }
-            if(!task.IsCancelable)
-                AddToClassList("cannot-cancel");
-            else
-                RemoveFromClassList("cannot-cancel");
             var dependencies = entityManager.GetBuffer<TaskProvider>(TaskEntity);
             if(dependencies.Length > 0)
                 Status.text = $"Waiting for {dependencies[0].Type}";

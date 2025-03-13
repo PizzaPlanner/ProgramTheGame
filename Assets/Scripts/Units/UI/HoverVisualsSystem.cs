@@ -1,6 +1,7 @@
 ﻿using Unity.Collections;
 using Unity.Entities;
 using Unity.Entities.Graphics;
+using UnityEngine;
 
 public struct HoverIndicator : IComponentData { }
 struct LateHoverIndicator : IComponentData { }
@@ -39,7 +40,7 @@ partial struct HoverVisualsSystem : ISystem
                     continue;
                 var settings = state.EntityManager.GetSharedComponent<RenderFilterSettings>(e);
                 settings.Layer = 0;
-                ecb.AddComponent<HoverIndicator>(e);
+                ecb.RemoveComponent<HoverIndicator>(e);
                 ecb.SetSharedComponent(e, settings);
             }
         }

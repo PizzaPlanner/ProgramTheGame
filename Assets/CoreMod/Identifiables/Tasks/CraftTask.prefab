@@ -61,6 +61,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   RequiredSkill: {fileID: 0}
   MinSkillLevel: 1
+  MaxExecutionRange: 0
+  IsCancelable: 1
+  UniquenessGroupIdentifier: {fileID: 0}
 --- !u!114 &-998144180797481237
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -33,10 +33,7 @@ namespace Space.Systems
                     if (!lookups.mass.HasComponent(e) 
                         || !lookups.grid.HasComponent(e) 
                         || !VerifyShipIntegrity(task))
-                    {
-                        task.IsCancelable = true;
                         return;
-                    }
                     if(!BuildUtils.Transfer(travel.FromLocation, shipCells, 
                            e, 0, ecb, lookups, out var offset))
                         return;
@@ -44,7 +41,6 @@ namespace Space.Systems
                     travel.Stage = TravelStage.Preparation;
                     progress.RequiredTicks = 100;
                     progress.PartialTicks = 0;
-                    task.IsCancelable = false;
                 }break;
                 case TravelStage.Preparation:
                 {

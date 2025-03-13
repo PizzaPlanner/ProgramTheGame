@@ -17,26 +17,16 @@ partial class UnderConstructionUISystem : SystemBase
                            .CreateCommandBuffer(World.Unmanaged);
         foreach (var (_, variant, provider, e) in SystemAPI.Query<UnderConstruction, ConstructionVariant, DynamicBuffer<TaskProvider>>().WithAll<Selected>().WithEntityAccess())
         {
-            
-            var taskBtn = ui.GetOrCreate("UnderConstruction", () =>
+            if(provider.Length == 0)
+                continue;
+            var taskBtn = ui.GetOrCreateActionButton(Identifiable.FromName("BuildTask"), EntityManager, false);
+            var config = taskBtn.ConfigFor(provider[0].Task);
+            if (config.Q("Body") == null)
             {
-                var ui2 = new UnderConstructionUI(variant);
-                var btn = new CreateTaskButton(ConstructTask, EntityManager, false);
-                var config = btn.ConfigFor(provider[0].Task);
                 var body = new VisualElement(){name = "Body"};
                 config.Add(body);
-                foreach (var req in SystemAPI.GetBuffer<TaskProvider>(provider[0].Task))
-                {
-                    var order = SystemAPI.GetComponent<ItemOrderTask>(req.Task);
-                    var dependency = new VisualElement();
-                    dependency.Add(new IdentifiableButton{Target = order.Item});
-                    dependency.Add(new Label(order.State.ToString()));
-                    config.Add(dependency);
-                }
-                ui2.Add(btn);
-                return ui2;
-            }).Q<CreateTaskButton>();
-            var config = taskBtn.ConfigFor(provider[0].Task);
+                body.Add(new InventoryElement());
+            }
             config.Update(EntityManager);
             taskBtn.SetUpdateFunc(OnUpdateTasks);
         }
@@ -44,9 +34,8 @@ partial class UnderConstructionUISystem : SystemBase
 
     void OnUpdateTasks(EntityManager em, Task task, ConfigPanel panel)
     {
-        // var body = panel.Q("Body");
-        // var reqs = em.GetBuffer<TaskProvider>(panel.TaskEntity);
-        // if(reqs.Length == 0)
+        var body = panel.Q("Body");
+        body.Q<InventoryElement>().Update(panel.TaskEntity, ref CheckedStateRef);
     }
 
     class UnderConstructionUI : VisualElement

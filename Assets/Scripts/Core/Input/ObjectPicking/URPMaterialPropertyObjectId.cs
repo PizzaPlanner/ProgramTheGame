@@ -1,8 +1,10 @@
-﻿using Identifiables;
+﻿using Grids;
+using Identifiables;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Rendering;
+using UnityEngine;
 
 [MaterialProperty("_EntityId", -1)]
 public struct URPMaterialPropertyObjectId : IComponentData, IQueryTypeParameter
@@ -20,9 +22,9 @@ partial struct ObjectPickingEntityAssignmentSystem : ISystem
     {
         var ecb = new EntityCommandBuffer(Allocator.Temp);
         foreach(var (linkedEntities, parent) in SystemAPI.Query<DynamicBuffer<LinkedEntityGroup>>()
-                                           .WithNone<IndexedForObjectPicking>()
-                                           .WithAll<Identifiable>()
-                                           .WithEntityAccess())
+                                                         .WithNone<IndexedForObjectPicking, CGrid>()
+                                                         .WithAll<Identifiable>()
+                                                         .WithEntityAccess())
         {
             foreach (var link in linkedEntities)
             {
@@ -36,6 +38,16 @@ partial struct ObjectPickingEntityAssignmentSystem : ISystem
                 }
             }
             ecb.AddComponent<IndexedForObjectPicking>(parent);
+        }
+        
+        foreach(var (mmi, e) in SystemAPI.Query<MaterialMeshInfo>()
+                                                         .WithNone<URPMaterialPropertyObjectId>()
+                                                         .WithAll<CGrid>()
+                                                         .WithEntityAccess())
+        {
+            ecb.AddComponent(e, new URPMaterialPropertyObjectId { Value = new int2(e.Index, e.Version) });
+            ecb.AddComponent<IndexedForObjectPicking>(e);
+            Debug.Log($"Adding UPR OID to {e}");
         }
         ecb.Playback(state.EntityManager);
     }

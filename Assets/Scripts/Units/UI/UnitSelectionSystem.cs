@@ -5,8 +5,11 @@ using Identifiables;
 using Identifiables.UI;
 using Navigation;
 using System.Collections.Generic;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Rendering;
+using Unity.Transforms;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
@@ -20,6 +23,8 @@ namespace Units
 
     public struct SelectTool : ICursorTool
     {
+        public static TypeIndex SelectionFilter;
+        public static Entity FilteredSelection;
         public bool IsActiveByDefault => true;
         public InputActionMap StateFor(InputActions asset) => asset.SelectTool;
         public InputAction ToggledByHotkey(InputActions actions) => actions.Tools.Select;
@@ -33,7 +38,6 @@ namespace Units
     {
         public Entity Hovered;
         EntityQuery _hoverQuery;
-        bool IsDragging;
         protected override void OnCreate()
         {
             RequireForUpdate<SelectTool>();
@@ -42,16 +46,58 @@ namespace Units
 
         protected override void OnStopRunning()
         {
-            EntityManager.RemoveComponent<Selected>(GetEntityQuery(typeof(Selected)));
+            ClearSelection();
             CancelHover();
+        }
+
+        void SetSelection()
+        {
+            EntityManager.RemoveComponent<Selected>(GetEntityQuery(typeof(Selected)));
+            if (SelectTool.SelectionFilter != default)
+            {
+                SelectTool.FilteredSelection = Hovered;
+                return;
+            }
+            if (Hovered != Entity.Null)
+                EntityManager.AddComponent<Selected>(Hovered);
+        }
+        
+        void ClearSelection()
+        {
+            SelectTool.SelectionFilter = default;
+            EntityManager.RemoveComponent<Selected>(GetEntityQuery(typeof(Selected)));
         }
 
         void CancelHover()
         {
-            Tooltip.Hide();
-            EntityManager.RemoveComponent<HoverIndicator>(GetEntityQuery(typeof(HoverIndicator)));
+            EntityManager.RemoveComponent<HoverIndicator>(_hoverQuery);
             Tooltip.Hide();
             Hovered = default;
+        }
+
+        void SetHover(Entity e)
+        {
+            var filter = SelectTool.SelectionFilter;
+            if (filter != default && !EntityManager.GetChunk(e).Archetype.GetComponentTypes()
+                                                   .Contains(ComponentType.ReadWrite(filter)))
+            {
+                Debug.Log($"{e}'s archetype has no {filter}");
+                return;
+            }
+            Hovered = e;
+            EntityManager.AddComponent<HoverIndicator>(e);
+            Tooltip.Show(this, new float2(Input.mousePosition.x, Screen.height - Input.mousePosition.y));
+        }
+        
+        Entity GetPickedTile(Entity grid)
+        {
+            var meshId = SystemAPI.GetComponent<MaterialMeshInfo>(grid).MeshID;
+            var ltw = SystemAPI.GetComponent<LocalToWorld>(grid);
+            var mousePos = Input.mousePosition;
+            var tileAtMousePos = int2.zero; // TODO
+            foreach(var e in SystemAPI.GetComponent<CGrid>(grid).GetAllEntitiesIn(new GridBounds{Min = tileAtMousePos, Max = tileAtMousePos}))
+                return e; // Just return first one
+            return default;
         }
 
         protected override void OnUpdate()
@@ -65,42 +111,19 @@ namespace Units
             
             var selected = SystemAPI.TryGetSingletonEntity<Selected>(out var e) ? e : Entity.Null;
             var pickedObject = SystemAPI.GetSingleton<ObjectPickingTarget>().Target;
-            if (pickedObject.Index < 0 || !SystemAPI.HasComponent<Identifiable>(pickedObject))
+            if (Hovered != pickedObject)
             {
-                if (Hovered != Entity.Null)
-                {
-                    EntityManager.RemoveComponent<HoverIndicator>(_hoverQuery);
-                }
-                Hovered = Entity.Null;
-                Tooltip.Hide();
+                CancelHover();
+                if (SystemAPI.HasComponent<CGrid>(pickedObject))
+                    SetHover(GetPickedTile(pickedObject));
+                else if (SystemAPI.HasComponent<Identifiable>(pickedObject))
+                    SetHover(pickedObject);
             }
-            else
-            {
-                if (Hovered != pickedObject)
-                {
-                    EntityManager.RemoveComponent<HoverIndicator>(_hoverQuery);
-                    EntityManager.AddComponent<HoverIndicator>(pickedObject);
-                }
-                Hovered = pickedObject;
-                Tooltip.Show(this, new float2(Input.mousePosition.x, Screen.height - Input.mousePosition.y));
-            }
+            
             if (SelectTool.Select.WasPressedThisFrame() && Hovered != selected)
-            {
-                if (SystemAPI.HasComponent<Selected>(selected))
-                {
-                    EntityManager.RemoveComponent<Selected>(selected);
-                }
-                if (Hovered != Entity.Null)
-                {
-                    selected = Hovered;
-                    EntityManager.AddComponent<Selected>(selected);
-                }
-            }
-            else if (SelectTool.Deselect.WasPressedThisFrame() 
-                     && selected != Entity.Null)
-            {
-                EntityManager.RemoveComponent<Selected>(selected);
-            }
+                SetSelection();
+            else if (SelectTool.Deselect.WasPressedThisFrame())
+                ClearSelection();
         }
 
         public IEnumerable<VisualElement> TooltipContent

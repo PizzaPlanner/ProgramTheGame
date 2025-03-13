@@ -1,5 +1,9 @@
-﻿using Unity.Entities;
+﻿using InputStates;
+using Unity.Entities;
+using UnityEngine.UI;
 using UnityEngine.UIElements;
+using Button = UnityEngine.UIElements.Button;
+using Toggle = UnityEngine.UIElements.Toggle;
 
 namespace Core
 {
@@ -87,7 +91,14 @@ namespace Core
             {
                 timeState.RequestedTicksPerSecond = _view.DesiredUps;
                 _view.DesiredUps = -1;
-            }
+            } else if(Player.Pause.WasPerformedThisFrame())
+                timeState.RequestedTicksPerSecond = 0;
+            else if(Player.Speed1.WasPerformedThisFrame())
+                timeState.RequestedTicksPerSecond = 5;
+            else if(Player.Speed2.WasPerformedThisFrame())
+                timeState.RequestedTicksPerSecond = 10;
+            else if(Player.Speed3.WasPerformedThisFrame())
+                timeState.RequestedTicksPerSecond = 20;
             _view.Update(timeState);
 
             if (_view.WantSwitchSandbox)

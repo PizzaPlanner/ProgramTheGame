@@ -90,8 +90,8 @@ public class BuildingAuthoring : MonoBehaviour
 
     void DrawBox(GridBounds bounds, Color color)
     {
-        var min = new float3(bounds.Min.x, 0, bounds.Min.y);
-        var max = new float3(bounds.Max.x + 1, 0, bounds.Max.y + 1);
+        var min = new float3(bounds.Min.x, 0, bounds.Min.y) + (float3)transform.position;
+        var max = new float3(bounds.Max.x + 1, 0, bounds.Max.y + 1)  + (float3)transform.position;
         Gizmos.color = color;
         Gizmos.DrawLine(min, new float3(min.x, 0, max.z));
         Gizmos.DrawLine(new float3(min.x, 0, max.z), max);

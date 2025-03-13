@@ -10,6 +10,7 @@ using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.Rendering;
 
+[DisableAutoCreation]
 partial class GridMeshMaterialAtlasSystem : IdentifiableMappingSystem
 {
     public static Material Atlas;
@@ -89,6 +90,7 @@ partial class GridMeshMaterialAtlasSystem : IdentifiableMappingSystem
     }
 }
 
+[DisableAutoCreation]
 [UpdateInGroup(typeof(GridUpdateSystemGroup))]
 partial struct GridMeshSystem : ISystem
 {

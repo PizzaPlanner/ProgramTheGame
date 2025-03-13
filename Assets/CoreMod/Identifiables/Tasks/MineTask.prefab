@@ -62,6 +62,7 @@ MonoBehaviour:
   RequiredSkill: {fileID: 11400000, guid: 18614828c65efa946b54e19359332d2a, type: 2}
   MinSkillLevel: 1
   MaxExecutionRange: 1
+  IsCancelable: 1
   UniquenessGroupIdentifier: {fileID: 5923588122422854532, guid: e6fbab2b9276e9642a2e14a08ec0aa19, type: 3}
 --- !u!114 &-2431404326971592238
 MonoBehaviour:

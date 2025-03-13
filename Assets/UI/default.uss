@@ -1078,3 +1078,18 @@ MainMenu {
     width: 32px;
     height: 32px;
 }
+
+#BuildTaskInput {
+    flex-direction: row;
+}
+
+#BuildTaskInput > .id-button {
+    width: 24px;
+    height: 24px;
+}
+
+UnitButtonWithMood > PercentProgressBar {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+}

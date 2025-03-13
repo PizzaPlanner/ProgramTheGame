@@ -1,21 +1,10 @@
 ﻿using Core.Input;
 using Grids;
-using System;
+using InputStates;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
-using UnityEngine.InputSystem;
-
-struct Navigation : IInputActionState
-{
-    public string[] StateSets => Array.Empty<string>();
-    public InputActionMap StateFor(InputActions asset) => asset.Player;
-    
-    public static InputAction Move => InputActions.For<Navigation>()["Move"];
-    public static InputAction Rotate => InputActions.For<Navigation>()["Rotate"];
-    public static InputAction Zoom => InputActions.For<Navigation>()["Zoom"];
-}
 
 [UpdateInGroup(typeof(PresentationSystemGroup))]
 [UpdateAfter(typeof(InputActionsSystem))]
@@ -63,9 +52,9 @@ partial struct CameraSystem : ISystem
         var shipLtw = SystemAPI.GetComponent<LocalToWorld>(ship);
         var shipBounds = SystemAPI.GetComponent<CGrid>(ship).BoundsWithBorder;
         
-        var wasd = (float2)Navigation.Move.ReadValue<Vector2>();
-        var rotate = Navigation.Rotate.ReadValue<Vector2>().x;
-        var zoom = Navigation.Zoom.ReadValue<float>();
+        var wasd = (float2)Player.Move.ReadValue<Vector2>();
+        var rotate = Player.Rotate.ReadValue<Vector2>().x;
+        var zoom = Player.Zoom.ReadValue<float>();
         
         if(zoom != 0)
             camAnchor.ValueRW.CameraDistance -= zoom * SystemAPI.Time.DeltaTime * camAnchor.ValueRW.ZoomFactor;

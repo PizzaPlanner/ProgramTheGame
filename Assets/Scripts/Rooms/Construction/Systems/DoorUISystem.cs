@@ -14,6 +14,7 @@ namespace Construction.Systems
 
             public DoorUI()
             {
+                Add(new EntityLinkButton(typeof(SpaceSuitDock)));
                 Add(Open = new Button(() => wantOpen = true){text = "Open"});
                 Add(Auto = new Button(() => wantAuto = true){text = "Auto"});
                 Add(Locked = new Button(() => wantLocked = true){text = "Locked"});
@@ -22,15 +23,15 @@ namespace Construction.Systems
         
         protected override void OnUpdate()
         {
+            if(!UISystemGroup.TryGet<SelectedUnitElement>(out var ui))
+                return;
+            
             foreach (var (door, e) in SystemAPI.Query<RefRW<Door>>()
                                                                   .WithAll<Selected>()
                                                                   .WithNone<Ghost>()
                                                                   .WithOptions(EntityQueryOptions.IgnoreComponentEnabledState)
                                                                   .WithEntityAccess())
             {
-                if(!UISystemGroup.TryGet<SelectedUnitElement>(out var ui))
-                    return;
-                
                 var window = ui.Q<DoorUI>();
                 if (window == null)
                 {
@@ -53,8 +54,6 @@ namespace Construction.Systems
                     window.wantAuto = false;
                     door.ValueRW.TargetState = Door.DoorState.Closed;
                 }
-                
-                
             }
         }
     }

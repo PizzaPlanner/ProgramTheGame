@@ -29,8 +29,7 @@ namespace Construction.Systems
                     Target = e, 
                     Priority = TaskPriority.MediumPriority,
                     Origin = e,
-                    CrewProvider = onGrid.Grid,
-                    IsCancelable = true
+                    CrewProvider = onGrid.Grid
                 });
                 
             }

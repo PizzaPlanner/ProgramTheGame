@@ -22,7 +22,8 @@
         "Elements.Authoring",
         "UnitStats",
         "Space",
-        "Items.Authoring"
+        "Items.Authoring",
+        "Units.UI"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

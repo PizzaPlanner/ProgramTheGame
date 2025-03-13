@@ -26,7 +26,8 @@
         "Elements",
         "Items.UI",
         "Navigation",
-        "Space"
+        "Space",
+        "Equipment"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

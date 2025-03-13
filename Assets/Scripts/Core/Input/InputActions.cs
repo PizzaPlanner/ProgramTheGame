@@ -53,6 +53,42 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""Pause"",
+                    ""type"": ""Button"",
+                    ""id"": ""f79f717e-6f9c-4e31-ae29-b17debc47f42"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Speed1"",
+                    ""type"": ""Button"",
+                    ""id"": ""40a80918-0a09-4749-b267-e82270ce9807"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Speed2"",
+                    ""type"": ""Button"",
+                    ""id"": ""e665246c-1915-4b20-afe2-195e6443656f"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Speed3"",
+                    ""type"": ""Button"",
+                    ""id"": ""e0cc1509-70da-46cc-a1f7-f466e1a647e9"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -240,6 +276,50 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": "";Keyboard&Mouse"",
                     ""action"": ""Zoom"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""744c8f38-170a-40b6-8969-01c9a7baab6f"",
+                    ""path"": ""<Keyboard>/space"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Pause"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""4ed35c31-23af-4e59-a99e-9c7f7d230eb6"",
+                    ""path"": ""<Keyboard>/1"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Speed1"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""c59a5485-b488-4a4a-add4-455ad084444f"",
+                    ""path"": ""<Keyboard>/2"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Speed2"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""bd430d4f-b725-49be-870c-a073227bfa83"",
+                    ""path"": ""<Keyboard>/3"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Speed3"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -791,6 +871,15 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Cancel"",
+                    ""type"": ""Button"",
+                    ""id"": ""a83698de-59d2-4a8a-8acd-54b887dcaa06"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -824,6 +913,17 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": "";Keyboard&Mouse"",
                     ""action"": ""Deconstruct"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""7ddff6f6-96eb-4b96-8ffb-a28e9751adbb"",
+                    ""path"": ""<Keyboard>/c"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Cancel"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -872,6 +972,54 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""Deselect"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                }
+            ]
+        },
+        {
+            ""name"": ""CancelTool"",
+            ""id"": ""957b7750-1707-46ae-8a91-05c90c032e0d"",
+            ""actions"": [
+                {
+                    ""name"": ""Select"",
+                    ""type"": ""Button"",
+                    ""id"": ""260b76ec-0d81-40ac-9c8b-5a20a3c7c792"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Cancel"",
+                    ""type"": ""Button"",
+                    ""id"": ""d4e552e6-ca3a-4126-b7c9-8a807a142a28"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                }
+            ],
+            ""bindings"": [
+                {
+                    ""name"": """",
+                    ""id"": ""12a163c4-7235-48f3-8a13-8bec8b78e2a5"",
+                    ""path"": ""<Mouse>/leftButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""Select"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""a4e86273-df82-4124-b52e-029613359692"",
+                    ""path"": ""<Mouse>/rightButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Cancel"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -1186,6 +1334,10 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         m_Player_Move = m_Player.FindAction("Move", throwIfNotFound: true);
         m_Player_Rotate = m_Player.FindAction("Rotate", throwIfNotFound: true);
         m_Player_Zoom = m_Player.FindAction("Zoom", throwIfNotFound: true);
+        m_Player_Pause = m_Player.FindAction("Pause", throwIfNotFound: true);
+        m_Player_Speed1 = m_Player.FindAction("Speed1", throwIfNotFound: true);
+        m_Player_Speed2 = m_Player.FindAction("Speed2", throwIfNotFound: true);
+        m_Player_Speed3 = m_Player.FindAction("Speed3", throwIfNotFound: true);
         // UI
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
         m_UI_Navigate = m_UI.FindAction("Navigate", throwIfNotFound: true);
@@ -1203,10 +1355,15 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         m_Tools_Build = m_Tools.FindAction("Build", throwIfNotFound: true);
         m_Tools_Select = m_Tools.FindAction("Select", throwIfNotFound: true);
         m_Tools_Deconstruct = m_Tools.FindAction("Deconstruct", throwIfNotFound: true);
+        m_Tools_Cancel = m_Tools.FindAction("Cancel", throwIfNotFound: true);
         // SelectTool
         m_SelectTool = asset.FindActionMap("SelectTool", throwIfNotFound: true);
         m_SelectTool_Select = m_SelectTool.FindAction("Select", throwIfNotFound: true);
         m_SelectTool_Deselect = m_SelectTool.FindAction("Deselect", throwIfNotFound: true);
+        // CancelTool
+        m_CancelTool = asset.FindActionMap("CancelTool", throwIfNotFound: true);
+        m_CancelTool_Select = m_CancelTool.FindAction("Select", throwIfNotFound: true);
+        m_CancelTool_Cancel = m_CancelTool.FindAction("Cancel", throwIfNotFound: true);
         // BuildTool
         m_BuildTool = asset.FindActionMap("BuildTool", throwIfNotFound: true);
         m_BuildTool_PlaceBuilding = m_BuildTool.FindAction("PlaceBuilding", throwIfNotFound: true);
@@ -1235,6 +1392,7 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         UnityEngine.Debug.Assert(!m_UI.enabled, "This will cause a leak and performance issues, InputActions.UI.Disable() has not been called.");
         UnityEngine.Debug.Assert(!m_Tools.enabled, "This will cause a leak and performance issues, InputActions.Tools.Disable() has not been called.");
         UnityEngine.Debug.Assert(!m_SelectTool.enabled, "This will cause a leak and performance issues, InputActions.SelectTool.Disable() has not been called.");
+        UnityEngine.Debug.Assert(!m_CancelTool.enabled, "This will cause a leak and performance issues, InputActions.CancelTool.Disable() has not been called.");
         UnityEngine.Debug.Assert(!m_BuildTool.enabled, "This will cause a leak and performance issues, InputActions.BuildTool.Disable() has not been called.");
         UnityEngine.Debug.Assert(!m_DeconstructTool.enabled, "This will cause a leak and performance issues, InputActions.DeconstructTool.Disable() has not been called.");
         UnityEngine.Debug.Assert(!m_Overlays.enabled, "This will cause a leak and performance issues, InputActions.Overlays.Disable() has not been called.");
@@ -1304,6 +1462,10 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_Move;
     private readonly InputAction m_Player_Rotate;
     private readonly InputAction m_Player_Zoom;
+    private readonly InputAction m_Player_Pause;
+    private readonly InputAction m_Player_Speed1;
+    private readonly InputAction m_Player_Speed2;
+    private readonly InputAction m_Player_Speed3;
     public struct PlayerActions
     {
         private @InputActions m_Wrapper;
@@ -1311,6 +1473,10 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         public InputAction @Move => m_Wrapper.m_Player_Move;
         public InputAction @Rotate => m_Wrapper.m_Player_Rotate;
         public InputAction @Zoom => m_Wrapper.m_Player_Zoom;
+        public InputAction @Pause => m_Wrapper.m_Player_Pause;
+        public InputAction @Speed1 => m_Wrapper.m_Player_Speed1;
+        public InputAction @Speed2 => m_Wrapper.m_Player_Speed2;
+        public InputAction @Speed3 => m_Wrapper.m_Player_Speed3;
         public InputActionMap Get() { return m_Wrapper.m_Player; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -1329,6 +1495,18 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
             @Zoom.started += instance.OnZoom;
             @Zoom.performed += instance.OnZoom;
             @Zoom.canceled += instance.OnZoom;
+            @Pause.started += instance.OnPause;
+            @Pause.performed += instance.OnPause;
+            @Pause.canceled += instance.OnPause;
+            @Speed1.started += instance.OnSpeed1;
+            @Speed1.performed += instance.OnSpeed1;
+            @Speed1.canceled += instance.OnSpeed1;
+            @Speed2.started += instance.OnSpeed2;
+            @Speed2.performed += instance.OnSpeed2;
+            @Speed2.canceled += instance.OnSpeed2;
+            @Speed3.started += instance.OnSpeed3;
+            @Speed3.performed += instance.OnSpeed3;
+            @Speed3.canceled += instance.OnSpeed3;
         }
 
         private void UnregisterCallbacks(IPlayerActions instance)
@@ -1342,6 +1520,18 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
             @Zoom.started -= instance.OnZoom;
             @Zoom.performed -= instance.OnZoom;
             @Zoom.canceled -= instance.OnZoom;
+            @Pause.started -= instance.OnPause;
+            @Pause.performed -= instance.OnPause;
+            @Pause.canceled -= instance.OnPause;
+            @Speed1.started -= instance.OnSpeed1;
+            @Speed1.performed -= instance.OnSpeed1;
+            @Speed1.canceled -= instance.OnSpeed1;
+            @Speed2.started -= instance.OnSpeed2;
+            @Speed2.performed -= instance.OnSpeed2;
+            @Speed2.canceled -= instance.OnSpeed2;
+            @Speed3.started -= instance.OnSpeed3;
+            @Speed3.performed -= instance.OnSpeed3;
+            @Speed3.canceled -= instance.OnSpeed3;
         }
 
         public void RemoveCallbacks(IPlayerActions instance)
@@ -1484,6 +1674,7 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
     private readonly InputAction m_Tools_Build;
     private readonly InputAction m_Tools_Select;
     private readonly InputAction m_Tools_Deconstruct;
+    private readonly InputAction m_Tools_Cancel;
     public struct ToolsActions
     {
         private @InputActions m_Wrapper;
@@ -1491,6 +1682,7 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         public InputAction @Build => m_Wrapper.m_Tools_Build;
         public InputAction @Select => m_Wrapper.m_Tools_Select;
         public InputAction @Deconstruct => m_Wrapper.m_Tools_Deconstruct;
+        public InputAction @Cancel => m_Wrapper.m_Tools_Cancel;
         public InputActionMap Get() { return m_Wrapper.m_Tools; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -1509,6 +1701,9 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
             @Deconstruct.started += instance.OnDeconstruct;
             @Deconstruct.performed += instance.OnDeconstruct;
             @Deconstruct.canceled += instance.OnDeconstruct;
+            @Cancel.started += instance.OnCancel;
+            @Cancel.performed += instance.OnCancel;
+            @Cancel.canceled += instance.OnCancel;
         }
 
         private void UnregisterCallbacks(IToolsActions instance)
@@ -1522,6 +1717,9 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
             @Deconstruct.started -= instance.OnDeconstruct;
             @Deconstruct.performed -= instance.OnDeconstruct;
             @Deconstruct.canceled -= instance.OnDeconstruct;
+            @Cancel.started -= instance.OnCancel;
+            @Cancel.performed -= instance.OnCancel;
+            @Cancel.canceled -= instance.OnCancel;
         }
 
         public void RemoveCallbacks(IToolsActions instance)
@@ -1593,6 +1791,60 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         }
     }
     public SelectToolActions @SelectTool => new SelectToolActions(this);
+
+    // CancelTool
+    private readonly InputActionMap m_CancelTool;
+    private List<ICancelToolActions> m_CancelToolActionsCallbackInterfaces = new List<ICancelToolActions>();
+    private readonly InputAction m_CancelTool_Select;
+    private readonly InputAction m_CancelTool_Cancel;
+    public struct CancelToolActions
+    {
+        private @InputActions m_Wrapper;
+        public CancelToolActions(@InputActions wrapper) { m_Wrapper = wrapper; }
+        public InputAction @Select => m_Wrapper.m_CancelTool_Select;
+        public InputAction @Cancel => m_Wrapper.m_CancelTool_Cancel;
+        public InputActionMap Get() { return m_Wrapper.m_CancelTool; }
+        public void Enable() { Get().Enable(); }
+        public void Disable() { Get().Disable(); }
+        public bool enabled => Get().enabled;
+        public static implicit operator InputActionMap(CancelToolActions set) { return set.Get(); }
+        public void AddCallbacks(ICancelToolActions instance)
+        {
+            if (instance == null || m_Wrapper.m_CancelToolActionsCallbackInterfaces.Contains(instance)) return;
+            m_Wrapper.m_CancelToolActionsCallbackInterfaces.Add(instance);
+            @Select.started += instance.OnSelect;
+            @Select.performed += instance.OnSelect;
+            @Select.canceled += instance.OnSelect;
+            @Cancel.started += instance.OnCancel;
+            @Cancel.performed += instance.OnCancel;
+            @Cancel.canceled += instance.OnCancel;
+        }
+
+        private void UnregisterCallbacks(ICancelToolActions instance)
+        {
+            @Select.started -= instance.OnSelect;
+            @Select.performed -= instance.OnSelect;
+            @Select.canceled -= instance.OnSelect;
+            @Cancel.started -= instance.OnCancel;
+            @Cancel.performed -= instance.OnCancel;
+            @Cancel.canceled -= instance.OnCancel;
+        }
+
+        public void RemoveCallbacks(ICancelToolActions instance)
+        {
+            if (m_Wrapper.m_CancelToolActionsCallbackInterfaces.Remove(instance))
+                UnregisterCallbacks(instance);
+        }
+
+        public void SetCallbacks(ICancelToolActions instance)
+        {
+            foreach (var item in m_Wrapper.m_CancelToolActionsCallbackInterfaces)
+                UnregisterCallbacks(item);
+            m_Wrapper.m_CancelToolActionsCallbackInterfaces.Clear();
+            AddCallbacks(instance);
+        }
+    }
+    public CancelToolActions @CancelTool => new CancelToolActions(this);
 
     // BuildTool
     private readonly InputActionMap m_BuildTool;
@@ -1913,6 +2165,10 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         void OnMove(InputAction.CallbackContext context);
         void OnRotate(InputAction.CallbackContext context);
         void OnZoom(InputAction.CallbackContext context);
+        void OnPause(InputAction.CallbackContext context);
+        void OnSpeed1(InputAction.CallbackContext context);
+        void OnSpeed2(InputAction.CallbackContext context);
+        void OnSpeed3(InputAction.CallbackContext context);
     }
     public interface IUIActions
     {
@@ -1932,11 +2188,17 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         void OnBuild(InputAction.CallbackContext context);
         void OnSelect(InputAction.CallbackContext context);
         void OnDeconstruct(InputAction.CallbackContext context);
+        void OnCancel(InputAction.CallbackContext context);
     }
     public interface ISelectToolActions
     {
         void OnSelect(InputAction.CallbackContext context);
         void OnDeselect(InputAction.CallbackContext context);
+    }
+    public interface ICancelToolActions
+    {
+        void OnSelect(InputAction.CallbackContext context);
+        void OnCancel(InputAction.CallbackContext context);
     }
     public interface IBuildToolActions
     {

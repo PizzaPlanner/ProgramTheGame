@@ -34,6 +34,7 @@ namespace Core
        public static readonly Tag TagRecipe = Tag.FromName("TagRecipe");
        public static readonly Tag TagRefinedMetal = Tag.FromName("TagRefinedMetal");
        public static readonly Tag TagResource = Tag.FromName("TagResource");
+       public static readonly Tag TagSchematic = Tag.FromName("TagSchematic");
        public static readonly Tag TagSkill = Tag.FromName("TagSkill");
        public static readonly Tag TagSolid = Tag.FromName("TagSolid");
        public static readonly Tag TagStatus = Tag.FromName("TagStatus");

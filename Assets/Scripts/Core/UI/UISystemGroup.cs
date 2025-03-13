@@ -72,7 +72,7 @@ public partial class UISystemGroup : ComponentSystemGroup
         item.style.position = Position.Absolute;
         item.style.left = 0;
         item.style.top = 0;
-        item.transform.position = Input.mousePosition; 
+        item.transform.position = UnityEngine.Input.mousePosition; 
         item.Focus();
     }
 
