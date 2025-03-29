@@ -1,3 +1,0 @@
-C:\Creative\Unity\ProgramTheGame\Packages\com.ite.lookups\Plugins\Lookups.Generator.dll
-C:\Creative\Unity\ProgramTheGame\Packages\com.ite.lookups\Plugins\Lookups.Generator.pdb
-C:\Creative\Unity\ProgramTheGame\Packages\com.ite.lookups\Plugins\Lookups.Generator.deps.json

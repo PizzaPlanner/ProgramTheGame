@@ -24,12 +24,11 @@ partial class CraftingRecipesMappingSystem : IdentifiableMappingSystem, IWikiPro
     {
         foreach (var (craftIn, id) in 
                  SystemAPI.Query<DynamicBuffer<CraftedIn>, Identifiable>().WithAll<Prefab>()
-                          .WithNone<IdentifiablesMappingGroup.Mapped>()
                           .WithOptions(EntityQueryOptions.IncludePrefab))
         {
             foreach (var c in craftIn)
             {
-                var crafter = SystemAPI.GetBuffer<Craftables>(c.Crafter.SpawnablePrefab);
+                var crafter = SystemAPI.GetBuffer<Craftables>(c.Crafter.SpawnableDef());
                 crafter.Add(new Craftables{Recipe = id});
                 AddRelation(c.Crafter, new IdentifiableLink{ To = id, Relation = "Produces"});
                 AddRelation(id, new IdentifiableLink{ To = c.Crafter, Relation = "CraftedIn"});
@@ -41,21 +40,20 @@ partial class CraftingRecipesMappingSystem : IdentifiableMappingSystem, IWikiPro
         foreach (var (recipe, id) in
                  SystemAPI.Query<CraftingRecipe, Identifiable>()
                           .WithAll<Prefab>()
-                          .WithNone<IdentifiablesMappingGroup.Mapped>()
                           .WithOptions(EntityQueryOptions.IncludePrefab))
         {
             Recipe.RecipeById.Data[id] = recipe.Data;
             
             foreach (var input in recipe.Data.Value.Inputs.ToArray())
             {
-                AddRelation(input.ItemId.BaseId, new IdentifiableLink{ To = id, Relation = "UsedIn"});
-                AddRelation(id, new IdentifiableLink{ To = input.ItemId.BaseId, Relation = "RecipeInput"});
+                AddRelation(input.ItemId, new IdentifiableLink{ To = id, Relation = "UsedIn"});
+                AddRelation(id, new IdentifiableLink{ To = input.ItemId, Relation = "RecipeInput"});
             }
             
             foreach (var output in recipe.Data.Value.Outputs.ToArray())
             {
-                AddRelation(output.ItemId.BaseId, new IdentifiableLink{ To = id, Relation = "FromRecipe"});
-                AddRelation(id, new IdentifiableLink{ To = output.ItemId.BaseId, Relation = "RecipeOutput"});
+                AddRelation(output.ItemId, new IdentifiableLink{ To = id, Relation = "FromRecipe"});
+                AddRelation(id, new IdentifiableLink{ To = output.ItemId, Relation = "RecipeOutput"});
             }
         }
     }

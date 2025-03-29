@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using UnityEngine;
 using UnityEngine.Profiling;
@@ -43,7 +44,7 @@ namespace Identifiables.Authoring
             }
             
         }
-        internal static void MakeIdentifiable(IBaker baker, Entity id, IdentifiableAsset prefab)
+        internal unsafe static void MakeIdentifiable(IBaker baker, Entity id, IdentifiableAsset prefab)
         {
             if (prefab == null)
             {
@@ -52,11 +53,7 @@ namespace Identifiables.Authoring
             }
             baker.AddComponent<Prefab>(id);
             baker.AddComponent(id, prefab.Id);
-            var preId = prefab.ToPreId;
-            preId.Prefab = id;
-            if (prefab is IdentifiableThingAsset)
-                preId.Spawnable = true;
-            baker.AddComponent(id, preId);
+            
             var tagSet = new NativeHashSet<Identifiable>(4, Allocator.Temp);
             foreach(var thing in prefab.TypeImpliedTags)
                 tagSet.Add(thing);
@@ -77,9 +74,21 @@ namespace Identifiables.Authoring
                 }
             }
             
-            var tags = baker.AddBuffer<Tags>(id);
+            var builder = new BlobBuilder(Allocator.Temp);
+            ref var root = ref builder.ConstructRoot<BaseDef>();
+            root.Icon = prefab.Icon;
+            root.DefaultName = prefab.name;
+            var tagBuilder = builder.Allocate(ref root.Tags, tagSet.Count);
+            var t = 0;
             foreach(var tag in tagSet)
-                tags.Add(new Tags{Tag = tag});
+                tagBuilder[t++] = tag;
+            if(tagSet.Contains(Identifiable.FromName("Tag")))
+                baker.AddComponent<Tag>(id);
+            
+            var def = builder.CreateBlobAssetReference<BaseDef>(Allocator.Persistent);
+            var baseDef = new Base { BDef = def, Icon = prefab.Icon };
+            baker.AddBlobAsset(ref def, out _);
+            baker.AddComponent(id, baseDef);
             
             // Fix for prefabs always having a LinkedEntityGroup
             if (prefab is IdentifiableThingAsset ita && !tagSet.Contains(Identifiable.FromName("TagSpawnable")) && ita.Reference.transform.childCount == 0)

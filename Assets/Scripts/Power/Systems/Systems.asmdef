@@ -16,6 +16,7 @@
         "Construction",
         "Navigation",
         "Core.UI",
+        "Mod.Core",
         "Units",
         "Units.UI",
         "Construction.Systems"

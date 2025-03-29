@@ -25,7 +25,6 @@ public partial class ElementMappingSystem : IdentifiableMappingSystem, IWikiProv
         foreach (var (item, id) in
                  SystemAPI.Query<Element, Identifiable>()
                           .WithAll<Prefab>()
-                          .WithNone<Parent, IdentifiablesMappingGroup.Mapped>()
                           .WithOptions(EntityQueryOptions.IncludePrefab))
         {
             Element.ElementById.Data[id] = item;

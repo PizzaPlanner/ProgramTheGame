@@ -7,6 +7,7 @@ using NUnit.Framework;
 using Space;
 using System;
 using System.Collections;
+using System.Linq;
 using Tasks.UI;
 using Units;
 using Unity.Collections;
@@ -52,15 +53,20 @@ public class EquipmentTests
                                                              .WithAll<Identifiable, Prefab>().WithOptions(EntityQueryOptions.IncludePrefab));
         Assert.IsTrue(!modQuery.IsEmpty);
     }
+    
+    static Mod[] TestMods => new []
+    {
+        Mod.Find(new Hash128(PREFABS_SCENE_GUID)),
+        Mod.Find(new Hash128(TEST_PREFABS_SCENE_GUID))
+    };
 
     void EnsureTestWorld()
     {
         World.DisposeAllWorlds();
-        TestWorld = World.DefaultGameObjectInjectionWorld = WorldTypes.CreateGameWorld($"Test Session", true, new []
-        {
-            Mod.Find(new Hash128(PREFABS_SCENE_GUID)),
-            Mod.Find(new Hash128(TEST_PREFABS_SCENE_GUID))
-        });
+        var modsToLoad = TestMods;
+        foreach(var mod in Mod.AllMods)
+            Mod.SetShouldLoad(mod.Name, modsToLoad.Contains(mod));
+        TestWorld = World.DefaultGameObjectInjectionWorld = WorldTypes.CreateGameWorld($"Test Session", true);
     }
 
     [OneTimeTearDown]
@@ -136,7 +142,7 @@ public class EquipmentTests
     [UnityTest]
     public IEnumerator CryoPodCreatesUnit()
     {
-        var grid = EntityManager.Instantiate(Testing.ID.LabSceneCryoPodOpener.SpawnablePrefab);
+        var grid = EntityManager.Instantiate(Testing.ID.LabSceneCryoPodOpener.SpawnableDef());
         yield return WaitForEntityWith<UnitDispenser>();
         var dispenser = FindEntity<UnitDispenser>();
         yield return GUISelect(dispenser);
@@ -148,7 +154,7 @@ public class EquipmentTests
     [UnityTest]
     public IEnumerator CryoPodRequiresSkillToOpen()
     {
-        var grid = EntityManager.Instantiate(Testing.ID.LabSceneCryoPodNoOpener.SpawnablePrefab);
+        var grid = EntityManager.Instantiate(Testing.ID.LabSceneCryoPodNoOpener.SpawnableDef());
         yield return WaitForEntityWith<UnitDispenser>();
         var dispenser = FindEntity<UnitDispenser>();
         yield return GUISelect(dispenser);
@@ -161,7 +167,7 @@ public class EquipmentTests
     [UnityTest]
     public IEnumerator BuildOneTileFromFloorIsReachable()
     {
-        var grid = EntityManager.Instantiate(Testing.ID.LabSceneForConstruction.SpawnablePrefab);
+        var grid = EntityManager.Instantiate(Testing.ID.LabSceneForConstruction.SpawnableDef());
         var plan = EntityManager.CreateEntity(typeof(PlannedConstruction));
         EntityManager.SetComponentData(plan, new PlannedConstruction
         {
@@ -169,7 +175,7 @@ public class EquipmentTests
             Location = new int2(-1, 3),
             Mode = ConstructionMode.UnderConstruction,
             Parent = grid,
-            Materials = EntityManager.GetComponentData<ConstructionVariant>(Identifiable.FromName("Foundation").SpawnablePrefab)
+            Materials = EntityManager.GetComponentData<ConstructionVariant>(Identifiable.FromName("Foundation").SpawnableDef())
         });
         yield return WaitForEntityWith<ItemOrderTask>();
         yield return TickWorld(6);
@@ -180,7 +186,7 @@ public class EquipmentTests
     [UnityTest]
     public IEnumerator BuildFurtherThanOneTileFromFloorIsUnreachable()
     {
-        var grid = EntityManager.Instantiate(Testing.ID.LabSceneForConstruction.SpawnablePrefab);
+        var grid = EntityManager.Instantiate(Testing.ID.LabSceneForConstruction.SpawnableDef());
         var plan = EntityManager.CreateEntity(typeof(PlannedConstruction));
         EntityManager.SetComponentData(plan, new PlannedConstruction
         {
@@ -188,7 +194,7 @@ public class EquipmentTests
             Location = new int2(-2, 3),
             Mode = ConstructionMode.UnderConstruction,
             Parent = grid,
-            Materials = EntityManager.GetComponentData<ConstructionVariant>(Identifiable.FromName("Foundation").SpawnablePrefab)
+            Materials = EntityManager.GetComponentData<ConstructionVariant>(Identifiable.FromName("Foundation").SpawnableDef())
         });
         yield return WaitForEntityWith<ItemOrderTask>();
         yield return TickWorld(6);
@@ -199,7 +205,7 @@ public class EquipmentTests
     [UnityTest]
     public IEnumerator WillSleepOnFloorIfNoBed()
     {
-        var grid = EntityManager.Instantiate(Testing.ID.LabSceneForConstruction.SpawnablePrefab);
+        var grid = EntityManager.Instantiate(Testing.ID.LabSceneForConstruction.SpawnableDef());
         var plan = EntityManager.CreateEntity(typeof(PlannedConstruction));
         yield return WaitForEntityWith<Stamina>();
         var e = FindEntity<Stamina>();
@@ -215,7 +221,7 @@ public class EquipmentTests
     [UnityTest]
     public IEnumerator WillSleepInBed()
     {
-        var grid = EntityManager.Instantiate(Testing.ID.LabSceneForConstruction.SpawnablePrefab);
+        var grid = EntityManager.Instantiate(Testing.ID.LabSceneForConstruction.SpawnableDef());
         var plan = EntityManager.CreateEntity(typeof(PlannedConstruction));
         EntityManager.SetComponentData(plan, new PlannedConstruction
         {
@@ -238,8 +244,8 @@ public class EquipmentTests
     [UnityTest]
     public IEnumerator CrewStaysInPlaceOnFerry()
     {
-        var gridFrom = EntityManager.Instantiate(Testing.ID.LabSceneForFlight.SpawnablePrefab);
-        var gridTo = EntityManager.Instantiate(Testing.ID.LabSceneForConstruction.SpawnablePrefab);
+        var gridFrom = EntityManager.Instantiate(Testing.ID.LabSceneForFlight.SpawnableDef());
+        var gridTo = EntityManager.Instantiate(Testing.ID.LabSceneForConstruction.SpawnableDef());
         yield return WaitForEntityWith<ShipController>();
         var controller = FindEntity<ShipController>();
         var crew = EntityManager.GetBuffer<Crew>(gridFrom);

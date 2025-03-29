@@ -24,7 +24,7 @@ namespace Units
                 Debug.LogError($"Tried to schedule {taskPrefab} without CrewProvide or Origin");
                 return default;
             }
-            var task = ecb.Instantiate(taskPrefab.SpawnablePrefab);
+            var task = ecb.Instantiate(taskPrefab.SpawnableDef());
             t._isPersonalized = t.Executor != default;
             if (t.IsPersonalized)
                 ecb.AppendToBuffer(t.Executor, new ToDos { Task = task, Status = ToDoStatus.Requested });

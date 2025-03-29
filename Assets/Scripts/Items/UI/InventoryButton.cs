@@ -1,3 +1,4 @@
+using Identifiables;
 using Identifiables.UI;
 using System;
 using Unity.Entities;
@@ -26,7 +27,7 @@ public partial class InventoryButton : ItemButton
         {
             // Name = value.Type.BaseId.DefaultName.Value;
             Info = value.IsEmpty ? "" : value.IsEquipmentSlot ? "E" : value.Amount.ToString();
-            Target = value.Type.BaseId;
+            Target = value.Type;
             RemoveFromClassList($"{_slot.SlotFilter.ToString().ToLower()}");
             AddToClassList($"{value.SlotFilter.ToString().ToLower()}");
             IsEmpty = value.IsEmpty;
@@ -64,7 +65,7 @@ public partial class InventoryButton : ItemButton
         {
             var pointerDelta = evt.mousePosition;
             
-            DragDropGhost.Target = this.Slot.Type.BaseId;
+            DragDropGhost.Target = this.Slot.Type;
 
             DragDropGhost.style.display = DisplayStyle.Flex;
             DragDropGhost.BringToFront();
@@ -118,13 +119,13 @@ public partial class InventoryButton : ItemButton
         {
             if(res.Slot != SlotId)
                 continue;
-            if(reservedType == default)
+            if(reservedType == default(Identifiable))
                 reservedType = res.ReservedType;
             total += (int)res.Amount * (res.IsIncoming ? 1 : -1);
         }
         if(total != 0)
             Info = $"{Info} (<color={(total > 0 ? RESERVED_PLUS_COLOR : RESERVED_MINUS_COLOR)}>{(total > 0 ? '+' : "")}{total}</color>)";
         if(reservedType != Slot.Type)
-            Target = reservedType.BaseId;
+            Target = reservedType;
     }
 }

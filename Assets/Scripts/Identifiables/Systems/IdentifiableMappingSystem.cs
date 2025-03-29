@@ -5,15 +5,6 @@ using Unity.Collections;
 using Unity.Entities;
 using UnityEngine;
 
-public struct DynamicIdentifiableDefinition
-{
-    public Entity Prefab;
-    public bool IsSpawnable;
-    public UnityObjectRef<Texture2D> Icon;
-    public FixedString64Bytes Name;
-    public IEnumerable<FixedString64Bytes> Tags;
-}
-
 [UpdateInGroup(typeof(IdentifiablesMappingGroup))]
 [WorldSystemFilter(WorldSystemFilterFlags.Editor | WorldSystemFilterFlags.Default)]
 public abstract partial class IdentifiableMappingSystem : SystemBase
@@ -32,6 +23,4 @@ public abstract partial class IdentifiableMappingSystem : SystemBase
             Relations.Add(from, new List<IdentifiableLink>());
         Relations[from].Add(link);
     }
-
-    public Func<IEnumerable<DynamicIdentifiableDefinition>> RegisterAdditionalIds { get; protected set; } 
 }

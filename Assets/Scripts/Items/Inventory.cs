@@ -1,3 +1,4 @@
+using Identifiables;
 using System.Runtime.CompilerServices;
 using Unity.Entities;
 using UnityEngine;
@@ -9,7 +10,7 @@ using UnityEngine;
 public struct ReservedSpace : IBufferElementData
 {
     public int Transaction;
-    public ItemId ReservedType;
+    public ItemDef.Id ReservedType;
     public int Slot;
     public uint Amount;
     public bool IsIncoming;
@@ -17,7 +18,7 @@ public struct ReservedSpace : IBufferElementData
 
 public struct StarterInventory : IBufferElementData
 {
-    public ItemId Type;
+    public ItemDef.Id Type;
     public uint Amount;
     public int Slot;
 }
@@ -32,8 +33,8 @@ public struct Inventory : IBufferElementData
         InOut
     }
     
-    public ItemId Type;
-    public Tag SlotFilter;
+    public ItemDef.Id Type;
+    public TagDef.Id SlotFilter;
     public bool IsTypeLocked;
     public bool IsEquipmentSlot;
     public TransferDirection Transfer;
@@ -45,22 +46,22 @@ public struct Inventory : IBufferElementData
     
     public Entity Entity
     {
-        get => Type.IsStackable ? Entity.Null : _data.Item;
+        get => Type.Def.IsStackable ? Entity.Null : _data.Item;
         internal set
         {
-            if(!Type.IsStackable)
+            if(!Type.Def.IsStackable)
                 _data.Item = value;
         }
     }
     
     public uint Amount
     {
-        get => Type.IsStackable 
+        get => Type.Def.IsStackable 
             ? _data.Amount 
             : Entity == Entity.Null ? 0u : 1u;
         internal set
         {
-            if(Type.IsStackable)
+            if(Type.Def.IsStackable)
                 _data.Amount = value;
         }
     }
@@ -74,7 +75,7 @@ public struct Inventory : IBufferElementData
 
 public static class InventoryHelper
 {
-    public static bool Contains(this DynamicBuffer<Inventory> buffer, ItemId itemId, ushort amount)
+    public static bool Contains(this DynamicBuffer<Inventory> buffer, ItemDef.Id itemId, ushort amount)
     {
         var has = 0u;
         for(int i = 0; i < buffer.Length; i++)

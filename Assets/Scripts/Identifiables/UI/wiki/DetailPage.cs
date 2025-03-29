@@ -33,7 +33,7 @@ namespace Identifiables.UI
                 body.Q<Label>("Description").text = @"";
                 var header = this.Q("Header");
                 header.Q<Label>("Title").text = $"{value}";
-                header.Q("Icon").style.backgroundImage = value.Icon;
+                header.Q("Icon").style.backgroundImage = value.BaseDef().Icon.Value;
                 // foreach(var tag in Tag.AllTagsForId(value))
                 //     header.Q("Tags").Add(new WikiSearchResultButton(tag.Id));
                     

@@ -1,3 +1,0 @@
-C:\Creative\Unity\Chessimon\Packages\Lookups\Plugins\Lookups.Generator.dll
-C:\Creative\Unity\Chessimon\Packages\Lookups\Plugins\Lookups.Generator.pdb
-C:\Creative\Unity\Chessimon\Packages\Lookups\Plugins\Lookups.Generator.deps.json

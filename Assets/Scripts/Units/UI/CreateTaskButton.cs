@@ -25,9 +25,9 @@ namespace Tasks.UI
             var btn = new Button(() => OnClick(isPlannable)) { text = task.DefaultName.Value };
             top.Add(btn);
             btn.Add(new IdentifiableButton(){Target = TaskType = task});
-            if (em.HasComponent<TaskRequirement>(task.SpawnablePrefab))
+            if (em.HasComponent<TaskRequirement>(task.SpawnableDef()))
             {
-                Requirement = em.GetComponentData<TaskRequirement>(task.SpawnablePrefab);
+                Requirement = em.GetComponentData<TaskRequirement>(task.SpawnableDef());
                 top.Add(_reqBtn = new SkillButton{Skill = Requirement.Skill, Rank = Requirement.MinLevel});
             }
         }

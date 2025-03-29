@@ -82,7 +82,7 @@ namespace Core.Equipment
                 ecb.SetComponent(order, new ItemOrderTask
                 {
                     Amount = 1, 
-                    Item = ItemId.From(food.Diet),
+                    Item = food.Diet,
                     Requester = task.Origin,
                 });
                 return;

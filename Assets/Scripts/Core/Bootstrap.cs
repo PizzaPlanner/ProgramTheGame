@@ -13,15 +13,12 @@ namespace Core
 {
     
 #if UNITY_DISABLE_AUTOMATIC_SYSTEM_BOOTSTRAP_RUNTIME_WORLD
-    // Ensure loading screen is available, and handle test-runs
+    // Like Automatic bootstrap, but AFTER initial scene load, so we can check what scenes we start with
     static class AutomaticWorldBootstrap
     {
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         static void Initialize()
         {
-#if UNITY_EDITOR
-            Bootstrap.IsTestRun = !SceneManager.GetSceneByBuildIndex(0).isLoaded;
-#endif
             DefaultWorldInitialization.Initialize("Default World", false);
         }
     }
@@ -30,14 +27,14 @@ namespace Core
     public class Bootstrap : ICustomBootstrap
     {
 #if UNITY_EDITOR
-        public static bool IsTestRun;
         public static Func<bool> OnQuickstart;
 #endif
 
         public bool Initialize(string defaultWorldName)
         {
 #if UNITY_EDITOR
-            if (IsTestRun)
+            var isTestRun = !SceneManager.GetSceneByBuildIndex(0).isLoaded; 
+            if (isTestRun)
             {
                 Debug.Log($"Bootstrap for Tests");
                 SceneManager.LoadScene(0, LoadSceneMode.Additive);
@@ -51,48 +48,22 @@ namespace Core
 
     public static class WorldTypes
     {
-        public static World CreateGameWorld(string name, bool isSandbox, IEnumerable<Mod> modPool)
+        public static World CreateGameWorld(string name, bool isSandbox)
         { 
             var world = WorldBuilder.Presets.DefaultWorld(name);
             var e = world.EntityManager.CreateEntity(typeof(InGame));
-            LoadMods(world, modPool);
+            Mod.LoadEnabledMods(world);
             if(isSandbox)
                 world.EntityManager.AddComponentData(e, new Sandbox{On = true});
             Debug.Log($"Start Game: {name}");
             return world;
         }
 
-        static void LoadModHeaders(World world)
-        {
-            Mod.InitializeModLoader();
-        }
-        
-        public static void LoadMods(World world, IEnumerable<Mod> modPool)
-        {
-            var api = new Mod { SceneHash = new Hash128(MOD_API_HASH), Name = "API", Type = ModType.Internal };
-            LoadMod(api, world.Unmanaged);
-            foreach (var mod in modPool)
-                LoadMod(mod, world.Unmanaged);
-
-            world.Update();
-        }
-
-        const string MOD_API_HASH = "22278db6dcf69dc43a5149e137f46302";
-
-        static void LoadMod(Mod mod, WorldUnmanaged world)
-        {
-            var load = SceneSystem.LoadSceneAsync(world, mod.SceneHash, new SceneSystem.LoadParameters
-            {
-                Flags = SceneLoadFlags.BlockOnStreamIn | SceneLoadFlags.BlockOnImport
-            });
-            world.EntityManager.AddComponentData(load, mod);
-        }
-
         public static World CreateMainMenuWorld(string name)
         {
             var world = WorldBuilder.Presets.DefaultWorld(name);
             var e = world.EntityManager.CreateEntity(typeof(MainMenu));
-            LoadModHeaders(world);
+            Mod.LoadModHeaders(world);
             return world;
         }
         public struct Test : IComponentData { }

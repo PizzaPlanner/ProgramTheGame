@@ -88,7 +88,7 @@ partial struct ResearchJob : IJobEntity
                 }
                 if (!inventoryLookup.TryGetBuffer(task.Origin, out var inventory))
                     return;
-                if (inventory.Contains(ItemId.From(rTask.Ingredient), 1))
+                if (inventory.Contains(rTask.Ingredient, 1))
                 {
                     rTask.State = ResearchState.Work;
                     return;
@@ -106,7 +106,7 @@ partial struct ResearchJob : IJobEntity
                 ecb.SetComponent(order, new ItemOrderTask
                 {
                     Requester = task.Origin,
-                    Item = ItemId.From(rTask.Ingredient),
+                    Item = rTask.Ingredient,
                     Amount = (ushort)math.clamp(amt, 1, 5)
                 });
                 break;
@@ -125,14 +125,14 @@ partial struct ResearchJob : IJobEntity
                 progress.PartialTicks = 0;
                 // Can we still progress?
                 if (!inventoryLookup.TryGetBuffer(task.Origin, out var inv)
-                    || !inv.Contains(ItemId.From(rTask.Ingredient), 1)
+                    || !inv.Contains(rTask.Ingredient, 1)
                     || !tech.AddProgress(rTask.Ingredient))
                     rTask.State = ResearchState.NoIngredients;
                 else
                 {
                     // Should we repeat or start over?
-                    transactionStore.CreateBuilder.RemoveFrom(task.Origin, ItemId.From(rTask.Ingredient), 1);
-                    if (!inv.Contains(ItemId.From(rTask.Ingredient), 2)
+                    transactionStore.CreateBuilder.RemoveFrom(task.Origin, rTask.Ingredient, 1);
+                    if (!inv.Contains(rTask.Ingredient, 2)
                         || tech.GetProgress(rTask.Ingredient) >= 1)
                         rTask.State = ResearchState.NoIngredients;
                 }
@@ -159,7 +159,7 @@ partial struct ResearchBenchSystem : ISystem
             return;
         }
 
-        var openTech = SystemAPI.GetComponentRW<Technology>(currentResearch.ValueRO.Technology.SpawnablePrefab);
+        var openTech = SystemAPI.GetComponentRW<Technology>(currentResearch.ValueRO.Technology.SpawnableDef());
         using var techRef = new NativeReference<Technology>(openTech.ValueRW, Allocator.TempJob);
 
         var ecb = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>().CreateCommandBuffer(state.WorldUnmanaged);
@@ -179,7 +179,7 @@ partial struct ResearchBenchSystem : ISystem
             var addedTech = currentResearch.ValueRO.Technology;
             currentResearch.ValueRW.Technology = default;
             Debug.Log($"Finished research on {addedTech}");
-            state.EntityManager.AddComponent<Unlocked>(addedTech.SpawnablePrefab);
+            state.EntityManager.AddComponent<Unlocked>(addedTech.SpawnableDef());
         }
     }
 }

@@ -14,3 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: Identifiables.Authoring::TagAsset
   Icon: {fileID: 2800000, guid: bca9caed05fefb040880deba28682b15, type: 3}
   Tags: []
+  RequiresOtherTags:
+  - {fileID: 11400000, guid: 120d758a188f7934299a0406976912a9, type: 2}

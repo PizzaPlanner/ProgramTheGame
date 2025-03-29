@@ -32,7 +32,7 @@ namespace Identifiables.UI
                 target.Add(new WikiSearchResultButton(id));
             }
 
-            foreach (var tag in Tag.All)
+            foreach (var tag in TagDef.Id.All)
             {
                 quickNav.Add(new WikiSearchResultButton(tag));
             }

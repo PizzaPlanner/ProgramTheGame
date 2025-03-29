@@ -3,77 +3,44 @@ using System;
 using System.Collections.Generic;
 using Unity.Burst;
 using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
+using Unity.Entities;
+using UnityEngine;
 
-
-public struct Tag : IEquatable<Tag>
+public partial struct TagDef : IDef
 {
-    public Identifiable Id;
-    public static IEnumerable<Identifiable> All 
+    public BlobArray<Identifiable> WithThisTagB;
+    
+    public NativeArray<Identifiable> WithThisTag => WithThisTagB.iter();
+
+    [UpdateInGroup(typeof(IdentifiablesMappingGroup), OrderFirst = true)]
+    [UpdateAfter(typeof(BaseDef.MappingSystem))]
+    public partial class MappingSystem : IdentifiableMappingSystem
     {
-        get
+        protected override void OnUpdate()
         {
-            foreach(var item in AllTags)
-                yield return item.Id;
+            foreach (var (tag, id, e) in SystemAPI.Query<Tag, Identifiable>().WithAll<Prefab>()
+                                                  .WithOptions(EntityQueryOptions.IncludePrefab).WithEntityAccess())
+            {
+                var withThisTag = new NativeList<Identifiable>(4, Allocator.Temp);
+                foreach (var otherId in BaseDef.Id.All)
+                    if(otherId.BaseDef().HasTag(id))
+                        withThisTag.Add(otherId);
+                var builder = new BlobBuilder(Allocator.Temp);
+                ref var root = ref builder.ConstructRoot<TagDef>();
+                var arrayBuilder = builder.Allocate(ref root.WithThisTagB, withThisTag.Length);
+                for (int i = 0; i < withThisTag.Length; i++)
+                {
+                    arrayBuilder[i] = withThisTag[i];
+                    AddRelation(withThisTag[i], new IdentifiableLink{To = id, Relation = "Tags"});
+                    AddRelation(id, new IdentifiableLink{To = withThisTag[i], Relation = "WithThisTag"});
+                }
+                var blob = builder.CreateBlobAssetReference<TagDef>(Allocator.Persistent);
+                DefaultWorldIdMap.Data.Add(id, blob);
+            }
         }
-    }
-    
-    public static implicit operator Tag(Identifiable id) => new Tag{ Id = id };
-
-    public static Tag FromName(FixedString64Bytes name) => new Tag{ Id = Identifiable.FromName(name) };
-    public bool Equals(Tag other)
-    {
-        return Id == other.Id;
-    }
-
-    public override bool Equals(object obj)
-    {
-        return obj is Tag other && Equals(other);
-    }
-
-    public override int GetHashCode()
-    {
-        return Id.GetHashCode();
-    }
-    
-    internal static readonly SharedStatic<NativeParallelMultiHashMap<Identifiable, Tag>> TagsOfIdMap =
-        SharedStatic<NativeParallelMultiHashMap<Identifiable, Tag>>
-            .GetOrCreate<Tag>();
-    
-    internal static readonly SharedStatic<NativeParallelMultiHashMap<Tag, Identifiable>> IdsForTagMap =
-        SharedStatic<NativeParallelMultiHashMap<Tag, Identifiable>>
-            .GetOrCreate<Tag, Tag>();
-
-    internal static NativeHashSet<Tag> AllTags
-    {
-        get
-        {
-            var hs = new NativeHashSet<Tag>(16, Allocator.Temp);
-            foreach(var tag in IdsForTagMap.Data.GetKeyArray(Allocator.Temp))
-                hs.Add(tag);
-            return hs;
-        }
-    }
-
-    public static IEnumerable<Identifiable> AllIdsForTag(Tag tag)
-    {
-        var e = IdsForTagMap.Data.GetValuesForKey(tag.Id);
-        while(e.MoveNext())
-            yield return e.Current;
-    }
-
-    public static IEnumerable<Tag> AllTagsForId(Identifiable id)
-    {
-         var e = TagsOfIdMap.Data.GetValuesForKey(id);
-         while(e.MoveNext())
-            yield return e.Current;
-    }
-
-    public static bool HasTag(Identifiable id, Tag tag)
-    {
-        var tags = TagsOfIdMap.Data.GetValuesForKey(id);
-        while(tags.MoveNext())
-            if(tags.Current.Id == tag.Id)
-                return true;
-        return false;
     }
 }
+
+public struct Tag : IComponentData { }
+

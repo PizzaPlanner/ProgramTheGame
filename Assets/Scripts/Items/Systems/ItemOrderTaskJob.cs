@@ -1,5 +1,6 @@
 ﻿using Core;
 using Grids;
+using Identifiables;
 using Navigation;
 using Units;
 using Unity.Collections;
@@ -10,7 +11,6 @@ using UnityEngine;
 
 
 [UpdateInGroup(typeof(TickBasedSystemGroup))]
-[UpdateAfter(typeof(TaskApproachSystem))]
 partial struct ItemOrderTaskSystem : ISystem
 {
     public void OnUpdate(ref SystemState state)
@@ -140,7 +140,7 @@ partial struct ItemOrderTaskJob : IJobEntity
     
     static void AssignTarget(ref Task task, Entity requester, 
                              ComponentLookup<LocalTransform> ltwLookup, ComponentLookup<NavTree> navTreeLookup, 
-                             LogisticsNetwork network, ItemId item, ushort amount,
+                             LogisticsNetwork network, ItemDef.Id item, ushort amount,
                              int maxRange)
     {
         if (!ltwLookup.TryGetComponent(requester, out var selfLtw))

@@ -38,8 +38,8 @@ partial class CancelToolUISystem : MapOverlaySystem<CancelTool>
         var elm = new VisualElement();
         elm.AddToClassList("overlayPopup");
         var taskTypes = new ToggleButtonGroup(){ name = "Tasks" };
-        foreach (var task in Tag.AllIdsForTag(Tag.FromName("TagTask")))
-            if(SystemAPI.HasComponent<Cancelable>(task.SpawnablePrefab))
+        foreach (var task in Identifiable.FromName("TagTask").TagDef().WithThisTag)
+            if(SystemAPI.HasComponent<Cancelable>(task.SpawnableDef()))
                 taskTypes.Add(new ToggleForTask(task) { value = true });
         elm.Add(new Label("Cancel Tasks"));
         elm.Add(taskTypes);

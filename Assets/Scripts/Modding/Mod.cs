@@ -122,5 +122,33 @@ namespace Core
             Debug.Log($"Try find {hash} in {IndexedMods.Count} mods");
             return IndexedMods.TryGetValue(hash, out var result) ? result : default;
         }
+        
+        public static void LoadModHeaders(World world)
+        {
+            InitializeModLoader();
+        }
+        
+        public static void LoadEnabledMods(World world)
+        {
+            var api = new Mod { SceneHash = new Hash128(MOD_API_HASH), Name = "API", Type = ModType.Internal };
+            LoadMod(api, world.Unmanaged);
+            foreach (var mod in WantedMods)
+                LoadMod(mod, world.Unmanaged);
+
+            world.Update();
+            IdentifiablesMappingGroup.RunMapping(world);
+            world.GetExistingSystemManaged<IdentifiablesMappingGroup>().Update();
+        }
+
+        const string MOD_API_HASH = "22278db6dcf69dc43a5149e137f46302";
+
+        static void LoadMod(Mod mod, WorldUnmanaged world)
+        {
+            var load = SceneSystem.LoadSceneAsync(world, mod.SceneHash, new SceneSystem.LoadParameters
+            {
+                Flags = SceneLoadFlags.BlockOnStreamIn | SceneLoadFlags.BlockOnImport
+            });
+            world.EntityManager.AddComponentData(load, mod);
+        }
     }
 }

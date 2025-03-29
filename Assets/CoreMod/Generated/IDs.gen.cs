@@ -97,6 +97,7 @@ namespace Core
        public static readonly Identifiable SolarPanel = Identifiable.FromName("SolarPanel");
        public static readonly Identifiable SpaceSuitDock = Identifiable.FromName("SpaceSuitDock");
        public static readonly Identifiable AsteroidDirt = Identifiable.FromName("AsteroidDirt");
+       public static readonly Identifiable DirtIronOre = Identifiable.FromName("DirtIronOre");
        public static readonly Identifiable FloorLab = Identifiable.FromName("FloorLab");
        public static readonly Identifiable Foundation = Identifiable.FromName("Foundation");
        public static readonly Identifiable TileRock = Identifiable.FromName("TileRock");

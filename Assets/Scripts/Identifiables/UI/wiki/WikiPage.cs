@@ -62,7 +62,7 @@ namespace Identifiables.UI
 
             
             using var allIds = new EntityQueryBuilder(Allocator.Temp)
-                .WithAll<Prefab, Identifiable, IdentifiablesMappingGroup.Mapped>()
+                .WithAll<Prefab, Identifiable>()
                 .WithOptions(EntityQueryOptions.IncludePrefab).Build(world.EntityManager);
             this.Q<LandingPage>().Init(allIds);
             didInit = !allIds.IsEmpty;

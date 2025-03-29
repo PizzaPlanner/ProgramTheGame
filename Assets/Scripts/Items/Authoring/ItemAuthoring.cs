@@ -1,3 +1,5 @@
+using Identifiables;
+using Unity.Collections;
 using Unity.Entities;
 using UnityEngine;
 
@@ -11,15 +13,11 @@ public class ItemAuthoring : MonoBehaviour
         public override void Bake(ItemAuthoring authoring)
         {
             var e = GetEntity(TransformUsageFlags.None);
-            AddComponent(e, new Item
-            {
-                MaxStack = authoring.MaxStackSize
-            });
+            var blob = BlobAssetReference<ItemDef>.Create(new ItemDef{MaxStack = authoring.MaxStackSize});
+            AddBlobAsset(ref blob, out _);
+            AddComponent(e, new Item(blob));
         }
     }
 
-    public ItemId Id => new ItemId
-    {
-        BaseId = TryGetComponent<IdentifieableAuthoring>(out var id) ? id.Id : default,
-    };
+    public ItemDef.Id Id => TryGetComponent<IdentifieableAuthoring>(out var id) ? id.Id : default;
 }

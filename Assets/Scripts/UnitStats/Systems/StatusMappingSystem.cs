@@ -19,7 +19,6 @@ partial class StatusMappingSystem : IdentifiableMappingSystem
     {
         foreach (var (id, status, e) in SystemAPI.Query<Identifiable, Status>()
                                          .WithAll<Prefab>()
-                                         .WithNone<IdentifiablesMappingGroup.Mapped>()
                                          .WithOptions(EntityQueryOptions.IncludePrefab)
                                          .WithEntityAccess())
         {

@@ -1,4 +1,5 @@
-﻿using Unity.Entities;
+﻿using Identifiables;
+using Unity.Entities;
 
 public enum OrderState
 {
@@ -14,7 +15,7 @@ public enum OrderState
 public struct ItemOrderTask : IComponentData
 {
     public int TransactionId;
-    public ItemId Item;
+    public ItemDef.Id Item;
     public ushort Amount;
     public OrderState State;
     public Entity Requester;

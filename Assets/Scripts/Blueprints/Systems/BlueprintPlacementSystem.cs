@@ -30,7 +30,7 @@ partial struct BlueprintPlacementSystem : ISystem
             ecb.DestroyEntity(e);
             foreach (var part in bp.Data.Value.Contents.ToArray())
             {
-                var prefab = part.Prefab.SpawnablePrefab;
+                var prefab = SpawnableDef.Id.Has(part.Prefab) ? part.Prefab.SpawnableDef() : default;
                 if (SystemAPI.HasComponent<Element>(prefab))
                 {
                     ref var massModel = ref SystemAPI.GetComponentRW<MassModel>(bp.BuildOn).ValueRW;

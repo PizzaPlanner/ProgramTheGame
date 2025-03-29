@@ -24,7 +24,7 @@ namespace Units
         public static UnitSkillData Generate(uint seed)
         {
             var random  =new Random(seed);
-            var allTraits = Tag.AllIdsForTag(Tag.FromName("TagTrait"));
+            var allTraits = Identifiable.FromName("TagTrait").TagDef().WithThisTag.ToArray();
             var nextChanceForPlusTrait = 1f;
             var nextChanceForMinusTrait = 1f;
             NativeList<Identifiable> allPlusTraits  = new();

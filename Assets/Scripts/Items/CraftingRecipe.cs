@@ -44,7 +44,7 @@ public enum IngredientLocation : ushort
 
 public struct CraftingIngredient
 {
-    public ItemId ItemId;
+    public ItemDef.Id ItemId;
     public ushort Amount;
     public IngredientLocation Location;
 }

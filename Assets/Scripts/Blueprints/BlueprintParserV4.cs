@@ -92,7 +92,7 @@ namespace Grid.Blueprints
             var id = em.GetComponentData<Identifiable>(child.Value);
             var mass = em.GetComponentData<MassData>(child.Value);
             var bounds = em.GetComponentData<BakedIntoRoomMap>(child.Value);
-            var defaultMass = em.GetComponentData<MassData>(id.SpawnablePrefab);
+            var defaultMass = em.GetComponentData<MassData>(id.SpawnableDef());
             
             if(!data.Spawns.ContainsKey(id))
                 data.Spawns[id] = new List<BlueprintV4DataStructure.PartData>();

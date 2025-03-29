@@ -24,7 +24,7 @@ class NewBuildingUI : VisualElement
             ShowBasic();
             
             BuildingSelection.Clear();
-            foreach (var id in Tag.AllIdsForTag(value))
+            foreach (var id in value.TagDef().WithThisTag)
             {
                 var button = new BuildingPlanElement(id);
                 button.RegisterCallback<MouseDownEvent>(_ => ShowVariants(button));
@@ -43,10 +43,10 @@ class NewBuildingUI : VisualElement
         Add(header);
         var body = new VisualElement() {name = "Body" };
         Add(body);
-        var categoryTag = Tag.FromName("TagBuildCategory");
+        var categoryTag = Identifiable.FromName("TagBuildCategory");
         var categories = new VisualElement{name = "Categories"};
         body.Add(categories);
-        foreach (var category in Tag.AllIdsForTag(categoryTag))
+        foreach (var category in categoryTag.TagDef().WithThisTag)
         {
             var button = new BuildingPlanElement(category);
             button.RegisterCallback<MouseDownEvent>(_ =>
@@ -74,7 +74,7 @@ class NewBuildingUI : VisualElement
         target.AddToClassList("selected");
         VariantSelection.Clear();
         var mgr = World.DefaultGameObjectInjectionWorld.EntityManager;
-        var variants = mgr.GetBuffer<BuildingVariant>(target.Q<IdentifiableButton>().Target.SpawnablePrefab);
+        var variants = mgr.GetBuffer<BuildingVariant>(target.Q<IdentifiableButton>().Target.SpawnableDef());
         if (variants.Length == 0)
         {
             WantBuildPlan = target.Q<IdentifiableButton>().Target;

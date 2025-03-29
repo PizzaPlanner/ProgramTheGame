@@ -1,6 +1,11 @@
 using System;
 using System.Linq;
+using Unity.Entities;
+using UnityEditor;
+using UnityEngine;
 using UnityEngine.UIElements;
+using Object = UnityEngine.Object;
+using SerializedObject = UnityEditor.SerializedObject;
 
 namespace Identifiables.UI
 {
@@ -11,12 +16,18 @@ namespace Identifiables.UI
         {
             _target = target;
             var icon = new VisualElement{name = "Icon"};
-            icon.style.backgroundImage = target.Icon;
+            var texture = target.BaseDef().Icon;
+            if(texture != default)
+                icon.style.backgroundImage = texture.Value;
             Add(icon);
             RegisterCallback<MouseDownEvent>(x => GetFirstAncestorOfType<Wiki>().OpenTab(target));
             Add(new Label{text = target.DefaultName.Value});
-            foreach(var tag in Tag.AllTagsForId(target))
-                AddToClassList(tag.Id.DefaultName.Value.ToLower());
+            ref var tags = ref target.BaseDef().Tags;
+            for (var i = 0; i < tags.Length; i++)
+            {
+                var tag = tags[i];
+                AddToClassList(tag.DefaultName.Value.ToLower());
+            }
         }
 
         public void ApplySearch(string text)

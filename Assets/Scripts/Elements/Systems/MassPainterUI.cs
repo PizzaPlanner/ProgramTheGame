@@ -1,4 +1,5 @@
-﻿using Identifiables.UI;
+﻿using Identifiables;
+using Identifiables.UI;
 using UnityEngine.UIElements;
 
 public class MassPainterUI : VisualElement
@@ -24,7 +25,7 @@ public class MassPainterUI : VisualElement
             button =>
             {
                 Element.Target = button.Target;
-            }, new[] { Tag.FromName("TagControlFlow"), Tag.FromName("TagGas"), Tag.FromName("TagLiquid"), Tag.FromName("TagSolid") },
+            }, new  TagDef.Id[] { Identifiable.FromName("TagControlFlow"), Identifiable.FromName("TagGas"), Identifiable.FromName("TagLiquid"), Identifiable.FromName("TagSolid") },
             button => true);
     }
 }

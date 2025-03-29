@@ -29,7 +29,7 @@ namespace Identifiables.UI
             set
             {
                 if(value == _id) return;
-                this.Q("Icon").style.backgroundImage = value.Icon;
+                this.Q("Icon").style.backgroundImage = value.BaseDef().Icon.Value;
                 _id = value;
             } 
             get => _id;

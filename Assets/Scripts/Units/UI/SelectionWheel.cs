@@ -54,7 +54,7 @@ namespace Units
 
         void OnClick(Identifiable id)
         {
-            var todo = _entityManager.Instantiate(id.SpawnablePrefab);
+            var todo = _entityManager.Instantiate(id.SpawnableDef());
             _entityManager.SetComponentData(todo, new Task
             {
                 Priority = TaskPriority.ImmediateThreat,
@@ -77,10 +77,10 @@ namespace Units
         public SelectionWheelButton(string taskId, NativeArray<Skills> originSkills, EntityManager em, Action<Identifiable> onClick)
         {
             var tid = Identifiable.FromName(taskId);
-            if (em.HasComponent<TaskRequirement>(tid.SpawnablePrefab))
+            if (em.HasComponent<TaskRequirement>(tid.SpawnableDef()))
             {
                 style.display = DisplayStyle.None;
-                var requiredSkills = em.GetComponentData<TaskRequirement>(tid.SpawnablePrefab);
+                var requiredSkills = em.GetComponentData<TaskRequirement>(tid.SpawnableDef());
                 foreach(var skill in originSkills)
                     if(skill.Task == requiredSkills.Skill && skill.Level >= requiredSkills.MinLevel)
                         style.display = DisplayStyle.Flex;

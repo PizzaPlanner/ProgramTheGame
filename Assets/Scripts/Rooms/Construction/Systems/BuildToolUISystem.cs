@@ -132,7 +132,7 @@ partial class BuildToolUISystem : MapOverlaySystem<BuildTool>
                         Max = math.max(DragArea.Min, DragArea.Max),
                     };
                     ClearPreview(ecb);
-                    var dragType = SystemAPI.GetComponent<Building>(GhostPrefab.SpawnablePrefab).DraggableDimension;
+                    var dragType = SystemAPI.GetComponent<Building>(GhostPrefab.SpawnableDef()).DraggableDimension;
                     if(dragType == PlacementType.Single)
                         PlacePreview(DragArea.Max, ecb);
                     else if(dragType == PlacementType.Rectangle)
@@ -204,7 +204,7 @@ partial class BuildToolUISystem : MapOverlaySystem<BuildTool>
     {
         var currentParent = SystemAPI.GetSingleton<CurrentGrid>().Grid;
         var plan = ecb.CreateEntity();
-        var mats = SystemAPI.GetComponent<ConstructionVariant>(GhostPrefab.SpawnablePrefab);
+        var mats = SystemAPI.GetComponent<ConstructionVariant>(GhostPrefab.SpawnableDef());
         if (mats.BuildMaterials.Length > 0 && mats.BuildMaterials[0].IsVariant)
         {
             mats.PrimaryMass = MassData.From(GhostMaterial, mats.BuildMaterials[0].Amount, 0);

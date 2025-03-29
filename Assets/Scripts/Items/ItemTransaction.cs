@@ -1,3 +1,4 @@
+using Identifiables;
 using Unity.Collections;
 using Unity.Entities;
 using UnityEngine;
@@ -20,7 +21,7 @@ public static class ItemTransaction
         public TransactionType Type;
         public Entity FromInventory;
         public Entity ToInventory;
-        public ItemId ItemId;
+        public ItemDef.Id ItemId;
         public uint Amount;
         public int FromSlot;
         public int ToSlot;
@@ -62,7 +63,7 @@ public static class ItemTransaction
             return builder;
         }
 
-        public Builder AddAndSpawn(Entity inventory, ItemId item, int slot = -1)
+        public Builder AddAndSpawn(Entity inventory, ItemDef.Id item, int slot = -1)
         {
             header.Transactions.Add(new PendingTransaction
             {
@@ -76,7 +77,7 @@ public static class ItemTransaction
             return this;
         }
 
-        public Builder AddTo(Entity inventory, ItemId item, uint amount, int slot = -1)
+        public Builder AddTo(Entity inventory, ItemDef.Id item, uint amount, int slot = -1)
         {
             header.Transactions.Add(new PendingTransaction
             {
@@ -90,7 +91,7 @@ public static class ItemTransaction
             return this;
         }
         
-        public Builder RemoveFrom(Entity inventory, ItemId item, uint amount)
+        public Builder RemoveFrom(Entity inventory, ItemDef.Id item, uint amount)
         {
             header.Transactions.Add(new PendingTransaction
             {
@@ -117,7 +118,7 @@ public static class ItemTransaction
             return this;
         }
         
-        public Builder Transfer(Entity fromInventory, Entity toInventory, ItemId item, uint amount)
+        public Builder Transfer(Entity fromInventory, Entity toInventory, ItemDef.Id item, uint amount)
         {
             header.Transactions.Add(new PendingTransaction
             {
@@ -132,7 +133,7 @@ public static class ItemTransaction
             return this;
         }
         
-        public Builder Order(Entity toInventory, ItemId item, uint amount)
+        public Builder Order(Entity toInventory, ItemDef.Id item, uint amount)
         {
             header.Transactions.Add(new PendingTransaction
             {

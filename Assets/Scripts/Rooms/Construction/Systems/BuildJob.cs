@@ -30,7 +30,7 @@ public partial struct BuildJob : IJobEntity
         
         ecb.DestroyEntity(e);
         
-        var prefab = planned.Prefab.SpawnablePrefab;
+        var prefab = planned.Prefab.SpawnableDef();
         if (prefab == Entity.Null)
         {
             Debug.LogWarning($"Discarded invalid pending part with ID {planned.Prefab.DebugId}");
@@ -116,7 +116,7 @@ public partial struct BuildJob : IJobEntity
             {
                 Transfer = Inventory.TransferDirection.In, 
                 IsTypeLocked = true, 
-                Type = ItemId.From(requirement.Item)
+                Type = requirement.Item
             });
             var order = Task.Schedule(OrderTaskPrefab, ecb, new Task
             {
@@ -127,7 +127,7 @@ public partial struct BuildJob : IJobEntity
             ecb.SetComponent(order, new ItemOrderTask
             {
                 Amount = (ushort)requirement.Amount, 
-                Item = ItemId.From(requirement.Item),
+                Item = requirement.Item,
                 Requester = constructTask,
             });
         }

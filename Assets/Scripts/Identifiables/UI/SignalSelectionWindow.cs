@@ -20,7 +20,7 @@ public partial class SignalSelectionWindow : ScrollView
     public void Init()
     {
         Clear();
-        foreach (var tag in Tag.All)
+        foreach (var tag in TagDef.Id.All)
         {
             var tab = new Tab(tag.DefaultName.Value);
             tab.tabHeader.Clear();
@@ -46,7 +46,7 @@ public partial class SignalSelectionWindow : ScrollView
                 collection.Add(constBtn);
                 collection.Add(constVal);
             }
-            foreach (var id in Tag.AllIdsForTag(collection.Tag))
+            foreach (var id in collection.Tag.Def.WithThisTag)
                 collection.Add(MakeButton(id));
         }
         
@@ -65,7 +65,7 @@ public partial class SignalSelectionWindow : ScrollView
         return btn;
     }
 
-    public static void Show(VisualElement nextTo, Action<SignalButton> action, Tag[] tags, Func<SignalButton, bool> signalFilter = null)
+    public static void Show(VisualElement nextTo, Action<SignalButton> action, TagDef.Id[] tags, Func<SignalButton, bool> signalFilter = null)
     {
         if (!UISystemGroup.TryGet<SignalSelectionWindow>(out var window))
         {

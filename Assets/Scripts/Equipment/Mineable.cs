@@ -2,7 +2,7 @@
 
 public struct Mineable : IComponentData
 {
-    public ItemId MinedItem;
+    public ItemDef.Id MinedItem;
     public bool IsInfiniteSource;
     public int TicksWithoutItems;
 }

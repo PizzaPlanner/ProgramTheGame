@@ -11,12 +11,12 @@ namespace Power
         [NativeDisableParallelForRestriction]
         public ComponentLookup<Battery> batteyLookup;
         
-        static readonly Tag BatteryTag = Tag.FromName("BatteryTag");
+        static readonly TagDef.Id BatteryTag = Core.ID.TagBattery;
         void Execute(ref PowerProvider provider, ref DynamicBuffer<Inventory> inventory)
         {
             foreach (var item in inventory)
             {
-                if(item.SlotFilter.Id != BatteryTag.Id 
+                if(item.SlotFilter != BatteryTag 
                    || item.IsEmpty 
                    || !batteyLookup.TryGetComponent(item.Entity, out var battery))
                     continue;

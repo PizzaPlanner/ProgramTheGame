@@ -30,6 +30,7 @@ namespace Identifiables.Authoring
                         () =>
                         {
                             _current = world;
+                            IdentifiablesMappingGroup.RunMapping(world);
                             wiki.Init(_current);
                         });
                 }

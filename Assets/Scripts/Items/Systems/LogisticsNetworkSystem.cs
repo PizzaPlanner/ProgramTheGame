@@ -1,4 +1,5 @@
 ﻿using Grids;
+using Identifiables;
 using Unity.Collections;
 using Unity.Entities;
 
@@ -46,7 +47,7 @@ partial struct LogisticsNetworkSystem : ISystem
             network.ItemsByEntities.Remove(e);
             foreach (var item in inventory)
             {
-                if(item.Amount == 0 || item.Type == default)
+                if(item.Amount == 0 || item.Type == default(Identifiable))
                     continue;
                 
                 var amnt = network.HasItems.TryGetValue(item.Type, out var a) ? a : 0;

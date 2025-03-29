@@ -57,9 +57,9 @@ partial class DeconstructToolUISystem : MapOverlaySystem<DeconstructTool>
             layers.Add(new ToggleForLayer(layer) { value = true } );
         }
         var taskTypes = new ToggleButtonGroup(){ name = "Tasks" };
-        foreach (var task in Tag.AllIdsForTag(Tag.FromName("TagTask")))
+        foreach (var task in Identifiable.FromName("TagTask").TagDef().WithThisTag)
         {
-            if(!SystemAPI.HasComponent<DismantleTask>(task.SpawnablePrefab))
+            if(!SystemAPI.HasComponent<DismantleTask>(task.SpawnableDef()))
                 continue;
             taskTypes.Add(new ToggleForTask(task) { value = true });
         }
@@ -114,7 +114,7 @@ partial class DeconstructToolUISystem : MapOverlaySystem<DeconstructTool>
                 else
                 {
                     var dismantleTask = SystemAPI.GetComponent<Building>(entity).DismantleTaskPrefab;
-                    if(dismantleTask.SpawnablePrefab == default)
+                    if(dismantleTask.SpawnableDef().Spawnable == default)
                         continue;
                     Task.Schedule(dismantleTask, ecb, new Task
                     {

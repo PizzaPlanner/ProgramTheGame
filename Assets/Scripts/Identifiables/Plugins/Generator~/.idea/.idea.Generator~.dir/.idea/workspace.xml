@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="f353fc70-8dd5-4b52-8716-26d7b2fc3182" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/../../../../../Packages/com.ite.lookups/Assembly.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../Packages/com.ite.lookups/Assembly.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../Packages/com.ite.lookups/Bakers.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../Packages/com.ite.lookups/Bakers/Bakers.asmdef" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../Packages/com.ite.lookups/Bakers/Bakers.asmdef.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../Packages/com.ite.lookups/Bakers/LibraryAssetAuthoring.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../Packages/com.ite.lookups/Bakers/LibraryAssetAuthoring.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../Packages/com.ite.lookups/Examples~/Editor.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../Packages/com.ite.lookups/Examples~/Editor/Bakers.asmdef" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../Packages/com.ite.lookups/Examples~/Editor/Bakers.asmdef.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../Packages/com.ite.lookups/Examples~/Editor/CardAuthoring.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../Packages/com.ite.lookups/Examples~/Editor/CardAuthoring.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../Packages/com.ite.lookups/Examples~/Editor/CardLibraryAuthoring.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../Packages/com.ite.lookups/Examples~/Editor/CardLibraryAuthoring.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../Packages/com.ite.lookups/Examples~/Editor/Data.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../Packages/com.ite.lookups/Examples~/Editor/Data/ExampleCard2.prefab" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../Packages/com.ite.lookups/Examples~/Editor/Data/ExampleCard2.prefab.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../Packages/com.ite.lookups/Examples~/Editor/Data/ExampleCardLibrary.asset" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../Packages/com.ite.lookups/Examples~/Editor/Data/ExampleCardLibrary.asset.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../Packages/com.ite.lookups/Examples~/Editor/Data/ExampleCardLibraryAuthoring.asset" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../Packages/com.ite.lookups/Examples~/Editor/Data/ExampleCardLibraryAuthoring.asset.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../Packages/com.ite.lookups/Examples~/Editor/Data/MyExampleCard.prefab" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../Packages/com.ite.lookups/Examples~/Editor/Data/MyExampleCard.prefab.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../Packages/com.ite.lookups/Examples~/Editor/Tests.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../Packages/com.ite.lookups/Examples~/Editor/Tests/CardTests.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../Packages/com.ite.lookups/Examples~/Editor/Tests/CardTests.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../Packages/com.ite.lookups/Examples~/Editor/Tests/Tests.asmdef" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../Packages/com.ite.lookups/Examples~/Editor/Tests/Tests.asmdef.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../Packages/com.ite.lookups/Examples~/Runtime.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../Packages/com.ite.lookups/Examples~/Runtime/CardLibraryAsset.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../Packages/com.ite.lookups/Examples~/Runtime/CardLibraryAsset.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../Packages/com.ite.lookups/Examples~/Runtime/LibraryLoadSystem.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../Packages/com.ite.lookups/Examples~/Runtime/LibraryLoadSystem.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../Packages/com.ite.lookups/Examples~/Runtime/Lookups.asmdef" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../Packages/com.ite.lookups/Examples~/Runtime/Lookups.asmdef.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../Packages/com.ite.lookups/Generator~/.idea/.idea.Generator~.dir/.idea/indexLayout.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../Packages/com.ite.lookups/Generator~/.idea/.idea.Generator~.dir/.idea/projectSettingsUpdater.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../Packages/com.ite.lookups/Generator~/.idea/.idea.Generator~.dir/.idea/vcs.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../Packages/com.ite.lookups/Generator~/.idea/.idea.Generator~.dir/.idea/workspace.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../Packages/com.ite.lookups/Generator~/SourceGenerator/Generator.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../Packages/com.ite.lookups/Generator~/bin/Debug/netstandard2.0/Lookups.Generator.deps.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../Packages/com.ite.lookups/Generator~/bin/Debug/netstandard2.0/Lookups.Generator.dll" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../Packages/com.ite.lookups/Generator~/bin/netstandard2.0/Lookups.Generator.deps.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../Packages/com.ite.lookups/Generator~/bin/netstandard2.0/Lookups.Generator.dll" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../Packages/com.ite.lookups/Generator~/obj/Debug/netstandard2.0/.NETStandard,Version=v2.0.AssemblyAttributes.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../Packages/com.ite.lookups/Generator~/obj/Debug/netstandard2.0/Lookups.Generator.AssemblyInfo.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../Packages/com.ite.lookups/Generator~/obj/Debug/netstandard2.0/Lookups.Generator.AssemblyInfoInputs.cache" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../Packages/com.ite.lookups/Generator~/obj/Debug/netstandard2.0/Lookups.Generator.GeneratedMSBuildEditorConfig.editorconfig" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../Packages/com.ite.lookups/Generator~/obj/Debug/netstandard2.0/Lookups.Generator.GlobalUsings.g.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../Packages/com.ite.lookups/Generator~/obj/Debug/netstandard2.0/Lookups.Generator.assets.cache" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../Packages/com.ite.lookups/Generator~/obj/Debug/netstandard2.0/Lookups.Generator.csproj.AssemblyReference.cache" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../Packages/com.ite.lookups/Generator~/obj/Debug/netstandard2.0/Lookups.Generator.csproj.CoreCompileInputs.cache" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../Packages/com.ite.lookups/Generator~/obj/Debug/netstandard2.0/Lookups.Generator.csproj.FileListAbsolute.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../Packages/com.ite.lookups/Generator~/obj/Debug/netstandard2.0/Lookups.Generator.dll" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../Packages/com.ite.lookups/Generator~/obj/Lookups.Generator.csproj.nuget.dgspec.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../Packages/com.ite.lookups/Generator~/obj/Lookups.Generator.csproj.nuget.g.props" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../Packages/com.ite.lookups/Generator~/obj/Lookups.Generator.csproj.nuget.g.targets" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../Packages/com.ite.lookups/Generator~/obj/netstandard2.0/.NETStandard,Version=v2.0.AssemblyAttributes.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../Packages/com.ite.lookups/Generator~/obj/netstandard2.0/Lookups.Generator.AssemblyInfo.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../Packages/com.ite.lookups/Generator~/obj/netstandard2.0/Lookups.Generator.AssemblyInfoInputs.cache" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../Packages/com.ite.lookups/Generator~/obj/netstandard2.0/Lookups.Generator.GeneratedMSBuildEditorConfig.editorconfig" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../Packages/com.ite.lookups/Generator~/obj/netstandard2.0/Lookups.Generator.GlobalUsings.g.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../Packages/com.ite.lookups/Generator~/obj/netstandard2.0/Lookups.Generator.assets.cache" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../Packages/com.ite.lookups/Generator~/obj/netstandard2.0/Lookups.Generator.csproj.AssemblyReference.cache" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../Packages/com.ite.lookups/Generator~/obj/netstandard2.0/Lookups.Generator.csproj.CoreCompileInputs.cache" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../Packages/com.ite.lookups/Generator~/obj/netstandard2.0/Lookups.Generator.csproj.FileListAbsolute.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../Packages/com.ite.lookups/Generator~/obj/netstandard2.0/Lookups.Generator.deps.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../Packages/com.ite.lookups/Generator~/obj/netstandard2.0/Lookups.Generator.dll" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../Packages/com.ite.lookups/Generator~/obj/netstandard2.0/PublishOutputs.00ceef54a6.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../Packages/com.ite.lookups/Generator~/obj/netstandard2.0/PublishOutputs.06e34ad0d9.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../Packages/com.ite.lookups/Generator~/obj/netstandard2.0/PublishOutputs.1fd546499a.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../Packages/com.ite.lookups/Generator~/obj/project.assets.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../Packages/com.ite.lookups/Generator~/obj/project.nuget.cache" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../Packages/com.ite.lookups/Generator~/obj/project.packagespec.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../Packages/com.ite.lookups/Generator~/obj/rider.project.model.nuget.info" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../Packages/com.ite.lookups/Generator~/obj/rider.project.restore.info" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../Packages/com.ite.lookups/LibraryAsset.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../Packages/com.ite.lookups/LibraryAsset.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../Packages/com.ite.lookups/LibraryAssetGuidBased.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../Packages/com.ite.lookups/LibraryAssetGuidBased.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../Packages/com.ite.lookups/Lookups.asmdef" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../Packages/com.ite.lookups/Lookups.asmdef.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../Packages/com.ite.lookups/Package.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../Packages/com.ite.lookups/Package.json.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../Packages/com.ite.lookups/Plugins.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../Packages/com.ite.lookups/Plugins/Lookups.Generator.deps.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../Packages/com.ite.lookups/Plugins/Lookups.Generator.deps.json.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../Packages/com.ite.lookups/Plugins/Lookups.Generator.dll" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../Packages/com.ite.lookups/Plugins/Lookups.Generator.dll.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../Packages/manifest.json" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../../Packages/manifest.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../../../../Packages/packages-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../../Packages/packages-lock.json" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../../../../.." />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;PizzaPlanner&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/PizzaPlanner/ProgramTheGame.git&quot;,
+    &quot;accountId&quot;: &quot;002be714-9bcc-4997-b594-323d7230651f&quot;
+  }
+}</component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/SourceGenerator/Generator.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/1aeec897e4ef311b8514d82976fe3adbce94eedb27d9c6b7742c85abf7093/Syntax.xml.Syntax.Generated.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/296729e434a9fc93c0308f405abfd5e18e57c0f077996447ed4721a57f66b2/IFieldSymbol.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/317b566de96a6e563fc7666c422ee6478928e6f613d5ea40d16f2b25d3881e/IPropertySymbol.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/3f575d54a6665c7f8e59ef7cc979f231e41c6855274a843dea924629c726018/AdditionalText.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/79f449277ee2fa10e3a66e676eb685d2a60afe1ecf1dbce7c95d991e081ed1/SyntaxNode.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/7ac14a32ebeccd5ca899cb07f18b4213ee3e94c7bf62463df3b2da34256b4e/Syntax.xml.Internal.Generated.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/7db2d16d9bc3a5a42fb9ca153dd911cf1a89c66b1dca4bfc9ed7523bdc9ac28/CSharpSyntaxNode.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/db31e215db1436964df2f49ffe7123fd4b04ac9a7c642a9778ea8c115abb1/CSharpExtensions.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/dbf25acd3aa0af4b34c42994d2aea8cec92dce44dd4715130c2232a8b8edd/GeneratorContexts.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/e9e993f6f25b83ed9f478267e94a66886216b3bec4eec6e88277b15f04fb7a7/TypeDeclarationSyntax.cs" root0="SKIP_HIGHLIGHTING" />
+  </component>
+  <component name="MacroExpansionManager">
+    <option name="directoryName" value="cv6y8myx" />
+  </component>
+  <component name="MetaFilesCheckinStateConfiguration" checkMetaFiles="true" />
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 3
+}</component>
+  <component name="ProjectId" id="2X34JQ7XJaINGuAEVj9eLrxW9pb" />
+  <component name="ProjectViewState">
+    <option name="autoscrollFromSource" value="true" />
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Publish to folder.MakePlugin.executor": "Run",
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "git-widget-placeholder": "master",
+    "ignore.virus.scanning.warn.message": "true",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "project.propVCSSupport.DirectoryMappings",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="RunManager">
+    <configuration name="MakePlugin" type="DotNetFolderPublish" factoryName="Publish to folder">
+      <riderPublish runtime="Portable" target_folder="$PROJECT_DIR$/.." target_framework="netstandard2.0" uuid_high="3017660129823998322" uuid_low="-2708595317242272655" />
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="DotNetFolderPublish" factoryName="Publish to folder">
+      <riderPublish runtime="Portable" target_folder="$PROJECT_DIR$/bin/netstandard2.0/publish" target_framework="netstandard2.0" uuid_high="3017660129823998322" uuid_low="-2708595317242272655" />
+      <method v="2" />
+    </configuration>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="f353fc70-8dd5-4b52-8716-26d7b2fc3182" name="Changes" comment="" />
+      <created>1697844356845</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1697844356845</updated>
+      <workItem from="1697844357882" duration="332000" />
+      <workItem from="1714340286966" duration="371000" />
+      <workItem from="1714419385194" duration="850000" />
+      <workItem from="1714872209680" duration="853000" />
+      <workItem from="1719603468868" duration="2211000" />
+      <workItem from="1719629174781" duration="3819000" />
+      <workItem from="1719634153215" duration="2957000" />
+      <workItem from="1719685149370" duration="2374000" />
+      <workItem from="1719688793155" duration="1152000" />
+      <workItem from="1742936435718" duration="4498000" />
+      <workItem from="1742951767618" duration="934000" />
+      <workItem from="1742954957116" duration="3067000" />
+      <workItem from="1743016294636" duration="2934000" />
+      <workItem from="1743019498676" duration="4698000" />
+      <workItem from="1743037260053" duration="645000" />
+      <workItem from="1743108507294" duration="716000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="UnityCheckinConfiguration" checkUnsavedScenes="true" />
+  <component name="UnityProjectConfiguration" hasMinimizedUI="false" />
+  <component name="VcsManagerConfiguration">
+    <option name="LOCAL_CHANGES_DETAILS_PREVIEW_SHOWN" value="false" />
+    <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
+  </component>
+</project>

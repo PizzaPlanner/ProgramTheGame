@@ -6,8 +6,8 @@ using UnityEngine.UIElements;
 
 public class SignalButton : IdentifiableButton
 {
-    Tag[] _assignableTo;
-    public Tag[] AssignableTo
+    TagDef.Id[] _assignableTo;
+    public TagDef.Id[] AssignableTo
     {
         set
         {
@@ -70,6 +70,6 @@ public class SignalButton : IdentifiableButton
 
 public class SignalSelectionIdCollection : VisualElement
 {
-    public Tag Tag;
+    public TagDef.Id Tag;
     public Tab Tab;
 }

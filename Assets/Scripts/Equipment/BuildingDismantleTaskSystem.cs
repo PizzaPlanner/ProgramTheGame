@@ -32,7 +32,7 @@ partial struct BuildingDismantleTaskSystem : ISystem
             if (!progress.ValueRW.IsDone)
                 continue;
             
-            store.CreateBuilder.AddTo(task.Executor, ItemId.From(mass.ElementType), (uint)(mass.Mass * dism.Yield));
+            store.CreateBuilder.AddTo(task.Executor, mass.ElementType, (uint)(mass.Mass * dism.Yield));
             ecb.DestroyEntity(task.Target);
             ecb.DestroyEntity(e);
         }

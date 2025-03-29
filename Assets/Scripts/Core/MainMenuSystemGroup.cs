@@ -33,7 +33,7 @@ namespace Core
         public static void StartGame(uint seed, bool isSandbox)
         {
             World.DisposeAllWorlds();
-            World.DefaultGameObjectInjectionWorld = WorldTypes.CreateGameWorld($"Session {seed}", isSandbox, Mod.WantedMods);
+            World.DefaultGameObjectInjectionWorld = WorldTypes.CreateGameWorld($"Session {seed}", isSandbox);
         }
 
         public void LoadGame(string savePath) { }

@@ -24,7 +24,7 @@ namespace Items.Tests
             inventory.Add(new Inventory
             {
                 Amount = 3,
-                Type = ItemId.From(Identifiable.FromName(SomeStackable))
+                Type = Identifiable.FromName(SomeStackable)
             });
             inventory.Add(default);
             // SystemAPI.GetSingleton<TransactionStore>().Build.Transfer(e, 0, e, 1);

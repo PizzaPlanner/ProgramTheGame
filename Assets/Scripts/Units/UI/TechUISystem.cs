@@ -21,17 +21,17 @@ partial class TechUISystem : UISystem
         _window.RegisterCallback<AttachToPanelEvent>(_ => _window.Q<ResearchTreeView>().BuildTree(GetAllTech));
     }
 
-    public IEnumerable<(Identifiable, Technology)> GetAllTech => Tag.AllIdsForTag(Tag.FromName("TagTechnology"))
+    public IEnumerable<(Identifiable, Technology)> GetAllTech => Identifiable.FromName("TagTechnology").TagDef().WithThisTag.ToArray()
                                                                     .Select(x => (x, GetTechnology(x)));
 
     Technology GetTechnology(Identifiable id)
     {
-        if (!EntityManager.HasComponent<Technology>(id.SpawnablePrefab))
+        if (!EntityManager.HasComponent<Technology>(id.SpawnableDef()))
         {
             Debug.LogError($"Has Technology Tag but is not a Technology: {id}");
             return default;
         }
-        return EntityManager.GetComponentData<Technology>(id.SpawnablePrefab);
+        return EntityManager.GetComponentData<Technology>(id.SpawnableDef());
     }
 
     protected override void OnUpdate()
@@ -42,8 +42,8 @@ partial class TechUISystem : UISystem
         var queuedTech = SystemAPI.GetSingleton<CurrentResearch>().Technology;
         _window.Query<TechnologyButton>().ForEach(x =>
         {
-            var tech = SystemAPI.GetComponent<Technology>(x.Id.Target.SpawnablePrefab);
-            x.EnableInClassList("unlocked", SystemAPI.HasComponent<Unlocked>(x.Id.Target.SpawnablePrefab));
+            var tech = SystemAPI.GetComponent<Technology>(x.Id.Target.SpawnableDef());
+            x.EnableInClassList("unlocked", SystemAPI.HasComponent<Unlocked>(x.Id.Target.SpawnableDef()));
             x.EnableInClassList("selected", x.Id.Target == queuedTech);
             x.Technology = tech;
         });

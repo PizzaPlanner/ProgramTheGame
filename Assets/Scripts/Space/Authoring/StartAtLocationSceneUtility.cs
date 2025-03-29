@@ -36,18 +36,18 @@ static class EditorStartAtLocationSceneUtility
         var startup = EditorUserSettings.GetConfigValue("startupBlueprint");
         if(string.IsNullOrWhiteSpace(startup))
             return false;
-        World.DefaultGameObjectInjectionWorld = WorldTypes.CreateGameWorld("Session 0", true, Mod.WantedMods);
-        if(!Identifiable.Exists(startup))
+        World.DefaultGameObjectInjectionWorld = WorldTypes.CreateGameWorld("Session 0", true);
+        if(!Identifiable.Exists(Identifiable.FromName(startup)))
             return true;
         var entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
-        var prefab = Identifiable.FromName(startup).SpawnablePrefab;
+        var prefab = Identifiable.FromName(startup).SpawnableDef();
         if (entityManager.HasComponent<Sector>(prefab))
         {
             entityManager.Instantiate(prefab);
         }
         else
         {
-            var loc = entityManager.Instantiate(Identifiable.FromName("EmptyLocation").SpawnablePrefab);
+            var loc = entityManager.Instantiate(Identifiable.FromName("EmptyLocation").SpawnableDef());
             var ecb = new EntityCommandBuffer(Allocator.Temp);
             Blueprint.Spawn(ecb, entityManager.GetComponentData<Blueprint>(prefab), loc);
             ecb.Playback(entityManager);
@@ -83,12 +83,12 @@ static class EditorStartAtLocationSceneUtility
                 });
                 menu.AddSeparator("");
             }
-            foreach (var id in Tag.AllIdsForTag(Identifiable.FromName("TagLocation")))
+            foreach (var id in Identifiable.FromName("TagLocation").TagDef().WithThisTag)
             {
                 menu.AddItem(new GUIContent(id.DefaultName.Value), !Application.isPlaying && currentValue == id.DefaultName.Value,
                     () => OnSelectEntry(id, false));
             }
-            foreach (var id in Tag.AllIdsForTag(Identifiable.FromName("TagBlueprint")))
+            foreach (var id in Identifiable.FromName("TagBlueprint").TagDef().WithThisTag)
             {
                 menu.AddItem(new GUIContent(id.DefaultName.Value), !Application.isPlaying && currentValue == id.DefaultName.Value,
                     () => OnSelectEntry(id, true));
@@ -116,13 +116,13 @@ static class EditorStartAtLocationSceneUtility
         var em = World.DefaultGameObjectInjectionWorld.EntityManager;
         if (wrapInLocation)
         {
-            var loc = em.Instantiate(Identifiable.FromName("EmptyLocation").SpawnablePrefab);
+            var loc = em.Instantiate(Identifiable.FromName("EmptyLocation").SpawnableDef());
             var ecb = new EntityCommandBuffer(Allocator.Temp);
-            Blueprint.Spawn(ecb, em.GetComponentData<Blueprint>(id.SpawnablePrefab), loc);
+            Blueprint.Spawn(ecb, em.GetComponentData<Blueprint>(id.SpawnableDef()), loc);
             ecb.Playback(em);
         }
         else
-            em.Instantiate(id.SpawnablePrefab);
+            em.Instantiate(id.SpawnableDef());
     }
 
     static void SetName()

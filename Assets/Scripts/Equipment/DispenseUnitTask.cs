@@ -25,11 +25,11 @@ namespace Units
                 if(!progress.ValueRW.IsDone)
                     continue;
                 SystemAPI.GetComponentRW<UnitDispenser>(task.ValueRW.Origin).ValueRW.IsDispensed  = true;
-                var newUnit = ecb.Instantiate(dutask.UnitPrefab.SpawnablePrefab);
+                var newUnit = ecb.Instantiate(dutask.UnitPrefab.SpawnableDef());
                 ecb.SetComponent(newUnit, SystemAPI.GetComponent<LocalTransform>(task.ValueRW.Origin));
                 ecb.SetComponent(newUnit, SystemAPI.GetComponent<OnGrid>(task.ValueRW.Origin));
                 ecb.DestroyEntity(e);
-                if(dutask.AddedStatus != default && SystemAPI.HasBuffer<Statuses>(dutask.UnitPrefab.SpawnablePrefab))
+                if(dutask.AddedStatus != default && SystemAPI.HasBuffer<Statuses>(dutask.UnitPrefab.SpawnableDef()))
                     ecb.AppendToBuffer(newUnit, new Statuses
                     {
                         Id = dutask.AddedStatus,

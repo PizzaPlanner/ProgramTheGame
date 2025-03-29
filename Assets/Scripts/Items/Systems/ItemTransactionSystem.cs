@@ -1,4 +1,5 @@
-﻿using Unity.Burst;
+﻿using Identifiables;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
@@ -42,7 +43,7 @@ internal partial struct ExecuteTransactionsJob : IJob
                         continue;
 
                     var fromSlot = fromInventory[reservation.Slot];
-                    if (fromSlot.Type.IsStackable)
+                    if (fromSlot.Type.Def.IsStackable)
                     {
                         fromSlot.Amount -= reservation.Amount;
                     }
@@ -76,7 +77,7 @@ internal partial struct ExecuteTransactionsJob : IJob
 
                     if (transaction.Type == ItemTransaction.TransactionType.AddAndSpawn)
                     {
-                        var spawned = ecb.Instantiate(transaction.ItemId.BaseId.SpawnablePrefab);
+                        var spawned = ecb.Instantiate(transaction.ItemId);
                         ecb.AddComponent(spawned, new JustChangedLocation
                         {
                             Inventory = transaction.ToInventory, 
@@ -90,12 +91,12 @@ internal partial struct ExecuteTransactionsJob : IJob
                     
                     var toSlot = toInventory[reservation.Slot];
                     toSlot.Type = reservation.ReservedType;
-                    if (toSlot.Type.IsStackable)
+                    if (toSlot.Type.Def.IsStackable)
                         toSlot.Amount += reservation.Amount;
                     else 
                     {
                         if(itemEntity == Entity.Null)
-                            itemEntity = ecb.Instantiate(toSlot.Type.BaseId.SpawnablePrefab);
+                            itemEntity = ecb.Instantiate(toSlot.Type);
                         toSlot.Entity = itemEntity;
                         ecb.AddComponent(itemEntity, new Parent{Value = transaction.ToInventory});
                         if (toSlot.IsEquipmentSlot)
@@ -321,8 +322,8 @@ internal partial struct PrepareTransactionsJob : IJob
         if (total < 0)
             newAmount = (uint)(r.Amount + total); 
 
-        if (total > r.ReservedType.MaxStackSize)
-            newAmount = (uint)(r.Amount - (total - r.ReservedType.MaxStackSize)); 
+        if (total > r.ReservedType.Def.MaxStack)
+            newAmount = (uint)(r.Amount - (total - r.ReservedType.Def.MaxStack)); 
         
         if(newAmount == 0)
             return Fit.Not;
@@ -338,8 +339,8 @@ internal partial struct PrepareTransactionsJob : IJob
     {
         return (t.Type is ItemTransaction.TransactionType.GenericAdd or ItemTransaction.TransactionType.AddAndSpawn or ItemTransaction.TransactionType.GenericRemove 
                     || (r.IsIncoming && slot.CanTransferInto) || (!r.IsIncoming && slot.CanTransferOut))  
-                && (slot.Type == r.ReservedType || (slot.Type == default && !slot.IsTypeLocked)) 
-                && (slot.SlotFilter.Id == default || Tag.HasTag(r.ReservedType.BaseId, slot.SlotFilter));
+                && (slot.Type == r.ReservedType || (slot.Type == default(Identifiable) && !slot.IsTypeLocked)) 
+                && (slot.SlotFilter == default(Identifiable) || ((Identifiable)r.ReservedType).BaseDef().HasTag(slot.SlotFilter));
     }
 }
 

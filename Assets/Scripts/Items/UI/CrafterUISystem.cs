@@ -37,7 +37,7 @@ partial class CrafterUISystem : UISystem
                     CrewProvider = onGrid.Grid
                 });
                 ecb.SetComponent(craftTask, wantCraft);
-                ecb.SetComponent(craftTask, new TaskProgress { RequiredTicks = SystemAPI.GetComponent<CraftingRecipe>(wantCraft.Recipe.SpawnablePrefab).Duration});
+                ecb.SetComponent(craftTask, new TaskProgress { RequiredTicks = SystemAPI.GetComponent<CraftingRecipe>(wantCraft.Recipe.SpawnableDef()).Duration});
                 plan.Q<CraftOrderWindow>().WantCraft = default;
             }
         }

@@ -47,7 +47,7 @@ namespace Units
                 return;
             SignalSelectionWindow.Show(this, 
                 x => SkillToLearn = x.Target, 
-                new[] { Tag.FromName("TagSkill") },
+                new TagDef.Id[] { Identifiable.FromName("TagSkill") },
                 x =>
                 {
                     foreach(var learned in AlreadyLearned)

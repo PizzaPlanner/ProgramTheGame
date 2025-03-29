@@ -1,5 +1,6 @@
 ﻿using Core;
 using Grids;
+using Identifiables;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
@@ -17,7 +18,7 @@ partial struct MapGenerationJob : IJobEntity
     [BurstCompile]
     void Execute(Entity e, ref CGrid grid, in GenerateMap generateMap)
     {
-        if (!nodeLookup.EntityExists(generateMap.RootGenerator.SpawnablePrefab))
+        if (!nodeLookup.EntityExists(generateMap.RootGenerator.SpawnableDef()))
         {
             Debug.LogWarning($"Cannot generate {generateMap.RootGenerator}: Not Spawnable?");
             return;
