@@ -1093,3 +1093,74 @@ UnitButtonWithMood > PercentProgressBar {
     bottom: 0;
     width: 100%;
 }
+
+GalaxyMapUI {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: rgba(0,0,0, 0.6);
+    flex-direction: row;
+    color: var(--color-text-default);
+}
+
+GalaxyMapElement {
+}
+
+GalaxyMapElement > #Outer {
+    border-width: 2px;
+    border-color: rgb(255,255,255);
+    overflow: scroll;
+    width: 700px;
+    height: 700px;
+}
+
+GalaxyMapElement > #Outer > #Inner {
+    position: absolute;
+    border-width: 2px;
+    border-color: rgb(255,0, 0);
+    overflow: scroll;
+    width: 400%;
+    height: 400%;
+    transform-origin: 0 0;
+}
+
+ShipElement.id-button {
+    margin: 0;
+    width: 32px;
+    height: 32px;
+    background-color: rgba(0,0,0,0);
+    position: absolute;
+}
+
+ShipElement.id-button > #Frame {
+    display: none;
+}
+
+GalaxyCell.id-button {
+    margin: 0;
+    width: 64px;
+    height: 64px;
+    background-color: rgba(0,0,0,0);
+    border-width: 1px;
+    border-color: rgba(50, 50, 100, 0.5);
+}
+
+GalaxyCell.id-button.unknown {
+    background-color: rgba(0,0,0,0.8);
+    border-color: rgba(20, 20, 20, 0.5);
+}
+
+GalaxyCell.id-button > Label {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    -unity-text-align: lower-center;
+    color: rgba(255, 255, 255, 0.4);
+}
+
+GalaxyCell.id-button > #Frame {
+display: none;
+}

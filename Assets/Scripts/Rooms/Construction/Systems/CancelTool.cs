@@ -74,7 +74,7 @@ partial class CancelToolUISystem : MapOverlaySystem<CancelTool>
         var ecb = SystemAPI.GetSingleton<BeginInitializationEntityCommandBufferSystem.Singleton>()
                            .CreateCommandBuffer(World.Unmanaged);
         
-        var pointerOverUI = SystemAPI.HasSingleton<PointerOverUI>();
+        var pointerOverUI = InputActionsSystem.IsPointerOverUI;
         if (DeconstructTool.Select.WasCompletedThisFrame() && wantDrag)
         {
             if(pointerOverUI && math.all(DragArea.Max == DragArea.Min))

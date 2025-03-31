@@ -880,6 +880,15 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Map"",
+                    ""type"": ""Button"",
+                    ""id"": ""8a8adc6b-a505-4988-af14-f5e20217f6b4"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -924,6 +933,17 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""Cancel"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""719ebe39-4949-46d1-8a6d-e377e3625511"",
+                    ""path"": ""<Keyboard>/m"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Map"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -1015,6 +1035,193 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""a4e86273-df82-4124-b52e-029613359692"",
+                    ""path"": ""<Mouse>/rightButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Cancel"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                }
+            ]
+        },
+        {
+            ""name"": ""MapTool"",
+            ""id"": ""2bfbd36f-e05e-4b3e-a0ed-5bef0497a3c7"",
+            ""actions"": [
+                {
+                    ""name"": ""Select"",
+                    ""type"": ""Button"",
+                    ""id"": ""ab6acfb9-b93c-4fe2-b164-5901cc8c1645"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Cancel"",
+                    ""type"": ""Button"",
+                    ""id"": ""9a86fe32-d336-4d39-b6d2-02286a92162b"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Move"",
+                    ""type"": ""Value"",
+                    ""id"": ""55241b90-f817-4d15-8b0b-7dcf5fb351dd"",
+                    ""expectedControlType"": ""Vector2"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""Zoom"",
+                    ""type"": ""Value"",
+                    ""id"": ""a484968f-a902-42d4-9ebd-faf5f33f9c89"",
+                    ""expectedControlType"": ""Axis"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
+                }
+            ],
+            ""bindings"": [
+                {
+                    ""name"": """",
+                    ""id"": ""61d5672e-a97f-415b-bec3-850a154a767f"",
+                    ""path"": ""<Mouse>/leftButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""Select"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""WASD"",
+                    ""id"": ""a498e907-3f1a-4c35-896c-a5a8301e4846"",
+                    ""path"": ""Dpad"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Move"",
+                    ""isComposite"": true,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""up"",
+                    ""id"": ""c64bef4f-8a1a-4444-92c4-73d6873d90de"",
+                    ""path"": ""<Keyboard>/w"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""Move"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""up"",
+                    ""id"": ""43a5fc20-1b5e-42b7-a764-9bbfd751e9f5"",
+                    ""path"": ""<Keyboard>/upArrow"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""Move"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""down"",
+                    ""id"": ""8780a83a-ebd6-4dc6-9e16-5b0424b75e1a"",
+                    ""path"": ""<Keyboard>/s"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""Move"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""down"",
+                    ""id"": ""1e16a8d7-3065-4a27-ba2d-18eaed5c4d9d"",
+                    ""path"": ""<Keyboard>/downArrow"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""Move"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""left"",
+                    ""id"": ""ab69e97d-ec76-43eb-82bf-0f6f64da5425"",
+                    ""path"": ""<Keyboard>/a"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""Move"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""left"",
+                    ""id"": ""5be2067b-1ecd-4d45-aa61-382bab49c7ad"",
+                    ""path"": ""<Keyboard>/leftArrow"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""Move"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""right"",
+                    ""id"": ""0eb54299-12f4-4e0e-96fc-1e82159e93c5"",
+                    ""path"": ""<Keyboard>/d"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""Move"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""right"",
+                    ""id"": ""840a2d74-566f-44f9-90dd-5d26e4151f65"",
+                    ""path"": ""<Keyboard>/rightArrow"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""Move"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""3c8cc2bb-efa7-4e74-b1d7-b42d8ba62e60"",
+                    ""path"": ""<XRController>/{Primary2DAxis}"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""XR"",
+                    ""action"": ""Move"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""08023bd1-f796-4e99-bd17-a0a3d952902b"",
+                    ""path"": ""<Mouse>/scroll/y"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""Zoom"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""af360f3c-afdd-487c-b2cb-4c7a76ea2771"",
                     ""path"": ""<Mouse>/rightButton"",
                     ""interactions"": """",
                     ""processors"": """",
@@ -1356,6 +1563,7 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         m_Tools_Select = m_Tools.FindAction("Select", throwIfNotFound: true);
         m_Tools_Deconstruct = m_Tools.FindAction("Deconstruct", throwIfNotFound: true);
         m_Tools_Cancel = m_Tools.FindAction("Cancel", throwIfNotFound: true);
+        m_Tools_Map = m_Tools.FindAction("Map", throwIfNotFound: true);
         // SelectTool
         m_SelectTool = asset.FindActionMap("SelectTool", throwIfNotFound: true);
         m_SelectTool_Select = m_SelectTool.FindAction("Select", throwIfNotFound: true);
@@ -1364,6 +1572,12 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         m_CancelTool = asset.FindActionMap("CancelTool", throwIfNotFound: true);
         m_CancelTool_Select = m_CancelTool.FindAction("Select", throwIfNotFound: true);
         m_CancelTool_Cancel = m_CancelTool.FindAction("Cancel", throwIfNotFound: true);
+        // MapTool
+        m_MapTool = asset.FindActionMap("MapTool", throwIfNotFound: true);
+        m_MapTool_Select = m_MapTool.FindAction("Select", throwIfNotFound: true);
+        m_MapTool_Cancel = m_MapTool.FindAction("Cancel", throwIfNotFound: true);
+        m_MapTool_Move = m_MapTool.FindAction("Move", throwIfNotFound: true);
+        m_MapTool_Zoom = m_MapTool.FindAction("Zoom", throwIfNotFound: true);
         // BuildTool
         m_BuildTool = asset.FindActionMap("BuildTool", throwIfNotFound: true);
         m_BuildTool_PlaceBuilding = m_BuildTool.FindAction("PlaceBuilding", throwIfNotFound: true);
@@ -1393,6 +1607,7 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         UnityEngine.Debug.Assert(!m_Tools.enabled, "This will cause a leak and performance issues, InputActions.Tools.Disable() has not been called.");
         UnityEngine.Debug.Assert(!m_SelectTool.enabled, "This will cause a leak and performance issues, InputActions.SelectTool.Disable() has not been called.");
         UnityEngine.Debug.Assert(!m_CancelTool.enabled, "This will cause a leak and performance issues, InputActions.CancelTool.Disable() has not been called.");
+        UnityEngine.Debug.Assert(!m_MapTool.enabled, "This will cause a leak and performance issues, InputActions.MapTool.Disable() has not been called.");
         UnityEngine.Debug.Assert(!m_BuildTool.enabled, "This will cause a leak and performance issues, InputActions.BuildTool.Disable() has not been called.");
         UnityEngine.Debug.Assert(!m_DeconstructTool.enabled, "This will cause a leak and performance issues, InputActions.DeconstructTool.Disable() has not been called.");
         UnityEngine.Debug.Assert(!m_Overlays.enabled, "This will cause a leak and performance issues, InputActions.Overlays.Disable() has not been called.");
@@ -1675,6 +1890,7 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
     private readonly InputAction m_Tools_Select;
     private readonly InputAction m_Tools_Deconstruct;
     private readonly InputAction m_Tools_Cancel;
+    private readonly InputAction m_Tools_Map;
     public struct ToolsActions
     {
         private @InputActions m_Wrapper;
@@ -1683,6 +1899,7 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         public InputAction @Select => m_Wrapper.m_Tools_Select;
         public InputAction @Deconstruct => m_Wrapper.m_Tools_Deconstruct;
         public InputAction @Cancel => m_Wrapper.m_Tools_Cancel;
+        public InputAction @Map => m_Wrapper.m_Tools_Map;
         public InputActionMap Get() { return m_Wrapper.m_Tools; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -1704,6 +1921,9 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
             @Cancel.started += instance.OnCancel;
             @Cancel.performed += instance.OnCancel;
             @Cancel.canceled += instance.OnCancel;
+            @Map.started += instance.OnMap;
+            @Map.performed += instance.OnMap;
+            @Map.canceled += instance.OnMap;
         }
 
         private void UnregisterCallbacks(IToolsActions instance)
@@ -1720,6 +1940,9 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
             @Cancel.started -= instance.OnCancel;
             @Cancel.performed -= instance.OnCancel;
             @Cancel.canceled -= instance.OnCancel;
+            @Map.started -= instance.OnMap;
+            @Map.performed -= instance.OnMap;
+            @Map.canceled -= instance.OnMap;
         }
 
         public void RemoveCallbacks(IToolsActions instance)
@@ -1845,6 +2068,76 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         }
     }
     public CancelToolActions @CancelTool => new CancelToolActions(this);
+
+    // MapTool
+    private readonly InputActionMap m_MapTool;
+    private List<IMapToolActions> m_MapToolActionsCallbackInterfaces = new List<IMapToolActions>();
+    private readonly InputAction m_MapTool_Select;
+    private readonly InputAction m_MapTool_Cancel;
+    private readonly InputAction m_MapTool_Move;
+    private readonly InputAction m_MapTool_Zoom;
+    public struct MapToolActions
+    {
+        private @InputActions m_Wrapper;
+        public MapToolActions(@InputActions wrapper) { m_Wrapper = wrapper; }
+        public InputAction @Select => m_Wrapper.m_MapTool_Select;
+        public InputAction @Cancel => m_Wrapper.m_MapTool_Cancel;
+        public InputAction @Move => m_Wrapper.m_MapTool_Move;
+        public InputAction @Zoom => m_Wrapper.m_MapTool_Zoom;
+        public InputActionMap Get() { return m_Wrapper.m_MapTool; }
+        public void Enable() { Get().Enable(); }
+        public void Disable() { Get().Disable(); }
+        public bool enabled => Get().enabled;
+        public static implicit operator InputActionMap(MapToolActions set) { return set.Get(); }
+        public void AddCallbacks(IMapToolActions instance)
+        {
+            if (instance == null || m_Wrapper.m_MapToolActionsCallbackInterfaces.Contains(instance)) return;
+            m_Wrapper.m_MapToolActionsCallbackInterfaces.Add(instance);
+            @Select.started += instance.OnSelect;
+            @Select.performed += instance.OnSelect;
+            @Select.canceled += instance.OnSelect;
+            @Cancel.started += instance.OnCancel;
+            @Cancel.performed += instance.OnCancel;
+            @Cancel.canceled += instance.OnCancel;
+            @Move.started += instance.OnMove;
+            @Move.performed += instance.OnMove;
+            @Move.canceled += instance.OnMove;
+            @Zoom.started += instance.OnZoom;
+            @Zoom.performed += instance.OnZoom;
+            @Zoom.canceled += instance.OnZoom;
+        }
+
+        private void UnregisterCallbacks(IMapToolActions instance)
+        {
+            @Select.started -= instance.OnSelect;
+            @Select.performed -= instance.OnSelect;
+            @Select.canceled -= instance.OnSelect;
+            @Cancel.started -= instance.OnCancel;
+            @Cancel.performed -= instance.OnCancel;
+            @Cancel.canceled -= instance.OnCancel;
+            @Move.started -= instance.OnMove;
+            @Move.performed -= instance.OnMove;
+            @Move.canceled -= instance.OnMove;
+            @Zoom.started -= instance.OnZoom;
+            @Zoom.performed -= instance.OnZoom;
+            @Zoom.canceled -= instance.OnZoom;
+        }
+
+        public void RemoveCallbacks(IMapToolActions instance)
+        {
+            if (m_Wrapper.m_MapToolActionsCallbackInterfaces.Remove(instance))
+                UnregisterCallbacks(instance);
+        }
+
+        public void SetCallbacks(IMapToolActions instance)
+        {
+            foreach (var item in m_Wrapper.m_MapToolActionsCallbackInterfaces)
+                UnregisterCallbacks(item);
+            m_Wrapper.m_MapToolActionsCallbackInterfaces.Clear();
+            AddCallbacks(instance);
+        }
+    }
+    public MapToolActions @MapTool => new MapToolActions(this);
 
     // BuildTool
     private readonly InputActionMap m_BuildTool;
@@ -2189,6 +2482,7 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         void OnSelect(InputAction.CallbackContext context);
         void OnDeconstruct(InputAction.CallbackContext context);
         void OnCancel(InputAction.CallbackContext context);
+        void OnMap(InputAction.CallbackContext context);
     }
     public interface ISelectToolActions
     {
@@ -2199,6 +2493,13 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
     {
         void OnSelect(InputAction.CallbackContext context);
         void OnCancel(InputAction.CallbackContext context);
+    }
+    public interface IMapToolActions
+    {
+        void OnSelect(InputAction.CallbackContext context);
+        void OnCancel(InputAction.CallbackContext context);
+        void OnMove(InputAction.CallbackContext context);
+        void OnZoom(InputAction.CallbackContext context);
     }
     public interface IBuildToolActions
     {

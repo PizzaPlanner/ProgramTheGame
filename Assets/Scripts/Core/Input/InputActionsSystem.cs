@@ -9,6 +9,8 @@ using UnityEngine.UIElements;
 
 namespace Core.Input
 {
+    internal struct InputActionState : IComponentData { }
+    
     public interface IInputActionState : IComponentData
     {
         bool IsActiveByDefault => false;
@@ -17,139 +19,161 @@ namespace Core.Input
         InputAction ToggledByHotkey(InputActions actions) => null;
     }
     
-    internal struct InputActionState : IComponentData { }
+    internal class StateDefinition
+    {
+        public Entity Entity;
+        public IInputActionState State;
+        public bool Enabled { get; private set; }
+        
+        public void Disable(EntityCommandBuffer ecb)
+        {
+            ecb.AddComponent<Disabled>(Entity);
+            State.StateFor(InputActions.Instance)?.Disable();
+            Enabled = false;
+        }
+        
+        public void Enable(EntityCommandBuffer ecb)
+        {
+            ecb.RemoveComponent<Disabled>(Entity);
+            State.StateFor(InputActions.Instance)?.Enable();
+            Enabled = true;
+        }
+    }
+    internal class InputStateSet
+    {
+        public StateDefinition[] StatesInSet;
+        public int Active;
+        public int Default;
+
+        public void Reset(EntityCommandBuffer ecb)
+        {
+            Active = Default;
+            SwitchToActive(ecb);
+        }
+
+        public void Enable(IInputActionState state, EntityCommandBuffer ecb)
+        {
+            for (int i = 0; i < StatesInSet.Length; i++)
+                if(state.GetType() == StatesInSet[i].State.GetType())
+                    Active = i;
+            SwitchToActive(ecb);
+        }
+        
+        void SwitchToActive(EntityCommandBuffer ecb)
+        {
+            for (int i = 0; i < StatesInSet.Length; i++)
+                if(i == Active) 
+                    StatesInSet[i].Enable(ecb);
+                else 
+                    StatesInSet[i].Disable(ecb);
+        }
+
+        public void EnforceValidState(EntityCommandBuffer ecb)
+        {
+            var shouldReset = false;
+            for (int i = 0; i < StatesInSet.Length; i++)
+                shouldReset |= StatesInSet[i].Enabled != (Active == i);
+            if(shouldReset)
+                Reset(ecb);
+        }
+    }
     
     [UpdateInGroup(typeof(PresentationSystemGroup), OrderFirst = true)]
     public partial class InputActionsSystem : SystemBase
     {
-        NativeHashMap<TypeIndex, Entity> _entityLookup;
-        NativeHashMap<FixedString32Bytes, Entity> _setDefaults;
-        NativeHashMap<FixedString32Bytes, EntityQuery> _actionSets;
+        public static bool IsPointerOverUI { get; private set; }
+        
+        Dictionary<FixedString32Bytes, InputStateSet> _stateSets;
+        List<StateDefinition> allDefs;
+        
         protected override void OnStartRunning()
         {
-            EntityManager.CreateSingleton<PointerOverUI>();
-            
             InputActions.Instance = new InputActions();
             InputActions.Instance.Enable();
-            _entityLookup = new NativeHashMap<TypeIndex, Entity>(0, Allocator.Persistent);
-            _actionSets = new NativeHashMap<FixedString32Bytes, EntityQuery>(0, Allocator.Persistent);
-            _setDefaults = new NativeHashMap<FixedString32Bytes, Entity>(0, Allocator.Persistent);
-            var setBuilders = new Dictionary<FixedString32Bytes, NativeList<ComponentType>>();
-            var setDefTypes = new Dictionary<FixedString32Bytes, IInputActionState>();
+            _stateSets = new();
+            allDefs = new();
+            var ecb = SystemAPI.GetSingleton<BeginInitializationEntityCommandBufferSystem.Singleton>()
+                               .CreateCommandBuffer(World.Unmanaged);
+            var inputAsm = typeof(IInputActionState).Assembly;
             foreach (var asm in AppDomain.CurrentDomain.GetAssemblies()
                                          .Where(x => x.GetReferencedAssemblies()
-                                                      .Any(a => a.FullName == typeof(IInputActionState).Assembly.GetName().FullName)))
+                                                      .Any(a => a.FullName == inputAsm.GetName().FullName) || x == inputAsm))
             foreach (var type in asm.GetTypes().Where(x => x.IsValueType && typeof(IInputActionState).IsAssignableFrom(x)))
             {
                 var state = (IInputActionState)Activator.CreateInstance(type);
                 var e = EntityManager.CreateEntity(type, typeof(InputActionState), typeof(Disabled));
-                if(!state.StateSets.Any())
-                    Enable(e, state);
+                var stateDef = new StateDefinition{ Entity = e, State = state };
+                allDefs.Add(stateDef);
                 foreach (var set in state.StateSets)
                 {
-                    if(!setBuilders.ContainsKey(set))
-                        setBuilders[set] = new NativeList<ComponentType>(Allocator.Temp);
-                    setBuilders[set].Add(ComponentType.FromTypeIndex(TypeManager.GetTypeIndex(type)));
+                    if(!_stateSets.ContainsKey(set))
+                        _stateSets[set] = new InputStateSet
+                        {
+                            StatesInSet = Array.Empty<StateDefinition>(),
+                            Default = -1,
+                            Active = -1
+                        };
+                    var s = _stateSets[set];
                     if (state.IsActiveByDefault)
                     {
-                        _setDefaults[set] = e;
-                        setDefTypes[set] = state;
+                        if(s.Default != -1)
+                            Debug.LogError($"Multiple InputStates are defined as default for {set}");
+                        else
+                        {
+                            s.Default = s.StatesInSet.Length;
+                        }
                     }
+                    Array.Resize(ref s.StatesInSet, s.StatesInSet.Length + 1);
+                    s.StatesInSet[^1] = stateDef;
+                    _stateSets[set] = s;
                 }
-                _entityLookup[TypeManager.GetTypeIndex(type)] = e;
-                if(state.ToggledByHotkey(InputActions.Instance) != null)
-                    state.ToggledByHotkey(InputActions.Instance).performed += _ => Toggle(state);
-            }
 
-            foreach (var key in setBuilders)
+                if (!state.StateSets.Any())
+                    stateDef.Enable(ecb);
+                else if(state.ToggledByHotkey(InputActions.Instance) != null)
+                    state.ToggledByHotkey(InputActions.Instance).performed += _ => SwitchInput(state);
+            }
+            
+            foreach(var set in _stateSets)
+                set.Value.Reset(ecb);
+        }
+
+        public void SwitchInput(IInputActionState state, EntityCommandBuffer ecb = default)
+        {
+            if(!ecb.IsCreated)
+                ecb = SystemAPI.GetSingleton<BeginInitializationEntityCommandBufferSystem.Singleton>().CreateCommandBuffer(World.Unmanaged);
+            var isOn = false;
+            foreach(var def in allDefs)
+                if(state.GetType() == def.State.GetType())
+                    isOn = def.Enabled;
+            foreach (var set in state.StateSets)
             {
-                var components = key.Value;
-                _actionSets.Add(key.Key, new EntityQueryBuilder(Allocator.Temp)
-                                         .WithAny(ref components).WithAll<InputActionState>()
-                                         .Build(this));
-                if(_setDefaults.TryGetValue(key.Key, out var setDefault))
-                    Enable(setDefault, setDefTypes[key.Key]);
+                if(!isOn)
+                    _stateSets[set].Enable(state, ecb);
+                else
+                    _stateSets[set].Reset(ecb);
+                
             }
-        }
 
-        public void Toggle(IInputActionState state)
-        {
-            var e = _entityLookup[TypeManager.GetTypeIndex(state.GetType())];
-            if(SystemAPI.HasComponent<Disabled>(e))
-                Enable(e, state);
-            else
-                Disable(e, state);
-        }
-
-        public void Enable<T>() where T : unmanaged, IInputActionState
-        {
-            var e = _entityLookup[TypeManager.GetTypeIndex<T>()];
-            var state = SystemAPI.GetComponent<T>(e);
-            Enable(e, state);
-        }
-        
-        public void Enable(Entity e, IInputActionState state)
-        {            
-            var ecb = SystemAPI.GetSingleton<BeginInitializationEntityCommandBufferSystem.Singleton>()
-                                        .CreateCommandBuffer(World.Unmanaged);
-            foreach(var set in state.StateSets)
-                if(_actionSets.TryGetValue(set, out var query))
-                    ecb.AddComponent<Disabled>(query, EntityQueryCaptureMode.AtPlayback);
-            ecb.RemoveComponent<Disabled>(e);
-            state.StateFor(InputActions.Instance)?.Enable();
-        }
-
-        public void Disable<T>() where T : unmanaged, IInputActionState
-        {
-            var e = _entityLookup[TypeManager.GetTypeIndex<T>()];
-            var state = SystemAPI.GetComponent<T>(e);
-            Disable(e, state);
-        }
-        
-        public void Disable(Entity e, IInputActionState state)
-        {
-            var ecb = SystemAPI.GetSingleton<BeginInitializationEntityCommandBufferSystem.Singleton>()
-                               .CreateCommandBuffer(World.Unmanaged);
-            ecb.AddComponent<Disabled>(e);
-            state.StateFor(InputActions.Instance)?.Disable();
-            foreach(var set in state.StateSets)
-                if(_setDefaults.TryGetValue(set, out var defaultActions))
-                    ecb.RemoveComponent<Disabled>(defaultActions);
+            foreach (var set in _stateSets)
+                set.Value.EnforceValidState(ecb);
         }
 
         protected override void OnStopRunning()
         {
-            _entityLookup.Dispose();
-            _actionSets.Dispose();
-            _setDefaults.Dispose();
             InputActions.Instance.Disable();
         }
 
         protected override void OnUpdate()
         {
             var mousePosition = new Vector2(UnityEngine.Input.mousePosition.x, Screen.height - UnityEngine.Input.mousePosition.y);
-            var isPointerOverUI = false;
+            IsPointerOverUI = false;
             foreach (var ui in GameObject.FindObjectsByType<UIDocument>(0))
             {
-                isPointerOverUI |= ui?.rootVisualElement?.panel.Pick(
+                IsPointerOverUI |= ui?.rootVisualElement?.panel.Pick(
                     RuntimePanelUtils.ScreenToPanel(ui.rootVisualElement?.panel, mousePosition)) != null;
             }
-            if(isPointerOverUI == SystemAPI.HasSingleton<PointerOverUI>())
-                return;
-            if (isPointerOverUI)
-            {
-                EntityManager.CreateSingleton<PointerOverUI>();
-                EntityManager.DestroyEntity(SystemAPI.GetSingletonEntity<PointerNotOverUI>());
-            }
-            else
-            {
-                EntityManager.CreateSingleton<PointerNotOverUI>();
-                EntityManager.DestroyEntity(SystemAPI.GetSingletonEntity<PointerOverUI>());
-            }
-                
+            
         }
     }
-    
-    public struct PointerOverUI : IComponentData { }
-    public struct PointerNotOverUI : IComponentData { }
 }

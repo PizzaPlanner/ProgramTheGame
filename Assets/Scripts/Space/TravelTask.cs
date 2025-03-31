@@ -29,8 +29,9 @@ namespace Space
         public float Travelled;
         public GridBounds LandingArea;
 
-        public static void Create(EntityManager mgr, Entity from, Entity to, Entity controller)
+        public static void Create(EntityManager mgr, Entity to, Entity controller)
         {
+            var from = mgr.GetComponentData<OnGrid>(controller).Grid;
             var currentSector = mgr.GetComponentData<Sector>(from);
             var toSector = mgr.GetComponentData<Sector>(to);
             var ecb = new EntityCommandBuffer(Allocator.Temp);

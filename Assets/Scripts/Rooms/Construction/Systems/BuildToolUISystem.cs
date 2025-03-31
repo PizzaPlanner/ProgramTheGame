@@ -84,7 +84,7 @@ partial class BuildToolUISystem : MapOverlaySystem<BuildTool>
         }
         var parent = cgrid.Grid;
         var gridLtw = SystemAPI.GetComponent<LocalToWorld>(parent);
-        var pointerOverUI = SystemAPI.HasSingleton<PointerOverUI>();
+        var pointerOverUI = InputActionsSystem.IsPointerOverUI;
         var pointedCell = CGrid.CursorToCell(gridLtw);
         if (!newGhostQuery.IsEmptyIgnoreFilter && !pointerOverUI)
         {

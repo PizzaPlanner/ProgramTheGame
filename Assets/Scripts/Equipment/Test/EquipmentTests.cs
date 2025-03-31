@@ -252,7 +252,7 @@ public class EquipmentTests
         var member= crew[0].Member;
         var posBefore = EntityManager.GetComponentData<LocalTransform>(member);
         yield return new WaitForSeconds(1);
-        TravelTask.Create(EntityManager, gridFrom, gridTo, controller);
+        TravelTask.Create(EntityManager, gridTo, controller);
         yield return new WaitForSeconds(1);
         var posAfter = EntityManager.GetComponentData<LocalTransform>(member);
         yield return new WaitForSeconds(10);

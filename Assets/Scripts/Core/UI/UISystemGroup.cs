@@ -13,7 +13,6 @@ public abstract partial class UISystem : SystemBase
 }
 
 [UpdateInGroup(typeof(PresentationSystemGroup))]
-[UpdateBefore(typeof(InputActionsSystem))]
 public partial class UISystemGroup : ComponentSystemGroup
 {
     internal static VisualElement Root;

@@ -30,6 +30,7 @@ partial struct CameraSystem : ISystem
     public void OnCreate(ref SystemState state)
     {
         state.RequireForUpdate<CurrentGrid>();
+        state.RequireForUpdate<Player>();
         state.EntityManager.CreateSingleton(new CameraAnchor
         {
             CameraDistance = 20
@@ -41,8 +42,12 @@ partial struct CameraSystem : ISystem
         var ship = SystemAPI.GetSingleton<CurrentGrid>().Grid;
         if(!SystemAPI.HasComponent<LocalToWorld>(ship))
             return;
-        if(!SystemAPI.HasComponent<CGrid>(ship))
+        if (!SystemAPI.HasComponent<CGrid>(ship))
+        {
+            if(SystemAPI.HasComponent<Unvisited>(ship))
+                state.EntityManager.RemoveComponent<Unvisited>(ship);
             return;
+        }
         if(Camera.main == null)
             return;
         
@@ -54,7 +59,7 @@ partial struct CameraSystem : ISystem
         
         var wasd = (float2)Player.Move.ReadValue<Vector2>();
         var rotate = Player.Rotate.ReadValue<Vector2>().x;
-        var zoom = Player.Zoom.ReadValue<float>();
+        var zoom = InputActionsSystem.IsPointerOverUI ? 0 : Player.Zoom.ReadValue<float>();
         
         if(zoom != 0)
             camAnchor.ValueRW.CameraDistance -= zoom * SystemAPI.Time.DeltaTime * camAnchor.ValueRW.ZoomFactor;

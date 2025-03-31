@@ -1,4 +1,5 @@
-﻿using Unity.Entities;
+﻿using Grids;
+using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
 
@@ -15,13 +16,16 @@ namespace Space.Authoring
             {
                 var e = GetEntity(TransformUsageFlags.WorldSpace);
                 AddComponent(e, new Sector{ PositionInSpace = authoring.PositionInSpace });
-                if(authoring.SpawnWith != null)
-                    AddComponent(e, new GenerateMap()
+                if (authoring.SpawnWith != null)
+                {
+                    AddComponent(e, new MapGenerationSettings()
                     {
                         RootGenerator = authoring.SpawnWith.GetComponent<IdentifieableAuthoring>().Id,
                         Seed = authoring.Seed
                     });
+                }
             }
         }
     }
 }
+

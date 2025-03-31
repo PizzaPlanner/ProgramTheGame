@@ -84,7 +84,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6d96781d50c744d5b90125a6e0a230bb, type: 3}
   m_Name: MGAsteroidCopper
   m_EditorClassIdentifier: 
-  Icon: {fileID: 2800000, guid: 7e18a42968cc309498d86b9a6a2b7e82, type: 3}
+  Icon: {fileID: 2800000, guid: f3aa7c49fdbf95247bd85ff0e04f4f4e, type: 3}
   Tags:
   - {fileID: 11400000, guid: 120d758a188f7934299a0406976912a9, type: 2}
   Reference: {fileID: 5304243422145376601}

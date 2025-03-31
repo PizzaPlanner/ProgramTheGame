@@ -102,7 +102,7 @@ namespace Units
 
         protected override void OnUpdate()
         {
-            if (SystemAPI.HasSingleton<PointerOverUI>())
+            if (InputActionsSystem.IsPointerOverUI)
             {
                 if(Hovered != default)
                     CancelHover();

@@ -75,13 +75,17 @@ namespace Core
         protected override void OnCreate()
         {
             RequireForUpdate<SimulationState>();
+            RequireForUpdate<Player>();
         }
 
         protected override void OnStartRunning()
         {
-            _view = new TimeUI(SystemAPI.HasSingleton<WorldTypes.Sandbox>());
-            UISystemGroup.AddOverlay(_view);
-            UISystemGroup.Show(_view);
+            if (_view == null)
+            {
+                _view = new TimeUI(SystemAPI.HasSingleton<WorldTypes.Sandbox>());
+                UISystemGroup.AddOverlay(_view);
+                UISystemGroup.Show(_view);
+            }
         }
 
         protected override void OnUpdate()

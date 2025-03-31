@@ -6,9 +6,10 @@ namespace InputStates
 {
     public struct Player : IInputActionState
     {
-        public string[] StateSets => Array.Empty<string>();
+        public string[] StateSets => new[] { "Navigation" };
         public InputActionMap StateFor(InputActions asset) => asset.Player;
-        
+        public bool IsActiveByDefault => true;
+
         public static InputAction Move => InputActions.For<Player>()["Move"];
         public static InputAction Rotate => InputActions.For<Player>()["Rotate"];
         public static InputAction Zoom => InputActions.For<Player>()["Zoom"];

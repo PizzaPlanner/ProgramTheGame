@@ -120,7 +120,7 @@ namespace Space.Systems
                 var target = entities[i];
                 btn.RegisterCallback<MouseDownEvent>((_) =>
                 {
-                    TravelTask.Create(mgr, currentLocation, target, controller);
+                    TravelTask.Create(mgr, target, controller);
                 });
                 PlanUI.Add(btn);
             }

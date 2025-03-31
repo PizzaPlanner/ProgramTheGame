@@ -11,6 +11,7 @@
         "Unity.Mathematics.Extensions",
         "Unity.Addressables",
         "Unity.ResourceManager",
+        "Unity.InputSystem",
         "Core",
         "Core.UI",
         "Mod.Core",
@@ -24,7 +25,8 @@
         "Blueprints",
         "Units.UI",
         "Navigation",
-        "Equipment.Systems"
+        "Equipment.Systems",
+        "Core.Input"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

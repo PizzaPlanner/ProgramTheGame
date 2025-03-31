@@ -10,10 +10,6 @@ public class UnitAuthoring : ItemAuthoring
         public override void Bake(UnitAuthoring authoring)
         {
             var e = GetEntity(TransformUsageFlags.None);
-            AddComponent(e, new Item
-            {
-                MaxStack = 1
-            });
             AddComponent<Unit>(e);
             AddComponent<CrewMember>(e);
             AddBuffer<Statuses>(e);

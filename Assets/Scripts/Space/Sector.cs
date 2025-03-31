@@ -6,6 +6,7 @@ public struct Sector : IComponentData
 {
     public float SolarIntensity;
     public float2 PositionInSpace;
+    public Identifiable MainPOI;
     public const int LENGTH = 1000;
 }
 

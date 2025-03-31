@@ -38,7 +38,7 @@ partial class PressureOverlaySystem : MapOverlaySystem<GasPressureOverlay>
         var massModel = SystemAPI.GetComponent<MassModel>(GridEntity);
         _window.Q<MassVolumeUI>().Volume = massModel.AbsoluteCell(CellAtCursor);
         _window.Q<MassVolumeUI>().Q<Label>().text = $"@{CellAtCursor}";
-        if(SystemAPI.HasSingleton<PointerOverUI>())
+        if(InputActionsSystem.IsPointerOverUI)
             return;
         if(math.all(CellAtCursor == _lastCenter) && !GasPressureOverlay.Select.WasPressedThisFrame())
             return;
@@ -113,7 +113,7 @@ partial class TemperatureOverlaySystem : MapOverlaySystem<TemperatureOverlay>
         var massModel = SystemAPI.GetComponent<MassModel>(GridEntity);
         _window.Q<MassVolumeUI>().Volume = massModel.AbsoluteCell(CellAtCursor);
         _window.Q<MassVolumeUI>().Q<Label>().text = $"@{CellAtCursor}";
-        if(SystemAPI.HasSingleton<PointerOverUI>())
+        if(InputActionsSystem.IsPointerOverUI)
             return;
         if(math.all(CellAtCursor == _lastCenter) && !TemperatureOverlay.Select.WasPressedThisFrame())
             return;

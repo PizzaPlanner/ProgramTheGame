@@ -22,7 +22,7 @@ namespace Space.Systems
         {
             var ecb = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>().CreateCommandBuffer(state.WorldUnmanaged);
             
-            foreach (var (_, e) in SystemAPI.Query<Sector>().WithNone<CGrid>().WithEntityAccess())
+            foreach (var (_, e) in SystemAPI.Query<Sector>().WithNone<CGrid, Unvisited>().WithEntityAccess())
             {
                 ecb.AddComponent(e, new CGrid(Allocator.Persistent));
             

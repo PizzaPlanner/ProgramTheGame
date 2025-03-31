@@ -141,7 +141,7 @@ partial class PlayfieldUISystem : UISystem
 
     protected override void OnUpdate()
     {
-        var noUIQuery = SystemAPI.QueryBuilder().WithAll<Sector, Identifiable>().WithNone<PlayfieldUI>().Build();
+        var noUIQuery = SystemAPI.QueryBuilder().WithAll<Sector, Identifiable>().WithNone<PlayfieldUI, Unvisited>().Build();
         foreach (var e in noUIQuery.ToEntityArray(Allocator.Temp))
         {
             var target = SystemAPI.HasComponent<TravelTask>(e) ? SystemAPI.GetComponent<Task>(e).Origin : e;

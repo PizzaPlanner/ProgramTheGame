@@ -97,7 +97,7 @@ partial class DeconstructToolUISystem : MapOverlaySystem<DeconstructTool>
         var ecb = SystemAPI.GetSingleton<BeginInitializationEntityCommandBufferSystem.Singleton>()
                            .CreateCommandBuffer(World.Unmanaged);
         
-        var pointerOverUI = SystemAPI.HasSingleton<PointerOverUI>();
+        var pointerOverUI = InputActionsSystem.IsPointerOverUI;
         var layersToCheck = new NativeList<BuildingLayer>(Allocator.Temp);
         foreach(var elm in _window.Query<ToggleForLayer>().ToList())
         {

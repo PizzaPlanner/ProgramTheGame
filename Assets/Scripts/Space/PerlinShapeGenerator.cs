@@ -225,10 +225,10 @@ public struct NodeSerializer : IComponentData
 
     public static bool Execute(Identifiable id, ref MapGenerationContext ctx, ref Random random)
     {
-        if (!ctx.nodeLookup.TryGetComponent(id.SpawnablePrefab, out var node) ||
+        if (!ctx.nodeLookup.TryGetComponent(id.SpawnableDef(), out var node) ||
             !functionPointers.Data.TryGetValue(node.TypeHash, out var func))
         {
-            if(id.SpawnablePrefab != default)
+            if(id.SpawnableDef().Spawnable != default)
                 return new SpawnTile { Prefab = id }.Execute(ref ctx, ref random);
             else return false;
         }

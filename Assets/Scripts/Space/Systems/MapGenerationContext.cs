@@ -8,6 +8,7 @@ using UnityEngine;
 using Random = Unity.Mathematics.Random;
 
 [BurstCompile]
+[WithNone(typeof(Unvisited))]
 partial struct MapGenerationJob : IJobEntity
 {
     Random random;
@@ -16,25 +17,25 @@ partial struct MapGenerationJob : IJobEntity
     [ReadOnly] public ComponentLookup<NodeSerializer> nodeLookup;
 
     [BurstCompile]
-    void Execute(Entity e, ref CGrid grid, in GenerateMap generateMap)
+    void Execute(Entity e, ref CGrid grid, in MapGenerationSettings settings)
     {
-        if (!nodeLookup.EntityExists(generateMap.RootGenerator.SpawnableDef()))
+        if (!nodeLookup.EntityExists(settings.RootGenerator.SpawnableDef()))
         {
-            Debug.LogWarning($"Cannot generate {generateMap.RootGenerator}: Not Spawnable?");
+            Debug.LogWarning($"Cannot generate {settings.RootGenerator}: Not Spawnable?");
             return;
         }
-        ecb.RemoveComponent<GenerateMap>(e);
+        ecb.RemoveComponent<MapGenerationSettings>(e);
         var ctx = new MapGenerationContext
         {
             CurrentOffset = grid.BoundsWithBorder.Min,
             ecb = ecb,
             GridEntity = e,
             Grid = grid,
-            Seed = generateMap.Seed == 0u ? Random.CreateFromIndex(currentTick).state : generateMap.Seed,
+            Seed = settings.Seed == 0u ? Random.CreateFromIndex(currentTick).state : settings.Seed,
             nodeLookup = nodeLookup
         };
         random = new Random(ctx.Seed);
-        NodeSerializer.Execute(generateMap.RootGenerator, ref ctx, ref random);
+        NodeSerializer.Execute(settings.RootGenerator, ref ctx, ref random);
         grid = ctx.Grid;
     }
 }

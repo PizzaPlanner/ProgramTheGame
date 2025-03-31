@@ -12,7 +12,7 @@ public abstract partial class HotkeyToggleUISystem<TWindow, TTool> : UISystem
     protected override void OnCreate()
     {
         RequireForUpdate<TTool>();
-        UISystemGroup.AddMenuEntry(MenuEntry, () => World.GetExistingSystemManaged<InputActionsSystem>().Toggle(default(TTool)));
+        UISystemGroup.AddMenuEntry(MenuEntry, () => World.GetExistingSystemManaged<InputActionsSystem>().SwitchInput(default(TTool)));
     }
     protected override void OnStartRunning()
     {

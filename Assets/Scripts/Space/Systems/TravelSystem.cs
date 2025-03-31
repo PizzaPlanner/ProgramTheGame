@@ -70,17 +70,9 @@ namespace Space.Systems
                     progress.RequiredTicks = 100;
                     progress.PartialTicks = 0;
                     travel.Stage = TravelStage.Arrival;
+                    ecb.RemoveComponent<Unvisited>(travel.ToLocation);
                     sector.PositionInSpace = travel.To.PositionInSpace;
                 }break;
-                case TravelStage.PreArrival:
-                {
-                    if(travel.LandingArea.Size == 0)
-                        return;
-                    progress.RequiredTicks = 100;
-                    progress.PartialTicks = 0;
-                    travel.Stage = TravelStage.PreArrival;
-                    break;
-                }
                 case TravelStage.Arrival:
                 {
                     progress.PartialTicks += 1;

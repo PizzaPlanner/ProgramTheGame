@@ -7,7 +7,6 @@
         "Unity.Burst",
         "Unity.Collections",
         "Unity.Transforms",
-        "Unity.Physics",
         "Identifiables",
         "Items",
         "Equipment",
