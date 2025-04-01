@@ -101,6 +101,8 @@ namespace Tasks.UI
         public ConfigPanel(Entity taskEntity, EntityManager em)
         {
             TaskEntity = taskEntity;
+            if(!em.Exists(taskEntity))
+                return;
             Add(Header = new VisualElement(){name = "Header"});
             Header.Add(Executor = new SignalButton());
             Header.Add(Priority = new IdentifiableButton());
@@ -139,7 +141,6 @@ namespace Tasks.UI
             if (!entityManager.HasComponent<Task>(TaskEntity))
             {
                 RemoveFromHierarchy();
-                Debug.Log($"Done. Bye.");
                 return;
             }
             var task = entityManager.GetComponentData<Task>(TaskEntity);

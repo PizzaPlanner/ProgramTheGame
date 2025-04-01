@@ -10,6 +10,7 @@ using UnityEngine.AddressableAssets;
 
 namespace Units
 {
+    [DisableAutoCreation]
     partial struct VisualizePathingSystem : ISystem
     {
         public void OnUpdate(ref SystemState state)

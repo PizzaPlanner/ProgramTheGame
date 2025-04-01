@@ -4,6 +4,7 @@ using System;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEngine;
 
 public struct UnderConstruction : IComponentData { }
 
@@ -26,19 +27,31 @@ public struct Building : IComponentData
     public int4 ExtentsURDL;
     public int2 InteractionOffset;
 
-    public GridBounds ToArea(int2 offset, byte rotation)
+    public GridBounds ToArea(byte rotation, int2 offset)
     {
-        if(IsRotatable)
-            return new GridBounds(){ Min = -ExtentsURDL.wz, Max = ExtentsURDL.yx }.Rotated(rotation * 90).WithOffset(offset);
-        return new GridBounds(){ Min = -ExtentsURDL.wz, Max = ExtentsURDL.yx }.WithOffset(offset);
+        var bounds = new GridBounds(){ Min = -ExtentsURDL.wz, Max = ExtentsURDL.yx };
+        if(IsRotatable && rotation != 0)
+            bounds = bounds.Rotated(rotation * 90);
+        return bounds.WithOffset(offset);
     }
     
     public LocalTransform ToTransform(byte rotation, int2 offset)
     {
-        var transform = LocalTransform.FromPosition(CGrid.CellToLocal(offset));
-        if(IsRotatable && rotation != 0)
+        var transform = LocalTransform.Identity;
+        if (IsRotatable && rotation != 0)
+        {
             transform = transform.Rotate(quaternion.RotateY(rotation * 90 * math.TORADIANS));
-        return transform;
+            var dimensions = (CGrid.CellToLocal(ExtentsURDL.yx + 1) - CGrid.CellToLocal(-ExtentsURDL.wz)).xz;
+            var pivotOffset = rotation switch
+            {
+                1 => new float2(0, dimensions.x),
+                2 => new float2(dimensions.x, dimensions.y),
+                3 => new float2(dimensions.y, 0),
+                _ => float2.zero
+            };
+            transform = transform.Translate(new float3(pivotOffset.x, 0, pivotOffset.y));
+        }
+        return transform.Translate(CGrid.CellToLocal(offset));
     }
 }
 

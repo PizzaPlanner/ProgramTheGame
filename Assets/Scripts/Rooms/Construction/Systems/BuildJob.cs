@@ -43,7 +43,8 @@ public partial struct BuildJob : IJobEntity
             return;
         }
         
-        var area = building.ToArea(planned.Location, planned.Rotation);
+        var rotation = building.IsRotatable ? planned.Rotation : (byte)0;
+        var area = building.ToArea(rotation, planned.Location);
         var isPlacementOk = navigation.IsBuildable(area, building.Layer);
         if (!isPlacementOk && planned.Mode != ConstructionMode.PlacementPreview)
         {
@@ -53,7 +54,6 @@ public partial struct BuildJob : IJobEntity
         
         var isPlacing = planned.Mode == ConstructionMode.PlacementPreview || ghostLookup.HasComponent(planned.Parent);
         var isUnderConstruction = planned.Mode == ConstructionMode.UnderConstruction;
-        var rotation = building.IsRotatable ? planned.Rotation : (byte)0;
         var baked = new BakedIntoRoomMap
         {
             Rotation = rotation,
@@ -101,11 +101,11 @@ public partial struct BuildJob : IJobEntity
             Origin = entity,
             CrewProvider = planned.Parent
         });
-        ecb.SetComponent(constructTask, new Parent { Value = entity });
         ecb.SetComponent(constructTask, new TaskProgress
         {
             RequiredTicks = building.Duration
         });
+        ecb.AddComponent(constructTask, new Parent { Value = entity });
         ecb.SetComponent(constructTask, building.ToTransform(0, planned.Location).Translate(new float3(0.5f, 0, 0.5f) * CGrid.CELL_SIZE));
         ecb.AddComponent(entity, new UnderConstruction { });
         foreach (var requirement in planned.Materials.BuildMaterials)

@@ -27,8 +27,11 @@ namespace Space.Systems
         {
             var ecb = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>().CreateCommandBuffer(state.WorldUnmanaged);
             ref var galaxy = ref SystemAPI.GetSingletonRW<Galaxy>().ValueRW;
+            // TODO: Set this properly in initialization
             if (galaxy.Generator == default(Identifiable))
             {
+                if(GalaxyTypeDef.Id.All.Length == 0)
+                    return;
                 galaxy.Generator = GalaxyTypeDef.Id.All[0];
             }
             foreach(var (sector, e) in SystemAPI.Query<Sector>().WithChangeFilter<Sector>().WithNone<Task, ShipController>().WithEntityAccess())

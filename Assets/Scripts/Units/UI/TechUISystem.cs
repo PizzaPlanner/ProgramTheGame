@@ -18,20 +18,7 @@ partial class TechUISystem : UISystem
         _window = new TechnologyWindow();
         _window.styleSheets.Add(Addressables.LoadAssetAsync<StyleSheet>("UI/Stylesheets/Technology.uss").WaitForCompletion());
         UISystemGroup.AddOverlayWithMenuEntry("Technology", _window);
-        _window.RegisterCallback<AttachToPanelEvent>(_ => _window.Q<ResearchTreeView>().BuildTree(GetAllTech));
-    }
-
-    public IEnumerable<(Identifiable, Technology)> GetAllTech => Identifiable.FromName("TagTechnology").TagDef().WithThisTag.ToArray()
-                                                                    .Select(x => (x, GetTechnology(x)));
-
-    Technology GetTechnology(Identifiable id)
-    {
-        if (!EntityManager.HasComponent<Technology>(id.SpawnableDef()))
-        {
-            Debug.LogError($"Has Technology Tag but is not a Technology: {id}");
-            return default;
-        }
-        return EntityManager.GetComponentData<Technology>(id.SpawnableDef());
+        _window.RegisterCallback<AttachToPanelEvent>(_ => _window.Q<ResearchTreeView>().BuildTree(SystemAPI.GetComponentLookup<Technology>(true)));
     }
 
     protected override void OnUpdate()
@@ -42,8 +29,8 @@ partial class TechUISystem : UISystem
         var queuedTech = SystemAPI.GetSingleton<CurrentResearch>().Technology;
         _window.Query<TechnologyButton>().ForEach(x =>
         {
-            var tech = SystemAPI.GetComponent<Technology>(x.Id.Target.SpawnableDef());
-            x.EnableInClassList("unlocked", SystemAPI.HasComponent<Unlocked>(x.Id.Target.SpawnableDef()));
+            var tech = SystemAPI.GetComponent<Technology>(x.Id.Target.TechnologyDef().Progress);
+            x.EnableInClassList("unlocked", SystemAPI.HasComponent<Unlocked>(x.Id.Target.TechnologyDef().Progress));
             x.EnableInClassList("selected", x.Id.Target == queuedTech);
             x.Technology = tech;
         });
@@ -70,7 +57,6 @@ public class TechnologyWindow : VisualElement
 
 public class ResearchTreeView : ScrollView
 {
-    private Dictionary<Identifiable, Technology> techDict = new();
     private Dictionary<Identifiable, VisualElement> techNodes = new();
     private VisualElement graphContainer;
 
@@ -82,18 +68,14 @@ public class ResearchTreeView : ScrollView
         this.Add(graphContainer);
     }
 
-    public void BuildTree(IEnumerable<(Identifiable, Technology)> technologies)
+    public void BuildTree(ComponentLookup<Technology> techLookup)
     {
         graphContainer.Clear();
-        techDict.Clear();
         techNodes.Clear();
         
-        foreach(var tech in technologies)
-            techDict.Add(tech.Item1, tech.Item2);
-        
-        Dictionary<Identifiable, int> depths = CalculateDepths(out var maxDepth);
+        Dictionary<TechnologyDef.Id, int> depths = CalculateDepths(out var maxDepth);
         Dictionary<int, VisualElement> depthContainers = new();
-        Dictionary<int, List<Identifiable>> depthTechs = new();
+        Dictionary<int, List<TechnologyDef.Id>> depthTechs = new();
         
         for(var depth = 0; depth <= maxDepth; depth++)
         {
@@ -102,7 +84,7 @@ public class ResearchTreeView : ScrollView
             container.style.marginBottom = 20;
             graphContainer.Add(container);
             depthContainers[depth] = container;
-            depthTechs[depth] = new List<Identifiable>();
+            depthTechs[depth] = new List<TechnologyDef.Id>();
         }
 
         foreach (var tech in depths)
@@ -115,8 +97,8 @@ public class ResearchTreeView : ScrollView
             // Sort by average X position of parents
             techList.Sort((a, b) =>
             {
-                var preReqsA = techDict[a].Data.Value.Requirements.ToArray();
-                var preReqsB = techDict[b].Data.Value.Requirements.ToArray();
+                var preReqsA = a.Def.Requirements.ToArray();
+                var preReqsB = b.Def.Requirements.ToArray();
                 var aX = preReqsA.Length == 0 ? 0 : preReqsA.Average(id => techNodes.TryGetValue(id, out var node) ? node.parent.IndexOf(node) : 0);
                 var bX = preReqsB.Length == 0 ? 0 : preReqsB.Average(id => techNodes.TryGetValue(id, out var node) ? node.parent.IndexOf(node) : 0);
                 return aX.CompareTo(bX);
@@ -124,7 +106,7 @@ public class ResearchTreeView : ScrollView
 
             foreach (var tech in techList)
             {
-                var node = new TechnologyButton(tech, techDict[tech]);
+                var node = new TechnologyButton(tech, techLookup[tech.Def.Progress]);
                 node.RegisterCallback<MouseDownEvent>(_ => GetFirstAncestorOfType<TechnologyWindow>().ClickedButton = node);
                 depthContainers[depth].Add(node);
                 techNodes[tech] = node;
@@ -134,27 +116,28 @@ public class ResearchTreeView : ScrollView
         DrawConnections();
     }
 
-    private Dictionary<Identifiable, int> CalculateDepths(out int maxDepth)
+    private Dictionary<TechnologyDef.Id, int> CalculateDepths(out int maxDepth)
     {
-        Dictionary<Identifiable, int> depths = new Dictionary<Identifiable, int>();
+        Dictionary<TechnologyDef.Id, int> depths = new Dictionary<TechnologyDef.Id, int>();
         
-        foreach (var tech in techDict)
-            depths[tech.Key] = 0;
+        var allTechs = TechnologyDef.Id.All;
+        foreach (var tech in allTechs)
+            depths[tech] = 0;
         maxDepth = 0;
         bool changed;
         do
         {
             changed = false;
-            foreach (var tech in techDict)
+            foreach (var tech in allTechs)
             {
-                for (var i = 0; i < tech.Value.Data.Value.Requirements.Length; i++)
+                for (var i = 0; i < tech.TechnologyDef().Requirements.Length; i++)
                 {
-                    var prereq = tech.Value.Data.Value.Requirements[i];
-                    if (depths[prereq] + 1 > depths[tech.Key])
+                    var prereq = tech.TechnologyDef().Requirements[i];
+                    if (depths[prereq] + 1 > depths[tech])
                     {
-                        depths[tech.Key] = depths[prereq] + 1;
+                        depths[tech] = depths[prereq] + 1;
                         changed = true;
-                        maxDepth = math.max(depths[tech.Key], maxDepth);
+                        maxDepth = math.max(depths[tech], maxDepth);
                     }
                 }
             }
@@ -165,16 +148,14 @@ public class ResearchTreeView : ScrollView
 
     private void DrawConnections()
     {
-        foreach (var id in techDict.Keys)
+        foreach (var id in TechnologyDef.Id.All)
         {
-            var tech = techDict[id];
-            for (var i = 0; i < tech.Data.Value.Requirements.Length; i++)
+            for (var i = 0; i < id.TechnologyDef().Requirements.Length; i++)
             {
-                var prereqID = tech.Data.Value.Requirements[i];
-                if (techNodes.ContainsKey(id) && techNodes.ContainsKey(prereqID))
+                var prereqID = id.TechnologyDef().Requirements[i];
+                if (techNodes.ContainsKey(id) && techNodes.TryGetValue(prereqID, out var fromNode))
                 {
-                    VisualElement fromNode = techNodes[prereqID];
-                    VisualElement toNode = techNodes[id];
+                    var toNode = techNodes[id];
                     graphContainer.Add(new ResearchTreeEdge(fromNode, toNode));
                 }
             }

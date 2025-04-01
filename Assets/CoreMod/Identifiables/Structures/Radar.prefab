@@ -231,8 +231,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6d96781d50c744d5b90125a6e0a230bb, type: 3}
   m_Name: Radar
   m_EditorClassIdentifier: 
-  Icon: {fileID: 2800000, guid: 4d6d57a8d6d2d8f4694795b22b8b1fcf, type: 3}
+  Icon: {fileID: 2800000, guid: 27c18832b2d76ea47a1729ba6067d933, type: 3}
   Tags:
   - {fileID: 11400000, guid: 104929695e765034f914bd930682c889, type: 2}
-  - {fileID: 11400000, guid: 4041e64919619cf40b9f95493c4338e6, type: 2}
+  - {fileID: 11400000, guid: edcc1f5b426c8c84b94ca3c23971873c, type: 2}
   Reference: {fileID: -5380242976130347905}

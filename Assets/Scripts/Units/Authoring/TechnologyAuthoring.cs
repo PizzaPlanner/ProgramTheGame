@@ -21,7 +21,7 @@ public class TechnologyAuthoring : MonoBehaviour
             }
             var e = GetEntity(authoring, TransformUsageFlags.None);
             var builder = new BlobBuilder(Allocator.Temp);
-            ref var root = ref builder.ConstructRoot<TechnologyData>();
+            ref var root = ref builder.ConstructRoot<TechnologyDef>();
             var preqBuilder = builder.Allocate(ref root.Requirements, authoring.Prequisites.Length);
             for (int i = 0; i < preqBuilder.Length; i++)
                 preqBuilder[i] = authoring.Prequisites[i].Id;
@@ -35,7 +35,7 @@ public class TechnologyAuthoring : MonoBehaviour
                     Ingredient = authoring.Cost[i].Prefab.Id,
                     Amount = authoring.Cost[i].Amount
                 };
-            var blob = builder.CreateBlobAssetReference<TechnologyData>(Allocator.Persistent);
+            var blob = builder.CreateBlobAssetReference<TechnologyDef>(Allocator.Persistent);
             AddBlobAsset(ref blob, out _);
             AddComponent(e, new Technology
             {

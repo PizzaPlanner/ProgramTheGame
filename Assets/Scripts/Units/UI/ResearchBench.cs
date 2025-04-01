@@ -159,7 +159,7 @@ partial struct ResearchBenchSystem : ISystem
             return;
         }
 
-        var openTech = SystemAPI.GetComponentRW<Technology>(currentResearch.ValueRO.Technology.SpawnableDef());
+        var openTech = SystemAPI.GetComponentRW<Technology>(currentResearch.ValueRO.Technology.TechnologyDef().Progress);
         using var techRef = new NativeReference<Technology>(openTech.ValueRW, Allocator.TempJob);
 
         var ecb = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>().CreateCommandBuffer(state.WorldUnmanaged);

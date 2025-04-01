@@ -10,9 +10,10 @@ namespace Units.Research
     }
     
     public struct Unlocked : IComponentData { }
-    public struct Technology : IComponentData
+    public struct Technology : IDefRef<TechnologyDef>
     {
-        public BlobAssetReference<TechnologyData> Data;
+        public BlobAssetReference<TechnologyDef> Def => Data;
+        public BlobAssetReference<TechnologyDef> Data;
         public FixedList64Bytes<uint> Progress;
 
         public float GetProgress(Identifiable cost)
@@ -47,11 +48,22 @@ namespace Units.Research
         }
     }
 
-    public struct TechnologyData
+    public partial struct TechnologyDef : IDef
     {
         public BlobArray<Identifiable> Requirements;
         public BlobArray<TechnologyCost> Cost; 
         public BlobArray<Identifiable> Unlocks;
+        public Entity Progress;
+
+        partial class MappingSystem : IdentifiableMappingSystem
+        {
+            protected override void OnUpdate()
+            {
+                DefaultMappingUpdate<Technology>();
+                foreach(var (tech, e) in SystemAPI.Query<Technology>().WithAll<Prefab>().WithOptions(EntityQueryOptions.IncludePrefab).WithEntityAccess())
+                    tech.Def.Value.Progress = e;
+            }
+        }
     }
 
     public struct TechnologyCost
