@@ -132,7 +132,7 @@ partial class BuildToolUISystem : MapOverlaySystem<BuildTool>
                         Max = math.max(DragArea.Min, DragArea.Max),
                     };
                     ClearPreview(ecb);
-                    var dragType = SystemAPI.GetComponent<Building>(GhostPrefab.SpawnableDef()).DraggableDimension;
+                    var dragType = GhostPrefab.BuildingDef().DraggableDimension;
                     if(dragType == PlacementType.Single)
                         PlacePreview(DragArea.Max, ecb);
                     else if(dragType == PlacementType.Rectangle)

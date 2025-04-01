@@ -2,6 +2,7 @@
 using Identifiables.UI;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using Units.Research;
 using Unity.Entities;
@@ -18,7 +19,7 @@ partial class TechUISystem : UISystem
         _window = new TechnologyWindow();
         _window.styleSheets.Add(Addressables.LoadAssetAsync<StyleSheet>("UI/Stylesheets/Technology.uss").WaitForCompletion());
         UISystemGroup.AddOverlayWithMenuEntry("Technology", _window);
-        _window.RegisterCallback<AttachToPanelEvent>(_ => _window.Q<ResearchTreeView>().BuildTree(SystemAPI.GetComponentLookup<Technology>(true)));
+        _window.RegisterCallback<AttachToPanelEvent>(_ => _window.Q<ResearchTreeView>().BuildTree());
     }
 
     protected override void OnUpdate()
@@ -60,7 +61,7 @@ public class ResearchTreeView : ScrollView
     private Dictionary<Identifiable, VisualElement> techNodes = new();
     private VisualElement graphContainer;
 
-    public ResearchTreeView()
+    public ResearchTreeView() : base(ScrollViewMode.VerticalAndHorizontal)
     {
         this.style.flexGrow = 1;
         this.AddToClassList("research-tree-view");
@@ -68,7 +69,7 @@ public class ResearchTreeView : ScrollView
         this.Add(graphContainer);
     }
 
-    public void BuildTree(ComponentLookup<Technology> techLookup)
+    public void BuildTree()
     {
         graphContainer.Clear();
         techNodes.Clear();
@@ -106,7 +107,7 @@ public class ResearchTreeView : ScrollView
 
             foreach (var tech in techList)
             {
-                var node = new TechnologyButton(tech, techLookup[tech.Def.Progress]);
+                var node = new TechnologyButton(tech);
                 node.RegisterCallback<MouseDownEvent>(_ => GetFirstAncestorOfType<TechnologyWindow>().ClickedButton = node);
                 depthContainers[depth].Add(node);
                 techNodes[tech] = node;
@@ -166,18 +167,28 @@ public class ResearchTreeView : ScrollView
 public class TechnologyButton : VisualElement
 {
     public IdentifiableButton Id;
-    public TechnologyButton(Identifiable id, Technology tech)
+    public TechnologyButton(TechnologyDef.Id id)
     {
         Add(Id = new IdentifiableButton{ Target = id });
+        var results = new VisualElement(){name = "Unlocks"};
+        Add(results);
+        for (var i = 0; i < id.Def.Unlocks.Length; i++)
+        {
+            var unlock = id.Def.Unlocks[i];
+            var idBtn = new IdentifiableButton() { Target = unlock };
+            results.Add(idBtn);
+        }
         var costs = new VisualElement(){name = "Cost"};
         Add(costs);
-        for (var i = 0; i < tech.Data.Value.Cost.Length; i++)
+        costs.Add(new PercentProgressBar());
+        costs.Add(new Label(((Identifiable)id).ToString()));
+        for (var i = 0; i < id.Def.Cost.Length; i++)
         {
-            var cost = tech.Data.Value.Cost[i];
+            var cost = id.Def.Cost[i];
             var idBtn = new IdentifiableButton() { Target = cost.Ingredient };
             costs.Add(idBtn);
-            idBtn.Add(new PercentProgressBar());
-        }
+            idBtn.Add(new Label(cost.Amount.ToString()));
+        } 
     }
 
     public Technology Technology
@@ -186,8 +197,9 @@ public class TechnologyButton : VisualElement
         {
             this.Q("Cost").Query<IdentifiableButton>().ForEach(x =>
             {
-               x.Q<PercentProgressBar>().value = value.GetProgress(x.Target); 
+                x.Q<Label>().text = value.GetRemaining(x.Target).ToString(CultureInfo.InvariantCulture); 
             });
+            this.Q("Cost").Q<PercentProgressBar>().value = value.GetTotalProgress();
         }
     }
 }

@@ -19,8 +19,9 @@ partial struct BuildSystem : ISystem
         var ecbNow = new EntityCommandBuffer(Allocator.Temp);
 
         // Fix links to deferred entities
-        foreach (var (toBake, transform, building, e) in SystemAPI.Query<ToBeBakedIntoRoomMap, RefRW<LocalTransform>, Building>().WithNone<BakedIntoRoomMap>()
-                                            .WithEntityAccess())
+        foreach (var (toBake, transform, building, e) in 
+                 SystemAPI.Query<ToBeBakedIntoRoomMap, RefRW<LocalTransform>, Building>()
+                          .WithNone<BakedIntoRoomMap>().WithEntityAccess())
         {
             var baked = toBake.Value;
             ref var massModel = ref SystemAPI.GetComponentRW<MassModel>(baked.Grid).ValueRW;
@@ -45,7 +46,7 @@ partial struct BuildSystem : ISystem
                 massModel.AddFloor(baked.Area);
                 navTree.SetAreaDirty(baked.Area);
             }
-            transform.ValueRW = building.ToTransform(baked.Rotation, baked.Offset);
+            transform.ValueRW = building.Def.Value.ToTransform(baked.Rotation, baked.Offset);
             ecbNow.AddComponent(e, baked);
             ecbNow.AddComponent(e, new Parent { Value = baked.Grid });
             ecbNow.AddComponent(e, new OnGrid { Grid  = baked.Grid });
@@ -75,7 +76,6 @@ partial struct BuildSystem : ISystem
         {
             ecb = ecb,
             gridLookup = SystemAPI.GetComponentLookup<CGrid>(false),
-            buildingLookup = SystemAPI.GetComponentLookup<Building>(true),
             ghostLookup = SystemAPI.GetComponentLookup<Ghost>(true)
         }.Run();
     }

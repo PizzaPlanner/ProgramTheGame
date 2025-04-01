@@ -101,7 +101,7 @@ namespace Tasks.UI
         public ConfigPanel(Entity taskEntity, EntityManager em)
         {
             TaskEntity = taskEntity;
-            if(!em.Exists(taskEntity))
+            if(taskEntity != default && !em.Exists(taskEntity))
                 return;
             Add(Header = new VisualElement(){name = "Header"});
             Header.Add(Executor = new SignalButton());

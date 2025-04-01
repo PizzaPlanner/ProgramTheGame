@@ -31,7 +31,7 @@ public class BuildingAuthoring : MonoBehaviour
         public override void Bake(BuildingAuthoring authoring)
         {
             var self = GetEntity(TransformUsageFlags.Renderable);
-            AddComponent(self, new Building
+            var blob = BlobAssetReference<BuildingDef>.Create(new BuildingDef
             {
                 DismantleTaskPrefab = authoring.DismantleTask == null ? default : authoring.DismantleTask.GetComponent<IdentifieableAuthoring>().Id,
                 Layer = authoring.Layer,
@@ -42,6 +42,11 @@ public class BuildingAuthoring : MonoBehaviour
                 ExtentsURDL = authoring.ExtentsURDL,
                 InteractionOffset = authoring.InteractionOffset,
             });
+            AddComponent(self, new Building
+            {
+                Data = blob
+            });
+            AddBlobAsset(ref blob, out _);
             if(authoring.Layer.HasFlag(BuildingLayer.FloorLevel))
                 AddComponent<Floor>(self);
             if (authoring.Layer.HasFlag(BuildingLayer.Wall))

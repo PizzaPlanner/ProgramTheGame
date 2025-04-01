@@ -1,4 +1,5 @@
-﻿using Identifiables;
+﻿using Core;
+using Identifiables;
 using Identifiables.UI;
 using Unity.Entities;
 using UnityEngine;
@@ -13,8 +14,8 @@ class NewBuildingUI : VisualElement
 
     public bool IsSandboxMode
     {
-        set => this.Q<Toggle>().style.display = value ? DisplayStyle.Flex : DisplayStyle.None;
-        get => this.Q<Toggle>().style.display == DisplayStyle.Flex;
+        set => this.Q<Toggle>("SandboxInstaBuild").style.display = value ? DisplayStyle.Flex : DisplayStyle.None;
+        get => this.Q<Toggle>("SandboxInstaBuild").style.display == DisplayStyle.Flex;
     }
 
     public Identifiable Category
@@ -39,7 +40,7 @@ class NewBuildingUI : VisualElement
         styleSheets.Add(Addressables.LoadAssetAsync<StyleSheet>("UI/Stylesheets/buildings.uss").WaitForCompletion());
         var header = new VisualElement(){name = "Header"};
         header.Add(new Label("Building Planner"));
-        header.Add(new Toggle("Insta-build"));
+        header.Add(new Toggle("Insta-build") { name = "SandboxInstaBuild" });
         Add(header);
         var body = new VisualElement() {name = "Body" };
         Add(body);

@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 6513637787785079020}
   - component: {fileID: 5304243422145376601}
   - component: {fileID: 3575229165814279346}
+  - component: {fileID: 1924748682116714929}
   m_Layer: 0
   m_Name: Ice
   m_TagString: Untagged
@@ -69,6 +70,19 @@ MonoBehaviour:
   ThermalConductivity: 0.3
   SpecificHeatCapacity: 4
   Color: {r: 0, g: 0, b: 0, a: 0}
+--- !u!114 &1924748682116714929
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6595311514760627798}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b38d79e42db94e7999fdd448d0f7f3db, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  MaxStackSize: 9999
 --- !u!114 &-2831835008503104095
 MonoBehaviour:
   m_ObjectHideFlags: 0

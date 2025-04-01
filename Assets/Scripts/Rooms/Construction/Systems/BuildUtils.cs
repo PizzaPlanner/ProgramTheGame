@@ -83,7 +83,7 @@ public class BuildUtils
                 Debug.LogError($"Something went wrong while placing {placed} at {baked.Area} from {fromBounds} to {toBounds}");
             lookups.onGrid[placed] = new OnGrid { Grid = toSector };
             ecb.SetComponent(placed, new Parent { Value = toSector });
-            ecb.SetComponent(placed, building.ToTransform(baked.Rotation, baked.Offset));
+            ecb.SetComponent(placed, building.Def.Value.ToTransform(baked.Rotation, baked.Offset));
             TransferTaskProvider(placed, toSector, lookups);
         }
         toMass.Resize(toGrid.BoundsWithBorder.Min, toGrid.BoundsWithBorder.Max);

@@ -16,7 +16,13 @@ public enum PlacementType
     RectangleBorder
 }
 
-public struct Building : IComponentData
+public struct Building : IDefRef<BuildingDef>
+{
+    public BlobAssetReference<BuildingDef> Def => Data;
+    public BlobAssetReference<BuildingDef> Data;
+}
+
+public partial struct BuildingDef : IDef
 {
     public Identifiable DismantleTaskPrefab;
     public BuildingLayer Layer;
@@ -52,6 +58,14 @@ public struct Building : IComponentData
             transform = transform.Translate(new float3(pivotOffset.x, 0, pivotOffset.y));
         }
         return transform.Translate(CGrid.CellToLocal(offset));
+    }
+
+    partial class MappingSystem
+    {
+        protected override void OnUpdate()
+        {
+            DefaultMappingUpdate<Building>();
+        }
     }
 }
 

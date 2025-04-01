@@ -16,6 +16,7 @@ namespace Identifiables
         public UnityObjectRef<Texture2D> Icon;
         public FixedString64Bytes DefaultName;
         public BlobArray<Identifiable> Tags;
+        internal Entity Prefab;
         
         public bool HasTag(Identifiable tag)
         {
@@ -28,15 +29,15 @@ namespace Identifiables
         [UpdateInGroup(typeof(IdentifiablesMappingGroup), OrderFirst = true)]
         public partial class MappingSystem : IdentifiableMappingSystem
         {
-            struct NullDef : IComponentData { }
             protected override void OnUpdate()
             {
                 DefaultMappingUpdate<Base>();
 
-                foreach (var test in SystemAPI.Query<Base>().WithAll<Prefab>().WithOptions(EntityQueryOptions.IncludePrefab))
+                foreach (var (test, e) in SystemAPI.Query<Base>().WithAll<Prefab>().WithOptions(EntityQueryOptions.IncludePrefab).WithEntityAccess())
                 {
                     ref var blob = ref test.BDef.Value;
                     blob.Icon = test.Icon;
+                    blob.Prefab = e;
                 }
                 
                 if(DefaultWorldIdMap.Data.ContainsKey(default))
@@ -45,5 +46,7 @@ namespace Identifiables
                 DefaultWorldIdMap.Data.Add(default, defaultBlob);
             }
         }
+        
+        public T Get<T>(EntityManager manager) where T: unmanaged, IComponentData => manager.GetComponentData<T>(Prefab);
     }
 }

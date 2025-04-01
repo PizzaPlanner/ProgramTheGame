@@ -1,4 +1,5 @@
-﻿using Units;
+﻿using Identifiables;
+using Units;
 using Unity.Entities;
 using static Unity.Entities.SystemAPI;
 
@@ -32,7 +33,7 @@ partial struct BuildingDismantleTaskSystem : ISystem
             if (!progress.ValueRW.IsDone)
                 continue;
             
-            store.CreateBuilder.AddTo(task.Executor, mass.ElementType, (uint)(mass.Mass * dism.Yield));
+            store.CreateBuilder.AddTo(task.Executor, (Identifiable)mass.ElementType, (uint)(mass.Mass * dism.Yield));
             ecb.DestroyEntity(task.Target);
             ecb.DestroyEntity(e);
         }

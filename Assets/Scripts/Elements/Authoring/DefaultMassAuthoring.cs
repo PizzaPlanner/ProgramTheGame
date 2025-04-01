@@ -16,7 +16,7 @@ public class DefaultMassAuthoring : MonoBehaviour
         {
             if(authoring.Element == null)
                 Debug.LogError($"No Default Element assigned on {authoring.gameObject.name}", authoring.gameObject);
-            var elm = authoring.Element.ToElement(Allocator.Temp).AsCompact;
+            var elm = authoring.Element.ToElement(Allocator.Temp).Def.Value.AsCompact;
             AddComponent(GetEntity(TransformUsageFlags.None), new MassData
             {
                 ElementType = authoring.Element.GetComponent<IdentifieableAuthoring>().Id, 

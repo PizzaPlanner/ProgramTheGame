@@ -24,6 +24,14 @@ namespace Units.Research
             return 1;
         }
 
+        public uint GetRemaining(Identifiable cost)
+        {
+            for (int i = 0; i < Data.Value.Cost.Length; i++)
+                if(Data.Value.Cost[i].Ingredient == cost)
+                    return Data.Value.Cost[i].Amount - Progress[i];
+            return 0u;
+        }
+
         public float GetTotalProgress()
         {
             var need = 0u;

@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 6513637787785079020}
   - component: {fileID: 5304243422145376601}
   - component: {fileID: 8326911734933721908}
+  - component: {fileID: 333786340048766614}
   m_Layer: 0
   m_Name: Hydrogen
   m_TagString: Untagged
@@ -69,6 +70,19 @@ MonoBehaviour:
   ThermalConductivity: 4
   SpecificHeatCapacity: 0.0143
   Color: {r: 1, g: 0.18396229, b: 0.886737, a: 1}
+--- !u!114 &333786340048766614
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6595311514760627798}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b38d79e42db94e7999fdd448d0f7f3db, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  MaxStackSize: 9999
 --- !u!114 &3174735954207645279
 MonoBehaviour:
   m_ObjectHideFlags: 0

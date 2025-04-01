@@ -66,17 +66,6 @@ namespace {mod.name}
 {GetIds()}
     }}
 }}");
-        
-        File.WriteAllText(Path.Combine(genFolder.FullName, $"Tags.gen.cs") ,$@"
-using Identifiables;
-
-namespace {mod.name}
-{{
-    public static class Tags
-    {{
-{GetTags()}
-    }}
-}}");
         return;
 
         string GetIds()

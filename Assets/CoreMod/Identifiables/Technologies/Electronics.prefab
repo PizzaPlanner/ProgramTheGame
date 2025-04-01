@@ -59,10 +59,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Prequisites:
-  - {fileID: -5380242976130347905, guid: 0a64b8ee403d32a4f9cbcd508858a224, type: 3}
+  - {fileID: -5380242976130347905, guid: 26da298a6e6837649ac3a288b7e045f2, type: 3}
   Unlocks:
   - {fileID: -5380242976130347905, guid: 0af8058d73d423f44863bb0a825f9632, type: 3}
   - {fileID: -5380242976130347905, guid: 649d66984f673d041a9c1f766c15f2ff, type: 3}
+  Cost: []
 --- !u!114 &5657100428946741286
 MonoBehaviour:
   m_ObjectHideFlags: 0

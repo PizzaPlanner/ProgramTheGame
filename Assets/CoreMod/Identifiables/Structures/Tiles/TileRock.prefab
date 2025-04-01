@@ -91,6 +91,8 @@ MonoBehaviour:
     OverrideMaterial: {fileID: 0}
   - Element: {fileID: 4158296539024455307, guid: 34eecc70e5969d64d8fa782872f7c310, type: 3}
     OverrideMaterial: {fileID: 0}
+  - Element: {fileID: 3575229165814279346, guid: 27ff976297851a84ba6709c9a02dbdbb, type: 3}
+    OverrideMaterial: {fileID: 0}
   OtherMaterials: []
   DismantleTask: {fileID: 5923588122422854532, guid: d6a3fb7ccf374d14991317c1442c191e, type: 3}
 --- !u!114 &460068120002007332
@@ -253,6 +255,8 @@ MonoBehaviour:
     OverrideMaterial: {fileID: 2100000, guid: 1e16b642109be7040a7f589235223c46, type: 2}
   - Element: {fileID: -4396463729144112910, guid: c86f9a9dd4cefcd4eac232e99d6b93be, type: 3}
     OverrideMaterial: {fileID: 2100000, guid: 0bcbf714cf65ced47a90830663d15160, type: 2}
+  - Element: {fileID: 3575229165814279346, guid: 27ff976297851a84ba6709c9a02dbdbb, type: 3}
+    OverrideMaterial: {fileID: 2100000, guid: 61fa6249e001710418ca64e1ab42ba3c, type: 2}
 --- !u!1001 &4198908307865795433
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -368,6 +372,8 @@ MonoBehaviour:
     OverrideMaterial: {fileID: 2100000, guid: a2f9e360438836e4680a2bb3c005161c, type: 2}
   - Element: {fileID: 4158296539024455307, guid: 34eecc70e5969d64d8fa782872f7c310, type: 3}
     OverrideMaterial: {fileID: -876546973899608171, guid: 7d4a664f9d109d947b00b1922d55d1bf, type: 3}
+  - Element: {fileID: 3575229165814279346, guid: 27ff976297851a84ba6709c9a02dbdbb, type: 3}
+    OverrideMaterial: {fileID: 2100000, guid: 61fa6249e001710418ca64e1ab42ba3c, type: 2}
 --- !u!114 &666878936625115962
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -507,6 +513,8 @@ MonoBehaviour:
     OverrideMaterial: {fileID: 2100000, guid: a2f9e360438836e4680a2bb3c005161c, type: 2}
   - Element: {fileID: 4158296539024455307, guid: 34eecc70e5969d64d8fa782872f7c310, type: 3}
     OverrideMaterial: {fileID: -876546973899608171, guid: 7d4a664f9d109d947b00b1922d55d1bf, type: 3}
+  - Element: {fileID: 3575229165814279346, guid: 27ff976297851a84ba6709c9a02dbdbb, type: 3}
+    OverrideMaterial: {fileID: 2100000, guid: 61fa6249e001710418ca64e1ab42ba3c, type: 2}
 --- !u!114 &1337109043364379294
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -636,6 +644,8 @@ MonoBehaviour:
     OverrideMaterial: {fileID: 2100000, guid: a2f9e360438836e4680a2bb3c005161c, type: 2}
   - Element: {fileID: 4158296539024455307, guid: 34eecc70e5969d64d8fa782872f7c310, type: 3}
     OverrideMaterial: {fileID: -876546973899608171, guid: 7d4a664f9d109d947b00b1922d55d1bf, type: 3}
+  - Element: {fileID: 3575229165814279346, guid: 27ff976297851a84ba6709c9a02dbdbb, type: 3}
+    OverrideMaterial: {fileID: 2100000, guid: 61fa6249e001710418ca64e1ab42ba3c, type: 2}
 --- !u!114 &753816354485764089
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -779,6 +789,8 @@ MonoBehaviour:
     OverrideMaterial: {fileID: 2100000, guid: a2f9e360438836e4680a2bb3c005161c, type: 2}
   - Element: {fileID: 4158296539024455307, guid: 34eecc70e5969d64d8fa782872f7c310, type: 3}
     OverrideMaterial: {fileID: -876546973899608171, guid: 7d4a664f9d109d947b00b1922d55d1bf, type: 3}
+  - Element: {fileID: 3575229165814279346, guid: 27ff976297851a84ba6709c9a02dbdbb, type: 3}
+    OverrideMaterial: {fileID: 2100000, guid: 61fa6249e001710418ca64e1ab42ba3c, type: 2}
 --- !u!114 &7906198887407080476
 MonoBehaviour:
   m_ObjectHideFlags: 0

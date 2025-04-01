@@ -18,7 +18,6 @@ public partial struct BuildJob : IJobEntity
     
     public EntityCommandBuffer ecb;
     [NativeDisableContainerSafetyRestriction] public ComponentLookup<CGrid> gridLookup;
-    [ReadOnly] public ComponentLookup<Building> buildingLookup;
     [ReadOnly] public ComponentLookup<Ghost> ghostLookup;
     
     [BurstCompile]
@@ -37,11 +36,12 @@ public partial struct BuildJob : IJobEntity
             return;
         }
         
-        if (!buildingLookup.TryGetComponent(prefab, out var building))
+        if (!BuildingDef.Id.Has(planned.Prefab))
         {
             Debug.Log($"Discarded pending part that is not a building");
             return;
         }
+        var building = planned.Prefab.BuildingDef();
         
         var rotation = building.IsRotatable ? planned.Rotation : (byte)0;
         var area = building.ToArea(rotation, planned.Location);
@@ -85,13 +85,13 @@ public partial struct BuildJob : IJobEntity
         else
         {
             ecb.RemoveComponent<ConstructionVariant>(entity);
-            if(planned.Materials.PrimaryMass.ElementType != default)
+            if(planned.Materials.PrimaryMass.ElementType != default(ElementDef.Id))
                 ecb.SetComponent(entity, planned.Materials.PrimaryMass);
             ecb.AddComponent(entity, new ToBeBakedIntoRoomMap { Value = baked });
         }
     }
 
-    void CreateBuildTasks(PlannedConstruction planned, Entity entity, Building building)
+    void CreateBuildTasks(PlannedConstruction planned, Entity entity, BuildingDef building)
     {
         ecb.AddBuffer<TaskProvider>(entity);
         var constructTask = Task.Schedule(ConstructTaskPrefab, ecb, new Task

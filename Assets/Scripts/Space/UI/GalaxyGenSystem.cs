@@ -133,18 +133,20 @@ namespace Space.Systems
             for (int x = 0; x < CELLS_PER_AXIS; x++)
             for (int y = 0; y < CELLS_PER_AXIS; y++)
             {
+                var pos = new int2(x,y);
                 var cel = new GalaxyCell();
                 inner.Add(cel);
                 cel.style.position = Position.Absolute;
-                cel.style.left = (x - 1) * CELL_SIZE;
-                cel.style.top = (y - 1) * CELL_SIZE;
+                var gridPos = (pos - 1) * CELL_SIZE;
+                cel.style.left = ToHex(gridPos).x;
+                cel.style.top = ToHex(gridPos).y;
                 cel.RegisterCallback<MouseDownEvent>(e =>
                 {
                     if(e.button != 1)
                         return;
                     GalaxyMapUI.WantTravel = cel.Location;
                 });
-                cells[new int2(x, y)] = cel;
+                cells[pos] = cel;
             }
             RegisterDragManipulator();
             RegisterScrollManipulator();
@@ -159,13 +161,14 @@ namespace Space.Systems
             for (int x = 0; x < CELLS_PER_AXIS; x++)
             for (int y = 0; y < CELLS_PER_AXIS; y++)
             {
-                var location = (int2)math.floor(new int2(x, y) + actualCenter); 
-                var cel = cells[new int2(x, y)];
+                var pos = new int2(x,y);
+                var location = (int2)math.floor(pos + actualCenter); 
+                var cel = cells[pos];
                 cel.Update(location, mgr, galaxy);
             }
 
-            var fractionalOffset = actualCenter - math.floor(actualCenter);
-            inner.transform.position = -new float3(fractionalOffset.x, fractionalOffset.y, 0) * CELL_SIZE * CurrentScale;
+            var fractionalOffset = ToHex(actualCenter - math.floor(actualCenter)) * CELL_SIZE * CurrentScale;
+            inner.transform.position = -new float3(fractionalOffset.x, fractionalOffset.y, 0);
             
             var ships = shipQuery.ToEntityArray(Allocator.Temp);
             for (int i = 0; i < ships.Length; i++)
@@ -180,7 +183,8 @@ namespace Space.Systems
                     icon = shipIcons[i];
                 icon.Target = mgr.GetComponentData<Identifiable>(ships[i]);
                 var sector = mgr.GetComponentData<Sector>(mgr.GetComponentData<OnGrid>(ships[i]).Grid);
-                icon.transform.position = (sector.PositionInSpace - (Offset + CamSector.PositionInSpace - halfSize) + fractionalOffset).xyy * new float3(1,1,0) * CELL_SIZE;
+                var gridPos = (sector.PositionInSpace - (Offset + CamSector.PositionInSpace - halfSize) + fractionalOffset).xyy * CELL_SIZE;
+                icon.transform.position = ToHex(gridPos.xy).xyy * new float3(1, 1, 0);
             }
 
             for (int i = ships.Length; i < shipIcons.Count; i++)
@@ -188,6 +192,18 @@ namespace Space.Systems
                 shipIcons[i].RemoveFromHierarchy();
                 shipIcons.RemoveAt(i--);
             }
+        }
+
+        float2 ToHex(float2 square)
+        {
+            return square;
+            // return new float2(square.x - square.y / 2, square.y);
+        }
+
+        float2 ToSquare(float2 hex)
+        {
+            return hex;
+            // return new float2(math.sqrt(3) * (hex.x + hex.y / 2), 1.5f * hex.y);
         }
         
         public void ForceUpdate()
@@ -198,26 +214,27 @@ namespace Space.Systems
         }
         
         Vector2 previousMousePosition = Vector2.zero;
+        bool isDragging;
         float CurrentScale => inner.style.scale.value.value.x;
         private void RegisterDragManipulator()
         {
             this.RegisterCallback<MouseDownEvent>(evt =>
             {
                 previousMousePosition = evt.mousePosition;
-                evt.StopPropagation();
+                isDragging = true;
             });
 
             this.RegisterCallback<MouseMoveEvent>(evt =>
             {
-                if (evt.pressedButtons == 1) // Only when left mouse button is held
+                if (evt.pressedButtons == 1 && isDragging) // Only when left mouse button is held
                 {
-                    var delta = (evt.mousePosition - previousMousePosition) / CurrentScale;
+                    var delta = ToSquare(evt.mousePosition - previousMousePosition) / CurrentScale;
                     Offset -= new float2(delta.x / CELL_SIZE, delta.y / CELL_SIZE);
                     previousMousePosition = evt.mousePosition;
                 }
             });
 
-            this.RegisterCallback<MouseUpEvent>(evt => evt.StopPropagation());
+            this.RegisterCallback<MouseUpEvent>(evt => isDragging = false);
         }
 
         private void RegisterScrollManipulator()

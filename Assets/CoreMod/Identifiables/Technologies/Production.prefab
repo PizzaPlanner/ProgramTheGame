@@ -59,10 +59,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Prequisites:
-  - {fileID: -5380242976130347905, guid: 26da298a6e6837649ac3a288b7e045f2, type: 3}
   - {fileID: -5380242976130347905, guid: 4dec5a1cdc270154f96370cfbba33208, type: 3}
+  - {fileID: -5380242976130347905, guid: 00b04864ccad8854fab301fc5c045a57, type: 3}
   Unlocks:
   - {fileID: -5380242976130347905, guid: e94bc3849ce2983479f4836879bc6ff8, type: 3}
+  - {fileID: 5304243422145376601, guid: c623b541564266749bdfc6e06ab92867, type: 3}
+  - {fileID: -5380242976130347905, guid: b436b19d11847c4468b6b7c57f47bc90, type: 3}
   Cost:
   - Prefab: {fileID: 697860641069326925, guid: 707f8a1ba11a8b64f9fe5c1ceff61d5c, type: 3}
     Amount: 20

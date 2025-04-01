@@ -89,7 +89,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6d96781d50c744d5b90125a6e0a230bb, type: 3}
   m_Name: StartRock
   m_EditorClassIdentifier: 
-  Icon: {fileID: 2800000, guid: c1f9f9c5e549c984087b7d7cff973a02, type: 3}
+  Icon: {fileID: 2800000, guid: d99431bdd791f493fb1633a8eb4f9b5a, type: 3}
   Tags:
   - {fileID: 11400000, guid: 06438e7fdbd6d6647863f4db069841da, type: 2}
   Reference: {fileID: 5304243422145376601}

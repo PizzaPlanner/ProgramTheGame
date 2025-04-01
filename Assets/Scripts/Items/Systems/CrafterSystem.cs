@@ -21,10 +21,10 @@ partial struct CrafterSystem : ISystem
         foreach (var (task, progress, craftTask, workedOn, e) in 
                  SystemAPI.Query<Task, RefRW<TaskProgress>, RefRW<CraftRecipeTask>, EnabledRefRW<WorkedOn>>().WithEntityAccess())
         {
-            if(craftTask.ValueRW.Recipe == default)
+            if(craftTask.ValueRW.Recipe == default(RecipeDef.Id))
                 ecb.DestroyEntity(e);
             
-            var recipe = Recipe.From(craftTask.ValueRW.Recipe);
+            ref var recipe = ref craftTask.ValueRW.Recipe.Def;
 
             switch (craftTask.ValueRW.State)
             {
@@ -37,12 +37,14 @@ partial struct CrafterSystem : ISystem
                         ecb.DestroyEntity(e);
                         continue;
                     }
-                    foreach (var requirement in recipe.Inputs)
+
+                    for (var i = 0; i < recipe.Inputs.Length; i++)
                     {
-                        if(inventory.Contains(requirement.ItemId, requirement.Amount))
+                        var requirement = recipe.Inputs[i];
+                        if (inventory.Contains(requirement.ItemId, requirement.Amount))
                             continue;
-            
-                        var order = Task.Schedule(orderTaskPrefab, ecb, 
+
+                        var order = Task.Schedule(orderTaskPrefab, ecb,
                             new Task
                             {
                                 Priority = task.Priority,
@@ -51,11 +53,12 @@ partial struct CrafterSystem : ISystem
                             });
                         ecb.SetComponent(order, new ItemOrderTask
                         {
-                            Amount = requirement.Amount, 
+                            Amount = requirement.Amount,
                             Item = requirement.ItemId,
                             Requester = task.Origin
                         });
                     }
+
                     craftTask.ValueRW.State = CraftState.Crafting;
                     break;
                 case CraftState.Crafting when workedOn.ValueRO:
@@ -65,10 +68,16 @@ partial struct CrafterSystem : ISystem
                     break;
                 case CraftState.Done:
                     var transaction = store.ValueRW.CreateBuilder;
-                    foreach(var requirement in recipe.Inputs)
+                    for (var i = 0; i < recipe.Inputs.Length; i++)
+                    {
+                        var requirement = recipe.Inputs[i];
                         transaction.RemoveFrom(task.Origin, requirement.ItemId, requirement.Amount);
-                    foreach(var result in recipe.Outputs)
+                    }
+                    for (var i = 0; i < recipe.Outputs.Length; i++)
+                    {
+                        var result = recipe.Outputs[i];
                         transaction.AddTo(task.Origin, result.ItemId, result.Amount);
+                    }
                     if (craftTask.ValueRW.Mode == CraftMode.Times)
                     {
                         craftTask.ValueRW.Repeat--;

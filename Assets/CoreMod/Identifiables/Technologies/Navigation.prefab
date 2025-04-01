@@ -59,9 +59,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Prequisites:
-  - {fileID: -5380242976130347905, guid: 796967fc4fa4f8b49a0e00f6f4b083cb, type: 3}
+  - {fileID: -5380242976130347905, guid: 49c590bcd09cab44f98be00deb595c80, type: 3}
   Unlocks:
   - {fileID: -5380242976130347905, guid: 33c20af4dce76064fa871ad84944a3f0, type: 3}
+  - {fileID: -5380242976130347905, guid: 97c933602eb7a7e4da650f6e71ffb11a, type: 3}
+  - {fileID: -5380242976130347905, guid: 5933329ed11db23429895fa9c9de48c7, type: 3}
+  Cost:
+  - Prefab: {fileID: 697860641069326925, guid: 707f8a1ba11a8b64f9fe5c1ceff61d5c, type: 3}
+    Amount: 50
+  - Prefab: {fileID: 697860641069326925, guid: c623b541564266749bdfc6e06ab92867, type: 3}
+    Amount: 25
 --- !u!114 &5657100428946741286
 MonoBehaviour:
   m_ObjectHideFlags: 0

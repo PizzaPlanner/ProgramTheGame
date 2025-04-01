@@ -30,8 +30,7 @@ partial struct BlueprintPlacementSystem : ISystem
             ecb.DestroyEntity(e);
             foreach (var part in bp.Data.Value.Contents.ToArray())
             {
-                var prefab = SpawnableDef.Id.Has(part.Prefab) ? part.Prefab.SpawnableDef() : default;
-                if (SystemAPI.HasComponent<Element>(prefab))
+                if (ElementDef.Id.Has(part.Prefab))
                 {
                     ref var massModel = ref SystemAPI.GetComponentRW<MassModel>(bp.BuildOn).ValueRW;
                     var cell = part.Location + bp.Offset;
@@ -42,6 +41,7 @@ partial struct BlueprintPlacementSystem : ISystem
                     cellRW.Add(massData);
                     continue;
                 }
+                var prefab = SpawnableDef.Id.Has(part.Prefab) ? part.Prefab.SpawnableDef() : default;
                 if (!SystemAPI.HasComponent<MassData>(prefab))
                 {
                     Debug.LogWarning($"Blueprint {e}: Skipped {part.Prefab}: Unspawnable");
@@ -57,7 +57,7 @@ partial struct BlueprintPlacementSystem : ISystem
                     thingMass.Temperature = part.Matter.Temperature;
                 thingMass = MassData.From(thingMass.ElementType, thingMass.Mass, thingMass.Temperature);
                 
-                if (SystemAPI.HasComponent<Building>(prefab))
+                if (BuildingDef.Id.Has(part.Prefab))
                 {
                     var plan = new PlannedConstruction
                     {

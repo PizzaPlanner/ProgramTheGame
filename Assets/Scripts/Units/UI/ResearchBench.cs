@@ -179,7 +179,7 @@ partial struct ResearchBenchSystem : ISystem
             var addedTech = currentResearch.ValueRO.Technology;
             currentResearch.ValueRW.Technology = default;
             Debug.Log($"Finished research on {addedTech}");
-            state.EntityManager.AddComponent<Unlocked>(addedTech.SpawnableDef());
+            state.EntityManager.AddComponent<Unlocked>(addedTech.TechnologyDef().Progress);
         }
     }
 }

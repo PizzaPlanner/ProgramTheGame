@@ -119,7 +119,7 @@ public unsafe struct NativeElementMap : IDisposable
             if (temp > mass.ElementData.StableTemperatureRangeKelvin.x 
                 && temp < mass.ElementData.StableTemperatureRangeKelvin.y)
                 continue;
-            ref var stateChanges = ref Element.From(mass.ElementType).StateChanges.Value.Reactions;
+            ref var stateChanges = ref mass.ElementType.Def.Reactions;
             for (int j = 0; j < stateChanges.Length && !didTransform; j++)
             {
                 var change = stateChanges[j];
@@ -137,7 +137,7 @@ public unsafe struct NativeElementMap : IDisposable
         }
     }
 
-    bool React(ref MassHeader header, MassData mass, Element.StateChange change)
+    bool React(ref MassHeader header, MassData mass, StateChange change)
     {
         if (change.With == default)
         {

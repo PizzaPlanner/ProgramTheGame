@@ -84,7 +84,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6d96781d50c744d5b90125a6e0a230bb, type: 3}
   m_Name: MGAsteroidA
   m_EditorClassIdentifier: 
-  Icon: {fileID: 2800000, guid: 4023447609770c2499421a227e3b3917, type: 3}
+  Icon: {fileID: 2800000, guid: f40913a88240a4c76bf83c250766aa68, type: 3}
   Tags:
   - {fileID: 11400000, guid: 120d758a188f7934299a0406976912a9, type: 2}
   Reference: {fileID: 5304243422145376601}

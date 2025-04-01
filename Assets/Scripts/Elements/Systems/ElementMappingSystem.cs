@@ -9,26 +9,15 @@ using UnityEngine.UIElements;
 
 public partial class ElementMappingSystem : IdentifiableMappingSystem, IWikiProvider
 {
-    protected override void OnCreate()
-    {
-        Element.ElementById.Data = new NativeParallelHashMap<Identifiable, Element>(0, Allocator.Persistent);
-    }
-
-    protected override void OnDestroy()
-    {
-        if(Element.ElementById.Data.IsCreated)
-            Element.ElementById.Data.Dispose();
-    }
-
     protected override void OnUpdate()
     {
+        
         foreach (var (item, id) in
                  SystemAPI.Query<Element, Identifiable>()
                           .WithAll<Prefab>()
                           .WithOptions(EntityQueryOptions.IncludePrefab))
         {
-            Element.ElementById.Data[id] = item;
-            var stateChanges = item.StateChanges.Value.Reactions.ToArray();
+            var stateChanges = item.Def.Value.Reactions.ToArray();
             foreach (var change in stateChanges)
             {
                 AddReaction(change.To, new ReactionLink{
@@ -56,7 +45,7 @@ public partial class ElementMappingSystem : IdentifiableMappingSystem, IWikiProv
     public struct ReactionLink
     {
         public Identifiable Ingredient1;
-        public Element.StateChange StateChange;
+        public StateChange StateChange;
         public string Relation;
     }
 
@@ -64,13 +53,14 @@ public partial class ElementMappingSystem : IdentifiableMappingSystem, IWikiProv
 
     public VisualElement ProvideWikiDetails(Identifiable id)
     {
-        if (!Element.TryFrom(id, out var element)) 
+        if (!ElementDef.Id.Has(id)) 
             return null;
-        var elementText = $"Specific Heat Capacity: {element.SpecificHeatCapacity}\nThermal Conductivity: {element.ThermalConductivity}";
+        ref var def = ref id.ElementDef();
+        var elementText = $"Specific Heat Capacity: {def.SpecificHeatCapacity}\nThermal Conductivity: {def.ThermalConductivity}";
         var top = new Foldout(){text = "Element", name = "Element"};
         top.Add(new Label(elementText));
         var elm = new Foldout(){text = "StateChanges"};
-        var stateChanges = element.StateChanges.Value.Reactions.ToArray();
+        var stateChanges = def.Reactions.ToArray();
         foreach (var change in stateChanges)
             elm.Add(new StateChangeWikiElement(id, change));
         if(Reactions.TryGetValue(id, out var relations))
@@ -86,7 +76,7 @@ public partial class ElementMappingSystem : IdentifiableMappingSystem, IWikiProv
 
 public class StateChangeWikiElement : VisualElement
 {
-    public StateChangeWikiElement(Identifiable ingredient1, Element.StateChange stateChange)
+    public StateChangeWikiElement(Identifiable ingredient1, StateChange stateChange)
     {
         Add(new Label($"{(stateChange.CheckBelow ? "Below" : "Above")} {stateChange.At}") { name = stateChange.CheckBelow ? "Freeze" : "Melt" });
         Add(new WikiSearchResultButton(ingredient1));

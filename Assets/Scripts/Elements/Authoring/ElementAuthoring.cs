@@ -123,7 +123,7 @@ public class ElementAuthoring : MonoBehaviour
     public MassData ToMassData(Mass mass, Temperature temperature) => new MassData
     {
         ElementType = GetComponent<IdentifieableAuthoring>().Id,
-        ElementData = ToElement(Allocator.Temp).AsCompact,
+        ElementData = ToElement(Allocator.Temp).Def.Value.AsCompact,
         Mass = mass,
         Temperature = temperature
     };
@@ -146,11 +146,11 @@ public class ElementAuthoring : MonoBehaviour
                 throw new InvalidDataException($"Element {gameObject.name} has no phase tag assigned. Must be either TagSolid, TagLiquid, or TagGas.");
             
             var blobBuilder = new BlobBuilder(Allocator.Temp);
-            ref var blob = ref blobBuilder.ConstructRoot<StateChangeData>();
+            ref var blob = ref blobBuilder.ConstructRoot<ElementDef>();
             var arrayBuilder = blobBuilder.Allocate(ref blob.Reactions, StateChanges.Length);
             for (int i = 0; i < arrayBuilder.Length; i++)
             {
-                arrayBuilder[i] = new Element.StateChange
+                arrayBuilder[i] = new StateChange
                 {
                     To = StateChanges[i].ToElement.GetComponent<IdentifieableAuthoring>().Id,
                     At = StateChanges[i].Temperature + 273.15f,
@@ -162,13 +162,13 @@ public class ElementAuthoring : MonoBehaviour
                     ReactionEnergy = StateChanges[i].ReactionEnergy
                 };
             }
-            var blobAsset = blobBuilder.CreateBlobAssetReference<StateChangeData>(allocator);
+            blob.ThermalConductivity = ThermalConductivity;
+            blob.SpecificHeatCapacity = SpecificHeatCapacity;
+            blob.Phase = phase;
+            var blobAsset = blobBuilder.CreateBlobAssetReference<ElementDef>(allocator);
             return new Element
             {
-                ThermalConductivity = ThermalConductivity,
-                SpecificHeatCapacity = SpecificHeatCapacity,
-                StateChanges = blobAsset,
-                Phase = phase
+                Data = blobAsset
             };
     }
     
@@ -179,7 +179,7 @@ public class ElementAuthoring : MonoBehaviour
             var e = GetEntity(TransformUsageFlags.None);
             var elm = authoring.ToElement(Allocator.Persistent);
             AddComponent(e, elm);
-            AddBlobAsset(ref elm.StateChanges, out _);
+            AddBlobAsset(ref elm.Data, out _);
         }
     }
 }

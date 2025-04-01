@@ -34,7 +34,7 @@ partial struct MassesUpdateJobUnits : IJobEntity
            && temp < massData.ElementData.StableTemperatureRangeKelvin.y)
             return;
 
-        ref var reactions = ref Element.From(massData.ElementType).StateChanges.Value.Reactions;
+        ref var reactions = ref massData.ElementType.Def.Reactions;
         for (int i = 0; i < reactions.Length; i++)
         {
             if(reactions[i].With != default)
@@ -77,7 +77,7 @@ partial struct MassesUpdateJobBuildings : IJobEntity
            && temp < massData.ElementData.StableTemperatureRangeKelvin.y)
             return;
 
-        ref var reactions = ref Element.From(massData.ElementType).StateChanges.Value.Reactions;
+        ref var reactions = ref massData.ElementType.Def.Reactions;
         for (int i = 0; i < reactions.Length; i++)
         {
             if(reactions[i].With != default)
@@ -143,7 +143,7 @@ partial struct MassesUpdateJobWall : IJobEntity
            && temp < massData.ElementData.StableTemperatureRangeKelvin.y)
             return;
 
-        ref var reactions = ref Element.From(massData.ElementType).StateChanges.Value.Reactions;
+        ref var reactions = ref massData.ElementType.Def.Reactions;
         for (int i = 0; i < reactions.Length; i++)
         {
             if(reactions[i].With != default)

@@ -58,8 +58,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3f36d9199879466ba2cfdeb3553a3dd1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Prequisites: []
-  Unlocks: []
+  Prequisites:
+  - {fileID: -5380242976130347905, guid: 7fa2f95b2a5e5974e92b759d28f295b3, type: 3}
+  - {fileID: -5380242976130347905, guid: cb2d9753e82994c41bab41cda266a5ea, type: 3}
+  - {fileID: -5380242976130347905, guid: 25dfd1242b98f804fa4a88a6300fa929, type: 3}
+  Unlocks:
+  - {fileID: -5380242976130347905, guid: 7912b69273022ae40a552c95e6dd8554, type: 3}
+  Cost:
+  - Prefab: {fileID: 697860641069326925, guid: 325a83fa6bc9eac42b80ff402fac433a, type: 3}
+    Amount: 25
 --- !u!114 &5657100428946741286
 MonoBehaviour:
   m_ObjectHideFlags: 0

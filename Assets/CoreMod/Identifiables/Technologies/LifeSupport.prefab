@@ -60,7 +60,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Prequisites:
   - {fileID: -5380242976130347905, guid: 4141154a37609014c8e350f1db60f99b, type: 3}
-  Unlocks: []
+  - {fileID: -5380242976130347905, guid: 4dec5a1cdc270154f96370cfbba33208, type: 3}
+  Unlocks:
+  - {fileID: 5304243422145376601, guid: 89076c40667c7a2449be80007802c90d, type: 3}
+  - {fileID: -5380242976130347905, guid: 30adb98901b4593459c45d6db4893ab2, type: 3}
+  - {fileID: 5304243422145376601, guid: cc4e703d2f1e63849bdf5b5711613738, type: 3}
+  Cost:
+  - Prefab: {fileID: 697860641069326925, guid: 707f8a1ba11a8b64f9fe5c1ceff61d5c, type: 3}
+    Amount: 40
 --- !u!114 &5657100428946741286
 MonoBehaviour:
   m_ObjectHideFlags: 0

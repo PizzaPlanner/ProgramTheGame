@@ -18,7 +18,7 @@ public enum CraftState
 
 public struct CraftRecipeTask : IComponentData
 {
-    public Identifiable Recipe;
+    public RecipeDef.Id Recipe;
     public CraftMode Mode;
     public CraftState State;
     public int Repeat;

@@ -17,7 +17,7 @@ Scroller > RepeatButton {
     display: none;
 }
 
-Scroller { 
+Scroller {
     align-items: center;
     width: auto;
     height: auto;
@@ -31,10 +31,12 @@ Scroller > ScrollerSlider {
     height: 8px;
     min-height: 8px;
 }
+
 .unity-base-slider .unity-base-slider__tracker {
     background-color: var(--color-border-default);
     border-width: 0;
 }
+
 .unity-base-slider .unity-base-slider__dragger {
     background-color: var(--color-border-alt);
     border-width: 0;
@@ -42,9 +44,11 @@ Scroller > ScrollerSlider {
     top: 0;
     margin: 0;
 }
+
 .unity-base-slider--horizontal .unity-base-slider__dragger {
     height: 100%;
 }
+
 .unity-base-slider--vertical .unity-base-slider__dragger {
     width: 100%;
 }
@@ -179,6 +183,7 @@ CraftOrderWindow #InOut {
 CraftOrderWindow #In {
     flex-direction: row;
 }
+
 CraftOrderWindow #Out {
     flex-direction: row;
 }
@@ -187,6 +192,7 @@ CraftOrderWindow > #CraftOrder {
     flex-direction: row;
     font-size: 12px;
 }
+
 CraftOrderWindow .id-button {
     width: 32px;
     height: 32px;
@@ -208,15 +214,6 @@ CraftingInputButton {
     border-right-width: 1px;
     border-bottom-width: 1px;
     border-left-width: 1px;
-}
-
-CraftingRecipeElement #Inputs > CraftingInputButton {
-    width: 24px;
-    height: 24px;
-}
-
-CraftingRecipeElement #Inputs > CraftingInputButton.missing {
-    background-color: rgba(255, 0, 5, 0.5);
 }
 
 InventoryElement {
@@ -257,18 +254,6 @@ CraftingWindow > .recipe-list {
     left: 80px;
 }
 
-CraftingRecipeElement #Inputs {
-    flex-direction: row;
-}
-
-CraftingRecipeElement #Outputs {
-    flex-direction: row;
-}
-
-CraftingRecipeElement #Name {
-    display: none;
-}
-
 IngameMenu {
     position: absolute;
     right: 0;
@@ -288,23 +273,31 @@ IngameMenu > VisualElement {
 }
 
 IngameMenu > #Wiki {
-    background-image: url("project://database/Assets/3rdParty/2000_Icons/500_weapons/Book_4.png?fileID=2800000&guid=6408704b229edb748b2c6595d880da08&type=3#Book_4");
+    background-image: url("project://database/Assets/3rdParty/FlexUnit/SpaceGameIconSet/Sprites/Icons/Search.png?fileID=2800000&guid=76ed2cd88b63d48f5a5d307036793137&type=3#Search");
 }
 
 IngameMenu > #Build {
-    background-image: url("project://database/Assets/3rdParty/2000_Icons/500_weapons/Hammer_08.png?fileID=2800000&guid=b8929a5a28b17324db90e1efe0ad3622&type=3#Hammer_08");
+    background-image: url("project://database/Assets/3rdParty/FlexUnit/SpaceGameIconSet/Sprites/Icons/Wrench.png?fileID=2800000&guid=9b974deb64b814abba511b496f9ef1a7&type=3#Wrench");
 }
 
 IngameMenu > #Rooms {
-    background-image: url("project://database/Assets/3rdParty/2000_Icons/Update_icons/runic_tablet_07.png?fileID=2800000&guid=80c12df18bb265a4bb665cf00931ec59&type=3#runic_tablet_07");
+    background-image: url("project://database/Assets/3rdParty/64%20flat%20icons/png/128px/World_Gate.png?fileID=2800000&guid=f848b6032fa128148a6ab201393c0893&type=3#World_Gate");
 }
 
-IngameMenu > #ChipEditor {
-    background-image: url("project://database/Assets/3rdParty/2000_Icons/500_weapons/Book_20.png?fileID=2800000&guid=19ac1da5e8eb2d24e93e4925cea79a06&type=3#Book_20");
+IngameMenu > #Cancel {
+    background-image: url("project://database/Assets/3rdParty/64%20flat%20icons/png/128px/Equipment_Boots.png?fileID=2800000&guid=083237d4baf78d143b4251ca612f18dd&type=3#Equipment_Boots");
+}
+
+IngameMenu > #Map {
+    background-image: url("project://database/Assets/3rdParty/FlexUnit/SpaceGameIconSet/Sprites/Icons/Telescope.png?fileID=2800000&guid=9381dc03fc0df4d66ada7c9b51d6ae20&type=3#Telescope");
+}
+
+IngameMenu > #Technology {
+    background-image: url("project://database/Assets/3rdParty/64%20flat%20icons/png/64px/Inventory_PotionSmall.png?fileID=2800000&guid=cd108ac1e6a3b8a49929c82009040ada&type=3#Inventory_PotionSmall");
 }
 
 IngameMenu > #TemperatureOverlay {
-    background-image: url("project://database/Assets/3rdParty/64%20flat%20icons/png/64px/Inventory_PotionSmall.png?fileID=2800000&guid=cd108ac1e6a3b8a49929c82009040ada&type=3#Inventory_PotionSmall");
+    background-image: url("project://database/Assets/3rdParty/64%20flat%20icons/png/64px/Weapons_Staff.png?fileID=2800000&guid=f6d9b5a931cf4844888f30f32144af43&type=3#Weapons_Staff");
 }
 
 IngameMenu > #PressureOverlay {
@@ -457,7 +450,7 @@ UnitOrderButton.has-progress > PercentProgressBar {
 }
 
 PercentProgressBar {
-    border-color: rgb(200,200,200);
+    border-color: rgb(200, 200, 200);
     border-width: 1px;
     min-height: 6px;
 }
@@ -580,7 +573,6 @@ PlayfieldUI > #TravelState > .id-button {
     width: 24px;
     height: 24px;
 }
-
 
 PlayfieldUI SignalButton > IdentifiableButton#CurrentTask {
     width: 24px;
@@ -895,6 +887,7 @@ CreateTaskButton > #Header {
     flex-direction: row;
     align-items: center;
 }
+
 CreateTaskButton > #Header > Button {
     flex-grow: 1;
     padding: 4px;
@@ -936,7 +929,7 @@ ConfigPanel > #Header {
     flex-direction: row;
 }
 
-ConfigPanel.planned > #Header { 
+ConfigPanel.planned > #Header {
     display: none;
 }
 
@@ -952,13 +945,11 @@ ConfigPanel > #Header Label {
     -unity-text-align: middle-center;
 }
 
-ConfigPanel.cannot-cancel > #Header > Button#Cancel
-{
+ConfigPanel.cannot-cancel > #Header > Button#Cancel {
     display: none;
 }
 
-ConfigPanel.personal > #Header > SignalButton
-{
+ConfigPanel.personal > #Header > SignalButton {
     display: none;
 }
 
@@ -979,6 +970,7 @@ Button#Cancel {
     padding: 5px;
     padding-bottom: 7px;
 }
+
 Button#Cancel:hover {
     background-color: rgb(155, 0, 0);
 }
@@ -1039,6 +1031,7 @@ TimeUI Button {
     height: 16px;
     background-color: var(--color-border-widget);
 }
+
 TimeUI Button.active {
     width: 16px;
     height: 16px;
@@ -1050,18 +1043,18 @@ ToggleButtonGroup#Tasks {
     flex-wrap: wrap;
 }
 
-ToggleButtonGroup#Tasks .id-button{
+ToggleButtonGroup#Tasks .id-button {
     width: 24px;
     height: 24px;
 }
 
-.unity-toggle__checkmark { 
+.unity-toggle__checkmark {
     width: 20px;
     height: 20px;
     margin: 2px;
     background-color: var(--color-background-widget);
     border-color: var(--color-border-widget);
-    -unity-background-image-tint-color: var(--color-foreground-bright) ;
+    -unity-background-image-tint-color: var(--color-foreground-bright);
 }
 
 MainMenu {
@@ -1100,7 +1093,7 @@ GalaxyMapUI {
     bottom: 0;
     left: 0;
     right: 0;
-    background-color: rgba(0,0,0, 0.6);
+    background-color: rgba(0, 0, 0, 0.6);
     flex-direction: row;
     color: var(--color-text-default);
 }
@@ -1110,27 +1103,27 @@ GalaxyMapElement {
 
 GalaxyMapElement > #Outer {
     border-width: 2px;
-    border-color: rgb(255,255,255);
+    border-color: rgb(255, 255, 255);
     overflow: scroll;
     width: 700px;
     height: 700px;
 }
 
 GalaxyMapElement > #Outer > #Inner {
-    position: absolute;
     border-width: 2px;
-    border-color: rgb(255,0, 0);
+    border-color: rgb(255, 0, 0);
     overflow: scroll;
+    transform-origin: left top;
+    position: absolute;
     width: 400%;
     height: 400%;
-    transform-origin: 0 0;
 }
 
 ShipElement.id-button {
     margin: 0;
     width: 32px;
     height: 32px;
-    background-color: rgba(0,0,0,0);
+    background-color: rgba(0, 0, 0, 0);
     position: absolute;
 }
 
@@ -1142,13 +1135,13 @@ GalaxyCell.id-button {
     margin: 0;
     width: 64px;
     height: 64px;
-    background-color: rgba(0,0,0,0);
+    background-color: rgba(0, 0, 0, 0);
     border-width: 1px;
     border-color: rgba(50, 50, 100, 0.5);
 }
 
 GalaxyCell.id-button.unknown {
-    background-color: rgba(0,0,0,0.8);
+    background-color: rgba(0, 0, 0, 0.8);
     border-color: rgba(20, 20, 20, 0.5);
 }
 
@@ -1162,5 +1155,5 @@ GalaxyCell.id-button > Label {
 }
 
 GalaxyCell.id-button > #Frame {
-display: none;
+    display: none;
 }

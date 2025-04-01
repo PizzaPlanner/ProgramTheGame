@@ -24,7 +24,7 @@ partial class CrafterUISystem : UISystem
             if (craftBtn.TryConfigForPlanning(out var plan))
             {
                 var wantCraft = plan.Q<CraftOrderWindow>().WantCraft;
-                if(wantCraft.Recipe == default)
+                if(wantCraft.Recipe == default(RecipeDef.Id))
                     continue;
                 
                 var ecb = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>().CreateCommandBuffer(World.Unmanaged);
@@ -37,7 +37,10 @@ partial class CrafterUISystem : UISystem
                     CrewProvider = onGrid.Grid
                 });
                 ecb.SetComponent(craftTask, wantCraft);
-                ecb.SetComponent(craftTask, new TaskProgress { RequiredTicks = SystemAPI.GetComponent<CraftingRecipe>(wantCraft.Recipe.SpawnableDef()).Duration});
+                ecb.SetComponent(craftTask, new TaskProgress
+                {
+                    RequiredTicks = wantCraft.Recipe.Def.Duration
+                });
                 plan.Q<CraftOrderWindow>().WantCraft = default;
             }
         }
@@ -95,11 +98,11 @@ partial class CrafterUISystem : UISystem
         public void Update(EntityManager em, ConfigPanel panel)
         {
             var task = em.GetComponentData<CraftRecipeTask>(panel.TaskEntity);
-            var recipe = Recipe.From(task.Recipe);
+            ref var recipe = ref task.Recipe.Def;
             Wants.value = (uint)task.Repeat;
             // Has.value = (uint)logistics.GetItemCount(RecipeToCraft.Target);
             if(RecipeToCraft.Target != task.Recipe)
-                RebuildRecipe(recipe.Inputs, recipe.Outputs);
+                RebuildRecipe(recipe.Inputs.ToArray(), recipe.Outputs.ToArray());
             RecipeToCraft.Target = task.Recipe;
         }
 

@@ -31,29 +31,27 @@ public struct MassData : IComponentData, IMatterComposition
 {
     Mass _mass;
     ulong _energy;
-    public Identifiable ElementType;
-    public Element.Compact ElementData;
+    public ElementDef.Id ElementType;
+    public ElementDef.Compact ElementData;
 
     public static MassData From(Identifiable type, uint mass, ulong energy)
     {
-        var data = Element.From(type);
         return new MassData
         {
             Energy = energy,
             Mass = mass,
-            ElementData = data.AsCompact,
+            ElementData = type.ElementDef().AsCompact,
             ElementType = type,
         };
     }
     
     public static MassData From(Identifiable type, uint mass, Temperature t)
     {
-        var data = Element.From(type);
         return new MassData
         {
-            Energy = (ulong)(t * mass * data.SpecificHeatCapacity),
+            Energy = (ulong)(t * mass * type.ElementDef().SpecificHeatCapacity),
             Mass = mass,
-            ElementData = data.AsCompact,
+            ElementData = type.ElementDef().AsCompact,
             ElementType = type,
         };
     }

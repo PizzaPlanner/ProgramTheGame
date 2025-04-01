@@ -16,16 +16,17 @@ namespace Construction.Systems
                                                            .WithNone<Ghost>()
                                                            .WithEntityAccess())
             {
-                if (building.DismantleTaskPrefab == default)
+                var dismantlePrefab = building.Def.Value.DismantleTaskPrefab;
+                if (dismantlePrefab == default)
                     continue;
-                var window = ui.GetOrCreateActionButton(building.DismantleTaskPrefab, EntityManager, false);
+                var window = ui.GetOrCreateActionButton(dismantlePrefab, EntityManager, false);
                 
                 if(!window.wantCreateTask)
                     continue;
                 window.wantCreateTask = false;
                 if(tasks.Length > 0)
                     continue;
-                Task.Schedule(building.DismantleTaskPrefab, ecb, new Task{
+                Task.Schedule(dismantlePrefab, ecb, new Task{
                     Target = e, 
                     Priority = TaskPriority.MediumPriority,
                     Origin = e,

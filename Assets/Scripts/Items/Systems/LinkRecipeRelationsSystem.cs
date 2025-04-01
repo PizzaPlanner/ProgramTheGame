@@ -7,19 +7,6 @@ using UnityEngine.UIElements;
 
 partial class CraftingRecipesMappingSystem : IdentifiableMappingSystem, IWikiProvider
 {
-    protected override void OnCreate()
-    {
-        OnDestroy();
-        Recipe.RecipeById.Data = new (0, Allocator.Persistent);
-    }
-
-    protected override void OnDestroy()
-    {
-        // Blobassets in map are owned by Entities, so no disposal here
-        if(Recipe.RecipeById.Data.IsCreated)
-            Recipe.RecipeById.Data.Dispose();
-    }
-    
     protected override void OnUpdate()
     {
         foreach (var (craftIn, id) in 
@@ -42,8 +29,6 @@ partial class CraftingRecipesMappingSystem : IdentifiableMappingSystem, IWikiPro
                           .WithAll<Prefab>()
                           .WithOptions(EntityQueryOptions.IncludePrefab))
         {
-            Recipe.RecipeById.Data[id] = recipe.Data;
-            
             foreach (var input in recipe.Data.Value.Inputs.ToArray())
             {
                 AddRelation(input.ItemId, new IdentifiableLink{ To = id, Relation = "UsedIn"});

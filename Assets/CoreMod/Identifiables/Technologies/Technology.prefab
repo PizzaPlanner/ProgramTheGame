@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: -5380242976130347905}
   - component: {fileID: -8036204718492915185}
   m_Layer: 0
-  m_Name: Industry
+  m_Name: Technology
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -59,7 +59,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Prequisites: []
-  Unlocks: []
+  Unlocks:
+  - {fileID: -5380242976130347905, guid: 742f0838ecde64546a9a2d8b82c1d1fb, type: 3}
+  - {fileID: -5380242976130347905, guid: 132238db7a03b864fac5c0dcefcede32, type: 3}
+  Cost: []
 --- !u!114 &5657100428946741286
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -70,7 +73,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6d96781d50c744d5b90125a6e0a230bb, type: 3}
-  m_Name: Construction
+  m_Name: Technology
   m_EditorClassIdentifier: 
   Icon: {fileID: 2800000, guid: 59ed09fcd06cbd9439c99e9195b17fd8, type: 3}
   Tags:

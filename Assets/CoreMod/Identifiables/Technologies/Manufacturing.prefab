@@ -62,7 +62,11 @@ MonoBehaviour:
   - {fileID: -5380242976130347905, guid: 0a64b8ee403d32a4f9cbcd508858a224, type: 3}
   Unlocks:
   - {fileID: -5380242976130347905, guid: 430c720d29aa1184f8d80b54216f8f47, type: 3}
+  - {fileID: 5304243422145376601, guid: 5248bed93d710314aaf7b2fb15f330c3, type: 3}
+  - {fileID: 5304243422145376601, guid: 7b9b974dce2040a42b9ee4e217e1dced, type: 3}
   - {fileID: -5380242976130347905, guid: 04a4ef4173b220343956ce5a48368642, type: 3}
+  - {fileID: 5304243422145376601, guid: 5bd74abc78ad53e4c819d3a8a1e16143, type: 3}
+  - {fileID: 5304243422145376601, guid: 1c57e21195f1ff240b73f5d5d6c6252f, type: 3}
   Cost:
   - Prefab: {fileID: 697860641069326925, guid: 707f8a1ba11a8b64f9fe5c1ceff61d5c, type: 3}
     Amount: 20

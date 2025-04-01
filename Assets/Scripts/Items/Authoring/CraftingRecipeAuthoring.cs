@@ -30,7 +30,7 @@ public class CraftingRecipeAuthoring : MonoBehaviour
         public override void Bake(CraftingRecipeAuthoring authoring)
         {
             var blobBUilder = new BlobBuilder(Allocator.Temp);
-            ref var recipe = ref blobBUilder.ConstructRoot<Recipe>();
+            ref var recipe = ref blobBUilder.ConstructRoot<RecipeDef>();
             recipe.Duration = authoring.Duration;
             var input = blobBUilder.Allocate(ref recipe.Inputs, authoring.Input.Length);
             for(int i = 0; i < authoring.Input.Length; i++)
@@ -48,7 +48,7 @@ public class CraftingRecipeAuthoring : MonoBehaviour
                     ItemId = authoring.Output[i].Prefab.GetComponent<ItemAuthoring>().Id,
                     Location = IngredientLocation.Inventory
                 };
-            var blob = blobBUilder.CreateBlobAssetReference<Recipe>(Allocator.Persistent);
+            var blob = blobBUilder.CreateBlobAssetReference<RecipeDef>(Allocator.Persistent);
             
             var self = GetEntity(TransformUsageFlags.None);
             AddComponent(self, new CraftingRecipe

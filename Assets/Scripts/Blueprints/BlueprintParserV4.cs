@@ -85,7 +85,7 @@ namespace Grid.Blueprints
 
         void HandleChild(Child child, EntityManager em, BlueprintV4DataStructure data)
         {
-            if (!em.HasComponent<Building>(child.Value) 
+            if (!em.HasComponent<BuildingDef>(child.Value) 
                 || em.HasComponent<Ghost>(child.Value) 
                 || em.HasComponent<UnderConstruction>(child.Value))
                 return;

@@ -65,7 +65,8 @@ partial class DeconstructToolUISystem : MapOverlaySystem<DeconstructTool>
         }
         elm.Add(taskTypes);
         elm.Add(layers);
-        elm.Add(new Toggle("Insta-Deconstruct") { name = "InstantRemove" });
+        if(SystemAPI.TryGetSingleton<WorldTypes.Sandbox>(out var sandbox) && sandbox.On)
+            elm.Add(new Toggle("Insta-Deconstruct") { name = "InstantRemove" });
         return elm;
     }
     protected override string MenuEntry => "Deconstruct";
@@ -113,7 +114,7 @@ partial class DeconstructToolUISystem : MapOverlaySystem<DeconstructTool>
                    ecb.DestroyEntity(entity);
                 else
                 {
-                    var dismantleTask = SystemAPI.GetComponent<Building>(entity).DismantleTaskPrefab;
+                    var dismantleTask = SystemAPI.GetComponent<Building>(entity).Def.Value.DismantleTaskPrefab;
                     if(dismantleTask.SpawnableDef().Spawnable == default)
                         continue;
                     Task.Schedule(dismantleTask, ecb, new Task
@@ -145,7 +146,7 @@ partial class DeconstructToolUISystem : MapOverlaySystem<DeconstructTool>
             {
                 if(!SystemAPI.HasComponent<Building>(e))
                     continue;
-                var building = SystemAPI.GetComponent<Building>(e);
+                var building = SystemAPI.GetComponent<Building>(e).Def.Value;
                 if(!IsTaskSelected(building.DismantleTaskPrefab))
                     continue;
                 foreach(var layer in layersToCheck)

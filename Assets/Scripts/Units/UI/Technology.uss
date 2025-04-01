@@ -1,7 +1,10 @@
 :root {
-    --color-background-tech-default: rgb(42, 55, 100);
+    --color-background-tech-default: rgb(42, 55, 80);
+    --color-background-tech-unlocked: rgb(42, 85, 70);
     --color-background-tech-selected: rgb(72, 110, 150);
-    --color-background-tech-unlocked: rgb(30, 170, 85);
+    --color-background-tech-bar-default: rgb(40, 50, 95);
+    --color-background-tech-bar-unlocked: rgb(20, 100, 35);
+    --color-background-tech-bar-working: rgb(35, 35, 100);
 }
 
 TechnologyWindow {
@@ -26,11 +29,10 @@ TechnologyWindow > #Header {
 }
 
 TechnologyButton {
-    width: 192px;
-    border-width: 1px;
-    border-color: var(--color-border-alt);
+    width: 233px;
+    flex-shrink: 0;
+    margin: 2px;
     background-color: var(--color-background-tech-default);
-    flex-direction: row;
 }
 
 TechnologyButton.selected {
@@ -39,33 +41,94 @@ TechnologyButton.selected {
 }
 
 TechnologyButton.unlocked {
-    border-color: var(--color-border-widget);
     background-color: var(--color-background-tech-unlocked);
 }
 
-TechnologyButton.unlocked > #Cost PercentProgressBar {
+TechnologyButton.unlocked > #Cost > PercentProgressBar {
+    background-color: var(--color-background-tech-bar-unlocked);
+}
+
+TechnologyButton.unlocked > #Cost > .id-button {
     display: none;
 }
 
 TechnologyButton > .id-button {
+    position: absolute;
+    left: 0;
+    top: 0;
     width: 64px;
     height: 64px;
+    background-color: transparent;
+}
+
+TechnologyButton > .id-button > #Frame {
+    display: none;
 }
 
 TechnologyButton > #Cost {
     flex-direction: row;
+    justify-content: flex-end;
+    padding: 0 8px;
+    height: 32px;
+    margin: 1px;
 }
 
 TechnologyButton > #Cost > .id-button {
     width: 32px;
     height: 32px;
+    background-color: transparent;
+    flex-shrink: 0;
 }
 
-TechnologyButton > #Cost > .id-button > PercentProgressBar {
-    width: 32px;
-    height: 8px;
+TechnologyButton > #Cost > .id-button > #Frame {
+    display: none;
+}
+
+TechnologyButton > #Cost > .id-button > Label {
+    -unity-text-align: middle-center;
+    font-size: 12px;
+}
+
+TechnologyButton > #Cost > Label {
+    -unity-text-align: middle-left;
+    padding: 0;
+    flex-grow: 1;
+    flex-shrink: 1;
+}
+
+TechnologyButton > #Cost > PercentProgressBar > #Progress {
+    background-color: var(--color-background-tech-bar-working);
+}
+
+TechnologyButton.unlocked > #Cost > PercentProgressBar > #Progress {
+    display: none;
+}
+
+TechnologyButton > #Cost > PercentProgressBar {
+    height: 100%;
+    width: 100%;
+    left: 0;
+    top: 0;
     position: absolute;
-    bottom: -8px;
+    border-width: 0;
+    background-color: var(--color-background-tech-bar-default);
+}
+
+Label {
+    padding: 5px;
+    margin: 0;
+}
+
+TechnologyButton > #Unlocks {
+    flex-direction: row;
+    height: 64px;
+    margin-left: 64px;
+    flex-wrap: wrap;
+}
+
+TechnologyButton > #Unlocks > .id-button {
+    width: 32px;
+    height: 32px;
 }
 
 .research-tree-edge {

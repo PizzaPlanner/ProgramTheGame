@@ -58,8 +58,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3f36d9199879466ba2cfdeb3553a3dd1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Prequisites: []
+  Prequisites:
+  - {fileID: -5380242976130347905, guid: 796967fc4fa4f8b49a0e00f6f4b083cb, type: 3}
   Unlocks: []
+  Cost: []
 --- !u!114 &5657100428946741286
 MonoBehaviour:
   m_ObjectHideFlags: 0

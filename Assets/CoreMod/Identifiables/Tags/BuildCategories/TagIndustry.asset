@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 536a6b6523554bf08329d3ac9c455b61, type: 3}
-  m_Name: TagFabrication
+  m_Name: TagIndustry
   m_EditorClassIdentifier: Identifiables.Authoring::TagAsset
   Icon: {fileID: 2800000, guid: f153556cf40580e48a0bf7023615d9dd, type: 3}
   Tags:
