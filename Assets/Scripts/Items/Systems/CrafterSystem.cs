@@ -76,7 +76,16 @@ partial struct CrafterSystem : ISystem
                     for (var i = 0; i < recipe.Outputs.Length; i++)
                     {
                         var result = recipe.Outputs[i];
-                        transaction.AddTo(task.Origin, result.ItemId, result.Amount);
+                        if(result.Location == IngredientLocation.Inventory)
+                            transaction.AddTo(task.Origin, result.ItemId, result.Amount);
+                        else if(ElementDef.Id.Has(result.ItemId))
+                        {
+                            ref var massModel = ref SystemAPI.GetComponentRW<MassModel>(task.CrewProvider).ValueRW;
+                            var crafterBaked = SystemAPI.GetComponent<BakedIntoRoomMap>(task.Origin);
+                            var outCell = crafterBaked.Area.Min;
+                            massModel.AbsoluteCellRW(outCell).Add(result.ItemId, result.Amount, 0);
+                        }
+                        else Debug.LogError($"Invalid output location {result.Location} for {result.ItemId}");
                     }
                     if (craftTask.ValueRW.Mode == CraftMode.Times)
                     {

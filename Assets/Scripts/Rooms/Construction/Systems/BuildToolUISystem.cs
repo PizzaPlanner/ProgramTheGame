@@ -35,14 +35,12 @@ partial class BuildToolUISystem : MapOverlaySystem<BuildTool>
     NewBuildingUI Window => _window as NewBuildingUI; 
     byte LastRotation;
     
-    EntityQuery newGhostQuery, newGhostChangedQuery;
+    EntityQuery newGhostQuery;
 
     protected override void OnCreate()
     {
         base.OnCreate();
         newGhostQuery = SystemAPI.QueryBuilder().WithAll<CurrentGhost, Building>().Build();
-        newGhostChangedQuery = SystemAPI.QueryBuilder().WithAll<CurrentGhost>().Build();
-        newGhostChangedQuery.AddChangedVersionFilter(typeof(CurrentGhost));
     }
 
     protected override void OnStartRunning()
@@ -63,8 +61,9 @@ partial class BuildToolUISystem : MapOverlaySystem<BuildTool>
 
     void ClearPreview(EntityCommandBuffer ecb)
     {
-        var entities = GetEntityQuery(typeof(CurrentGhost)).ToEntityArray(Allocator.Temp);
-        foreach(var e in entities)
+        wantBuild = false;
+        previewChanged = true;
+        foreach(var e in newGhostQuery.ToEntityArray(Allocator.Temp))
             ecb.DestroyEntity(e);
     }
 
@@ -72,10 +71,11 @@ partial class BuildToolUISystem : MapOverlaySystem<BuildTool>
     Identifiable GhostPrefab;
     Identifiable GhostMaterial;
     bool wantBuild;
+    bool previewChanged;
     protected override void OnUpdate()
     {
         base.OnUpdate();
-        var ecb = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>()
+        var ecb = SystemAPI.GetSingleton<EndInitializationEntityCommandBufferSystem.Singleton>()
                            .CreateCommandBuffer(World.Unmanaged);
         if (!SystemAPI.TryGetSingleton<CurrentGrid>(out var cgrid) || !SystemAPI.HasComponent<LocalToWorld>(cgrid.Grid))
         {
@@ -86,9 +86,9 @@ partial class BuildToolUISystem : MapOverlaySystem<BuildTool>
         var gridLtw = SystemAPI.GetComponent<LocalToWorld>(parent);
         var pointerOverUI = InputActionsSystem.IsPointerOverUI;
         var pointedCell = CGrid.CursorToCell(gridLtw);
-        if (!newGhostQuery.IsEmptyIgnoreFilter && !pointerOverUI)
+        if (!newGhostQuery.IsEmptyIgnoreFilter)
         {
-            if (BuildTool.PlaceBuilding.WasPressedThisFrame())
+            if (BuildTool.PlaceBuilding.WasPressedThisFrame() && !pointerOverUI)
             {
                 DragArea.Max = DragArea.Min = pointedCell;
                 wantBuild = true;
@@ -117,54 +117,74 @@ partial class BuildToolUISystem : MapOverlaySystem<BuildTool>
             }
             else
             {
-
                 if (!BuildTool.PlaceBuilding.inProgress)
-                    DragArea.Min = pointedCell;
-                
-                if (math.any(pointedCell != DragArea.Max) || BuildTool.Rotate.WasPressedThisFrame())
                 {
-                    if(BuildTool.Rotate.WasPressedThisFrame())
-                        LastRotation = (byte)((LastRotation + 1) % 4);
+                    DragArea.Min = pointedCell;
+                    wantBuild = false;
+                }
+                
+                if (!wantBuild && BuildTool.Rotate.WasPressedThisFrame() && GhostPrefab.BuildingDef().IsRotatable)
+                {
+                    LastRotation = (byte)((LastRotation + 1) % 4);
+                    ClearPreview(ecb);
+                    PlacePreview(pointedCell, ecb);
+                }
+                else if (math.any(pointedCell != DragArea.Max))
+                {
                     DragArea.Max = pointedCell;
                     var delta = new GridBounds
                     {
                         Min = math.min(DragArea.Min, DragArea.Max),
                         Max = math.max(DragArea.Min, DragArea.Max),
                     };
-                    ClearPreview(ecb);
-                    var dragType = GhostPrefab.BuildingDef().DraggableDimension;
-                    if(dragType == PlacementType.Single)
-                        PlacePreview(DragArea.Max, ecb);
-                    else if(dragType == PlacementType.Rectangle)
-                        for(int x = delta.Min.x; x <= delta.Max.x; x++)
-                        for(int y = delta.Min.y; y <= delta.Max.y; y++)
-                            PlacePreview(new int2(x,y), ecb);
-                    else if (dragType == PlacementType.RectangleBorder)
+                    if (wantBuild)
                     {
-                        for (int x = delta.Min.x; x <= delta.Max.x; x++)
+                        var dragType = GhostPrefab.BuildingDef().DraggableDimension;
+                        if (dragType == PlacementType.Single)
+                        { }
+                        else if (dragType == PlacementType.Rectangle)
                         {
-                            PlacePreview(new int2(x,delta.Min.y), ecb);
-                            if(delta.Max.y != delta.Min.y)
-                                PlacePreview(new int2(x,delta.Max.y), ecb);
-                        }
-
-                        for (int y = delta.Min.y + 1; y <= delta.Max.y - 1; y++)
-                        {
-                            PlacePreview(new int2(delta.Min.x,y), ecb);
-                            if(delta.Max.x != delta.Min.x)
-                                PlacePreview(new int2(delta.Max.x,y), ecb);
-                        }
-                    }
-                    else // Line
-                    {
-                        var isXLonger = delta.Max.x - delta.Min.x > delta.Max.y - delta.Min.y;
-                        if(isXLonger)
+                            ClearPreview(ecb);
                             for (int x = delta.Min.x; x <= delta.Max.x; x++)
-                                PlacePreview(new int2(x,delta.Min.y), ecb);
-                        else
                             for (int y = delta.Min.y; y <= delta.Max.y; y++)
+                                PlacePreview(new int2(x, y), ecb);
+                        }
+                        else if (dragType == PlacementType.RectangleBorder)
+                        {
+                            ClearPreview(ecb);
+                            for (int x = delta.Min.x; x <= delta.Max.x; x++)
+                            {
+                                PlacePreview(new int2(x, delta.Min.y), ecb);
+                                if (delta.Max.y != delta.Min.y)
+                                    PlacePreview(new int2(x, delta.Max.y), ecb);
+                            }
+
+                            for (int y = delta.Min.y + 1; y <= delta.Max.y - 1; y++)
+                            {
                                 PlacePreview(new int2(delta.Min.x, y), ecb);
+                                if (delta.Max.x != delta.Min.x)
+                                    PlacePreview(new int2(delta.Max.x, y), ecb);
+                            }
+                        }
+                        else // Line
+                        {
+                            ClearPreview(ecb);
+                            var isXLonger = delta.Max.x - delta.Min.x > delta.Max.y - delta.Min.y;
+                            if (isXLonger)
+                                for (int x = delta.Min.x; x <= delta.Max.x; x++)
+                                    PlacePreview(new int2(x, delta.Min.y), ecb);
+                            else
+                                for (int y = delta.Min.y; y <= delta.Max.y; y++)
+                                    PlacePreview(new int2(delta.Min.x, y), ecb);
+                        }
+                        wantBuild = true;
                     }
+                    else
+                    {
+                        ClearPreview(ecb);
+                        PlacePreview(DragArea.Max, ecb);
+                    }
+
                 }
             }
         }
@@ -197,7 +217,9 @@ partial class BuildToolUISystem : MapOverlaySystem<BuildTool>
     
     protected override bool ShouldUpdateTexture()
     {
-        return !newGhostChangedQuery.IsEmpty;
+        var changed = previewChanged;
+        previewChanged = false;
+        return changed;
     }
 
     void PlacePreview(int2 cell, EntityCommandBuffer ecb)
@@ -225,6 +247,6 @@ partial class BuildToolUISystem : MapOverlaySystem<BuildTool>
             Materials = mats,
             Rotation = LastRotation
         });
-        wantBuild = false;
+        previewChanged = true;
     }
 }

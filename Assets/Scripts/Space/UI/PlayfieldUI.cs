@@ -20,8 +20,8 @@ public partial class PlayfieldUI : VisualElement, IComponentData, IDisposable
         Add(header = new VisualElement(){name = "Header"});
         header.Add(icon);
         header.Add(new Label("Field"));
-        header.Add(new Button(OnChangeCurrent));
-        header.Add(new Button(OnSaveBlueprint));
+        header.Add(new Button(OnChangeCurrent){ name = "Watch"});
+        header.Add(new Button(OnSaveBlueprint){ name = "Save" });
         
         icon.RegisterCallback<MouseDownEvent>(_ =>
         {

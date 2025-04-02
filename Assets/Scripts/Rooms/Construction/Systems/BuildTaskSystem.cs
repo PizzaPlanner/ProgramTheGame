@@ -36,7 +36,8 @@ namespace Units
                         Parent = baked.Grid,
                         Prefab = id,
                         Mode = ConstructionMode.Complete,
-                        Materials = materials
+                        Materials = materials,
+                        Rotation = baked.Rotation
                     });
                 }
             }

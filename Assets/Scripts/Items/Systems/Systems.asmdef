@@ -16,7 +16,8 @@
         "Construction",
         "Tasks",
         "Tasks.Systems",
-        "Navigation"
+        "Navigation",
+        "Elements"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

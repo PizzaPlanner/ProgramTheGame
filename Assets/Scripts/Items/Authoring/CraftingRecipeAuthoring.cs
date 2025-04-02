@@ -13,9 +13,18 @@ public class CraftingRecipeAuthoring : MonoBehaviour
         public ushort Amount;
     }
     
+    [System.Serializable]
+    public struct ItemOutput 
+    {
+        public ItemAuthoring Prefab;
+        [Range(1, 9999)]
+        public ushort Amount;
+        public IngredientLocation Location;
+    }
+    
     public uint Duration;
     public ItemWithAmount[] Input;
-    public ItemWithAmount[] Output;
+    public ItemOutput[] Output;
     
     public CrafterAuthoring[] CraftedIn;
 
@@ -46,7 +55,7 @@ public class CraftingRecipeAuthoring : MonoBehaviour
                 {
                     Amount = authoring.Output[i].Amount,
                     ItemId = authoring.Output[i].Prefab.GetComponent<ItemAuthoring>().Id,
-                    Location = IngredientLocation.Inventory
+                    Location = authoring.Output[i].Location
                 };
             var blob = blobBUilder.CreateBlobAssetReference<RecipeDef>(Allocator.Persistent);
             
