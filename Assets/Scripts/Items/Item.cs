@@ -35,14 +35,11 @@ public partial struct ItemDef : IDef
                               .WithAll<Prefab>()
                               .WithOptions(EntityQueryOptions.IncludePrefab))
             {
-                var handledIds = new NativeList<Identifiable>(Allocator.Temp);
+                var handledIds = new NativeHashSet<Identifiable>(4, Allocator.Temp);
                 foreach (var item in starterInventory)
                 {
-                    if(handledIds.Contains(id))
-                        continue;
-                
-                    AddRelation(id, new IdentifiableLink{To = item.Type, Relation = "StartsWith"});
-                    handledIds.Add(id);
+                    if(handledIds.Add(id))
+                        AddRelation(id, new IdentifiableLink{To = item.Type, Relation = "StartsWith"});
                 }
             }
         }

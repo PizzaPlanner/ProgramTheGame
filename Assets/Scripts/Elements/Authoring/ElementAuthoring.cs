@@ -1,13 +1,16 @@
-﻿using System;
+﻿using Identifiables;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using Unity.Mathematics;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
+using Hash128 = Unity.Entities.Hash128;
 
 [CustomPropertyDrawer(typeof(StateChangeDataAuthoring))]
 public class StateChangeAuthoringEditor : PropertyDrawer
@@ -123,16 +126,26 @@ public class ElementAuthoring : MonoBehaviour
     public MassData ToMassData(Mass mass, Temperature temperature) => new MassData
     {
         ElementType = GetComponent<IdentifieableAuthoring>().Id,
-        ElementData = ToElement(Allocator.Temp).Def.Value.AsCompact,
+        ElementData = AsCompact,
         Mass = mass,
-        Temperature = temperature
+        Temperature = temperature // Must be assigned after ElementData and Mass 
     };
-
-    public Element ToElement(Allocator allocator)
+    
+    public ElementDef.Compact AsCompact
     {
-            var tags = GetComponent<IdentifieableAuthoring>().Tags;
+        get
+        {
+            var tempRange = new half2(new half(0), new half(half.MaxValue));
+            for (int i = 0; i < StateChanges.Length; i++)
+            {
+                var stateChange = StateChanges[i];
+                if (stateChange.Below && stateChange.Temperature > tempRange.x)
+                    tempRange.x = (half)stateChange.Temperature;
+                if (!stateChange.Below && stateChange.Temperature < tempRange.y)
+                    tempRange.y = (half)stateChange.Temperature;
+            }
             var phase = ElementPhase.None;
-            foreach (var tag in tags)
+            foreach (var tag in GetComponent<IdentifieableAuthoring>().Tags)
             {
                 phase = tag.name switch
                 {
@@ -142,44 +155,52 @@ public class ElementAuthoring : MonoBehaviour
                     _ => phase
                 };
             }
-            if(phase == ElementPhase.None)
-                throw new InvalidDataException($"Element {gameObject.name} has no phase tag assigned. Must be either TagSolid, TagLiquid, or TagGas.");
-            
-            var blobBuilder = new BlobBuilder(Allocator.Temp);
-            ref var blob = ref blobBuilder.ConstructRoot<ElementDef>();
-            var arrayBuilder = blobBuilder.Allocate(ref blob.Reactions, StateChanges.Length);
-            for (int i = 0; i < arrayBuilder.Length; i++)
+
+            return new ElementDef.Compact
             {
-                arrayBuilder[i] = new StateChange
+                ThermalConductivity = new half(ThermalConductivity),
+                SpecificHeatCapacity = new half(SpecificHeatCapacity),
+                StableTemperatureRangeKelvin = tempRange,
+                PressureFromPhase = phase switch
                 {
-                    To = StateChanges[i].ToElement.GetComponent<IdentifieableAuthoring>().Id,
-                    At = StateChanges[i].Temperature + 273.15f,
-                    With = StateChanges[i].Catalyst != null 
-                        ? StateChanges[i].Catalyst.GetComponent<IdentifieableAuthoring>().Id : default,
-                    CheckBelow = StateChanges[i].Below,
-                    SelfPerOne = (byte)math.max(1, StateChanges[i].SelfMolesPerResultMole),
-                    WithPerOne = (byte)math.max(1, StateChanges[i].CatalystMolesPerResultMole),
-                    ReactionEnergy = StateChanges[i].ReactionEnergy
-                };
-            }
-            blob.ThermalConductivity = ThermalConductivity;
-            blob.SpecificHeatCapacity = SpecificHeatCapacity;
-            blob.Phase = phase;
-            var blobAsset = blobBuilder.CreateBlobAssetReference<ElementDef>(allocator);
-            return new Element
-            {
-                Data = blobAsset
+                    ElementPhase.Gas => 100,
+                    ElementPhase.Liquid => 10,
+                    ElementPhase.Solid => 1,
+                    _ => throw new InvalidDataException($"Element {gameObject.name} has no phase tag assigned. Must be either TagSolid, TagLiquid, or TagGas.")
+                }
             };
+        }
     }
     
-    class EBaker : Baker<ElementAuthoring>
+    class EBaker : IdTypeBaker<ElementAuthoring>
     {
         public override void Bake(ElementAuthoring authoring)
         {
             var e = GetEntity(TransformUsageFlags.None);
-            var elm = authoring.ToElement(Allocator.Persistent);
-            AddComponent(e, elm);
-            AddBlobAsset(ref elm.Data, out _);
+            if (!TryGetBlobDef<Element, ElementDef>(out var blob, out var blobHash))
+            {
+                var builder = new BlobBuilder(Allocator.Temp);
+                ref var def = ref builder.ConstructRoot<ElementDef>();
+                var arrayBuilder = builder.Allocate(ref def.Reactions, authoring.StateChanges.Length);
+                for (int i = 0; i < arrayBuilder.Length; i++)
+                {
+                    arrayBuilder[i] = new StateChange
+                    {
+                        To = authoring.StateChanges[i].ToElement.GetComponent<IdentifieableAuthoring>().Id,
+                        At = authoring.StateChanges[i].Temperature + 273.15f,
+                        With = authoring.StateChanges[i].Catalyst != null 
+                            ? authoring.StateChanges[i].Catalyst.GetComponent<IdentifieableAuthoring>().Id : default,
+                        CheckBelow = authoring.StateChanges[i].Below,
+                        SelfPerOne = (byte)math.max(1, authoring.StateChanges[i].SelfMolesPerResultMole),
+                        WithPerOne = (byte)math.max(1, authoring.StateChanges[i].CatalystMolesPerResultMole),
+                        ReactionEnergy = authoring.StateChanges[i].ReactionEnergy
+                    };
+                }
+                def.CompactData = authoring.AsCompact; 
+                blob = builder.CreateBlobAssetReference<ElementDef>(Allocator.Persistent);
+                AddBlobAssetWithCustomHash(ref blob, blobHash);
+            }
+            AddComponent(e, new Element { Data = blob });
         }
     }
 }

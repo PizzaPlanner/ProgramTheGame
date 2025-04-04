@@ -12,17 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 13982, guid: 0000000000000000e000000000000000, type: 0}
   m_Name: IdSearchView
   m_EditorClassIdentifier: 
-  text: t:IdentifiableAsset -t:IdentifieableAuthoring
+  text: 'adb: t:IdentifiableAsset'
   description: 
   viewState:
     providerIds:
-    - asset
-    - scene
-    - menu
-    - settings
-    searchFlags: -1665138424
-    searchText: t:IdentifiableAsset -t:IdentifieableAuthoring
-    forceViewMode: 1
+    - adb
+    searchFlags: -1732247544
+    searchText: 'adb: t:IdentifiableAsset'
+    forceViewMode: 0
     m_SelectHandler:
       stream: 
     m_TrackingHandler:
@@ -33,7 +30,7 @@ MonoBehaviour:
       stream: 
     m_ActiveQueryGuid: a1a8649af4a23b94b88f6b8064e6de79
     hideTabs: 0
-    sessionId: 7b7d39ffb1114f88be47ff70d1cace8f
+    sessionId: 5975c6820c81494e94daeb08c62fe8ba
     sessionName: 
     excludeClearItem: 0
     tableConfig:
@@ -65,7 +62,7 @@ MonoBehaviour:
       - path: Name
         provider: Default
         selector: Name
-        width: 175
+        width: 145
         options: 3178498
         content:
           m_Text: Name
@@ -84,46 +81,24 @@ MonoBehaviour:
           stream: 
         m_Comparer:
           stream: 
-      - path: IdentifieableAuthoring/ItemId
-        provider: Default
-        selector: '#ItemId'
-        width: 97
-        options: 3178496
-        content:
-          m_Text: ID
-          m_Image: {fileID: 0}
-          m_Tooltip: 
-          m_TextWithWhitespace: "ID\u200B"
-        m_Getter:
-          stream: AAEAAAD/////AQAAAAAAAAAEAQAAAC9TeXN0ZW0uUmVmbGVjdGlvbi5NZW1iZXJJbmZvU2VyaWFsaXphdGlvbkhvbGRlcgcAAAAETmFtZQxBc3NlbWJseU5hbWUJQ2xhc3NOYW1lCVNpZ25hdHVyZQpTaWduYXR1cmUyCk1lbWJlclR5cGUQR2VuZXJpY0FyZ3VtZW50cwEBAQEBAAMIDVN5c3RlbS5UeXBlW10GAgAAAA1EZWZhdWx0U2VsZWN0BgMAAABUVW5pdHlFZGl0b3IuUXVpY2tTZWFyY2hNb2R1bGUsIFZlcnNpb249MC4wLjAuMCwgQ3VsdHVyZT1uZXV0cmFsLCBQdWJsaWNLZXlUb2tlbj1udWxsBgQAAAAfVW5pdHlFZGl0b3IuU2VhcmNoLlNlYXJjaENvbHVtbgYFAAAARVN5c3RlbS5PYmplY3QgRGVmYXVsdFNlbGVjdChVbml0eUVkaXRvci5TZWFyY2guU2VhcmNoQ29sdW1uRXZlbnRBcmdzKQYGAAAARVN5c3RlbS5PYmplY3QgRGVmYXVsdFNlbGVjdChVbml0eUVkaXRvci5TZWFyY2guU2VhcmNoQ29sdW1uRXZlbnRBcmdzKQgAAAAKCw==
-        m_Setter:
-          stream: 
-        m_Drawer:
-          stream: 
-        m_CellCreator:
-          stream: 
-        m_Binder:
-          stream: 
-        m_Comparer:
-          stream: 
-    ignoreSaveSearches: 0
+    ignoreSaveSearches: 1
     hideAllGroup: 0
     windowTitle:
       m_Text: 
       m_Image: {fileID: 0}
       m_Tooltip: 
       m_TextWithWhitespace: 
-    title: item
+    title: asset database
     itemSize: 129
     position:
       serializedVersion: 2
-      x: 101
-      y: 179
-      width: 1136
-      height: 708
-    flags: 301056
-    group: all
+      x: 0
+      y: 0
+      width: 0
+      height: 0
+    flags: 6144
+    group: adb
     queryBuilderEnabled: 1
     m_ContextUseExplicitProvidersAsNormalProviders: 0
-  icon: {fileID: 0}
+  icon: {fileID: 2580859953510165701, guid: 0000000000000000d000000000000000, type: 0}
   m_IsSearchTemplate: 0

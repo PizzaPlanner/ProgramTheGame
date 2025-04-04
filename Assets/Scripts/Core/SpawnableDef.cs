@@ -30,7 +30,9 @@ namespace Identifiables
                 {
                     if(data.Def.Value.HasTag(spawnableTag))
                         UpdateData(id, BlobAssetReference<SpawnableDef>.Create(new SpawnableDef{ Spawnable = e }));   
-                } 
+                }
+                
+                DeclareRuntimeBlobs = () => DefaultWorldIdMap.Data.GetKeyArray(Allocator.Temp);
             }
         }
     }

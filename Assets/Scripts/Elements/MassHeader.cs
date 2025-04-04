@@ -40,7 +40,7 @@ public struct MassData : IComponentData, IMatterComposition
         {
             Energy = energy,
             Mass = mass,
-            ElementData = type.ElementDef().AsCompact,
+            ElementData = type.ElementDef().CompactData,
             ElementType = type,
         };
     }
@@ -51,7 +51,7 @@ public struct MassData : IComponentData, IMatterComposition
         {
             Energy = (ulong)(t * mass * type.ElementDef().SpecificHeatCapacity),
             Mass = mass,
-            ElementData = type.ElementDef().AsCompact,
+            ElementData = type.ElementDef().CompactData,
             ElementType = type,
         };
     }

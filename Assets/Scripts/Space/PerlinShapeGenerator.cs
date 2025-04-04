@@ -240,8 +240,7 @@ public struct NodeSerializer : IComponentData
 
 public interface IMapGenerationNode : IComponentData
 {
-    // Needs to be implemented on each IMapGenerationNode implementation, including the [BurstCompile]
-    [BurstCompile]
+    // Needs to be implemented on each IMapGenerationNode implementation, and annotated with [BurstCompile]
     public static bool ExecuteFrom(in NodeSerializer ns, ref MapGenerationContext ctx, ref Random random) { return false; }
 }
 

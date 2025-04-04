@@ -57,6 +57,7 @@ namespace DefSourceGenerator
             return $@"
 using Identifiables;
 using System;
+using System.Collections.Generic;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
@@ -76,6 +77,8 @@ public partial struct {className}
         internal static bool TryGetDef(Identifiable id, out BlobAssetReference<{className}> value) => DefaultWorldIdMap.Data.TryGetValue(id, out value);
         internal static NativeArray<Identifiable> GetAllDefs() => DefaultWorldIdMap.Data.GetKeyArray(Allocator.Temp);
 
+        Func<IEnumerable<Identifiable>> DeclareRuntimeBlobs; 
+
         protected override void OnStartRunning()
         {{
             UnityEngine.Assertions.Assert.IsFalse(DefaultWorldIdMap.Data.IsCreated, ""Multi-world currently not supported"");
@@ -85,9 +88,14 @@ public partial struct {className}
 
         protected override void OnDestroy()
         {{
-            // The referenced blob assets are owned by the mods and will not be disposed here
+            // The referenced blob assets created through baking are owned by the subscenes and will not be disposed here
             if(DefaultWorldIdMap.Data.IsCreated)
+            {{
+                if(DeclareRuntimeBlobs != null)
+                    foreach(var id in DeclareRuntimeBlobs())
+                        DefaultWorldIdMap.Data[id].Dispose();
                 DefaultWorldIdMap.Data.Dispose();
+            }}
             UnityEngine.Assertions.Assert.IsFalse(DefaultWorldIdMap.Data.IsCreated);
         }}
         

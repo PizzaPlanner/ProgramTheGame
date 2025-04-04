@@ -49,6 +49,7 @@ public partial struct TagDef : IDef
                 var blob = builder.CreateBlobAssetReference<TagDef>(Allocator.Persistent);
                 DefaultWorldIdMap.Data.Add(id, blob);
             }
+            DeclareRuntimeBlobs = () => DefaultWorldIdMap.Data.GetKeyArray(Allocator.Temp); 
         }
     }
 }

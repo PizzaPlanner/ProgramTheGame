@@ -26,29 +26,35 @@ public class BuildingAuthoring : MonoBehaviour
     public CraftingRecipeAuthoring.ItemWithAmount[] OtherMaterials;
     public TaskAuthoring DismantleTask;
     
-    class BuildingBaker : Baker<BuildingAuthoring>
+    class BuildingBaker : IdTypeBaker<BuildingAuthoring>
     {
         public override void Bake(BuildingAuthoring authoring)
         {
             var self = GetEntity(TransformUsageFlags.Renderable);
-            var blob = BlobAssetReference<BuildingDef>.Create(new BuildingDef
+            if (!TryGetBlobDef<Building, BuildingDef>(out var blob, out var hash))
             {
-                DismantleTaskPrefab = authoring.DismantleTask == null ? default : authoring.DismantleTask.GetComponent<IdentifieableAuthoring>().Id,
-                Layer = authoring.Layer,
-                DraggableDimension = authoring.PlacementType,
-                Duration = authoring.Duration,
-                IsAllowedOnShips = !authoring.NotAllowedOnShips,
-                IsRotatable = authoring.CanBeRotated,
-                ExtentsURDL = authoring.ExtentsURDL,
-                InteractionOffset = authoring.InteractionOffset,
-            });
+                var builder = new BlobBuilder(Allocator.Temp);
+                ref var def = ref builder.ConstructRoot<BuildingDef>();
+                def = new BuildingDef
+                {
+                    DismantleTaskPrefab = authoring.DismantleTask == null
+                        ? default
+                        : authoring.DismantleTask.GetComponent<IdentifieableAuthoring>().Id,
+                    Layer = authoring.Layer,
+                    DraggableDimension = authoring.PlacementType,
+                    Duration = authoring.Duration,
+                    IsAllowedOnShips = !authoring.NotAllowedOnShips,
+                    IsRotatable = authoring.CanBeRotated,
+                    ExtentsURDL = authoring.ExtentsURDL,
+                    InteractionOffset = authoring.InteractionOffset,
+                };
+                blob = builder.CreateBlobAssetReference<BuildingDef>(Allocator.Persistent);
+                AddBlobAssetWithCustomHash(ref blob, hash);
+            }
             AddComponent(self, new Building
             {
                 Data = blob
             });
-            AddBlobAsset(ref blob, out _);
-            if(authoring.Layer.HasFlag(BuildingLayer.FloorLevel))
-                AddComponent<Floor>(self);
             if (authoring.Layer.HasFlag(BuildingLayer.Wall))
             {
                 AddComponent<Wall>(self);

@@ -44,6 +44,7 @@ namespace Identifiables
                     return;
                 var defaultBlob = BlobAssetReference<BaseDef>.Create(default(BaseDef));
                 DefaultWorldIdMap.Data.Add(default, defaultBlob);
+                DeclareRuntimeBlobs = () => new[] { default(Identifiable) };
             }
         }
         

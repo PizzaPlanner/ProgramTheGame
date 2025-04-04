@@ -15,7 +15,13 @@ partial struct InventorySystem : ISystem
         public int2 OnCell;
         public Entity OnGrid;
     }
-    
+
+    public void OnDestroy(ref SystemState state)
+    {
+        foreach(var inventory in SystemAPI.Query<Inventory>())
+            inventory.Dispose();
+    }
+
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
