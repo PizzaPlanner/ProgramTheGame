@@ -61,10 +61,11 @@ MonoBehaviour:
   Duration: 5
   Input:
   - Prefab: {fileID: 1924748682116714929, guid: 27ff976297851a84ba6709c9a02dbdbb, type: 3}
-    Amount: 1
+    Amount: 100
   Output:
   - Prefab: {fileID: 5324100623712876117, guid: 4abfd659e0fe64846bc2b5823d9d9764, type: 3}
-    Amount: 1
+    Amount: 100
+    Location: 0
   CraftedIn:
   - {fileID: 391204783856717328, guid: 04a4ef4173b220343956ce5a48368642, type: 3}
 --- !u!114 &-6577733386270243433

@@ -61,9 +61,8 @@ partial struct ResearchJob : IJobEntity
 {
     static readonly Identifiable ItemOrderTask = Identifiable.FromName("ItemOrderTask"); 
     public NativeReference<Technology> openTech;
-    [ReadOnly] public BufferLookup<Inventory> inventoryLookup;
+    public ComponentLookup<Inventory> inventoryLookup;
     [ReadOnly] public ComponentLookup<LogisticsNetwork> logisticsNetworkLookup;
-    public TransactionStore transactionStore;
     public EntityCommandBuffer ecb;
     unsafe void Execute(Entity e, ref Task task, ref ResearchTask rTask, ref TaskProgress progress, 
                  DynamicBuffer<TaskProvider> deps, EnabledRefRW<WorkedOn> workedOn)
@@ -86,16 +85,17 @@ partial struct ResearchJob : IJobEntity
                     rTask.State = ResearchState.ResearchMismatch;
                     return;
                 }
-                if (!inventoryLookup.TryGetBuffer(task.Origin, out var inventory))
+                if (!inventoryLookup.TryGetComponent(task.Origin, out var inventory))
                     return;
-                if (inventory.Contains(rTask.Ingredient, 1))
+                if (inventory.Has(rTask.Ingredient) > 0)
                 {
                     rTask.State = ResearchState.Work;
                     return;
                 }
                 if (!logisticsNetworkLookup.TryGetComponent(task.CrewProvider, out var network))
                     return;
-                if (!network.HasItems.TryGetValue(rTask.Ingredient, out var amt) || amt == 0)
+                var hasIngredient = network.CountAvailable(rTask.Ingredient);
+                if (hasIngredient == 0)
                     return;
                 rTask.State = ResearchState.OrderIngredients;
                 var order = Task.Schedule(ItemOrderTask, ecb, new Task
@@ -107,7 +107,7 @@ partial struct ResearchJob : IJobEntity
                 {
                     Requester = task.Origin,
                     Item = rTask.Ingredient,
-                    Amount = (ushort)math.clamp(amt, 1, 5)
+                    Amount = (ushort)math.clamp(hasIngredient, 1, 5)
                 });
                 break;
             case ResearchState.OrderIngredients:
@@ -124,15 +124,15 @@ partial struct ResearchJob : IJobEntity
                     return;
                 progress.PartialTicks = 0;
                 // Can we still progress?
-                if (!inventoryLookup.TryGetBuffer(task.Origin, out var inv)
-                    || !inv.Contains(rTask.Ingredient, 1)
+                if (!inventoryLookup.TryGetComponent(task.Origin, out var inv)
+                    || inv.Has(rTask.Ingredient) == 0
                     || !tech.AddProgress(rTask.Ingredient))
                     rTask.State = ResearchState.NoIngredients;
                 else
                 {
                     // Should we repeat or start over?
-                    transactionStore.CreateBuilder.RemoveFrom(task.Origin, rTask.Ingredient, 1);
-                    if (!inv.Contains(rTask.Ingredient, 2)
+                    inv.Remove(rTask.Ingredient, 1);
+                    if (inv.Has(rTask.Ingredient) == 0
                         || tech.GetProgress(rTask.Ingredient) >= 1)
                         rTask.State = ResearchState.NoIngredients;
                 }
@@ -167,8 +167,7 @@ partial struct ResearchBenchSystem : ISystem
         {
             openTech = techRef ,
             ecb = ecb,
-            inventoryLookup = SystemAPI.GetBufferLookup<Inventory>(true),
-            transactionStore = SystemAPI.GetSingletonRW<TransactionStore>().ValueRW,
+            inventoryLookup = SystemAPI.GetComponentLookup<Inventory>(),
             logisticsNetworkLookup = SystemAPI.GetComponentLookup<LogisticsNetwork>(true)
         };
         rjob.Run();

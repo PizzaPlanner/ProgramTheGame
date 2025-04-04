@@ -14,7 +14,8 @@ public enum OrderState
 
 public struct ItemOrderTask : IComponentData
 {
-    public int TransactionId;
+    public PlannedTransaction Request;
+    public PlannedTransaction Delivery;
     public ItemDef.Id Item;
     public ushort Amount;
     public OrderState State;

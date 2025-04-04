@@ -34,4 +34,14 @@ public class ItemButton : IdentifiableButton
         Add(label);
         Add(stack);
     }
+
+    public ItemBatch Value
+    {
+        set
+        {
+            IsEmpty = value.Stack == 0;
+            Target = value.Id;
+            Info = value.Stack > 0 ? value.Stack.ToString() : "";
+        }
+    }
 }

@@ -20,6 +20,8 @@ public struct Item : IDefRef<ItemDef>
 public partial struct ItemDef : IDef
 {
     public uint MaxStack;
+    public uint MaxValue;
+    public uint DefaultValue;
     public bool IsStackable => MaxStack > 1;
 
     partial class MappingSystem : IdentifiableMappingSystem
@@ -29,7 +31,7 @@ public partial struct ItemDef : IDef
             DefaultMappingUpdate<Item>();
             
             foreach (var (id, starterInventory) in 
-                     SystemAPI.Query<Identifiable, DynamicBuffer<StarterInventory>>()
+                     SystemAPI.Query<Identifiable, DynamicBuffer<InventoryInitializer>>()
                               .WithAll<Prefab>()
                               .WithOptions(EntityQueryOptions.IncludePrefab))
             {

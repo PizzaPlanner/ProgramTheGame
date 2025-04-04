@@ -14,9 +14,7 @@ partial struct CrafterSystem : ISystem
     {
         var ecb = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>()
                            .CreateCommandBuffer(state.WorldUnmanaged);
-        var store = SystemAPI.GetSingletonRW<TransactionStore>();
-        var logisticsLookup = SystemAPI.GetComponentLookup<LogisticsNetwork>(true);
-        var inventoryLookup = SystemAPI.GetBufferLookup<Inventory>(true);
+        var inventoryLookup = SystemAPI.GetComponentLookup<Inventory>();
         state.Dependency.Complete();
         foreach (var (task, progress, craftTask, workedOn, e) in 
                  SystemAPI.Query<Task, RefRW<TaskProgress>, RefRW<CraftRecipeTask>, EnabledRefRW<WorkedOn>>().WithEntityAccess())
@@ -31,7 +29,7 @@ partial struct CrafterSystem : ISystem
                 case CraftState.OrderItems:
                     progress.ValueRW.PartialTicks = 0;
                     workedOn.ValueRW = false;
-                    if (!inventoryLookup.TryGetBuffer(task.Origin, out var inventory))
+                    if (!inventoryLookup.TryGetComponent(task.Origin, out _))
                     {
                         Debug.LogWarning($"Origin of CraftTask missing Inventory");
                         ecb.DestroyEntity(e);
@@ -41,8 +39,9 @@ partial struct CrafterSystem : ISystem
                     for (var i = 0; i < recipe.Inputs.Length; i++)
                     {
                         var requirement = recipe.Inputs[i];
-                        if (inventory.Contains(requirement.ItemId, requirement.Amount))
-                            continue;
+                        
+                        // if (inventory.ValueRW.Has(requirement.ItemId) >= requirement.Amount)
+                        //     continue;
 
                         var order = Task.Schedule(orderTaskPrefab, ecb,
                             new Task
@@ -67,25 +66,27 @@ partial struct CrafterSystem : ISystem
                         craftTask.ValueRW.State = CraftState.Done;
                     break;
                 case CraftState.Done:
-                    var transaction = store.ValueRW.CreateBuilder;
-                    for (var i = 0; i < recipe.Inputs.Length; i++)
+                    if (!inventoryLookup.TryGetComponent(task.Origin, out _))
                     {
-                        var requirement = recipe.Inputs[i];
-                        transaction.RemoveFrom(task.Origin, requirement.ItemId, requirement.Amount);
+                        Debug.LogWarning($"Origin of CraftTask missing Inventory");
+                        ecb.DestroyEntity(e);
+                        continue;
                     }
+                    ref var crafterInventory = ref inventoryLookup.GetRefRW(task.Origin).ValueRW;
+                    for (var i = 0; i < recipe.Outputs.Length; i++)
+                        if(recipe.Outputs[i].Location == IngredientLocation.Inventory &&!
+                            crafterInventory.CanFit(recipe.Outputs[i].ItemId, recipe.Outputs[i].Amount))
+                            return;
+                    
+                    crafterInventory.RemoveWorkPayloads(e);
+                    
                     for (var i = 0; i < recipe.Outputs.Length; i++)
                     {
                         var result = recipe.Outputs[i];
                         if(result.Location == IngredientLocation.Inventory)
-                            transaction.AddTo(task.Origin, result.ItemId, result.Amount);
-                        else if(ElementDef.Id.Has(result.ItemId))
-                        {
-                            ref var massModel = ref SystemAPI.GetComponentRW<MassModel>(task.CrewProvider).ValueRW;
-                            var crafterBaked = SystemAPI.GetComponent<BakedIntoRoomMap>(task.Origin);
-                            var outCell = crafterBaked.Area.Min;
-                            massModel.AbsoluteCellRW(outCell).Add(result.ItemId, result.Amount, 0);
-                        }
-                        else Debug.LogError($"Invalid output location {result.Location} for {result.ItemId}");
+                            crafterInventory.Add(result.ItemId, result.Amount);
+                        else
+                            crafterInventory.AddWorkPayload(Entity.Null, new ItemBatch { Id = result.ItemId , Stack = result.Amount });
                     }
                     if (craftTask.ValueRW.Mode == CraftMode.Times)
                     {

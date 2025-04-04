@@ -79,50 +79,24 @@ Scroller > ScrollerSlider {
     border-color: var(--color-border-alt);
 }
 
-InventoryButton {
-    margin-top: 1px;
-    margin-right: 1px;
-    margin-bottom: 1px;
-    margin-left: 1px;
-    background-image: url("project://database/Assets/UI/InventoryButton-default.png?fileID=2800000&guid=df1b9ebfaeebe894e9734006c36c65ef&type=3#InventoryButton-default");
+InventoryElement > #Payload > ItemButton.id-button {
+    -unity-background-image-tint-color: rgb(177, 133, 255);
+}
+
+ItemButton.id-button {
+    margin: 1px;
+    background-image: url("project://database/Assets/UI/ItemButton-default.png?fileID=2800000&guid=df1b9ebfaeebe894e9734006c36c65ef&type=3#ItemButton-default");
     -unity-background-image-tint-color: rgb(134, 206, 255);
-    width: 48px;
-    height: 48px;
-    border-top-left-radius: 5px;
-    border-top-right-radius: 5px;
-    border-bottom-right-radius: 5px;
-    border-bottom-left-radius: 5px;
+    width: 36px;
+    height: 36px;
+    border-radius: 5px;
 }
 
-InventoryButton > #LockIcon {
-    display: none;
-    position: absolute;
-    top: 0;
-    width: 12px;
-    height: 12px;
-    right: 0;
-}
-
-InventoryButton.direction-none > #LockIcon {
-    display: flex;
-    background-image: url("project://database/Assets/UI/InventorySlotDirection-None.png?fileID=2800000&guid=e24c2d09723a798468e4a08ef0163acd&type=3#InventorySlotDirection-None");
-}
-
-InventoryButton.direction-in > #LockIcon {
-    display: flex;
-    background-image: url("project://database/Assets/UI/InventorySlotDirection-In.png?fileID=2800000&guid=31aba7efd08baa3418769f0498392ea1&type=3#InventorySlotDirection-In");
-}
-
-InventoryButton.direction-out > #LockIcon {
-    display: flex;
-    background-image: url("project://database/Assets/UI/InventorySlotDirection-Out.png?fileID=2800000&guid=42281561bb0f1e145b23934b955d8df9&type=3#InventorySlotDirection-Out");
-}
-
-InventoryButton.category-memory {
+ItemButton.category-memory {
     background-image: url("project://database/Assets/UI/InventoryButton-memory.png?fileID=2800000&guid=dc602a8877487314b99e2b4ce8dac5ca&type=3#InventoryButton-memory");
 }
 
-InventoryButton.category-chip {
+ItemButton.category-chip {
     background-image: url("project://database/Assets/UI/InventoryButton-chip.png?fileID=2800000&guid=923035db45bb15641a15563e3ad166cd&type=3#InventoryButton-chip");
 }
 
@@ -133,14 +107,8 @@ InventoryButton.category-chip {
 .item-button > Label {
     color: rgb(204, 204, 204);
     background-color: rgba(0, 0, 0, 0.31);
-    margin-top: 0;
-    margin-right: 0;
-    margin-bottom: 0;
-    margin-left: 0;
-    padding-top: 0;
-    padding-right: 2px;
-    padding-bottom: 0;
-    padding-left: 2px;
+    margin: 0;
+    padding: 0 2px;
     -unity-text-align: middle-center;
     font-size: 12px;
 }
@@ -159,11 +127,11 @@ InventoryButton.category-chip {
     position: absolute;
 }
 
-InventoryButton:hover {
+ItemButton:hover {
     -unity-background-image-tint-color: rgb(191, 229, 255);
 }
 
-InventoryButton.empty > #Icon {
+ItemButton.empty > #Icon {
     opacity: 0.3;
 }
 
@@ -232,9 +200,11 @@ InventoryElement > #Items {
     flex-wrap: wrap;
 }
 
-InventoryElement > #Items > InventoryButton {
-    width: 36px;
-    height: 36px;
+InventoryElement > #Payload {
+    flex-direction: row;
+    flex-grow: 1;
+    flex-shrink: 0;
+    flex-wrap: wrap;
 }
 
 InventoryElement > #Equipment {

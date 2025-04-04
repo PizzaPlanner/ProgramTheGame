@@ -173,7 +173,7 @@ namespace Grids
             for (int x = bounds.Min.x; x <= bounds.Max.x; x++)
             for (int y = bounds.Min.y; y <= bounds.Max.y; y++)
             {
-                if(IsOccupiedForBuilding(new int2(x, y), layer))
+                if (IsOccupiedForBuilding(new int2(x, y), layer)) 
                     return false;
             }
 

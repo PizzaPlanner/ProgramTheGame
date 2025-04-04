@@ -108,28 +108,27 @@ public partial struct BuildJob : IJobEntity
         ecb.AddComponent(constructTask, new Parent { Value = entity });
         ecb.SetComponent(constructTask, building.ToTransform(0, planned.Location).Translate(new float3(0.5f, 0, 0.5f) * CGrid.CELL_SIZE));
         ecb.AddComponent(entity, new UnderConstruction { });
-        foreach (var requirement in planned.Materials.BuildMaterials)
+        if (planned.Materials.BuildMaterials.Length > 0)
         {
-            if(requirement.Item == default)
-                continue;
-            ecb.AppendToBuffer(constructTask, new Inventory() 
+            var inventory = new Inventory(Allocator.Persistent, 0);
+            ecb.AddComponent(constructTask, inventory);
+            foreach (var requirement in planned.Materials.BuildMaterials)
             {
-                Transfer = Inventory.TransferDirection.In, 
-                IsTypeLocked = true, 
-                Type = requirement.Item
-            });
-            var order = Task.Schedule(OrderTaskPrefab, ecb, new Task
-            {
-                Priority = TaskPriority.MediumPriority,
-                Origin = constructTask,
-                CrewProvider = planned.Parent
-            });
-            ecb.SetComponent(order, new ItemOrderTask
-            {
-                Amount = (ushort)requirement.Amount, 
-                Item = requirement.Item,
-                Requester = constructTask,
-            });
+                if(requirement.Item == default)
+                    continue;
+                var order = Task.Schedule(OrderTaskPrefab, ecb, new Task
+                {
+                    Priority = TaskPriority.MediumPriority,
+                    Origin = constructTask,
+                    CrewProvider = planned.Parent
+                });
+                ecb.SetComponent(order, new ItemOrderTask
+                {
+                    Amount = (ushort)requirement.Amount, 
+                    Item = requirement.Item,
+                    Requester = constructTask,
+                });
+            }   
         }
     }
 }

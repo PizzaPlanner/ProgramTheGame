@@ -98,7 +98,7 @@ namespace Core.Equipment
                 ecb = ecb,
                 stomachLookup = SystemAPI.GetComponentLookup<Stomach>(false),
                 foodLookup = SystemAPI.GetComponentLookup<Food>(true),
-                inventoryLookup = SystemAPI.GetBufferLookup<Inventory>(true),
+                inventoryLookup = SystemAPI.GetComponentLookup<Inventory>(true),
                 networkLookup = SystemAPI.GetComponentLookup<LogisticsNetwork>(true),
                 dietLookup = SystemAPI.GetBufferLookup<DietSettings>(true)
             }.Schedule(state.Dependency);

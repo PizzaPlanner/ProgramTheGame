@@ -35,15 +35,7 @@ partial class UnderConstructionUISystem : SystemBase
     void OnUpdateTasks(EntityManager em, Task task, ConfigPanel panel)
     {
         var body = panel.Q("Body");
-        body.Q<InventoryElement>().Update(panel.TaskEntity, ref CheckedStateRef);
-    }
-
-    class UnderConstructionUI : VisualElement
-    {
-        public bool wantCancel;
-        public UnderConstructionUI(ConstructionVariant variant)
-        {
-            Add(new Button(() => wantCancel = true) { text = "Cancel" });
-        }
+        if(em.HasComponent<Inventory>(panel.TaskEntity))
+            body.Q<InventoryElement>().Inventory = em.GetComponentData<Inventory>(panel.TaskEntity);
     }
 }

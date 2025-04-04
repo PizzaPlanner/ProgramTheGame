@@ -12,7 +12,6 @@ class InventorySlotAuthoring
     public ItemAuthoring Item;
     public uint Amount;
     public TagAsset Filter;
-    public Inventory.TransferDirection TransferDirection;
     public bool IsEquipmentSlot => IsAnyEquipment(Filter);
 
     bool IsAnyEquipment(TagAsset filter)

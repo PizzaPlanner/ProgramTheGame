@@ -10,11 +10,12 @@ partial class CrafterUISystem : UISystem
 {
     protected override void OnUpdate()
     {
+        if(!UISystemGroup.TryGet<SelectedUnitElement>(out var ui))
+            return;
+        
         foreach (var (crafter, onGrid, craftables, e) 
-                 in SystemAPI.Query<DynamicBuffer<TaskProvider>, OnGrid, DynamicBuffer<Craftables>>().WithAll<Selected>().WithEntityAccess())
+                 in SystemAPI.Query<DynamicBuffer<TaskProvider>, OnGrid, DynamicBuffer<Craftables>>().WithAll<Selected>().WithNone<Ghost>().WithEntityAccess())
         {
-            if(!UISystemGroup.TryGet<SelectedUnitElement>(out var ui))
-                return;
             
             var logistics = SystemAPI.GetComponent<LogisticsNetwork>(onGrid.Grid);
             var craftBtn = ui.GetOrCreateActionButton(Identifiable.FromName("CraftTask"), EntityManager, true);

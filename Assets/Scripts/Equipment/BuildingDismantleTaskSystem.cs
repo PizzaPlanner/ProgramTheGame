@@ -9,7 +9,6 @@ partial struct BuildingDismantleTaskSystem : ISystem
     {
         var ecb = GetSingleton<BeginInitializationEntityCommandBufferSystem.Singleton>()
             .CreateCommandBuffer(state.WorldUnmanaged);
-        var store = GetSingleton<TransactionStore>();
         foreach (var (task, progress, dism, e) in 
                  Query<Task, RefRW<TaskProgress>, DismantleTask>().WithAll<WorkedOn>().WithEntityAccess())
         {
@@ -33,7 +32,6 @@ partial struct BuildingDismantleTaskSystem : ISystem
             if (!progress.ValueRW.IsDone)
                 continue;
             
-            store.CreateBuilder.AddTo(task.Executor, (Identifiable)mass.ElementType, (uint)(mass.Mass * dism.Yield));
             ecb.DestroyEntity(task.Target);
             ecb.DestroyEntity(e);
         }

@@ -23,6 +23,11 @@ namespace Units
                 if (progress.ValueRW.IsDone)
                 {
                     ecb.DestroyEntity(e);
+                    if (SystemAPI.HasComponent<Inventory>(e))
+                    {
+                        ref var inventory = ref SystemAPI.GetComponentRW<Inventory>(e).ValueRW;
+                        inventory.RemoveWorkPayloads(e);
+                    }
                     
                     // Recreate ghost as actual building
                     var baked = SystemAPI.GetComponent<BakedIntoRoomMap>(task.Target);

@@ -1,5 +1,6 @@
 ﻿using Grids;
 using Identifiables;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 
@@ -13,6 +14,7 @@ partial struct LogisticsNetworkSystem : ISystem
         }
     }
 
+    [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
         var ecb = new EntityCommandBuffer(Allocator.Temp);
@@ -30,39 +32,25 @@ partial struct LogisticsNetworkSystem : ISystem
         if(!ecb.IsEmpty)
             ecb.Playback(state.EntityManager);
         
+
+        foreach (var network in SystemAPI.Query<RefRW<LogisticsNetwork>>())
+        {
+            network.ValueRW.EntitiesWithItems.Clear();
+            network.ValueRW.AvailableCount.Clear();
+        }
+        
         var networkLookup = SystemAPI.GetComponentLookup<LogisticsNetwork>();
-        foreach (var (inventory, inNetwork, e) in SystemAPI.Query<DynamicBuffer<Inventory>, OnGrid>()
-                                                           .WithAll<InventoryContentsChanged>()
+        foreach (var (inventory, inNetwork, e) in SystemAPI.Query<Inventory, OnGrid>()
                                                            .WithEntityAccess())
         {
-            if(!networkLookup.TryGetComponent(inNetwork.Grid, out var network))
+            if(!networkLookup.TryGetComponent(inNetwork.Grid, out _))
                 continue;
-            
-            foreach (var entry in network.ItemsByEntities.GetValuesForKey(e))
+            ref var network = ref networkLookup.GetRefRW(inNetwork.Grid).ValueRW;
+            foreach (var item in inventory.GetFreeItems())
             {
-                var amnt = network.HasItems[entry.Item1];
-                amnt -= entry.Item2;
-                network.HasItems[entry.Item1] = amnt;
+                network.EntitiesWithItems.Add(item.Id, e);
+                network.AvailableCount.Add(item.Id, item.Stack);
             }
-            network.ItemsByEntities.Remove(e);
-            foreach (var item in inventory)
-            {
-                if(item.Amount == 0 || item.Type == default(Identifiable))
-                    continue;
-                
-                var amnt = network.HasItems.TryGetValue(item.Type, out var a) ? a : 0;
-                amnt += item.Amount;
-                network.HasItems[item.Type] = amnt;
-                
-                network.ItemsByEntities.Add(e, (item.Type, item.Amount));
-            }
-        }
-
-        foreach (var network in SystemAPI.Query<LogisticsNetwork>())
-        {
-            network.EntitiesWithItems.Clear();
-            foreach(var entry in network.ItemsByEntities)
-                network.EntitiesWithItems.Add(entry.Value.Item1, (entry.Key, entry.Value.Item2));
         }
     }
     

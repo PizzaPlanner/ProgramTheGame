@@ -10,8 +10,19 @@ using UnityEngine;
 public partial struct TagDef : IDef
 {
     public BlobArray<Identifiable> WithThisTagB;
-    
-    public NativeArray<Identifiable> WithThisTag => WithThisTagB.iter();
+
+    public NativeArray<Identifiable> WithThisTag
+    {
+        get
+        {
+            var arr = new NativeArray<Identifiable>(WithThisTagB.Length, Allocator.Temp);
+            for (int i = 0; i < WithThisTagB.Length; i++)
+            {
+                arr[i] = WithThisTagB[i];
+            }
+            return arr;
+        } 
+    }
 
     [UpdateInGroup(typeof(IdentifiablesMappingGroup), OrderFirst = true)]
     [UpdateAfter(typeof(BaseDef.MappingSystem))]

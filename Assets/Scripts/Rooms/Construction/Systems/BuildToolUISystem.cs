@@ -141,13 +141,14 @@ partial class BuildToolUISystem : MapOverlaySystem<BuildTool>
                     {
                         var dragType = GhostPrefab.BuildingDef().DraggableDimension;
                         if (dragType == PlacementType.Single)
-                        { }
-                        else if (dragType == PlacementType.Rectangle)
+                            return;
+                        if (dragType == PlacementType.Rectangle)
                         {
                             ClearPreview(ecb);
                             for (int x = delta.Min.x; x <= delta.Max.x; x++)
                             for (int y = delta.Min.y; y <= delta.Max.y; y++)
                                 PlacePreview(new int2(x, y), ecb);
+                            wantBuild = true;
                         }
                         else if (dragType == PlacementType.RectangleBorder)
                         {
@@ -165,6 +166,7 @@ partial class BuildToolUISystem : MapOverlaySystem<BuildTool>
                                 if (delta.Max.x != delta.Min.x)
                                     PlacePreview(new int2(delta.Max.x, y), ecb);
                             }
+                            wantBuild = true;
                         }
                         else // Line
                         {
@@ -176,8 +178,8 @@ partial class BuildToolUISystem : MapOverlaySystem<BuildTool>
                             else
                                 for (int y = delta.Min.y; y <= delta.Max.y; y++)
                                     PlacePreview(new int2(delta.Min.x, y), ecb);
+                            wantBuild = true;
                         }
-                        wantBuild = true;
                     }
                     else
                     {

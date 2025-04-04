@@ -2,6 +2,7 @@
 using Units;
 using Unity.Collections;
 using Unity.Entities;
+using UnityEngine;
 
 namespace Core.Equipment
 {
@@ -18,7 +19,7 @@ namespace Core.Equipment
         [ReadOnly]public ComponentLookup<Food> foodLookup;
         [ReadOnly] public ComponentLookup<LogisticsNetwork> networkLookup;
         [ReadOnly] public BufferLookup<DietSettings> dietLookup;
-        [ReadOnly] public BufferLookup<Inventory> inventoryLookup;
+        [ReadOnly] public ComponentLookup<Inventory> inventoryLookup;
         void Execute(Entity e, ref Task task, ref DynamicBuffer<TaskProvider> dependencies, EnabledRefRW<WorkedOn> workedOn)
         {
             if(!stomachLookup.HasComponent(task.Executor))
@@ -41,7 +42,7 @@ namespace Core.Equipment
                 : TaskPriority.MediumPriority;
             
             
-            if(!inventoryLookup.TryGetBuffer(task.Origin, out var inventory))
+            if(!inventoryLookup.TryGetComponent(task.Origin, out var inventory))
                 return;
             if(!dietLookup.TryGetBuffer(task.Executor, out var diet))
                 return;
@@ -51,13 +52,11 @@ namespace Core.Equipment
             {
                 if (!food.IsAllowed)
                     continue;
-                for (int i = 0; i < inventory.Length; i++)
+                if (inventory.Has(food.Diet) > 0)
                 {
-                    if (inventory[i].Amount > 0 && inventory[i].Type == food.Diet)
-                    {
-                        stomach.CurrentFood = inventory[i].Entity;
-                        return;
-                    }
+                    stomach.CurrentFood = default; // TODO
+                    Debug.Log($"TODO");
+                    return;
                 }
             }
             
@@ -69,7 +68,7 @@ namespace Core.Equipment
             
             foreach (var food in diet)
             {
-                if(!food.IsAllowed || !network.HasItems.ContainsKey(food.Diet))
+                if(!food.IsAllowed || !network.EntitiesWithItems.ContainsKey(food.Diet))
                     continue;
                 
                 var order = Task.Schedule(OrderTaskPrefab, ecb, new Task

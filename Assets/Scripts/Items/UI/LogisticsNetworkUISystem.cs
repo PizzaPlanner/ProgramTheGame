@@ -1,4 +1,5 @@
 ﻿using Units;
+using Unity.Collections;
 using Unity.Entities;
 using UnityEngine.UIElements;
 
@@ -33,9 +34,9 @@ partial class LogisticsNetworkUISystem : SystemBase
         public void Update(LogisticsNetwork network)
         {
             Clear();
-            foreach (var kvp in network.HasItems)
+            foreach (var id in network.AvailableCount.GetKeyArray(Allocator.Temp))
             {
-                this.Add(new Label($"{kvp.Key.DefaultName}: {kvp.Value}"));        
+                this.Add(new Label($"{id.DefaultName}: {network.CountAvailable(id)}"));        
             }
         }
     }

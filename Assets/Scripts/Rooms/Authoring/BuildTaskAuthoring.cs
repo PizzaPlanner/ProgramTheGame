@@ -15,7 +15,6 @@ public class BuildTaskAuthoring : MonoBehaviour
             AddComponent<LocalTransform>(e);
             AddComponent<LocalToWorld>(e);
             AddComponent<Parent>(e);
-            AddBuffer<Inventory>(e);
         }
     }
 }

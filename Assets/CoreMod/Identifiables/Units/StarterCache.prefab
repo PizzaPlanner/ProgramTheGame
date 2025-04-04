@@ -95,8 +95,8 @@ MonoBehaviour:
     Amount: 20
     Filter: {fileID: 0}
     TransferDirection: 3
-  - Item: {fileID: 0}
-    Amount: 0
+  - Item: {fileID: 1924748682116714929, guid: 27ff976297851a84ba6709c9a02dbdbb, type: 3}
+    Amount: 2000
     Filter: {fileID: 0}
     TransferDirection: 3
 --- !u!114 &-3167109538398650432

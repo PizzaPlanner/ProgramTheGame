@@ -15,4 +15,6 @@ public struct BakedIntoRoomMap : ICleanupComponentData
     public Entity Grid;
     public int2 Offset;
     public byte Rotation;
+    
+    public int2 OutputCell => Area.Min;
 }

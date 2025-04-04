@@ -1,6 +1,8 @@
-﻿using Unity.Collections;
+﻿using System.Runtime.CompilerServices;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
+using UnityEngine;
 
 namespace Power
 {
@@ -12,19 +14,21 @@ namespace Power
         public ComponentLookup<Battery> batteyLookup;
         
         static readonly TagDef.Id BatteryTag = Core.ID.TagBattery;
-        void Execute(ref PowerProvider provider, ref DynamicBuffer<Inventory> inventory)
+        void Execute(ref PowerProvider provider, ref Inventory inventory)
         {
-            foreach (var item in inventory)
-            {
-                if(item.SlotFilter != BatteryTag 
-                   || item.IsEmpty 
-                   || !batteyLookup.TryGetComponent(item.Entity, out var battery))
-                    continue;
-                
-                if(provider.ActualCapacityContributedThisTick > 0)
-                    battery.CurrentCapacityWattTicks -= provider.ActualCapacityContributedThisTick;
-                provider.AvailableCapacityThisTick = math.max(0, battery.CurrentCapacityWattTicks); 
-            }
+            // TODO
+            Debug.LogWarning("TODO");
+            // foreach (var item in inventory.GetItems())
+            // {
+            //     if(item.SlotFilter != BatteryTag 
+            //        || item.IsEmpty 
+            //        || !batteyLookup.TryGetComponent(item.Entity, out var battery))
+            //         continue;
+            //     
+            //     if(provider.ActualCapacityContributedThisTick > 0)
+            //         battery.CurrentCapacityWattTicks -= provider.ActualCapacityContributedThisTick;
+            //     provider.AvailableCapacityThisTick = math.max(0, battery.CurrentCapacityWattTicks); 
+            // }
         }
     }
 

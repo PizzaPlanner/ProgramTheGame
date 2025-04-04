@@ -65,8 +65,10 @@ MonoBehaviour:
   Output:
   - Prefab: {fileID: 4705562041349361235, guid: ee7ceab8787fcfc40b1b387446cf825e, type: 3}
     Amount: 800
+    Location: 1
   - Prefab: {fileID: 333786340048766614, guid: f9e4358e019f50540a335219bce95af7, type: 3}
     Amount: 200
+    Location: 1
   CraftedIn:
   - {fileID: -8684770095181357968, guid: 30adb98901b4593459c45d6db4893ab2, type: 3}
 --- !u!114 &-6577733386270243433
@@ -81,7 +83,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6d96781d50c744d5b90125a6e0a230bb, type: 3}
   m_Name: WaterElectrolysisRecipe
   m_EditorClassIdentifier: 
-  Icon: {fileID: 2800000, guid: 92b38581ada85f744a834bad46efd977, type: 3}
+  Icon: {fileID: 2800000, guid: bc7838d93b0870e45bbe014bc16c9d32, type: 3}
   Tags:
   - {fileID: 11400000, guid: 4e7ed875f2a09ca4aa7f1dc38df7815f, type: 2}
   Reference: {fileID: 5304243422145376601}
