@@ -78,15 +78,16 @@ partial struct CrafterSystem : ISystem
                             crafterInventory.CanFit(recipe.Outputs[i].ItemId, recipe.Outputs[i].Amount))
                             return;
                     
-                    crafterInventory.RemoveWorkPayloads(e);
+                    crafterInventory.DeleteWorkPayloads(e);
                     
                     for (var i = 0; i < recipe.Outputs.Length; i++)
                     {
                         var result = recipe.Outputs[i];
+                        var batch= new ItemBatch { Id = result.ItemId , Stack = result.Amount };
                         if(result.Location == IngredientLocation.Inventory)
-                            crafterInventory.Add(result.ItemId, result.Amount);
+                            crafterInventory.Add(batch);
                         else
-                            crafterInventory.AddWorkPayload(Entity.Null, new ItemBatch { Id = result.ItemId , Stack = result.Amount });
+                            crafterInventory.AddWorkPayload(Entity.Null, batch);
                     }
                     if (craftTask.ValueRW.Mode == CraftMode.Times)
                     {

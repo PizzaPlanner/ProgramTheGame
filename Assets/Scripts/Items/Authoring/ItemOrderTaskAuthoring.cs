@@ -11,6 +11,7 @@ public class ItemOrderTaskAuthoring : MonoBehaviour
         {
             var e = GetEntity(TransformUsageFlags.None);
             AddComponent(e, new ItemOrderTask { }); // To be filled at runtime
+            AddBuffer<ItemOrderRequests>(e);
             AddComponent(e, new TaskProgress
             {
                 RequiredTicks = authoring.TransferTicks,

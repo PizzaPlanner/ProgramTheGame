@@ -6,16 +6,21 @@ public enum OrderState
     Requested = 0,
     Unfillable,
     NoTransporter,
-    Assigned,
-    Transporting,
+    Pickup,
+    Delivery,
     Finished,
     Cancelled
 }
 
-public struct ItemOrderTask : IComponentData
+public struct ItemOrderRequests : IBufferElementData
 {
     public PlannedTransaction Request;
-    public PlannedTransaction Delivery;
+    public Entity Entity;
+}
+
+public struct ItemOrderTask : IComponentData
+{
+    public int CurrentRequest;
     public ItemDef.Id Item;
     public ushort Amount;
     public OrderState State;

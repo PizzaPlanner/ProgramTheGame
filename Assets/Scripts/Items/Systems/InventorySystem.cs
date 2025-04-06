@@ -32,7 +32,12 @@ partial struct InventorySystem : ISystem
             var inventory = new Inventory(Allocator.Persistent, (uint)init.Length);
             foreach(var item in init)
                 if(item.Type != default(Identifiable))
-                    inventory.Add(item.Type, item.Amount);
+                    inventory.Add(new ItemBatch
+                    {
+                        Id = item.Type,
+                        Stack = item.Amount,
+                        Temperature = item.Type.Def.DefaultTemperature
+                    });
             ecb.RemoveComponent<InventoryInitializer>(e);
             ecb.AddComponent(e, inventory);
             ecb.AddComponent(e, new Marker());
@@ -60,7 +65,7 @@ partial struct InventorySystem : ISystem
         foreach (var (marker, inventory, e) in SystemAPI.Query<Marker, Inventory>().WithNone<Identifiable>().WithEntityAccess())
         {
             if (SystemAPI.HasComponent<CGrid>(marker.OnGrid))
-                DropItems(ref state, inventory, marker);
+                DropItems(ref state, ecb, inventory, marker);
             inventory.Dispose();
             ecb.RemoveComponent<Marker>(e);
             ecb.RemoveComponent<Inventory>(e);
@@ -74,29 +79,23 @@ partial struct InventorySystem : ISystem
                 {
                     if (gridlookup.HasComponent(marker.OnGrid)) 
                         foreach (var item in inventory.ValueRW.GetWorkPayloads(owner))
-                            DropPayload(ref state, marker, item);       
-                    inventory.ValueRW.RemoveWorkPayloads(owner);
+                            DropPayload(ref state, ecb, marker, item);       
+                    inventory.ValueRW.DeleteWorkPayloads(owner);
                 }
         }
     }
-
-    void DropPayload(ref SystemState state, Marker marker, ItemBatch item)
+    
+    void DropPayload(ref SystemState state, EntityCommandBuffer ecb, Marker marker, ItemBatch item)
     {
-        if(ElementDef.Id.Has(item.Id) && ((Identifiable)item.Id).ElementDef().Phase != ElementPhase.Solid)
-        {
-            ref var massModel = ref SystemAPI.GetComponentRW<MassModel>(marker.OnGrid).ValueRW;
-            massModel.AbsoluteCellRW(marker.OnCell).Add(item.Id, item.Stack, 200);
-        }
-        else 
-            Debug.Log($"TODO: Drop solid {item.Id} to {marker.OnCell}");
+        FloorItemContainer.SpawnPayloadOnFloor(ecb, marker.OnGrid, marker.OnCell, item);
     }
     
-    void DropItems(ref SystemState state, Inventory inventory, Marker where)
+    void DropItems(ref SystemState state, EntityCommandBuffer ecb, Inventory inventory, Marker where)
     {
         foreach(var item in inventory.GetItemsAsSlots())
             if(item.Id != default(Identifiable))
-                DropPayload(ref state, where, new ItemBatch{Id = item.Id, Stack = item.Stack});
+                DropPayload(ref state, ecb, where, new ItemBatch{Id = item.Id, Stack = item.Stack});
         foreach(var payload in inventory.GetAllPayloads().Values)
-            DropPayload(ref state, where, payload);
+            DropPayload(ref state, ecb, where, payload);
     }
 }

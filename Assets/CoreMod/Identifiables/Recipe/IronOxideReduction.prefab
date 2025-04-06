@@ -1,0 +1,89 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &6595311514760627798
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6513637787785079020}
+  - component: {fileID: 5304243422145376601}
+  - component: {fileID: 5602705550405738174}
+  m_Layer: 0
+  m_Name: IronOxideReduction
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6513637787785079020
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6595311514760627798}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5304243422145376601
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6595311514760627798}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 190e307b1d2618d4db66b4ac27b0adba, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Asset: {fileID: -6577733386270243433}
+--- !u!114 &5602705550405738174
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6595311514760627798}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a0106c100c534d43b11a88e8294823ad, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Duration: 7
+  Input:
+  - Prefab: {fileID: 697860641069326925, guid: f7d22bcd32eb518459af452165f8b5f0, type: 3}
+    Amount: 50
+  Output:
+  - Prefab: {fileID: 697860641069326925, guid: 3245cd94c258ce647a5d748badd6c948, type: 3}
+    Amount: 3
+    Location: 1
+  - Prefab: {fileID: 4705562041349361235, guid: ee7ceab8787fcfc40b1b387446cf825e, type: 3}
+    Amount: 20
+    Location: 1
+  CraftedIn:
+  - {fileID: 1213658124943510495, guid: 45df90549c8a2b94bb93cd6fa746c385, type: 3}
+--- !u!114 &-6577733386270243433
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6d96781d50c744d5b90125a6e0a230bb, type: 3}
+  m_Name: IronOxideReduction
+  m_EditorClassIdentifier: 
+  Icon: {fileID: 2800000, guid: 728663e8ce1bc12478e52ba240de980d, type: 3}
+  Tags:
+  - {fileID: 11400000, guid: 4e7ed875f2a09ca4aa7f1dc38df7815f, type: 2}
+  Reference: {fileID: 5304243422145376601}

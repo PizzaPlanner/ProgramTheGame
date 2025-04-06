@@ -131,7 +131,7 @@ partial struct ResearchJob : IJobEntity
                 else
                 {
                     // Should we repeat or start over?
-                    inv.Remove(rTask.Ingredient, 1);
+                    inv.Delete(rTask.Ingredient, 1);
                     if (inv.Has(rTask.Ingredient) == 0
                         || tech.GetProgress(rTask.Ingredient) >= 1)
                         rTask.State = ResearchState.NoIngredients;

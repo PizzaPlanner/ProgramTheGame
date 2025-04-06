@@ -58,7 +58,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3f36d9199879466ba2cfdeb3553a3dd1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Prequisites: []
+  Prequisites:
+  - {fileID: -5380242976130347905, guid: 30fdbec96e8bbd045b6182d388e879fe, type: 3}
   Unlocks:
   - {fileID: -5380242976130347905, guid: 742f0838ecde64546a9a2d8b82c1d1fb, type: 3}
   - {fileID: -5380242976130347905, guid: 132238db7a03b864fac5c0dcefcede32, type: 3}

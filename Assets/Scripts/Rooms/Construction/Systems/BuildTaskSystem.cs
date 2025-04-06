@@ -26,7 +26,7 @@ namespace Units
                     if (SystemAPI.HasComponent<Inventory>(e))
                     {
                         ref var inventory = ref SystemAPI.GetComponentRW<Inventory>(e).ValueRW;
-                        inventory.RemoveWorkPayloads(e);
+                        inventory.DeleteWorkPayloads(e);
                     }
                     
                     // Recreate ghost as actual building

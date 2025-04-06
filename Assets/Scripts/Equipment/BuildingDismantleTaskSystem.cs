@@ -31,7 +31,12 @@ partial struct BuildingDismantleTaskSystem : ISystem
             progress.ValueRW.PartialTicks += speedMod;
             if (!progress.ValueRW.IsDone)
                 continue;
-            
+            var baked  = GetComponent<BakedIntoRoomMap>(task.Target);
+            FloorItemContainer.SpawnPayloadOnFloor(ecb, baked.Grid, baked.OutputCell, new ItemBatch
+            {
+               Id = (Identifiable)mass.ElementType,
+               Stack = (uint)(mass.Mass * dism.Yield)
+            });
             ecb.DestroyEntity(task.Target);
             ecb.DestroyEntity(e);
         }

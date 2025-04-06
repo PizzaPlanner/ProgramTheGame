@@ -1,6 +1,7 @@
 ﻿using Identifiables;
 using Unity.Collections;
 using Unity.Entities;
+using UnityEngine;
 
 namespace Units.Research
 {
@@ -68,8 +69,48 @@ namespace Units.Research
             protected override void OnUpdate()
             {
                 DefaultMappingUpdate<Technology>();
-                foreach(var (tech, e) in SystemAPI.Query<Technology>().WithAll<Prefab>().WithOptions(EntityQueryOptions.IncludePrefab).WithEntityAccess())
+                foreach (var (tech, id, e) in SystemAPI.Query<Technology, Identifiable>().WithAll<Prefab>()
+                                                   .WithOptions(EntityQueryOptions.IncludePrefab).WithEntityAccess())
+                {
                     tech.Def.Value.Progress = e;
+
+                    ref var unlocks = ref tech.Def.Value.Unlocks;
+                    for (int i = 0; i < unlocks.Length; i++)
+                    {
+                        AddRelation(id, new IdentifiableLink{To = unlocks[i], Relation = "Unlocks"});
+                        AddRelation(unlocks[i], new IdentifiableLink{To = id, Relation = "UnlockedBy"});
+                    }
+                    
+                    ref var preqs = ref tech.Def.Value.Requirements;
+                    for (int i = 0; i < preqs.Length; i++)
+                    {
+                        AddRelation(id, new IdentifiableLink{To = preqs[i], Relation = "Requires"});
+                        AddRelation(preqs[i], new IdentifiableLink{To = id, Relation = "RequiredBy"});
+                    }
+                    
+                    // Ensure no loops
+                    var visited = new NativeHashSet<Identifiable>(16, Allocator.Temp);
+                    var stack = new NativeList<Identifiable>(Allocator.Temp);
+
+                    stack.Add(id);
+
+                    while (stack.Length > 0)
+                    {
+                        var current = stack[0];
+                        stack.RemoveAt(stack.Length - 1);
+
+                        if (!visited.Add(current))
+                        {
+                            if(current == id)
+                                Debug.LogError($"Technology tree loop detected in {id}");
+                            break;
+                        }
+
+                        ref var requirements = ref current.TechnologyDef().Requirements;
+                        for (int i = 0; i < requirements.Length; i++)
+                            stack.Add(requirements[i]);
+                    }
+                }
             }
         }
     }

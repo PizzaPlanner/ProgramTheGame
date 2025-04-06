@@ -35,6 +35,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 6a0405d49c314664fbc945007debce98
+    m_Address: UI/Stylesheets/Technology.uss
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 78d57e1e61b155445b39d9e3c8fc0dbc
     m_Address: GhostMaterial
     m_ReadOnly: 0

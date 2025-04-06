@@ -68,6 +68,7 @@ MonoBehaviour:
     Location: 0
   CraftedIn:
   - {fileID: 391204783856717328, guid: 04a4ef4173b220343956ce5a48368642, type: 3}
+  - {fileID: 1213658124943510495, guid: 45df90549c8a2b94bb93cd6fa746c385, type: 3}
 --- !u!114 &-6577733386270243433
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -10,6 +10,9 @@ public struct PlannedTransaction : IEquatable<PlannedTransaction>
     [CreateProperty]
     internal uint Id;
     
+    public uint Amount => Requested + Incoming;
+    public ItemDef.Id Item => Type;
+    
     internal static uint NextId => ++_id.Data;
     static readonly SharedStatic<uint> _id = SharedStatic<uint>.GetOrCreate<PlannedTransaction>();
 

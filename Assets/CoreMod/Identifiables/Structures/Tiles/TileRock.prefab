@@ -81,7 +81,7 @@ MonoBehaviour:
     x: 0
     y: 0
   Variants:
-  - Element: {fileID: 6240678538308625820, guid: c42440416ef81f64693865cd7d1325d9, type: 3}
+  - Element: {fileID: -7047243780222175833, guid: 879f5b6f2d953bb409e651142ae2333a, type: 3}
     OverrideMaterial: {fileID: 0}
   - Element: {fileID: -7047243780222175833, guid: 2d08fe34d7e1b34488389132c02bd97d, type: 3}
     OverrideMaterial: {fileID: 0}
@@ -131,7 +131,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: efe7f1c79676474aa501f4d2595a7ce1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Element: {fileID: 6240678538308625820, guid: c42440416ef81f64693865cd7d1325d9, type: 3}
+  Element: {fileID: -7047243780222175833, guid: 879f5b6f2d953bb409e651142ae2333a, type: 3}
   Mass: 1000
   Temperature: -20
 --- !u!114 &-1131196614640052474

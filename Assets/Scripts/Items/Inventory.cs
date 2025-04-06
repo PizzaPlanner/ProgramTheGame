@@ -173,7 +173,10 @@ public static class InventoryExtensions
         total.Incoming -= transaction.Incoming;
         total.Present -= transaction.Requested;
         total.Requested -= transaction.Requested;
-        inventory.Logistics[transaction.Type] = total;
+        if(total is { Present: 0, Incoming: 0, Requested: 0 })
+            inventory.Logistics.Remove(transaction.Type);
+        else
+            inventory.Logistics[transaction.Type] = total;
     }
     
     public static void Cancel(this ref Inventory inventory, PlannedTransaction transaction)
@@ -189,18 +192,18 @@ public static class InventoryExtensions
         inventory.Logistics[transaction.Type] = total;
     }
 
-    public static bool Add(this ref Inventory inventory, ItemDef.Id id, uint amount)
+    public static bool Add(this ref Inventory inventory, ItemBatch batch)
     {
-        if(!inventory.CanFit(id, amount))
+        if(!inventory.CanFit(batch.Id, batch.Stack))
             return false;
-        if(!inventory.Logistics.TryGetValue(id, out var total))
+        if(!inventory.Logistics.TryGetValue(batch.Id, out var total))
             total = new ItemTotal();
-        total.Present += amount;
-        inventory.Logistics[id] = total;
+        total.Present += batch.Stack;
+        inventory.Logistics[batch.Id] = total;
         return true;
     }
     
-    public static bool Remove(this ref Inventory inventory, ItemDef.Id id, uint amount)
+    public static bool Delete(this ref Inventory inventory, ItemDef.Id id, uint amount)
     {
         if(inventory.AvailableForLogistics(id) < amount)
             return false;
@@ -218,7 +221,7 @@ public static class InventoryExtensions
         inventory.WorkBatches.Add(owner, batch);
     }
 
-    public static void RemoveWorkPayloads(this ref Inventory inventory, Entity owner)
+    public static void DeleteWorkPayloads(this ref Inventory inventory, Entity owner)
     {
         inventory.WorkBatches.Remove(owner);
     }

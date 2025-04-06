@@ -180,7 +180,7 @@ public class EquipmentTests
         yield return WaitForEntityWith<ItemOrderTask>();
         yield return TickWorld(6);
         var order = FindComponent<ItemOrderTask>();
-        Assert.AreEqual(OrderState.Assigned, order.State);
+        Assert.AreEqual(OrderState.Pickup, order.State);
     }
     
     [UnityTest]

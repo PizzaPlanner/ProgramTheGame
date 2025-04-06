@@ -2,6 +2,7 @@
 using Grids;
 using Identifiables;
 using Navigation;
+using System.Collections.Generic;
 using Units;
 using Unity.Collections;
 using Unity.Entities;
@@ -38,26 +39,23 @@ partial struct ItemOrderTaskJob : IJobEntity
     public ComponentLookup<Inventory> inventoryLookup;
     public EntityCommandBuffer ecb;
     
-    void Execute(Entity e, ref Task task, ref ItemOrderTask order, ref TaskProgress progress, EnabledRefRO<WorkedOn> workedOn, RefRO<WorkedOn> workedOnParams)
+    void Execute(Entity e, ref Task task, ref ItemOrderTask order, ref DynamicBuffer<ItemOrderRequests> requests, ref TaskProgress progress, EnabledRefRO<WorkedOn> workedOn, RefRO<WorkedOn> workedOnParams)
     {
-        // if (!requesterInventory.IsValid(order.Delivery) &&
-        //     !requesterInventory.Request(order.Item, order.Amount, out order.Delivery))
-        // {
-        //     Debug.LogWarning($"ItemOrder requested without enough inventory space");
-        //     return;
-        // }
-        
         // Find best target
         if(!inventoryLookup.TryGetComponent(task.Target, out _))
         {
+            order.State = OrderState.Unfillable;
             if (!networkLookup.TryGetComponent(task.CrewProvider, out var network))
             {
                 Debug.LogError($"{task.CrewProvider} missing Logistics Network");
                 return;
             }
-            AssignTarget(ref task, ref order, network, workedOnParams.ValueRO.MaxRange);
-            if (task.Target != Entity.Null)
-                order.State = OrderState.NoTransporter;
+            GatherRequests(ref task, ref order, requests, network, workedOnParams.ValueRO.MaxRange);
+            if(requests.Length == 0)
+                return;
+            order.State = OrderState.NoTransporter;
+            order.CurrentRequest = 0;
+            task.Target = requests[order.CurrentRequest].Entity;
             return;
         }
         ref var targetInventory = ref inventoryLookup.GetRefRW(task.Target).ValueRW;
@@ -65,15 +63,12 @@ partial struct ItemOrderTaskJob : IJobEntity
         if (task.Executor == Entity.Null)
         {
             // Lost executor, cancel transaction
-            ResetOrder(ref task, ref targetInventory, ref order, ref progress);
+            ResetOrder(ref task, ref targetInventory, ref order, requests, ref progress);
             return;
         }
-        else if (order.State == OrderState.NoTransporter)
+        if (order.State == OrderState.NoTransporter)
         {
-            order.State = OrderState.Assigned;
-            if (!targetInventory.IsValid(order.Request) 
-                && !targetInventory.Request(order.Item, order.Amount, out order.Request))
-                ResetOrder(ref task, ref targetInventory, ref order, ref progress);
+            order.State = OrderState.Pickup;
         }
 
         if (!inventoryLookup.TryGetComponent(task.Executor, out var _))
@@ -90,74 +85,124 @@ partial struct ItemOrderTaskJob : IJobEntity
         if (!progress.IsDone)
             return;
         
-        if (order.State == OrderState.Assigned)
+        if (order.State == OrderState.Pickup)
         {
-            targetInventory.Execute(order.Request);
+            var req =requests[order.CurrentRequest].Request;
+            targetInventory.Execute(req);
             executorInventory.AddWorkPayload(e, new ItemBatch
             {
-                Id = order.Item,
-                Stack = order.Amount,
+                Id = req.Item,
+                Stack = req.Amount,
             });
-            order.State = OrderState.Transporting;
-            task.Target = order.Requester;
+            order.CurrentRequest++;
+            if(requests.Length > order.CurrentRequest)
+                task.Target = requests[order.CurrentRequest].Entity;
+            else
+            {
+                order.State = OrderState.Delivery;
+                task.Target = order.Requester;
+            }
+            Debug.Log($"Picked up {order.CurrentRequest}/{requests.Length}. Now {order.State}");
         }
-        else if(order.State == OrderState.Transporting)
+        else if(order.State == OrderState.Delivery)
         {
             foreach(var payload in executorInventory.GetWorkPayloads(e))
-                if(targetInventory.IsValid(order.Delivery))
-                    targetInventory.Execute(order.Delivery);
-                else
-                    targetInventory.AddWorkPayload(task.Origin, payload);
-            executorInventory.RemoveWorkPayloads(e);
+                targetInventory.AddWorkPayload(task.Origin, payload);
+            executorInventory.DeleteWorkPayloads(e);
             order.State = OrderState.Finished;
             ecb.DestroyEntity(e);
         }
-        order.Request = default;
         progress.PartialTicks = 0;
     }
 
-    void ResetOrder(ref Task task, ref Inventory targetInventory, ref ItemOrderTask order, ref TaskProgress progress)
+    void ResetOrder(ref Task task, ref Inventory targetInventory, ref ItemOrderTask order, DynamicBuffer<ItemOrderRequests> requests, ref TaskProgress progress)
     {
-        if (order.State == OrderState.Assigned)
+        if (order.CurrentRequest > 0)
         {
-            targetInventory.Cancel(order.Request);
-        }
-        if (order.State != OrderState.NoTransporter)
-        {
-            task.Target = Entity.Null;
+            UndoRequests(ref order, requests);
             order.State = OrderState.Requested;
         }
         task.Executor = Entity.Null;
         progress.PartialTicks = 0;
     }
+
+    void UndoRequests(ref ItemOrderTask order, DynamicBuffer<ItemOrderRequests> requests)
+    {
+        for (int i = order.CurrentRequest; i < requests.Length; i++)
+            if(inventoryLookup.TryGetRefRW(requests[i].Entity, out var inv))
+                inv.ValueRW.Cancel(requests[i].Request);
+        order.CurrentRequest = 0;
+        requests.Clear();
+    }
     
-    void AssignTarget(ref Task task, ref ItemOrderTask order,
+    void GatherRequests(ref Task task, ref ItemOrderTask order,
+                      DynamicBuffer<ItemOrderRequests> requests,
                       LogisticsNetwork network, int maxRange)
     {
+        UndoRequests(ref order, requests);
+        
         if (!ltwLookup.TryGetComponent(order.Requester, out var selfLtw))
         {
             task.Origin = default;
             return;
         }
         
+        if(network.CountAvailable(order.Item) < order.Amount)
+            return;
+        
         // Find Storage
-        var bestDistanceSq = float.PositiveInfinity;
-        var bestEntity = Entity.Null;
+        var candidates = new NativeList<LogisticCandidate>(0, Allocator.Temp);
         foreach (var candidate in network.EntitiesWithItems.GetValuesForKey(order.Item))
         {
             if(!inventoryLookup.TryGetComponent(candidate, out var inventory) || !ltwLookup.TryGetComponent(candidate, out var ltw))
                 continue;
-            if (inventory.Has(order.Item) < order.Amount)
-                continue;
             var distSq = math.distancesq(ltw.Position, selfLtw.Position);
-            if (distSq > bestDistanceSq)
-                continue;
             if (!navTreeLookup.TryGetComponent(task.CrewProvider, out var navTree) 
                 || !navTree.HasPathWithin(CGrid.LocalToCell(ltw.Position), CGrid.LocalToCell(selfLtw.Position), maxRange, CellType.Walkable, ~CellType.Blocked))
                 continue;
-            bestDistanceSq = distSq;
-            bestEntity = candidate;
+            candidates.Add(new LogisticCandidate
+            { 
+                Entity = candidate, 
+                DistanceSq = distSq, 
+                HasAmount = math.min(inventory.Has(order.Item), order.Amount)   
+            });
         }
-        task.Target = bestEntity;
+        
+        candidates.Sort(new LogisticCandidate.Comparer());
+        var found = 0u;
+        var i = 0;
+        while (found < order.Amount)
+        {
+            var amt = math.min(order.Amount - found, candidates[i].HasAmount);
+            var inv = inventoryLookup.GetRefRW(candidates[i].Entity);
+            inv.ValueRW.Request(order.Item, amt, out var request);
+            requests.Add(new ItemOrderRequests
+            {
+                Entity = candidates[i].Entity,
+                Request = request
+            });
+            found += amt;
+            i++;
+        }
+        
+        order.CurrentRequest = 0;
+    }
+
+    struct LogisticCandidate
+    {
+        public Entity Entity;
+        public float DistanceSq;
+        public uint HasAmount;
+        
+        // The lower the score, the better
+        public float Score => (DistanceSq + 9) / HasAmount;
+
+        public struct Comparer : IComparer<LogisticCandidate>
+        {
+            public int Compare(LogisticCandidate x, LogisticCandidate y)
+            {
+                return x.Score.CompareTo(y.Score);
+            }
+        }
     }
 }

@@ -1,0 +1,86 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &3605263813790912188
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3724361011114579357}
+  - component: {fileID: -5380242976130347905}
+  - component: {fileID: -8036204718492915185}
+  m_Layer: 0
+  m_Name: Chemisty
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3724361011114579357
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3605263813790912188}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &-5380242976130347905
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3605263813790912188}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 190e307b1d2618d4db66b4ac27b0adba, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Asset: {fileID: 5657100428946741286}
+--- !u!114 &-8036204718492915185
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3605263813790912188}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3f36d9199879466ba2cfdeb3553a3dd1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Prequisites:
+  - {fileID: -5380242976130347905, guid: cb2d9753e82994c41bab41cda266a5ea, type: 3}
+  - {fileID: -5380242976130347905, guid: 49c590bcd09cab44f98be00deb595c80, type: 3}
+  Unlocks:
+  - {fileID: 5304243422145376601, guid: 89076c40667c7a2449be80007802c90d, type: 3}
+  - {fileID: -5380242976130347905, guid: 30adb98901b4593459c45d6db4893ab2, type: 3}
+  - {fileID: 5304243422145376601, guid: cc4e703d2f1e63849bdf5b5711613738, type: 3}
+  Cost:
+  - Prefab: {fileID: 697860641069326925, guid: 707f8a1ba11a8b64f9fe5c1ceff61d5c, type: 3}
+    Amount: 40
+--- !u!114 &5657100428946741286
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6d96781d50c744d5b90125a6e0a230bb, type: 3}
+  m_Name: Chemisty
+  m_EditorClassIdentifier: 
+  Icon: {fileID: 2800000, guid: 769e4857b716a8449bdfbc98d92cf028, type: 3}
+  Tags:
+  - {fileID: 11400000, guid: 39a806be46624754a9cad0b69d0f9f35, type: 2}
+  Reference: {fileID: -5380242976130347905}

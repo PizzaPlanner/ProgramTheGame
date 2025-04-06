@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 536a6b6523554bf08329d3ac9c455b61, type: 3}
+  m_Name: TagItem
+  m_EditorClassIdentifier: Identifiables.Authoring::TagAsset
+  Icon: {fileID: 2800000, guid: 67d58a0f8bd9955458fdea97503ff8f5, type: 3}
+  Tags:
+  - {fileID: 11400000, guid: 850725a0985506c4d91c701b828b5a5c, type: 2}
+  RequiresOtherTags:
+  - {fileID: 11400000, guid: 120d758a188f7934299a0406976912a9, type: 2}

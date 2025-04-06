@@ -60,7 +60,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Prequisites:
   - {fileID: -5380242976130347905, guid: 7fa2f95b2a5e5974e92b759d28f295b3, type: 3}
-  - {fileID: -5380242976130347905, guid: cb2d9753e82994c41bab41cda266a5ea, type: 3}
+  - {fileID: -5380242976130347905, guid: 8fdd9ac6c25cb044cb2b9a8be4b7e454, type: 3}
   - {fileID: -5380242976130347905, guid: 25dfd1242b98f804fa4a88a6300fa929, type: 3}
   Unlocks:
   - {fileID: -5380242976130347905, guid: 7912b69273022ae40a552c95e6dd8554, type: 3}
